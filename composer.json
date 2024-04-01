@@ -1,0 +1,18 @@
+{
+    "name": "zephn/wr-laravel-administration",
+    "description": "WebRegulate base administration panel for Laravel",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Zephn\\WrLaravelAdministration\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Craig Dennis",
+            "email": "craig.dennis@webregulate.co.uk"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {}
+}
