@@ -15,11 +15,9 @@
             theme: {
                 extend: {
                     colors: {
-                        gray: {
-                            400: '#94A3B8',
-                            800: '#1E293B',
-                            900: '#0F172A',
-                        },
+                        primary: {
+                            500: '#00BFA6',
+                        }
                     },
                 }
             }
@@ -32,10 +30,9 @@
     {{-- Custom JavaScript --}}
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            
+
             /* Dark mode toggle
             ------------------------------------------------------------*/
-            
             // First, check if dark-mode has ever been set atall
             if (localStorage.getItem('dark-mode') === null) {
                 // Set to dark mode by default
@@ -77,12 +74,12 @@
 </head>
 <body class="h-full">
 
-    <div class="relative flex flex-col gap-8 w-full h-full items-center py-20 bg-gray-200 text-gray-800 dark:bg-gray-900 dark:text-gray-400">
+    <div class="relative flex flex-col gap-8 w-full h-full items-center py-20 bg-slate-200 text-slate-800 dark:bg-slate-900 dark:text-slate-400">
         {{-- Top right fixed corner show dark mode toggle using font awesome icons --}}
         <div class="fixed top-0 right-0">
-            <button id="dark-mode-toggle" class="py-3 px-4 rounded-bl-lg shadow-md bg-gray-50 text-gray-800 dark:bg-gray-800 dark:text-gray-400">
-                <i class="fas fa-sun dark:hidden"></i>
-                <i class="fas fa-moon hidden dark:block"></i>
+            <button id="dark-mode-toggle" class="flex w-[50px] h-10 justify-center items-center rounded-bl-lg shadow-md bg-slate-50 text-slate-800 dark:bg-slate-800 dark:text-slate-400">
+                <i class="fas fa-sun text-primary-500 dark:hidden"></i>
+                <i class="fas fa-moon text-primary-500 hidden dark:block"></i>
             </button>
         </div>
 
