@@ -11,4 +11,7 @@ return [
         'dark' => 'vendor/wr-laravel-administration/images/logo-dark.svg',
     ],
 
+    // Default theme mode (Will apply if user has not set a preference - stored in local storage as )
+    'default_theme_mode' => 'dark',
+
 ];

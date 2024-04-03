@@ -6,9 +6,11 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>@yield('title', '(page title not set)') - WebRegulate Admin</title>
 
-    {{-- Tailwind cdn and custom config --}}
+    {{-- Tailwind cdn --}}
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
+        /* Tailwind custom configuration
+        ------------------------------------------------------------*/
         tailwind.config = {
             darkMode: 'class',
             // Theme overrides
@@ -22,47 +24,46 @@
                 }
             }
         };
-    </script>
 
-    {{-- Font Awesome cdn --}}
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.0-2/css/all.min.css" />
-
-    {{-- Custom JavaScript --}}
-    <script>
+        /* WR Laravel Administration - Global JavaScript
+        ------------------------------------------------------------*/
         document.addEventListener('DOMContentLoaded', () => {
 
             /* Dark mode toggle
             ------------------------------------------------------------*/
-            // First, check if dark-mode has ever been set atall
-            if (localStorage.getItem('dark-mode') === null) {
-                // Set to dark mode by default
-                localStorage.setItem('dark-mode', 'true');
+            // First, check if dark mode has ever been set atall
+            if (localStorage.getItem('theme-mode') === null) {
+                // Set default theme mode based on config
+                localStorage.setItem('theme-mode', '{{ config("wr-laravel-administration.default_theme_mode") }}');
             }
 
             // Check if dark mode is enabled in local storage
-            if (localStorage.getItem('dark-mode') === 'true') {
+            if (localStorage.getItem('theme-mode') === 'dark') {
                 document.documentElement.classList.add('dark');
             } else {
                 document.documentElement.classList.remove('dark');
             }
 
             // Get the toggle button and if exists, add event listener
-            const darkModeToggle = document.getElementById('dark-mode-toggle');
-            if (darkModeToggle) {
-                darkModeToggle.addEventListener('click', () => {
+            const themeModeToggle = document.getElementById('theme-mode-toggle');
+            if (themeModeToggle) {
+                themeModeToggle.addEventListener('click', () => {
                     // Toggle dark mode class
                     document.documentElement.classList.toggle('dark');
-    
+
                     // Save dark mode state to local storage
                     if (document.documentElement.classList.contains('dark')) {
-                        localStorage.setItem('dark-mode', 'true');
+                        localStorage.setItem('theme-mode', 'dark');
                     } else {
-                        localStorage.setItem('dark-mode', 'false');
+                        localStorage.setItem('theme-mode', 'light');
                     }
                 });
             }
-        });
+            });
     </script>
+
+    {{-- Font Awesome cdn --}}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.0-2/css/all.min.css" />
 
     {{-- Styles --}}
     <style>
@@ -77,7 +78,7 @@
     <div class="relative flex flex-col gap-8 w-full h-full items-center py-20 bg-slate-200 text-slate-800 dark:bg-slate-900 dark:text-slate-400">
         {{-- Top right fixed corner show dark mode toggle using font awesome icons --}}
         <div class="fixed top-0 right-0">
-            <button id="dark-mode-toggle" class="flex w-[50px] h-10 justify-center items-center rounded-bl-lg shadow-md bg-slate-50 text-slate-800 dark:bg-slate-800 dark:text-slate-400">
+            <button id="theme-mode-toggle" class="flex w-[50px] h-10 justify-center items-center rounded-bl-lg shadow-md bg-slate-50 text-slate-800 dark:bg-slate-800 dark:text-slate-400">
                 <i class="fas fa-sun text-primary-500 dark:hidden"></i>
                 <i class="fas fa-moon text-primary-500 hidden dark:block"></i>
             </button>
