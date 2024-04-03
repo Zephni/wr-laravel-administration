@@ -5,10 +5,10 @@
 @section('content')
 
     {{-- Login form --}}
-    <div class="w-full md:w-9/12 lg:w-4/12 bg-gray-800 rounded-lg p-8 mx-6">
+    <div class="w-full md:w-9/12 lg:w-4/12 rounded-lg p-8 mx-6 bg-gray-100 shadow-md shadow-gray-400 dark:bg-gray-800 dark:shadow-gray-700">
         <div class="text-center">
             <h1 class="text-2xl font-medium">Welcome Back!</h1>
-            <hr class="w-full md:w-1/3 h-2 my-4 border-slate-200 m-auto" />
+            <hr class="w-full md:w-1/3 h-2 my-4 m-auto border-t-2 border-slate-500 dark:border-slate-200" />
         </div>
         {{-- <p>Test text</p> --}}
     </div>

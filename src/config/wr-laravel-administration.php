@@ -7,8 +7,8 @@ return [
 
     // Company logo
     'logo' => [
-        'auth' => 'vendor/wr-laravel-administration/images/logo.svg',
-        'admin' => 'vendor/wr-laravel-administration/images/logo.svg',
+        'light' => 'vendor/wr-laravel-administration/images/logo-light.svg',
+        'dark' => 'vendor/wr-laravel-administration/images/logo-dark.svg',
     ],
 
 ];
