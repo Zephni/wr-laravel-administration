@@ -5,15 +5,15 @@ namespace Zephni\WRLaravelAdministration\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
-class WRLaravelAdministrationAuthController extends Controller
+class WRLAAdminController extends Controller
 {
     /**
-     * Login view
+     * index / dashboard view
      * @param Request $request
      * @return \Illuminate\Contracts\View\View
      */
-    public function login(Request $request)
+    public function index(Request $request)
     {
-        return view('wr-laravel-administration::auth.login');
+        return view('wr-laravel-administration::dashboard');
     }
 }

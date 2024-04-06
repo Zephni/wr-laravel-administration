@@ -10,8 +10,12 @@
             <h1 class="text-2xl font-medium">Welcome Back!</h1>
             <hr class="w-full md:w-1/3 h-2 my-4 m-auto border-t-2 border-slate-500 dark:border-slate-200" />
         </div>
+
+        @if(session('error'))
+            <x-wr-laravel-administration::alert type="error" :message="session('error')" />
+        @endif
         
-        <form action="" method="post" class="flex flex-col gap-6">
+        <form action="{{ route('wrla.login.post') }}" method="post" class="flex flex-col gap-6">
             @csrf
 
             <div>
@@ -20,6 +24,7 @@
                     type="email"
                     name="email"
                     :value="old('email')"
+                    :error="$errors->first('email')"
                     required autofocus />
             </div>
 
@@ -28,7 +33,8 @@
                     label="Password"
                     type="password"
                     name="password"
-                    :value="old('password')"
+                    value=""
+                    :error="$errors->first('password')"
                     required />
             </div>
 

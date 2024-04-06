@@ -1,4 +1,4 @@
-@props(['label' => null, 'id' => '', 'name', 'value' => '', 'type' => 'text', 'error' => null])
+@props(['label' => null, 'id' => '', 'name', 'value' => '', 'type' => 'text'])
 
 @php
     // Set id from name if unset
@@ -20,6 +20,6 @@
         focus:outline-none focus:ring-1 focus:ring-primary-500 dark:focus:ring-primary-500 rounded-md shadow-sm'
 ]) }} />
 
-@if(!empty($error))
-    <p class="text-sm text-red-500 mt-2">{{ $error }}</p>
-@endif
+@error($name)
+    <p class="text-sm text-red-500 mt-2">{{ $message }}</p>
+@enderror

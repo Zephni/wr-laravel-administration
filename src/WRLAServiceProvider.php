@@ -3,8 +3,9 @@
 namespace Zephni\WRLaravelAdministration;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\Route;
 
-class WRLaravelAdministrationServiceProvider extends ServiceProvider
+class WRLAServiceProvider extends ServiceProvider
 {
     /**
      * Register services.
@@ -32,8 +33,14 @@ class WRLaravelAdministrationServiceProvider extends ServiceProvider
         // Merge config
         $this->mergeConfigFrom(__DIR__ . '/config/wr-laravel-administration.php', 'wr-laravel-administration');
 
+        // Load migrations
+        $this->loadMigrationsFrom(__DIR__ . '/database/migrations');
+
         // Load routes
-        $this->loadRoutesFrom(__DIR__ . '/routes/wr-laravel-administration-routes.php');
+        Route::middleware('web')->group(function () {
+            $this->loadRoutesFrom(__DIR__ . '/routes/wr-laravel-administration-routes.php');
+        });
+
 
         // Load views
         $this->loadViewsFrom(__DIR__ . '/resources/views', 'wr-laravel-administration');
