@@ -10,7 +10,42 @@
             <h1 class="text-2xl font-medium">Welcome Back!</h1>
             <hr class="w-full md:w-1/3 h-2 my-4 m-auto border-t-2 border-slate-500 dark:border-slate-200" />
         </div>
-        {{-- <p>Test text</p> --}}
+        
+        <form action="" method="post" class="flex flex-col gap-6">
+            @csrf
+
+            <div>
+                <x-wr-laravel-administration::forms.input-text
+                    label="Email Address"
+                    type="email"
+                    name="email"
+                    :value="old('email')"
+                    required autofocus />
+            </div>
+
+            <div>
+                <x-wr-laravel-administration::forms.input-text
+                    label="Password"
+                    type="password"
+                    name="password"
+                    :value="old('password')"
+                    required />
+            </div>
+
+            <div class="flex justify-between">
+                <x-wr-laravel-administration::forms.input-checkbox
+                    label="Remember me"
+                    name="remember" />
+
+                <a href="#" class="text-sm text-primary-500 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-200">Forgot your password?</a>
+            </div>
+
+            <div>
+                <x-wr-laravel-administration::forms.input-button type="submit" text="Login" class="w-full" />
+            </div>
+
+        </form>
+
     </div>
 
 @endsection
