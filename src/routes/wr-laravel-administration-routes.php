@@ -1,10 +1,10 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Zephni\WRLaravelAdministration\Http\Controllers\WRLAAuthController;
-use Zephni\WRLaravelAdministration\Http\Controllers\WRLAAdminController;
+use WebRegulate\LaravelAdministration\Http\Controllers\WRLAAuthController;
+use WebRegulate\LaravelAdministration\Http\Controllers\WRLAAdminController;
 
-Route::group(['namespace' => 'Zephni\WRLaravelAdministration\Http\Controllers'], function () {
+Route::group(['namespace' => 'WebRegulate\LaravelAdministration\Http\Controllers'], function () {
 
     Route::prefix(config('wr-laravel-administration.base_url', 'wr-admin'))->name('wrla.')->group(function () {
 

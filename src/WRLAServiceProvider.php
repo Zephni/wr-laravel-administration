@@ -1,6 +1,6 @@
 <?php
 
-namespace Zephni\WRLaravelAdministration;
+namespace WebRegulate\LaravelAdministration;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Route;
@@ -30,6 +30,10 @@ class WRLAServiceProvider extends ServiceProvider
             __DIR__ . '/resources/images/logo-dark.svg' => public_path('vendor/wr-laravel-administration/images/logo-dark.svg')
         ], 'wrla-assets');
 
+        $this->publishes([
+            __DIR__ . '/Publish/Models' => app_path('WRLA/Models')
+        ], 'wrla-models');
+
         // Merge config
         $this->mergeConfigFrom(__DIR__ . '/config/wr-laravel-administration.php', 'wr-laravel-administration');
 
@@ -40,7 +44,6 @@ class WRLAServiceProvider extends ServiceProvider
         Route::middleware('web')->group(function () {
             $this->loadRoutesFrom(__DIR__ . '/routes/wr-laravel-administration-routes.php');
         });
-
 
         // Load views
         $this->loadViewsFrom(__DIR__ . '/resources/views', 'wr-laravel-administration');

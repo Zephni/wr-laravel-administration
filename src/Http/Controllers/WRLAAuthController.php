@@ -1,6 +1,6 @@
 <?php
 
-namespace Zephni\WRLaravelAdministration\Http\Controllers;
+namespace WebRegulate\LaravelAdministration\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;

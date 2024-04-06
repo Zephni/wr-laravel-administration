@@ -1,0 +1,23 @@
+$user = new \App\WRLA\Models\User;
+// $user = \App\WRLA\Models\User::where("email", "=", "craig.dennis@webregulate.co.uk")->first();
+
+$user->fill([
+    "name"              => "Craig Dennis",
+    "email"             => "craig.dennis@webregulate.co.uk",
+    "email_verified_at" => \Carbon\Carbon::now()->toDateTimeString(),
+    "password"          => Hash::make("USER PASSWORD"),
+    "permissions"       => json_encode([
+                            "master" => true,
+                            "admin" => true
+                        ]),
+    "settings"          => json_encode([
+                            "email_notifications" => [
+                                "keys_here" => true
+                            ]
+                        ]),
+    "data"              => json_encode([
+                            "data_here" => true
+                        ])
+]);
+
+$user->save();
