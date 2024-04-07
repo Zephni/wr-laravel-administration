@@ -1,12 +1,16 @@
 <?php
 
-namespace App\WRLA;
+namespace WebRegulate\LaravelAdministration\Models;
 
-use \Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Notifications\Notifiable;
 use \Illuminate\Support\Arr;
 
-class User extends Model
+class User extends Authenticatable
 {
+    use HasFactory, Notifiable;
+
     protected $table = 'users';
 
     protected $fillable = [
@@ -43,7 +47,7 @@ class User extends Model
                 return User::find($user->id);
             });
         }
-        
+
         return User::find($user->id);
     }
 

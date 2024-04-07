@@ -7,6 +7,13 @@
             "WebRegulate\\LaravelAdministration\\": "src/"
         }
     },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "WebRegulate\\LaravelAdministration\\WRLAServiceProvider"
+            ]
+        }
+    },
     "authors": [
         {
             "name": "Craig Dennis",

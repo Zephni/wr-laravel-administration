@@ -65,7 +65,7 @@ class WRLAServiceProvider extends ServiceProvider
 
         // Pass current user to all views
         view()->composer('*', function ($view) {
-            $view->with('user', \App\WRLA\User::current());
+            $view->with('user', \WebRegulate\LaravelAdministration\Models\User::current());
         });
     }
 }

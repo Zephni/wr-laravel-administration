@@ -16,7 +16,7 @@ class IsNotAdmin
     public function handle(Request $request, Closure $next): Response
     {
         // Get current user
-        $user = \App\WRLA\User::current();
+        $user = \WebRegulate\LaravelAdministration\Models\User::current();
 
         // If logged in and admin, redirect to dashboard
         if ($user != null && $user->getPermission('admin')) {

@@ -16,7 +16,7 @@ class IsAdmin
     public function handle(Request $request, Closure $next): Response
     {
         // Get current user
-        $user = \App\WRLA\User::current();
+        $user = \WebRegulate\LaravelAdministration\Models\User::current();
 
         // Check if not logged in or not admin
         if ($user == null || !$user->getPermission('admin')) {
