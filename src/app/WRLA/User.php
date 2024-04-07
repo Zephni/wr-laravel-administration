@@ -30,7 +30,7 @@ class User extends Model
      * Get current authenticated user
      * @return User|null
      */
-    public static function current(): ?User
+    public static function current($allowCache = false): ?User
     {
         $user = auth()->user();
 
@@ -38,6 +38,12 @@ class User extends Model
             return null;
         }
 
+        if ($allowCache) {
+            return once(function() use ($user) {
+                return User::find($user->id);
+            });
+        }
+        
         return User::find($user->id);
     }
 

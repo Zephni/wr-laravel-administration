@@ -9,7 +9,7 @@ Route::group(['namespace' => 'WebRegulate\LaravelAdministration\Http\Controllers
     Route::prefix(config('wr-laravel-administration.base_url', 'wr-admin'))->name('wrla.')->group(function () {
 
         // Auth controller
-        Route::group(['controller' => WRLAAuthController::class], function () {
+        Route::group(['controller' => WRLAAuthController::class, 'middleware' => ['is_not_admin']], function () {
             Route::get('login', 'login')->name('login');
             Route::post('login', 'loginPost')->name('login.post');
         });

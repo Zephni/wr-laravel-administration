@@ -53,6 +53,7 @@ class WRLAServiceProvider extends ServiceProvider
 
         // Load middleware
         $this->app['router']->aliasMiddleware('is_admin', \WebRegulate\LaravelAdministration\Http\Middleware\IsAdmin::class);
+        $this->app['router']->aliasMiddleware('is_not_admin', \WebRegulate\LaravelAdministration\Http\Middleware\IsNotAdmin::class);
 
         // Load routes
         Route::middleware('web')->group(function () {
