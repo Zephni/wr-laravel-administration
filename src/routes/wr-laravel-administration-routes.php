@@ -15,7 +15,7 @@ Route::group(['namespace' => 'WebRegulate\LaravelAdministration\Http\Controllers
         });
 
         // Administration controller
-        Route::group(['controller' => WRLAAdminController::class], function () {
+        Route::group(['controller' => WRLAAdminController::class, 'middleware' => ['auth', 'is_admin']], function () {
             Route::get('', 'index')->name('dashboard');
         });
 

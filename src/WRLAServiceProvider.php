@@ -38,10 +38,10 @@ class WRLAServiceProvider extends ServiceProvider
             __DIR__ . '/app/WRLA' => app_path('WRLA')
         ], 'wrla-models');
 
-        // Publish controllers
+        // Publish service provider
         $this->publishes([
-            __DIR__ . '/app/Http/Controllers/WRLA' => app_path('Http/Controllers/WRLA')
-        ], 'wrla-controllers');
+            __DIR__ . '/WRLAServiceProvider.php' => app_path('Providers/WRLAServiceProvider.php')
+        ], 'wrla-providers');
 
         /* Mergeable & Loadable assets
         --------------------------------------------- */
@@ -50,6 +50,9 @@ class WRLAServiceProvider extends ServiceProvider
 
         // Load migrations
         $this->loadMigrationsFrom(__DIR__ . '/database/migrations');
+
+        // Load middleware
+        $this->app['router']->aliasMiddleware('is_admin', \WebRegulate\LaravelAdministration\Http\Middleware\IsAdmin::class);
 
         // Load routes
         Route::middleware('web')->group(function () {

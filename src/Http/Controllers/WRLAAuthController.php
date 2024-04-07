@@ -4,6 +4,7 @@ namespace WebRegulate\LaravelAdministration\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\WRLA\User;
 
 class WRLAAuthController extends Controller
 {
@@ -14,6 +15,11 @@ class WRLAAuthController extends Controller
      */
     public function login(Request $request)
     {
+        // TODO: If user is already logged in AND is admin then redirect to dashboard
+        if (User::current()?->getPermission('admin')) {
+            return redirect()->route('wrla.dashboard');
+        }
+
         return view('wr-laravel-administration::auth.login');
     }
 

@@ -3,5 +3,5 @@
 @section('title', 'Dashboard')
 
 @section('content')
-    Logged in as {{ Auth::user()->name }}
+    Logged in as {{ \App\WRLA\User::current()->name }}
 @endsection
