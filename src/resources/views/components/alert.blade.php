@@ -19,7 +19,7 @@
                 <i class="fas fa-info-circle font-bold"></i>
     @endif
 
-            <span class="font-bold">{{ $message }}</span>
+            <span>{{ $message }}</span>
         </div>
 
         <div>
