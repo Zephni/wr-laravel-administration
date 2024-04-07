@@ -61,5 +61,10 @@ class WRLAServiceProvider extends ServiceProvider
 
         // Load views
         $this->loadViewsFrom(__DIR__ . '/resources/views', 'wr-laravel-administration');
+
+        // Pass current user to all views
+        view()->composer('*', function ($view) {
+            $view->with('user', \App\WRLA\User::current());
+        });
     }
 }
