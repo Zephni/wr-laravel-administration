@@ -1,6 +1,6 @@
 <?php
 
-namespace App\WRLA\Models;
+namespace App\WRLA;
 
 use \Illuminate\Database\Eloquent\Model;
 

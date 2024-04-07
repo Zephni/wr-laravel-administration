@@ -31,7 +31,7 @@ class WRLAServiceProvider extends ServiceProvider
         ], 'wrla-assets');
 
         $this->publishes([
-            __DIR__ . '/Publish/Models' => app_path('WRLA/Models')
+            __DIR__ . '/app/WRLA' => app_path('WRLA')
         ], 'wrla-models');
 
         // Merge config
