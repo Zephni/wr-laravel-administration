@@ -16,8 +16,12 @@ Route::group(['namespace' => 'WebRegulate\LaravelAdministration\Http\Controllers
 
         // Administration controller
         Route::group(['controller' => WRLAAdminController::class, 'middleware' => ['auth', 'is_admin']], function () {
+            // Dashboard
             Route::get('', function () { return redirect()->route('wrla.dashboard'); });
             Route::get('dashboard', 'index')->name('dashboard');
+
+            // Logout
+            Route::get('logout', 'logout')->name('logout');
         });
 
     });

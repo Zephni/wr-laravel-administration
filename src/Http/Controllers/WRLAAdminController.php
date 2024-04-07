@@ -16,4 +16,15 @@ class WRLAAdminController extends Controller
     {
         return view('wr-laravel-administration::dashboard');
     }
+
+    /**
+     * logout
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function logout(Request $request)
+    {
+        auth()->logout();
+        return redirect()->route('wrla.login');
+    }
 }

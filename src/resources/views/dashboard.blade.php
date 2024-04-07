@@ -3,5 +3,11 @@
 @section('title', 'Dashboard')
 
 @section('content')
-    Logged in as {{ $user->name }}
+    <p>Logged in as {{ $user->name }}</p>
+
+    {{-- Temp Logout --}}
+    <a href="{{ route('wrla.logout') }}" class="text-primary-500">
+        <i class="fas fa-sign-out-alt"></i>
+        Logout
+    </a>
 @endsection
