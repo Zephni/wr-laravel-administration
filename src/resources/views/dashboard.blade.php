@@ -1,4 +1,4 @@
-@extends('wr-laravel-administration::layouts.auth-layout')
+@extends("$themeViewPath.layouts.admin-layout")
 
 @section('title', 'Dashboard')
 

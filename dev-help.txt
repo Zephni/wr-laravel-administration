@@ -1,5 +1,5 @@
-$user = new \App\WRLA\User;
-// $user = \App\WRLA\User::where("email", "=", "craig.dennis@webregulate.co.uk")->first();
+$user = new WebRegulate\LaravelAdministration\Models\User;
+// $user = WebRegulate\LaravelAdministration\Models\User::where("email", "=", "craig.dennis@webregulate.co.uk")->first();
 
 $user->fill([
     "name"              => "Craig Dennis",

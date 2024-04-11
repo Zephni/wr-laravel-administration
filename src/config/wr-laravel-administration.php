@@ -11,7 +11,16 @@ return [
         'dark' => 'vendor/wr-laravel-administration/images/logo-dark.svg',
     ],
 
-    // Default theme mode (Will apply if user has not set a preference - stored in local storage as )
-    'default_theme_mode' => 'dark',
+    // Default theme (key from the 'themes' array below)
+    'default_theme' => 'default',
 
+    // Themes
+    'themes' => [
+        // Default
+        'default' => [
+            'name' => 'Default',        // Name of the theme displayed to user (if multiple themes are available)
+            'path' => 'default',        // Path to the theme folder in the 'resources/views/themes/?' directory
+            'default_mode' => 'dark',   // Default mode for the theme (dark or light)
+        ]
+    ],
 ];

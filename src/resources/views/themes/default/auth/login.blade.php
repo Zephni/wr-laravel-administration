@@ -1,4 +1,4 @@
-@extends('wr-laravel-administration::layouts.auth-layout')
+@extends("$themeViewPath.layouts.auth-layout")
 
 @section('title', 'Login')
 
@@ -14,7 +14,7 @@
         @if(session('error'))
             <x-wr-laravel-administration::alert type="error" :message="session('error')" />
         @endif
-        
+
         <form action="{{ route('wrla.login.post') }}" method="post" class="flex flex-col gap-6">
             @csrf
 

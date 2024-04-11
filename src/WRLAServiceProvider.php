@@ -2,8 +2,9 @@
 
 namespace WebRegulate\LaravelAdministration;
 
-use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\ServiceProvider;
+use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 
 class WRLAServiceProvider extends ServiceProvider
 {
@@ -63,9 +64,13 @@ class WRLAServiceProvider extends ServiceProvider
         // Load views
         $this->loadViewsFrom(__DIR__ . '/resources/views', 'wr-laravel-administration');
 
-        // Pass current user to all routes within this package
+        // Pass variables to all routes within this package
         view()->composer('wr-laravel-administration::*', function ($view) {
+            // Current user
             $view->with('user', \WebRegulate\LaravelAdministration\Models\User::current());
+
+            // Theme view path
+            $view->with('themeViewPath', WRLAHelper::getViewPath('', true));
         });
     }
 }

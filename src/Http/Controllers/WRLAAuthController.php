@@ -5,6 +5,7 @@ namespace WebRegulate\LaravelAdministration\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\WRLA\User;
+use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 
 class WRLAAuthController extends Controller
 {
@@ -15,7 +16,8 @@ class WRLAAuthController extends Controller
      */
     public function login(Request $request)
     {
-        return view('wr-laravel-administration::auth.login');
+        // return view('wr-laravel-administration::auth.login');
+        return view(WRLAHelper::getViewPath('auth.login', true));
     }
 
     /**
