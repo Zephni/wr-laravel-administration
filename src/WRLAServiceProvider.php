@@ -4,7 +4,10 @@ namespace WebRegulate\LaravelAdministration;
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
+use WebRegulate\LaravelAdministration\Models\User;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
+use WebRegulate\LaravelAdministration\Http\Middleware\IsAdmin;
+use WebRegulate\LaravelAdministration\Http\Middleware\IsNotAdmin;
 
 class WRLAServiceProvider extends ServiceProvider
 {
@@ -53,8 +56,8 @@ class WRLAServiceProvider extends ServiceProvider
         $this->loadMigrationsFrom(__DIR__ . '/database/migrations');
 
         // Load middleware
-        $this->app['router']->aliasMiddleware('is_admin', \WebRegulate\LaravelAdministration\Http\Middleware\IsAdmin::class);
-        $this->app['router']->aliasMiddleware('is_not_admin', \WebRegulate\LaravelAdministration\Http\Middleware\IsNotAdmin::class);
+        $this->app['router']->aliasMiddleware('is_admin', IsAdmin::class);
+        $this->app['router']->aliasMiddleware('is_not_admin', IsNotAdmin::class);
 
         // Load routes
         Route::middleware('web')->group(function () {
@@ -67,9 +70,10 @@ class WRLAServiceProvider extends ServiceProvider
         // Pass variables to all routes within this package
         view()->composer('wr-laravel-administration::*', function ($view) {
             // Current user
-            $view->with('user', \WebRegulate\LaravelAdministration\Models\User::current());
+            $view->with('user', User::current());
 
-            // Theme view path
+            // Theme data
+            $view->with('themeData', (object)WRLAHelper::getCurrentThemeData());
             $view->with('themeViewPath', WRLAHelper::getViewPath('', true));
         });
     }

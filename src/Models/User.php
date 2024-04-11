@@ -91,6 +91,15 @@ class User extends Authenticatable
     }
 
     /**
+     * Get current theme
+     * @return string
+     */
+    public function getCurrentThemeKey(): ?string
+    {
+        return $this->getSetting('theme.current');
+    }
+
+    /**
      * Is user an admin
      * @return bool
      */
