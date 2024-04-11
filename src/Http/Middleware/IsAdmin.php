@@ -19,7 +19,7 @@ class IsAdmin
         $user = \WebRegulate\LaravelAdministration\Models\User::current();
 
         // Check if not logged in or not admin
-        if ($user == null || !$user->getPermission('admin')) {
+        if ($user == null || $user->getPermission('admin') == false) {
             return redirect()->route('wrla.login');
         }
 

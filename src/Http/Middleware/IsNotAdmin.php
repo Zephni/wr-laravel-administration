@@ -19,7 +19,7 @@ class IsNotAdmin
         $user = \WebRegulate\LaravelAdministration\Models\User::current();
 
         // If logged in and admin, redirect to dashboard
-        if ($user != null && $user->getPermission('admin')) {
+        if ($user != null && $user->getPermission('admin') == true) {
             return redirect()->route('wrla.dashboard');
         }
 
