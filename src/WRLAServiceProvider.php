@@ -42,11 +42,6 @@ class WRLAServiceProvider extends ServiceProvider
             __DIR__ . '/app/WRLA' => app_path('WRLA')
         ], 'wrla-models');
 
-        // Publish service provider
-        $this->publishes([
-            __DIR__ . '/WRLAServiceProvider.php' => app_path('Providers/WRLAServiceProvider.php')
-        ], 'wrla-providers');
-
         /* Mergeable & Loadable assets
         --------------------------------------------- */
         // Merge config
