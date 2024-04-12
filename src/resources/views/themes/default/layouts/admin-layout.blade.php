@@ -58,6 +58,9 @@
             });
     </script>
 
+    {{-- Alpine.js cdn --}}
+    <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.min.js" defer></script>
+
     {{-- Font Awesome cdn --}}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.0-2/css/all.min.css" />
 
@@ -73,7 +76,7 @@
 
     <div class="relative flex flex-row w-full h-full items-center bg-slate-200 text-slate-800 dark:bg-slate-900 dark:text-slate-400">
         {{-- Left panel --}}
-        <div class="flex flex-col justify-start items-center gap-3 w-80 h-full border-r-2 border-slate-300 dark:border-slate-950 bg-slate-100 dark:bg-slate-850 shadow-xl shadow-slate-500 dark:shadow-slate-950 z-10">
+        <div class="hidden md:flex flex-col justify-start items-center gap-3 w-80 min-w-80 h-full border-r-2 border-slate-300 dark:border-slate-950 bg-slate-100 dark:bg-slate-850 shadow-xl shadow-slate-500 dark:shadow-slate-950 z-10">
             <div class="w-3/4 py-8">
                 <img src="{{ asset(config('wr-laravel-administration.logo.light')) }}" title="Light Logo" alt="Light Logo" class="dark:hidden w-full" />
                 <img src="{{ asset(config('wr-laravel-administration.logo.dark')) }}" title="Dark Logo" alt="Dark Logo" class="hidden dark:block w-full" />
@@ -83,18 +86,20 @@
         {{-- Right container --}}
         <div class="flex-1 h-full">
             {{-- Top bar --}}
-            <div class="flex flex-row gap-5 h-10 justify-end items-center border-b-2 border-slate-300 dark:border-slate-950 shadow-md dark:shadow-slate-900 bg-slate-100 text-slate-800 dark:bg-slate-850 dark:text-slate-400">
+            <div class="flex gap-5 h-10 justify-end items-center border-b-2 border-slate-300 dark:border-slate-950 shadow-md dark:shadow-slate-900 bg-slate-100 text-slate-800 dark:bg-slate-850 dark:text-slate-400">
                 {{-- Maybe time here? --}}
                 <div class="pl-4">
 
                 </div>
 
                 <div class="flex flex-row h-full items-center">
-                    <span class="text-sm pr-4">
-                        Logged in as
-                        <i class="fas fa-user text-xs mx-1"></i>
-                        {{ $user->name }}
-                    </span>
+                    <div class="relative flex items-center h-full">
+                        <span class="absolute right-4 text-sm whitespace-nowrap">
+                            Logged in as
+                            <i class="fas fa-user text-xs mx-1"></i>
+                            {{ $user->name }}
+                        </span>
+                    </div>
                     <button id="theme-mode-toggle" class="flex w-[50px] h-full justify-center items-center shadow-md border-l border-slate-300 dark:border-slate-950 shadow-slate-300 dark:shadow-slate-900 bg-slate-50 text-slate-800 dark:bg-slate-800 dark:text-slate-400">
                         <i class="fas fa-sun text-primary-500 dark:hidden"></i>
                         <i class="fas fa-moon text-primary-500 hidden dark:block"></i>
