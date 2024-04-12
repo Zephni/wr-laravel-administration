@@ -16,11 +16,7 @@
             // Theme overrides
             theme: {
                 extend: {
-                    colors: {
-                        primary: {
-                            500: '#00BFA6',
-                        }
-                    },
+                    colors: @php echo json_encode(config('wr-laravel-administration.colors')) @endphp
                 }
             }
         };

@@ -11,6 +11,17 @@ return [
         'dark' => 'vendor/wr-laravel-administration/images/logo-dark.svg',
     ],
 
+    // Colors - These add/override tailwind's available colors in the layouts
+    'colors' => [
+        'primary' => [
+            '500' => '#00BFA6',
+        ],
+        'slate' => [
+            '850' => '#161E2E',
+            '950' => '#0D1016',
+        ],
+    ],
+
     // Default theme (key from the 'themes' array below)
     'default_theme' => 'default',
 
