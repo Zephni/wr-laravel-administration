@@ -3,11 +3,12 @@
 namespace WebRegulate\LaravelAdministration\Models;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Contracts\Auth\CanResetPassword;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Notifications\Notifiable;
 use \Illuminate\Support\Arr;
 
-class User extends Authenticatable
+class User extends Authenticatable implements CanResetPassword
 {
     use HasFactory, Notifiable;
 
@@ -27,6 +28,17 @@ class User extends Authenticatable
         'password',
         'remember_token',
     ];
+
+    /**
+     * Send the password reset notification.
+     *
+     * @param  string  $token
+     * @return void
+     */
+    public function sendPasswordResetNotification($token)
+    {
+        $this->notify(new \WebRegulate\LaravelAdministration\Notifications\WRLAResetPasswordNotification($this->email, $token));
+    }
 
     /* Static methods
     --------------------------------------------- */

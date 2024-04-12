@@ -5,7 +5,11 @@ namespace WebRegulate\LaravelAdministration;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Facades\RateLimiter;
 use WebRegulate\LaravelAdministration\Models\User;
+use Illuminate\Auth\Passwords\PasswordBrokerManager;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 use WebRegulate\LaravelAdministration\Http\Middleware\IsAdmin;
 use WebRegulate\LaravelAdministration\Http\Middleware\IsNotAdmin;
@@ -25,6 +29,8 @@ class WRLAServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        $this->configureRateLimiting();
+
         /* Publishable assets
         --------------------------------------------- */
         // Publish config
@@ -106,6 +112,27 @@ class WRLAServiceProvider extends ServiceProvider
 
             // Display the component with the provided attributes
             return "<?php echo view('{$fullComponentPath}', {$args[1]})->render(); ?>";
+        });
+    }
+
+    protected function configureRateLimiting()
+    {
+        RateLimiter::for('login', function ($request) {
+            return Limit::perMinutes(10, 5)->by($request->input('email'))->response(function() {
+                return redirect()->route('wrla.login')->with('error', 'Too many login attempts. Please try again in 10 minutes.');
+            });
+        });
+
+        RateLimiter::for('forgot-password', function ($request) {
+            return Limit::perMinutes(10, 3)->by($request->input('email'))->response(function() {
+                return redirect()->route('wrla.forgot-password')->with('error', 'Too many requests. Please try again in 10 minutes.');
+            });
+        });
+
+        RateLimiter::for('reset-password', function ($request) {
+            return Limit::perMinutes(10, 3)->by($request->input('email'))->response(function() {
+                return redirect()->route('wrla.reset-password')->with('error', 'Too many requests. Please try again in 10 minutes.');
+            });
         });
     }
 }

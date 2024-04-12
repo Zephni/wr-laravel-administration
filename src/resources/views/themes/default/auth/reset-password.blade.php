@@ -1,13 +1,13 @@
 @extends($WRLAHelper::getViewPath("layouts.auth-layout"))
 
-@section('title', 'Login')
+@section('title', 'Forgot Password')
 
 @section('content')
 
     {{-- Login form --}}
     <div class="w-full md:w-9/12 lg:w-4/12 rounded-lg p-8 mx-6 bg-slate-100 shadow-md dark:bg-slate-800">
         <div class="text-center">
-            <h1 class="text-2xl font-medium">Welcome Back!</h1>
+            <h1 class="text-2xl font-medium">Resetting Password</h1>
             <hr class="w-full md:w-1/3 h-2 my-4 m-auto border-t-2 border-slate-500 dark:border-slate-200" />
         </div>
 
@@ -17,7 +17,7 @@
             @themeComponent('alert', ['type' => 'error', 'message' => session('error')])
         @endif
 
-        <form action="{{ route('wrla.login.post') }}" method="post" class="flex flex-col gap-6">
+        <form action="{{ route('wrla.reset-password.post', ['token' => $token]) }}" method="post" class="flex flex-col gap-6">
             @csrf
 
             <div>
@@ -25,10 +25,10 @@
                     'label' => 'Email Address',
                     'type' => 'email',
                     'name' => 'email',
-                    'value' => old('email'),
+                    'value' => $email,
                     'error' => $errors->first('email'),
                     'required' => true,
-                    'autofocus' => true
+                    'readonly' => true,
                 ])
             </div>
 
@@ -39,26 +39,26 @@
                     'name' => 'password',
                     'value' => '',
                     'error' => $errors->first('password'),
-                    'required' => true
+                    'required' => true,
+                    'autofocus' => true
                 ])
             </div>
 
-            <div class="flex justify-between">
-                @themeComponent('forms.input-checkbox', [
-                    'label' => 'Remember me',
-                    'name' => 'remember',
-                    'checked' => old('remember')
+            <div>
+                @themeComponent('forms.input-text', [
+                    'label' => 'Confirm Password',
+                    'type' => 'password',
+                    'name' => 'password_confirmation',
+                    'value' => '',
+                    'error' => $errors->first('password_confirmation'),
+                    'required' => true
                 ])
-
-                <a href="{{ route('wrla.forgot-password') }}" class="text-sm text-primary-500 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-200">
-                    Forgot your password?
-                </a>
             </div>
 
             <div>
                 @themeComponent('forms.input-button', [
                     'type' => 'submit',
-                    'text' => 'Login',
+                    'text' => 'Request password reset link',
                     'class' => 'w-full'
                 ])
             </div>
