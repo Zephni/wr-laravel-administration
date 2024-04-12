@@ -23,4 +23,26 @@ return [
             'default_mode' => 'dark',   // Default mode for the theme (dark or light)
         ]
     ],
+
+    // Rate limiting
+    'rate_limiting' => [
+        'login' => [
+            'by' => 'input:email ip',
+            'max_attempts' => 5,
+            'decay_minutes' => 10,
+            'message' => 'Too many login requests. Please try again in :decay_minutes minutes.',
+        ],
+        'forgot-password' => [
+            'by' => 'input:email ip',
+            'max_attempts' => 2,
+            'decay_minutes' => 10,
+            'message' => 'Too many forgot password requests. Please try again in :decay_minutes minutes.',
+        ],
+        'reset-password' => [
+            'by' => 'input:email ip',
+            'max_attempts' => 2,
+            'decay_minutes' => 10,
+            'message' => 'Too many reset password requests. Please try again in :decay_minutes minutes.',
+        ],
+    ],
 ];

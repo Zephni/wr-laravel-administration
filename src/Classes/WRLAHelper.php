@@ -2,6 +2,9 @@
 
 namespace WebRegulate\LaravelAdministration\Classes;
 
+use Illuminate\Http\Request;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Support\Facades\RateLimiter;
 use WebRegulate\LaravelAdministration\Models\User;
 
 class WRLAHelper
@@ -103,6 +106,55 @@ class WRLAHelper
             }
         }
     }
+
+    /**
+     * Build rate limiter from rate_limiting configuration array item.
+     * @param array $rateLimitConfigItem The rate limiting configuration array.
+     * @return void
+     */
+    public static function buildRateLimiter(Request $request, string $throttleAlias, array $rateLimitConfigItem): void
+    {
+        // Get the rate limiting configuration
+        $rateLimitBy = self::rateLimiterStringByEvaluator($request, $rateLimitConfigItem['by']);
+        $rateLimitMaxAttempts = $rateLimitConfigItem['max_attempts'];
+        $rateLimitDecayMinutes = $rateLimitConfigItem['decay_minutes'];
+        $rateLimitMessage = str_replace(':decay_minutes', $rateLimitDecayMinutes, $rateLimitConfigItem['message']);
+
+        // Build the rate limiter
+        RateLimiter::for($throttleAlias, function (Request $request) use ($rateLimitBy, $rateLimitMaxAttempts, $rateLimitDecayMinutes, $rateLimitMessage) {
+            return Limit::perMinutes($rateLimitDecayMinutes, $rateLimitMaxAttempts)->by($rateLimitBy)->response(function() use ($rateLimitMessage) {
+                return redirect()->route('wrla.login')->with('error', $rateLimitMessage);
+            });
+        });
+    }
+
+    /**
+     * Rate limiter by evaluator
+     * @param Request $request The request object.
+     * @param string $rateLimitBy The rate limit by string.
+     * @return string The compiled rate limit by string.
+     */
+    public static function rateLimiterStringByEvaluator(Request $request, string $rateLimitBy): string
+    {
+        $rateLimitByArray = explode(' ', $rateLimitBy);
+        $rateLimitByCompiled = '';
+
+        foreach($rateLimitByArray as $rateLimitByItem) {
+            $rateLimitByItem = trim($rateLimitByItem);
+
+            // If begins with input: then check the request input
+            if(strpos($rateLimitByItem, 'input:') === 0) {
+                $rateLimitByCompiled .= $request->input(substr($rateLimitByItem, 6));
+            }
+            // If is ip then check the request ip
+            else if($rateLimitByItem === 'ip') {
+                $rateLimitByCompiled .= $request->ip();
+            }
+        }
+
+        return $rateLimitByCompiled;
+    }
+
 
     /**
      * Evaulate arguments as string and define as array.

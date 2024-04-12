@@ -4,12 +4,9 @@ namespace WebRegulate\LaravelAdministration;
 
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Http\Request;
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Cache\RateLimiting\Limit;
-use Illuminate\Support\Facades\Password;
-use Illuminate\Support\Facades\RateLimiter;
 use WebRegulate\LaravelAdministration\Models\User;
-use Illuminate\Auth\Passwords\PasswordBrokerManager;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 use WebRegulate\LaravelAdministration\Http\Middleware\IsAdmin;
 use WebRegulate\LaravelAdministration\Http\Middleware\IsNotAdmin;
@@ -21,7 +18,8 @@ class WRLAServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        // Merge config
+        $this->mergeConfigFrom(__DIR__ . '/config/wr-laravel-administration.php', 'wr-laravel-administration');
     }
 
     /**
@@ -29,7 +27,8 @@ class WRLAServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        $this->configureRateLimiting();
+        // Configure rate limiting - Set in wr-laravel-administration.rate_limiting config
+        $this->configureRateLimiting(Request::capture());
 
         /* Publishable assets
         --------------------------------------------- */
@@ -49,11 +48,8 @@ class WRLAServiceProvider extends ServiceProvider
             __DIR__ . '/app/WRLA' => app_path('WRLA')
         ], 'wrla-models');
 
-        /* Mergeable & Loadable assets
+        /* Loadable assets
         --------------------------------------------- */
-        // Merge config
-        $this->mergeConfigFrom(__DIR__ . '/config/wr-laravel-administration.php', 'wr-laravel-administration');
-
         // Load migrations
         $this->loadMigrationsFrom(__DIR__ . '/database/migrations');
 
@@ -115,24 +111,12 @@ class WRLAServiceProvider extends ServiceProvider
         });
     }
 
-    protected function configureRateLimiting()
+    protected function configureRateLimiting(Request $request)
     {
-        RateLimiter::for('login', function ($request) {
-            return Limit::perMinutes(10, 5)->by($request->input('email'))->response(function() {
-                return redirect()->route('wrla.login')->with('error', 'Too many login attempts. Please try again in 10 minutes.');
-            });
-        });
+        $rateLimitingConfig = config('wr-laravel-administration.rate_limiting');
 
-        RateLimiter::for('forgot-password', function ($request) {
-            return Limit::perMinutes(10, 3)->by($request->input('email'))->response(function() {
-                return redirect()->route('wrla.forgot-password')->with('error', 'Too many requests. Please try again in 10 minutes.');
-            });
-        });
-
-        RateLimiter::for('reset-password', function ($request) {
-            return Limit::perMinutes(10, 3)->by($request->input('email'))->response(function() {
-                return redirect()->route('wrla.reset-password')->with('error', 'Too many requests. Please try again in 10 minutes.');
-            });
-        });
+        foreach($rateLimitingConfig as $throttleAlias => $rateLimitConfigItem) {
+            WRLAHelper::buildRateLimiter($request, $throttleAlias, $rateLimitConfigItem);
+        }
     }
 }
