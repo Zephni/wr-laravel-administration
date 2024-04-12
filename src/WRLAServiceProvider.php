@@ -4,6 +4,7 @@ namespace WebRegulate\LaravelAdministration;
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\Blade;
 use WebRegulate\LaravelAdministration\Models\User;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 use WebRegulate\LaravelAdministration\Http\Middleware\IsAdmin;
@@ -62,14 +63,36 @@ class WRLAServiceProvider extends ServiceProvider
         // Load views
         $this->loadViewsFrom(__DIR__ . '/resources/views', 'wr-laravel-administration');
 
+        // Get theme data
+        $currentThemeData = (object)WRLAHelper::getCurrentThemeData();
+
         // Pass variables to all routes within this package
-        view()->composer('wr-laravel-administration::*', function ($view) {
+        view()->composer('wr-laravel-administration::*', function ($view) use ($currentThemeData) {
             // Current user
             $view->with('user', User::current());
 
             // Theme data
-            $view->with('themeData', (object)WRLAHelper::getCurrentThemeData());
+            $view->with('themeData', $currentThemeData);
             $view->with('themeViewPath', WRLAHelper::getViewPath('', true));
+        });
+
+        /* Blade directives
+        --------------------------------------------- */
+        // Theme component attempts to load a theme specific component first, then falls back to the default component if doesn't exist
+        Blade::directive('themeComponent', function ($expression) use ($currentThemeData) {
+            // Split first argument from the rest (component path)
+            $args = explode(',', $expression, 2);
+
+            // Remove string quotes from the first argument
+            $componentPath = trim($args[0], " \t\n\r\0\x0B'\"");
+
+            // First check whether a theme specific comoponent exists
+            $componentPath = file_exists(__DIR__ . '/resources/views/themes/' . $currentThemeData->path . '/components/' . $args[0] . '.blade.php')
+                ? WRLAHelper::getViewPath('components.' . $componentPath, true)
+                : WRLAHelper::getViewPath('components.' . $componentPath, false);
+
+            // Display the component with the provided attributes
+            return "<?php echo view('$componentPath', $args[1])->render(); ?>";
         });
     }
 }

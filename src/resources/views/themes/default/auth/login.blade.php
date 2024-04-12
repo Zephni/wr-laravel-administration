@@ -12,42 +12,51 @@
         </div>
 
         @if(session('error'))
-            <x-wr-laravel-administration::alert type="error" :message="session('error')" />
+            @themeComponent('alert', ['type' => 'error', 'message' => session('error')])
         @endif
 
         <form action="{{ route('wrla.login.post') }}" method="post" class="flex flex-col gap-6">
             @csrf
 
             <div>
-                <x-wr-laravel-administration::forms.input-text
-                    label="Email Address"
-                    type="email"
-                    name="email"
-                    :value="old('email')"
-                    :error="$errors->first('email')"
-                    required autofocus />
+                @themeComponent('forms.input-text', [
+                    'label' => 'Email Address',
+                    'type' => 'email',
+                    'name' => 'email',
+                    'value' => old('email'),
+                    'error' => $errors->first('email'),
+                    'required' => true,
+                    'autofocus' => true
+                ])
             </div>
 
             <div>
-                <x-wr-laravel-administration::forms.input-text
-                    label="Password"
-                    type="password"
-                    name="password"
-                    value=""
-                    :error="$errors->first('password')"
-                    required />
+                @themeComponent('forms.input-text', [
+                    'label' => 'Password',
+                    'type' => 'password',
+                    'name' => 'password',
+                    'value' => '',
+                    'error' => $errors->first('password'),
+                    'required' => true
+                ])
             </div>
 
             <div class="flex justify-between">
-                <x-wr-laravel-administration::forms.input-checkbox
-                    label="Remember me"
-                    name="remember" />
+                @themeComponent('forms.input-checkbox', [
+                    'label' => 'Remember me',
+                    'name' => 'remember',
+                    'checked' => old('remember')
+                ])
 
                 <a href="#" class="text-sm text-primary-500 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-200">Forgot your password?</a>
             </div>
 
             <div>
-                <x-wr-laravel-administration::forms.input-button type="submit" text="Login" class="w-full" />
+                @themeComponent('forms.input-button', [
+                    'type' => 'submit',
+                    'text' => 'Login',
+                    'class' => 'w-full'
+                ])
             </div>
 
         </form>

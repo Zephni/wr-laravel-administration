@@ -78,4 +78,19 @@ class WRLAHelper
             return 'wr-laravel-administration::' . $view;
         }
     }
+
+    /**
+     * Evaulate arguments as string and define as array.
+     * For example the expression "'val1', ['key1' => 'val1'... etc])" would be evaluated as:
+     * $args = ['val1', ['key1' => 'val1'... etc]]
+     *
+     * @param string $expression The expression to evaluate.
+     * @return array The evaluated arguments.
+     */
+    public static function evaluateArguments(string $expression): array
+    {
+        $args = [];
+        eval("\$args = [$expression];");
+        return $args;
+    }
 }
