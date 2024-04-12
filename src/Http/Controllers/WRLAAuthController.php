@@ -2,9 +2,10 @@
 
 namespace WebRegulate\LaravelAdministration\Http\Controllers;
 
+use App\WRLA\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\WRLA\User;
+use Illuminate\Support\Facades\Auth;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 
 class WRLAAuthController extends Controller
@@ -33,8 +34,8 @@ class WRLAAuthController extends Controller
             'password' => 'required',
         ]);
 
-        // Attempt login
-        if (auth()->attempt($request->only('email', 'password'))) {
+        // Attempt login - OLD
+        if (Auth::attempt($request->only('email', 'password'), $request->has('remember'))) {
             return redirect()->route('wrla.dashboard');
         }
 

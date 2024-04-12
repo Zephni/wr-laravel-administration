@@ -4,6 +4,7 @@ namespace WebRegulate\LaravelAdministration\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 
 class WRLAAdminController extends Controller
 {
@@ -24,7 +25,10 @@ class WRLAAdminController extends Controller
      */
     public function logout(Request $request)
     {
-        auth()->logout();
+        // Logout
+        Auth::logout();
+
+        // Redirect to login
         return redirect()->route('wrla.login');
     }
 }
