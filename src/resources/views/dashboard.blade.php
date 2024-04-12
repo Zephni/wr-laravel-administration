@@ -1,4 +1,4 @@
-@extends("$themeViewPath.layouts.admin-layout")
+@extends($WRLAHelper::getViewPath("layouts.admin-layout"))
 
 @section('title', 'Dashboard')
 

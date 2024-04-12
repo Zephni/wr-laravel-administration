@@ -64,18 +64,43 @@ class WRLAHelper
      *
      * @param string $view The name of the view.
      * @param bool $includeTheme Whether the view is inside the theme folder.
-     * @return string The fully qualified view path.
+     * @return string|bool The fully qualified view path, or false if the view does not exist.
      */
-    public static function getViewPath(string $view, bool $includeTheme = true): string
+    public static function getViewPath(string $view, bool $includeTheme = true): string|false
     {
         if($includeTheme)
         {
             $currentTheme = WRLAHelper::getCurrentThemeData('path');
-            return 'wr-laravel-administration::themes.' . $currentTheme . '.' . $view;
+
+            // First check if the user has added their own theme within their project's /resources/views/wrla/themes folder
+            if(view()->exists('wrla.themes.' . $currentTheme . '.' . $view)) {
+                return 'wrla.themes.' . $currentTheme . '.' . $view;
+            }
+            // If not then check if theme exists within the package
+            else if(view()->exists('wr-laravel-administration::themes.' . $currentTheme . '.' . $view)) {
+                return 'wr-laravel-administration::themes.' . $currentTheme . '.' . $view;
+            }
+            // Else return false
+            else {
+                return false;
+                //dd("The view '$view' does not exist within the current theme. Stack trace: ", debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2));
+            }
         }
         else
         {
-            return 'wr-laravel-administration::' . $view;
+            // First check if the user has added their own view within their project's /resources/views/wrla folder
+            if(view()->exists('wrla.' . $view)) {
+                return 'wrla.' . $view;
+            }
+            // If not then check if view exists within the package
+            else if(view()->exists('wr-laravel-administration::' . $view)) {
+                return 'wr-laravel-administration::' . $view;
+            }
+            // Else return false
+            else {
+                return false;
+                //dd("The view '$view' does not exist within the package. Stack trace: ", debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2));
+            }
         }
     }
 

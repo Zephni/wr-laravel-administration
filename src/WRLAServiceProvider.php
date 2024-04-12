@@ -2,9 +2,9 @@
 
 namespace WebRegulate\LaravelAdministration;
 
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Facades\Blade;
 use WebRegulate\LaravelAdministration\Models\User;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 use WebRegulate\LaravelAdministration\Http\Middleware\IsAdmin;
@@ -73,26 +73,39 @@ class WRLAServiceProvider extends ServiceProvider
 
             // Theme data
             $view->with('themeData', $currentThemeData);
-            $view->with('themeViewPath', WRLAHelper::getViewPath('', true));
+
+            // Share WRLAHelper class
+            $view->with('WRLAHelper', WRLAHelper::class);
         });
 
-        /* Blade directives
-        --------------------------------------------- */
         // Theme component attempts to load a theme specific component first, then falls back to the default component if doesn't exist
         Blade::directive('themeComponent', function ($expression) use ($currentThemeData) {
             // Split first argument from the rest (component path)
             $args = explode(',', $expression, 2);
 
             // Remove string quotes from the first argument
-            $componentPath = trim($args[0], " \t\n\r\0\x0B'\"");
+            $componentPath = 'components.' . trim($args[0], " \t\n\r\0\x0B'\"");
 
             // First check whether a theme specific comoponent exists
-            $componentPath = file_exists(__DIR__ . '/resources/views/themes/' . $currentThemeData->path . '/components/' . $args[0] . '.blade.php')
-                ? WRLAHelper::getViewPath('components.' . $componentPath, true)
-                : WRLAHelper::getViewPath('components.' . $componentPath, false);
+            $fullComponentPath = WRLAHelper::getViewPath($componentPath, true);
+
+            // If not then fall back to the default component
+            if($fullComponentPath === false) {
+                $fullComponentPath = WRLAHelper::getViewPath($componentPath, false);
+            }
+
+            // If still false, return an error message
+            if($fullComponentPath === false) {
+                dd(
+                    "@themeComponent error",
+                    "args passed: $expression",
+                    "The component '$componentPath' does not exist within the current theme or the default theme.",
+                    $fullComponentPath
+                );
+            }
 
             // Display the component with the provided attributes
-            return "<?php echo view('$componentPath', $args[1])->render(); ?>";
+            return "<?php echo view('{$fullComponentPath}', {$args[1]})->render(); ?>";
         });
     }
 }

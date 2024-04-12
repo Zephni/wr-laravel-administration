@@ -1,4 +1,4 @@
-@extends("$themeViewPath.layouts.auth-layout")
+@extends($WRLAHelper::getViewPath("layouts.auth-layout"))
 
 @section('title', 'Login')
 
