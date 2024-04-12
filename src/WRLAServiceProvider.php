@@ -27,9 +27,6 @@ class WRLAServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Configure rate limiting - Set in wr-laravel-administration.rate_limiting config
-        $this->configureRateLimiting(Request::capture());
-
         /* Publishable assets
         --------------------------------------------- */
         // Publish config
@@ -61,6 +58,9 @@ class WRLAServiceProvider extends ServiceProvider
         Route::middleware('web')->group(function () {
             $this->loadRoutesFrom(__DIR__ . '/routes/wr-laravel-administration-routes.php');
         });
+
+        // Configure rate limiting for routes - Set in wr-laravel-administration.rate_limiting config
+        $this->configureRateLimiting(Request::capture());
 
         // Load views
         $this->loadViewsFrom(__DIR__ . '/resources/views', 'wr-laravel-administration');
@@ -111,12 +111,40 @@ class WRLAServiceProvider extends ServiceProvider
         });
     }
 
+    /**
+     * Configure rate limiting for routes.
+     *
+     * @param Request $request
+     */
     protected function configureRateLimiting(Request $request)
     {
+        // Get the rate limiting configuration
         $rateLimitingConfig = config('wr-laravel-administration.rate_limiting');
+        $prefix = 'wrla.';
 
-        foreach($rateLimitingConfig as $throttleAlias => $rateLimitConfigItem) {
-            WRLAHelper::buildRateLimiter($request, $throttleAlias, $rateLimitConfigItem);
+        // Prepend prefix to each key in the rate limiting configuration
+        $rateLimitingConfig = array_combine(
+            array_map(fn($key) => $prefix . $key, array_keys($rateLimitingConfig)),
+            array_values($rateLimitingConfig)
+        );
+
+        // Refresh route name lookups
+        Route::getRoutes()->refreshNameLookups();
+        $routes = Route::getRoutes()->getRoutesByName();
+
+        // Loop through each route and apply rate limiting if configured
+        foreach ($routes as $routeName => $route) {
+            // Check if the route name starts with the specified prefix and if it exists in the rate limiting configuration
+            if (str_starts_with($routeName, $prefix) && array_key_exists($routeName, $rateLimitingConfig)) {
+                // Get the rate limit configuration item for the route
+                $rateLimitConfigItem = $rateLimitingConfig[$routeName];
+
+                // Build the rate limiter for the route
+                WRLAHelper::buildRateLimiter($request, $routeName, $rateLimitConfigItem);
+
+                // Apply the throttle middleware to the route
+                $route->middleware("throttle:{$routeName}");
+            }
         }
     }
 }

@@ -115,7 +115,7 @@ class WRLAHelper
     public static function buildRateLimiter(Request $request, string $throttleAlias, array $rateLimitConfigItem): void
     {
         // Get the rate limiting configuration
-        $rateLimitBy = self::rateLimiterStringByEvaluator($request, $rateLimitConfigItem['by']);
+        $rateLimitBy = self::rateLimiterStringByEvaluator($request, $rateLimitConfigItem['rule']);
         $rateLimitMaxAttempts = $rateLimitConfigItem['max_attempts'];
         $rateLimitDecayMinutes = $rateLimitConfigItem['decay_minutes'];
         $rateLimitMessage = str_replace(':decay_minutes', $rateLimitDecayMinutes, $rateLimitConfigItem['message']);

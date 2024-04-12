@@ -24,22 +24,23 @@ return [
         ]
     ],
 
-    // Rate limiting
+    // Rate limiting for wrla. routes
+    // Note: each key is bound to middleware 'throttle:route_name' in routes automatically (Within WRLAServicesProvider.php)
     'rate_limiting' => [
-        'login' => [
-            'by' => 'input:email ip',
+        'login.post' => [
+            'rule' => 'input:email ip',
             'max_attempts' => 5,
             'decay_minutes' => 10,
             'message' => 'Too many login requests. Please try again in :decay_minutes minutes.',
         ],
-        'forgot-password' => [
-            'by' => 'input:email ip',
+        'forgot-password.post' => [
+            'rule' => 'input:email ip',
             'max_attempts' => 2,
             'decay_minutes' => 10,
             'message' => 'Too many forgot password requests. Please try again in :decay_minutes minutes.',
         ],
-        'reset-password' => [
-            'by' => 'input:email ip',
+        'reset-password.post' => [
+            'rule' => 'input:email ip',
             'max_attempts' => 2,
             'decay_minutes' => 10,
             'message' => 'Too many reset password requests. Please try again in :decay_minutes minutes.',

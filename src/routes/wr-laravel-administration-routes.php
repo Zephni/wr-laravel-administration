@@ -16,13 +16,13 @@ Route::group(['namespace' => 'WebRegulate\LaravelAdministration\Http\Controllers
 
             // Login
             Route::get('login', 'login')->name('login');
-            Route::post('login', 'loginPost')->middleware('throttle:login')->name('login.post');
+            Route::post('login', 'loginPost')->name('login.post');
 
             // Forgot / Reset password
             Route::get('forgot-password', 'forgotPassword')->name('forgot-password');
-            Route::post('forgot-password', 'forgotPasswordPost')->middleware('throttle:forgot-password')->name('forgot-password.post');
+            Route::post('forgot-password', 'forgotPasswordPost')->name('forgot-password.post');
             Route::get('reset-password/{email}/{token}', 'resetPassword')->name('reset-password');
-            Route::post('reset-password/{token}', 'resetPasswordPost')->middleware('throttle:reset-password')->name('reset-password.post');
+            Route::post('reset-password/{token}', 'resetPasswordPost')->name('reset-password.post');
         });
 
         // Administration controller
