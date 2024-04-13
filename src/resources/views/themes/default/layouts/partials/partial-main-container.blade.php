@@ -9,9 +9,9 @@
 
         <div class="flex flex-row h-full items-center">
             <div class="relative flex items-center h-full">
-                <span class="absolute right-4 text-xs text-slate-500 whitespace-nowrap">
+                <span class="absolute right-4 text-sm text-slate-500 whitespace-nowrap">
                     Logged in as
-                    <i class="fas fa-user text-xs mx-1"></i>
+                    <i class="fas fa-user text-sm mx-1"></i>
                     {{ $user->name }}
                 </span>
             </div>
@@ -19,7 +19,7 @@
                 <i class="fas fa-sun text-sm text-primary-500 dark:hidden"></i>
                 <i class="fas fa-moon text-sm text-primary-500 hidden dark:block"></i>
             </button>
-            <a href="{{ route('wrla.logout') }}" class="flex h-full justify-center items-center text-xs gap-2 px-3 shadow-md border-l border-slate-300 dark:border-slate-950 shadow-slate-300 dark:shadow-slate-900 bg-slate-50 dark:bg-slate-800 text-primary-500">
+            <a href="{{ route('wrla.logout') }}" class="flex h-full justify-center items-center text-sm gap-2 px-3 shadow-md border-l border-slate-300 dark:border-slate-950 shadow-slate-300 dark:shadow-slate-900 bg-slate-50 dark:bg-slate-800 text-primary-500">
                 <i class="fas fa-sign-out-alt"></i>
                 Logout
             </a>

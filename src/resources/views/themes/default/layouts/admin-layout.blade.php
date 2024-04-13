@@ -18,7 +18,7 @@
         @include('wr-laravel-administration::themes.default.layouts.partials.partial-left-panel')
 
         {{-- Right container --}}
-        @include('wr-laravel-administration::themes.default.layouts.partials.partial-right-container')
+        @include('wr-laravel-administration::themes.default.layouts.partials.partial-main-container')
 
     </div>
 
