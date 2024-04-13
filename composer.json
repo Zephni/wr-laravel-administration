@@ -20,6 +20,8 @@
             "email": "craig.dennis@webregulate.co.uk"
         }
     ],
-    "minimum-stability": "dev",
-    "require": {}
+    "minimum-stability": "stable",
+    "require": {
+        "livewire/livewire": "^3.4"
+    }
 }

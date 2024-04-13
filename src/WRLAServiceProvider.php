@@ -20,6 +20,9 @@ class WRLAServiceProvider extends ServiceProvider
     {
         // Merge config
         $this->mergeConfigFrom(__DIR__ . '/config/wr-laravel-administration.php', 'wr-laravel-administration');
+
+        // Register Livewire
+        $this->app->register(\Livewire\LivewireServiceProvider::class);
     }
 
     /**
@@ -64,6 +67,9 @@ class WRLAServiceProvider extends ServiceProvider
 
         // Load views
         $this->loadViewsFrom(__DIR__ . '/resources/views', 'wr-laravel-administration');
+
+        // Livewire asset injection
+        \Livewire\Livewire::forceAssetInjection();
 
         // Get theme data
         $currentThemeData = (object)WRLAHelper::getCurrentThemeData();
