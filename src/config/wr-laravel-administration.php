@@ -1,6 +1,7 @@
 <?php
 
 use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItem;
+use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItemManageableModel;
 
 return [
 
@@ -40,30 +41,10 @@ return [
     // Navigation items
     'navigation' => [
         // Dashboard
-        new NavigationItem('dashboard', 'Dashboard', 'fa fa-tachometer-alt'),
+        new NavigationItem('wrla.dashboard', [], 'Dashboard', 'fa fa-tachometer-alt'),
 
-        // Test
-        new NavigationItem('dashboard', 'With Children', 'fa fa-tachometer-alt', [
-            new NavigationItem('dashboard', 'Test', 'fa fa-tachometer-alt'),
-            new NavigationItem('dashboard', 'Test 2', 'fa fa-tachometer-alt'),
-            [
-                new NavigationItem('dashboard', 'Test 3', 'fa fa-tachometer-alt'),
-                new NavigationItem('dashboard', 'Test 4', 'fa fa-tachometer-alt'),
-            ]
-        ]),
-
-        // Test within array
-        [
-            new NavigationItem(null, 'Children Without Route', 'fa fa-tachometer-alt', [
-                new NavigationItem('dashboard', 'Test', 'fa fa-tachometer-alt'),
-                new NavigationItem('dashboard', 'Test 2', 'fa fa-tachometer-alt'),
-            ]),
-
-            new NavigationItem(null, 'Children Without Route', 'fa fa-tachometer-alt', [
-                new NavigationItem('dashboard', 'Test', 'fa fa-tachometer-alt'),
-                new NavigationItem('dashboard', 'Test 2', 'fa fa-tachometer-alt'),
-            ]),
-        ]
+        // Test manageable model
+        new NavigationItemManageableModel(App\WRLA\User::class),
     ],
 
     // Rate limiting for wrla. routes

@@ -5,19 +5,20 @@ namespace WebRegulate\LaravelAdministration\Classes\NavigationItems;
 class NavigationItem
 {
     public static $indexTotal;
-
     public int $index = 0;
 
     /**
      * Constructor
      *
      * @param string $route
+     * @param ?array $routeData
      * @param string $name
      * @param string $icon
      * @param array $children
      */
     public function __construct(
         public ?string $route,
+        public ?array $routeData = [],
         public string $name,
         public string $icon = 'fa fa-question',
         public array $children = [],
@@ -45,10 +46,10 @@ class NavigationItem
     public function getUrl($prependPackagePrefix = true): string
     {
         if($prependPackagePrefix) {
-            return route('wrla.'.$this->route);
+            return route($this->route, $this->routeData);
         }
 
-        return route($this->route);
+        return route($this->route, $this->routeData);
     }
 
     /**
@@ -57,6 +58,6 @@ class NavigationItem
      */
     public function render(): string
     {
-        return $this->name.'<br />';
+        return $this->name;
     }
 }

@@ -92,6 +92,9 @@ class WRLAServiceProvider extends ServiceProvider
 
         // Livewire asset injection
         \Livewire\Livewire::forceAssetInjection();
+
+        // Find all classes that extend ManageableModel and register them
+        WRLAHelper::registerManageableModels();
     }
 
     /**
@@ -104,12 +107,6 @@ class WRLAServiceProvider extends ServiceProvider
         // Get the rate limiting configuration
         $rateLimitingConfig = config('wr-laravel-administration.rate_limiting');
         $prefix = 'wrla.';
-
-        // Prepend prefix to each key in the rate limiting configuration
-        $rateLimitingConfig = array_combine(
-            array_map(fn($key) => $prefix . $key, array_keys($rateLimitingConfig)),
-            array_values($rateLimitingConfig)
-        );
 
         // Refresh route name lookups
         Route::getRoutes()->refreshNameLookups();

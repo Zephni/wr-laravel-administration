@@ -33,6 +33,11 @@ Route::group(['namespace' => 'WebRegulate\LaravelAdministration\Http\Controllers
             // Dashboard
             Route::get('dashboard', 'index')->name('dashboard');
 
+            // Manageable model routes
+            Route::get('browse/{modelUrlAlias}', 'browse')->name('browse');
+            Route::get('create/{modelUrlAlias}', 'upsert')->name('create');
+            Route::get('edit/{modelUrlAlias}/{id}', 'upsert')->name('edit');
+
             // Logout
             Route::get('logout', 'logout')->name('logout');
         });
