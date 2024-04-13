@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Support\Facades\RateLimiter;
 use WebRegulate\LaravelAdministration\Models\User;
+use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItem;
 
 class WRLAHelper
 {
@@ -105,6 +106,50 @@ class WRLAHelper
                 //dd("The view '$view' does not exist within the package. Stack trace: ", debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2));
             }
         }
+    }
+
+    /**
+     * Get navigation items from the config and return them as an array of NavigationItem objects.
+     * @return array The array of NavigationItem objects.
+     */
+    public static function getNavigationItems(): array
+    {
+        // Get the navigation items from the config
+        $navigationItems = config('wr-laravel-administration.navigation');
+
+        // Flatten navigation items, this is so that you can "inject" a group of navigation items within the array or child array
+        $navigationItems = self::flattenNavigationItems($navigationItems);
+
+        return $navigationItems;
+    }
+
+    /**
+     * Recursivly loop throught the array and navigationItem->children, if ever come across a standard array
+     * within then "flaten" it to the array that it was within, in other words, remove the array but keep the items where they were.
+     * @param array $navigationItems The array of navigation items.
+     * @return array The array of NavigationItem objects.
+     */
+    public static function flattenNavigationItems(array $navigationItems): array
+    {
+        $flattenedNavigationItems = [];
+
+        foreach($navigationItems as $navigationItem) {
+            // If the navigation item is an instance of NavigationItem then add it to the flattened array
+            if($navigationItem instanceof NavigationItem) {
+                $flattenedNavigationItems[] = $navigationItem;
+            }
+            // If the navigation item is an array then loop through it and add the items to the flattened array
+            else if(is_array($navigationItem)) {
+                $flattenedNavigationItems = array_merge($flattenedNavigationItems, self::flattenNavigationItems($navigationItem));
+            }
+        }
+
+        // Then search through the children of the navigation items flattern those arrays as well
+        foreach($flattenedNavigationItems as $navigationItem) {
+            $navigationItem->children = self::flattenNavigationItems($navigationItem->children);
+        }
+
+        return $flattenedNavigationItems;
     }
 
     /**

@@ -1,5 +1,7 @@
 <?php
 
+use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItem;
+
 return [
 
     // Base URL for the administration panel, e.g. 'wr-admin' will result in 'http://example.com/wr-admin'
@@ -32,6 +34,35 @@ return [
             'name' => 'Default',        // Name of the theme displayed to user (if multiple themes are available)
             'path' => 'default',        // Path to the theme folder in the 'resources/views/themes/?' directory
             'default_mode' => 'dark',   // Default mode for the theme (dark or light)
+        ]
+    ],
+
+    // Navigation items
+    'navigation' => [
+        // Dashboard
+        new NavigationItem('dashboard', 'Dashboard', 'fa fa-tachometer-alt'),
+
+        // Test
+        new NavigationItem('dashboard', 'With Children', 'fa fa-tachometer-alt', [
+            new NavigationItem('dashboard', 'Test', 'fa fa-tachometer-alt'),
+            new NavigationItem('dashboard', 'Test 2', 'fa fa-tachometer-alt'),
+            [
+                new NavigationItem('dashboard', 'Test 3', 'fa fa-tachometer-alt'),
+                new NavigationItem('dashboard', 'Test 4', 'fa fa-tachometer-alt'),
+            ]
+        ]),
+
+        // Test within array
+        [
+            new NavigationItem(null, 'Children Without Route', 'fa fa-tachometer-alt', [
+                new NavigationItem('dashboard', 'Test', 'fa fa-tachometer-alt'),
+                new NavigationItem('dashboard', 'Test 2', 'fa fa-tachometer-alt'),
+            ]),
+
+            new NavigationItem(null, 'Children Without Route', 'fa fa-tachometer-alt', [
+                new NavigationItem('dashboard', 'Test', 'fa fa-tachometer-alt'),
+                new NavigationItem('dashboard', 'Test 2', 'fa fa-tachometer-alt'),
+            ]),
         ]
     ],
 
