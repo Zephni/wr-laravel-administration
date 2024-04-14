@@ -4,7 +4,7 @@
     {{-- If navigation item does not have children --}}
     @if(!$navigationItem->hasChildren())
         <div class="relative w-full overflow-hidden">
-            <a href="{{ $navigationItem->getUrl() }}" class="@if($navigationItem->getUrl() == url()->current()) !bg-slate-100 dark:!bg-slate-900 !text-primary-500 @endif flex justify-start items-center whitespace-nowrap w-full select-none px-6 pt-2 pb-1 font-bold hover:text-primary-500 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-900 border-b border-slate-400 dark:border-slate-700 first-of-type:border-t">
+            <a href="{{ $navigationItem->getUrl() }}" class="@if($navigationItem->getUrl() == url()->current()) !text-primary-500 @endif flex justify-start items-center whitespace-nowrap w-full select-none px-6 pt-2 pb-1 font-bold hover:text-primary-500 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-900 border-b border-slate-400 dark:border-slate-700 first-of-type:border-t">
                 <i class="{{ $navigationItem->icon }} w-6 h-6 text-primary-500 mt-1 mr-1"></i>
                 <span class="text-sm">{{ $navigationItem->render() }}</span>
             </a>
@@ -21,7 +21,7 @@
                 {{-- If navigation item has a route --}}
                 @if(!empty($navigationItem->route))
                     <a href="{{ $navigationItem->getUrl() }}"
-                        :class="{ 'bg-slate-100 dark:bg-slate-900 text-primary-500': !$data[uniqueIndexKey] && childIsActive }"
+                        :class="{ 'text-primary-500': !$data[uniqueIndexKey] && childIsActive }"
                         class="flex-1 h-full px-6 pt-2 pb-1 text-start hover:text-primary-500 hover:bg-slate-100 dark:hover:bg-slate-900 whitespace-nowrap">
                         <i class="{{ $navigationItem->icon }} w-6 h-6 text-primary-500 mt-1 mr-1"></i>
                         <span class="text-sm">{{ $navigationItem->render() }}</span>
@@ -46,7 +46,7 @@
                 @foreach($navigationItem->children as $child)
                     <a
                         x-init="() => { if ('{{ $child->getUrl() }}' == '{{ url()->current() }}') { childIsActive = true; } }"
-                        href="{{ $child->getUrl() }}" class="@if($child->getUrl() == url()->current()) !bg-slate-100 dark:!bg-slate-900 !text-primary-500 @endif flex items-center justify-start w-full pl-9 pr-6 pt-1 pb-0 font-bold hover:bg-slate-100 dark:hover:bg-slate-900 hover:!text-primary-500 dark:hover:!text-primary-500 border-b border-slate-400 dark:border-slate-700">
+                        href="{{ $child->getUrl() }}" class="@if($child->getUrl() == url()->current()) !text-primary-500 @endif flex items-center justify-start w-full pl-9 pr-6 pt-1 pb-0 font-bold bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-900 hover:!text-primary-500 dark:hover:!text-primary-500 border-b border-slate-400 dark:border-slate-700">
                         <i class="{{ $child->icon }} w-6 h-6 text-primary-500 mt-1 mr-1"></i>
                         <span class="text-sm">{{ $child->render() }}</span>
                     </a>
