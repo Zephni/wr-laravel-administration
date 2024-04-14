@@ -15,7 +15,7 @@ class NavigationItemManageableModel extends NavigationItem
         parent::__construct(
             'wrla.browse',
             ['modelUrlAlias' => $modelClass::getUrlAlias()],
-            $modelClass::getDisplayName(),
+            $modelClass::getDisplayName()->plural(),
             $modelClass::getIcon(),
             [
                 new NavigationItem(

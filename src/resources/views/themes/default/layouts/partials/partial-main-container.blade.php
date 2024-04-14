@@ -15,7 +15,7 @@
                     {{ $user->name }}
                 </span>
             </div>
-            <button id="theme-mode-toggle" class="flex w-[40px] h-full justify-center items-center border-l border-slate-300 dark:border-slate-700 bg-slate-50 text-slate-800 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-900 dark:text-slate-400">
+            <button @click="darkMode = !darkMode" class="flex w-[40px] h-full justify-center items-center border-l border-slate-300 dark:border-slate-700 bg-slate-50 text-slate-800 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-900 dark:text-slate-400">
                 <i class="fas fa-sun text-sm text-primary-500 dark:hidden"></i>
                 <i class="fas fa-moon text-sm text-primary-500 hidden dark:block"></i>
             </button>

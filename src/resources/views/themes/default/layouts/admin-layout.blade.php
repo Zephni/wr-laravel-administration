@@ -10,9 +10,10 @@
     {{-- Partial head --}}
     @include('wr-laravel-administration::themes.default.layouts.partials.partial-head')
 </head>
-<body class="h-full" style="background: black;">
+<body x-cloak x-data="{ darkMode: $persist({{ $themeData->default_mode == 'dark' ? 'true' : 'false' }}) }" :class="{'dark': darkMode === true }" class="h-full antialiased">
 
-    <div class="transition-all relative flex flex-row w-full h-full items-center text-slate-900 dark:text-slate-100 bg-slate-200 dark:bg-slate-900">
+    {{-- Main container --}}
+    <div class="relative flex flex-row w-full h-full items-center text-slate-900 dark:text-slate-100 bg-slate-200 dark:bg-slate-900">
 
         {{-- Left panel --}}
         @include('wr-laravel-administration::themes.default.layouts.partials.partial-left-panel')

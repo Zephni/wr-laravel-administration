@@ -134,16 +134,13 @@ class WRLAServiceProvider extends ServiceProvider
      */
     protected function passVariablesToViews(): void
     {
-        // Get current theme data
-        $currentThemeData = (object)WRLAHelper::getCurrentThemeData();
-
         // Share variables with all views within this package
-        view()->composer('wr-laravel-administration::*', function ($view) use ($currentThemeData) {
+        view()->composer('wr-laravel-administration::*', function ($view) {
             // Current user
             $view->with('user', User::current());
 
             // Theme data
-            $view->with('themeData', $currentThemeData);
+            $view->with('themeData', (object)WRLAHelper::getCurrentThemeData());
 
             // Share WRLAHelper class
             $view->with('WRLAHelper', WRLAHelper::class);
