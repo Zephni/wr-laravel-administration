@@ -7,6 +7,14 @@ class NavigationItemManageableModel extends NavigationItem
     public function __construct(
         public string $modelClass,
     ) {
+        try {
+            if(!class_exists($modelClass)) {
+
+            }
+        } catch (\Exception $e) {
+            return;
+        }
+
         // Check that $modelClass extends ManageableModel
         if(!is_subclass_of($modelClass, 'WebRegulate\LaravelAdministration\Classes\ManageableModel')) {
             throw new \Exception("Model class `$modelClass` must extend ManageableModel when passing to navigation item.");

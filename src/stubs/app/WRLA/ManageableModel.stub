@@ -1,0 +1,26 @@
+<?php
+
+namespace {{ $NAMESPACE }};
+
+use Illuminate\Support\Stringable;
+use WebRegulate\LaravelAdministration\Classes\ManageableModel;
+
+class {{ $MODEL }} extends ManageableModel
+{
+    public static $baseModel = \App\Models\{{ $MODEL }}::class;
+
+    public static function getUrlAlias(): string
+    {
+        return '{{ $URL_ALIAS }}';
+    }
+
+    public static function getDisplayName(): Stringable
+    {
+        return str('{{ $DISPLAY_NAME }}');
+    }
+
+    public static function getIcon(): string
+    {
+        return '{{ $ICON }}';
+    }
+}

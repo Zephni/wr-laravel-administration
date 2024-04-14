@@ -1,5 +1,6 @@
 @foreach($WRLAHelper::getNavigationItems() as $navigationItem)
-    {{-- Using tailwind, this is a pretty yet flexible naviigation menu. It allows children, and uses alpine for toggling dropdowns.  --}}
+    {{-- If $navigationItem is null then continue --}}
+    @continue($navigationItem == null)
 
     {{-- If navigation item does not have children --}}
     @if(!$navigationItem->hasChildren())

@@ -7,11 +7,13 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
-use WebRegulate\LaravelAdministration\Classes\ManageableModel;
 use WebRegulate\LaravelAdministration\Models\User;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
+use WebRegulate\LaravelAdministration\Classes\ManageableModel;
+use WebRegulate\LaravelAdministration\Commands\InstallCommand;
 use WebRegulate\LaravelAdministration\Http\Middleware\IsAdmin;
 use WebRegulate\LaravelAdministration\Http\Middleware\IsNotAdmin;
+use WebRegulate\LaravelAdministration\Commands\CreateManageableModelCommand;
 use WebRegulate\LaravelAdministration\Livewire\ManageableModels\ManageableModelBrowse;
 use WebRegulate\LaravelAdministration\Livewire\ManageableModels\ManageableModelUpsert;
 
@@ -81,6 +83,12 @@ class WRLAServiceProvider extends ServiceProvider
     {
         // Find all classes that extend ManageableModel and register them
         WRLAHelper::registerManageableModels();
+
+        // Commands
+        $this->commands([
+            InstallCommand::class,
+            CreateManageableModelCommand::class,
+        ]);
 
         // Load migrations
         $this->loadMigrationsFrom(__DIR__ . '/database/migrations');
