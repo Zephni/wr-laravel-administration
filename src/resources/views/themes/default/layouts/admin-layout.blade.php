@@ -12,7 +12,7 @@
 </head>
 <body class="h-full" style="background: black;">
 
-    <div class="transition-all relative flex flex-row w-full h-full items-center bg-slate-200 text-slate-800 dark:bg-slate-900 dark:text-slate-400">
+    <div class="transition-all relative flex flex-row w-full h-full items-center text-slate-900 dark:text-slate-100 bg-slate-200 dark:bg-slate-900">
 
         {{-- Left panel --}}
         @include('wr-laravel-administration::themes.default.layouts.partials.partial-left-panel')

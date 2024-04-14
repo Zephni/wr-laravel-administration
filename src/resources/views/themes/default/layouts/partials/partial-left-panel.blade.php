@@ -2,7 +2,7 @@
 <div
     x-data="{ leftPanelOpen: $persist(true), leftPanelWidth: $persist(360), dragging: false, startX: 0, minW: 0, maxW: 0 }"
     x-bind:style="'width: ' + leftPanelWidth + 'px;'"
-    :class="(leftPanelOpen ? 'min-w-44 max-w-[33%] ' : 'min-w-0 max-w-0 border-none') + (!dragging ? 'transition-all' : '')"
+    :class="(leftPanelOpen ? 'min-w-44 max-w-[33%] ' : 'min-w-0 max-w-0 border-none ') + (!dragging ? 'transition-all' : '')"
     id="left-panel"
     class="relative flex flex-col justify-start items-start h-full border-r-2 border-slate-300 dark:border-slate-950 bg-slate-100 dark:bg-slate-850 shadow-lg shadow-slate-500 dark:shadow-slate-950 z-10">
 

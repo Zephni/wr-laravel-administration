@@ -1,7 +1,7 @@
 {{-- Right container --}}
 <div class="flex-1 h-full">
     {{-- Top bar --}}
-    <div class="flex gap-5 h-9 justify-end items-center border-b-2 border-slate-300 dark:border-slate-950 shadow-md dark:shadow-slate-900 bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-400">
+    <div class="flex gap-5 h-9 justify-end items-center border-b-2 border-slate-300 dark:border-slate-700 shadow-md dark:shadow-slate-900 bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-400">
         {{-- Maybe time here? --}}
         <div class="pl-4">
 
@@ -15,11 +15,11 @@
                     {{ $user->name }}
                 </span>
             </div>
-            <button id="theme-mode-toggle" class="flex w-[40px] h-full justify-center items-center shadow-md border-l border-slate-300 dark:border-slate-950 shadow-slate-300 dark:shadow-slate-900 bg-slate-50 text-slate-800 dark:bg-slate-800 dark:text-slate-400">
+            <button id="theme-mode-toggle" class="flex w-[40px] h-full justify-center items-center border-l border-slate-300 dark:border-slate-700 bg-slate-50 text-slate-800 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-900 dark:text-slate-400">
                 <i class="fas fa-sun text-sm text-primary-500 dark:hidden"></i>
                 <i class="fas fa-moon text-sm text-primary-500 hidden dark:block"></i>
             </button>
-            <a href="{{ route('wrla.logout') }}" class="flex h-full justify-center items-center text-sm gap-2 px-3 shadow-md border-l border-slate-300 dark:border-slate-950 shadow-slate-300 dark:shadow-slate-900 bg-slate-50 dark:bg-slate-800 text-primary-500">
+            <a href="{{ route('wrla.logout') }}" class="flex h-full justify-center items-center text-sm gap-2 px-3 border-l border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-900 text-primary-500">
                 <i class="fas fa-sign-out-alt"></i>
                 Logout
             </a>
