@@ -2,14 +2,18 @@
 
 namespace WebRegulate\LaravelAdministration;
 
+use Livewire\Livewire;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Http\Request;
 use Illuminate\Support\ServiceProvider;
+use WebRegulate\LaravelAdministration\Classes\ManageableModel;
 use WebRegulate\LaravelAdministration\Models\User;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 use WebRegulate\LaravelAdministration\Http\Middleware\IsAdmin;
 use WebRegulate\LaravelAdministration\Http\Middleware\IsNotAdmin;
+use WebRegulate\LaravelAdministration\Livewire\ManageableModels\ManageableModelBrowse;
+use WebRegulate\LaravelAdministration\Livewire\ManageableModels\ManageableModelUpsert;
 
 class WRLAServiceProvider extends ServiceProvider
 {
@@ -20,6 +24,9 @@ class WRLAServiceProvider extends ServiceProvider
     {
         // Merge config
         $this->mergeConfigFrom(__DIR__ . '/config/wr-laravel-administration.php', 'wr-laravel-administration');
+
+        // Find all classes that extend ManageableModel and register them
+        WRLAHelper::registerManageableModels();
 
         // Register Livewire
         $this->app->register(\Livewire\LivewireServiceProvider::class);
@@ -72,6 +79,9 @@ class WRLAServiceProvider extends ServiceProvider
      */
     protected function mainSetup(): void
     {
+        // Find all classes that extend ManageableModel and register them
+        WRLAHelper::registerManageableModels();
+
         // Load migrations
         $this->loadMigrationsFrom(__DIR__ . '/database/migrations');
 
@@ -90,11 +100,10 @@ class WRLAServiceProvider extends ServiceProvider
         // Load views
         $this->loadViewsFrom(__DIR__ . '/resources/views', 'wr-laravel-administration');
 
-        // Livewire asset injection
-        \Livewire\Livewire::forceAssetInjection();
-
-        // Find all classes that extend ManageableModel and register them
-        WRLAHelper::registerManageableModels();
+        // Livewire component registering and asset injection
+        Livewire::component('wrla.manageable-models.upsert', ManageableModelUpsert::class);
+        Livewire::component('wrla.manageable-models.browse', ManageableModelBrowse::class);
+        Livewire::forceAssetInjection();
     }
 
     /**

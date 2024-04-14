@@ -207,7 +207,7 @@ class WRLAHelper
     public static function registerManageableModels(): void
     {
         // Get all classes that extend ManageableModel
-        $manageableModels = array_filter(get_declared_classes(), fn($class) => is_subclass_of($class, 'WebRegulate\LaravelAdministration\Models\ManageableModel'));
+        $manageableModels = array_filter(get_declared_classes(), fn($class) => is_subclass_of($class, 'WebRegulate\LaravelAdministration\Classes\ManageableModel'));
 
         // Loop through each class and register it
         foreach($manageableModels as $manageableModel) {

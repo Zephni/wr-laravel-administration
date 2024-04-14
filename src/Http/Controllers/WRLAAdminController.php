@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
+use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 
 class WRLAAdminController extends Controller
 {
@@ -17,7 +18,7 @@ class WRLAAdminController extends Controller
      */
     public function index(Request $request)
     {
-        return view('wr-laravel-administration::dashboard');
+        return view(WRLAHelper::getViewPath('dashboard'));
     }
 
     /**
@@ -28,10 +29,12 @@ class WRLAAdminController extends Controller
      */
     public function browse(Request $request, string $modelUrlAlias): View | RedirectResponse
     {
-        return view('wr-laravel-administration::dashboard');
-        // return view('wr-laravel-administration::browse', [
-        //     'modelUrlAlias' => $modelUrlAlias
-        // ]);
+        return view(WRLAHelper::getViewPath('livewire-content'), [
+            'livewireComponentAlias' => 'wrla.manageable-models.browse',
+            'livewireComponentData' => [
+                'modelUrlAlias' => $modelUrlAlias
+            ]
+        ]);
     }
 
     /**
@@ -41,13 +44,15 @@ class WRLAAdminController extends Controller
      * @param ?int $id
      * @return View | RedirectResponse
      */
-    public function upsert(Request $request, string $modelUrlAlias, ?int $id = null): View | RedirectResponse
+    public function upsert(Request $request, string $modelUrlAlias, ?int $modelId = null): View | RedirectResponse
     {
-        return view('wr-laravel-administration::dashboard');
-        // return view('wr-laravel-administration::upsert', [
-        //     'modelUrlAlias' => $modelUrlAlias,
-        //     'id' => $id
-        // ]);
+        return view(WRLAHelper::getViewPath('livewire-content'), [
+            'livewireComponentAlias' => 'wrla.manageable-models.upsert',
+            'livewireComponentData' => [
+                'modelUrlAlias' => $modelUrlAlias,
+                'modelId' => $modelId
+            ]
+        ]);
     }
 
     /**

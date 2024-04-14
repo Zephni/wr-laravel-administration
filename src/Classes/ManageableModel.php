@@ -7,11 +7,18 @@ use Illuminate\Support\Stringable;
 class ManageableModel
 {
     /**
+     * Model that this manageable model is based on, eg. \App\Models\User::class.
+     *
+     * @var string|null
+     */
+    public static $baseModel = null;
+
+    /**
      * Collection of manageable models, pushed to in the register method which is called within the serice provider.
      *
-     * @var \Illuminate\Support\Collection|null
+     * @var ?\Illuminate\Support\Collection
      */
-    private static $manageableModels = null;
+    public static ?\Illuminate\Support\Collection $manageableModels = null;
 
     /**
      * Register the manageable model.
@@ -27,6 +34,17 @@ class ManageableModel
 
         // Register the model
         self::$manageableModels->push(static::class);
+    }
+
+    /**
+     * Get manageable model by URL alias.
+     *
+     * @param string $urlAlias
+     * @return mixed
+     */
+    public static function getByUrlAlias(string $urlAlias): mixed
+    {
+        return self::$manageableModels->first(fn ($model) => $model::getUrlAlias() === $urlAlias);
     }
 
     /**
