@@ -4,7 +4,17 @@ namespace WebRegulate\LaravelAdministration\Classes\NavigationItems;
 
 class NavigationItem
 {
+    /**
+     * Navigation items to be passed to views. Setup in config/wr-laravel-administration.php and finalized in WRLAServiceProvider.php
+     *
+     * @var array
+     */
+    public static $navigationItems = [];
+
+    // Index total
     public static $indexTotal;
+
+    // Index
     public int $index = 0;
 
     /**

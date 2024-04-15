@@ -1,6 +1,7 @@
 <?php
 
 use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItem;
+use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItemsAllManageableModels;
 use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItemManageableModel;
 
 return [
@@ -43,8 +44,11 @@ return [
         // Dashboard
         new NavigationItem('wrla.dashboard', [], 'Dashboard', 'fa fa-tachometer-alt'),
 
-        // Test manageable model
-        new NavigationItemManageableModel(App\WRLA\User::class),
+        // Import all manageable models as nav items - Optionally use example below to add individually
+        NavigationItemsAllManageableModels::import(),
+
+        // Example manageable model
+        // new NavigationItemManageableModel(App\WRLA\YourModel::class),
     ],
 
     // Rate limiting for wrla. routes

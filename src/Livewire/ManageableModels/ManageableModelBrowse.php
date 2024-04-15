@@ -7,11 +7,23 @@ use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 
 class ManageableModelBrowse extends Component
 {
-    public $modelUrlAlias;
+    public $manageableModelClass;
 
-    public function mount($modelUrlAlias)
+    public function mount($manageableModelClass)
     {
-        $this->modelUrlAlias = $modelUrlAlias;
+        // If the manageable model reference is null, redirect to the dashboard
+        if (is_null($manageableModelClass)) {
+            return redirect()->route('wrla.dashboard')->with('error', "Manageable model `$manageableModelClass` not found.");
+        }
+
+        // Get the manageable model and base model class
+        $this->manageableModelClass = $manageableModelClass;
+        $modelClass = $manageableModelClass::getBaseModel();
+
+        // If the model class does not exist, redirect to the dashboard
+        if(!class_exists($modelClass)) {
+            return redirect()->route('wrla.dashboard')->with('error', "Model `$modelClass` not found while loading manageable model `$manageableModelClass`.");
+        }
     }
 
     public function render()

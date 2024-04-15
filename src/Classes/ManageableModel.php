@@ -11,7 +11,7 @@ class ManageableModel
      *
      * @var string|null
      */
-    public static $baseModel = null;
+    private static $baseModel = null;
 
     /**
      * Collection of manageable models, pushed to in the register method which is called within the serice provider.
@@ -60,6 +60,16 @@ class ManageableModel
         return self::$manageableModels->first(function ($manageableModel) use ($urlAlias) {
             return $manageableModel::getUrlAlias() === $urlAlias;
         });
+    }
+
+    /**
+     * Get the base model for the manageable model.
+     *
+     * @return string
+     */
+    public static function getBaseModel(): string
+    {
+        return static::$baseModel;
     }
 
     /**

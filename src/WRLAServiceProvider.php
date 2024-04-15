@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use WebRegulate\LaravelAdministration\Models\User;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
-use WebRegulate\LaravelAdministration\Classes\ManageableModel;
+use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItem;
 use WebRegulate\LaravelAdministration\Commands\InstallCommand;
 use WebRegulate\LaravelAdministration\Http\Middleware\IsAdmin;
 use WebRegulate\LaravelAdministration\Http\Middleware\IsNotAdmin;
@@ -27,9 +27,6 @@ class WRLAServiceProvider extends ServiceProvider
         // Merge config
         $this->mergeConfigFrom(__DIR__ . '/config/wr-laravel-administration.php', 'wr-laravel-administration');
 
-        // Find all classes that extend ManageableModel and register them
-        WRLAHelper::registerManageableModels();
-
         // Register Livewire
         $this->app->register(\Livewire\LivewireServiceProvider::class);
     }
@@ -44,6 +41,9 @@ class WRLAServiceProvider extends ServiceProvider
 
         // Main setup - Loading migrations, routes, views, etc.
         $this->mainSetup();
+
+        // Post boot calls
+        $this->postBootCalls();
 
         // Pass variables to all routes within this package
         $this->passVariablesToViews();
@@ -161,6 +161,9 @@ class WRLAServiceProvider extends ServiceProvider
 
             // Share WRLAHelper class
             $view->with('WRLAHelper', WRLAHelper::class);
+
+            // Navigation
+            $view->with('navigation', config('wr-laravel-administration.navigation'));
         });
     }
 
@@ -199,5 +202,27 @@ class WRLAServiceProvider extends ServiceProvider
             // Display the component with the provided attributes
             return "<?php echo view('{$fullComponentPath}', {$args[1]})->render(); ?>";
         });
+    }
+
+    /**
+     * Post boot calls
+     * @return void
+     */
+    protected function postBootCalls(): void
+    {
+        // Set navigation items
+        NavigationItem::$navigationItems = config('wr-laravel-administration.navigation');
+
+        // Check the navigation config and set up the navigation items
+        foreach(NavigationItem::$navigationItems as $navItemKey => $navItem) {
+            // If nav item is string, then it's a class method to call
+            if(is_string($navItem)) {
+                // Call the method
+                $value = call_user_func($navItem);
+
+                // Inject / Replace the value into the navigation items array
+                NavigationItem::$navigationItems[$navItemKey] = $value;
+            }
+        }
     }
 }

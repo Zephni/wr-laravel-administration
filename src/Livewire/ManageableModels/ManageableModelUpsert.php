@@ -18,8 +18,14 @@ class ManageableModelUpsert extends Component
             return redirect()->route('wrla.dashboard')->with('error', "Manageable model `$manageableModelClass` not found.");
         }
 
-        // Get the base model class
-        $modelClass = $manageableModelClass::$baseModel;
+        // Get the manageable model and base model class
+        $this->manageableModelClass = $manageableModelClass;
+        $modelClass = $manageableModelClass::getBaseModel();
+
+        // If the model class does not exist, redirect to the dashboard
+        if(!class_exists($modelClass)) {
+            return redirect()->route('wrla.dashboard')->with('error', "Model `$modelClass` not found while loading manageable model `$manageableModelClass`.");
+        }
 
         // If the model ID is null, create a new model instance
         if (is_null($modelId)) {

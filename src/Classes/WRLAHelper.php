@@ -8,6 +8,7 @@ use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Support\Facades\RateLimiter;
 use WebRegulate\LaravelAdministration\Models\User;
 use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItem;
+use WebRegulate\LaravelAdministration\WRLAServiceProvider;
 
 class WRLAHelper
 {
@@ -116,7 +117,7 @@ class WRLAHelper
     public static function getNavigationItems(): array
     {
         // Get the navigation items from the config
-        $navigationItems = config('wr-laravel-administration.navigation');
+        $navigationItems = NavigationItem::$navigationItems;
 
         // Flatten navigation items, this is so that you can "inject" a group of navigation items within the array or child array
         $navigationItems = self::flattenNavigationItems($navigationItems);
@@ -208,7 +209,17 @@ class WRLAHelper
     public static function registerManageableModels(): void
     {
         // Get all classes that extend ManageableModel
-        $manageableModels = array_filter(get_declared_classes(), fn($class) => is_subclass_of($class, 'WebRegulate\LaravelAdministration\Classes\ManageableModel'));
+        // $manageableModels = array_filter(get_declared_classes(), fn($class) => is_subclass_of($class, 'WebRegulate\LaravelAdministration\Classes\ManageableModel'));
+
+        // Rather than looking at the declared classes, we now look at the files within the app_path('WRLA') directory (recursively)
+        $manageableModels = [];
+        $files = File::allFiles(app_path('WRLA'));
+        foreach($files as $file) {
+            $class = 'App\\WRLA\\' . $file->getBasename('.php');
+            if(is_subclass_of($class, 'WebRegulate\LaravelAdministration\Classes\ManageableModel')) {
+                $manageableModels[] = $class;
+            }
+        }
 
         // Loop through each class and register it
         foreach($manageableModels as $manageableModel) {
