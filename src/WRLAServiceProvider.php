@@ -115,7 +115,7 @@ class WRLAServiceProvider extends ServiceProvider
     }
 
     /**
-     * Configure rate limiting for routes.
+     * Configure rate limiting for applicable routes.
      *
      * @param Request $request
      */

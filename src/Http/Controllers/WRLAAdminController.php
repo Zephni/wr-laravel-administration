@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
+use WebRegulate\LaravelAdministration\Classes\ManageableModel;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 
 class WRLAAdminController extends Controller
@@ -29,10 +30,18 @@ class WRLAAdminController extends Controller
      */
     public function browse(Request $request, string $modelUrlAlias): View | RedirectResponse
     {
+        // Get the manageable model class by its URL alias
+        $manageableModelClass = ManageableModel::getByUrlAlias($modelUrlAlias);
+
+        // If the manageable model is null, redirect to the dashboard with error
+        if (is_null($manageableModelClass)) {
+            return redirect()->route('wrla.dashboard')->with('error', "Manageable model with url alias `$modelUrlAlias` not found.");
+        }
+
         return view(WRLAHelper::getViewPath('livewire-content'), [
             'livewireComponentAlias' => 'wrla.manageable-models.browse',
             'livewireComponentData' => [
-                'modelUrlAlias' => $modelUrlAlias
+                'manageableModelClass' => $manageableModelClass
             ]
         ]);
     }
@@ -46,10 +55,18 @@ class WRLAAdminController extends Controller
      */
     public function upsert(Request $request, string $modelUrlAlias, ?int $modelId = null): View | RedirectResponse
     {
+        // Get the manageable model by its URL alias
+        $manageableModelClass = ManageableModel::getByUrlAlias($modelUrlAlias);
+
+        // If the manageable model is null, redirect to the dashboard with error
+        if (is_null($manageableModelClass)) {
+            return redirect()->route('wrla.dashboard')->with('error', "Manageable model with url alias `$modelUrlAlias` not found.");
+        }
+
         return view(WRLAHelper::getViewPath('livewire-content'), [
             'livewireComponentAlias' => 'wrla.manageable-models.upsert',
             'livewireComponentData' => [
-                'modelUrlAlias' => $modelUrlAlias,
+                'manageableModelClass' => $manageableModelClass,
                 'modelId' => $modelId
             ]
         ]);

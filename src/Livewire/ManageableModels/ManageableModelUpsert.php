@@ -8,25 +8,18 @@ use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 
 class ManageableModelUpsert extends Component
 {
+    public $manageableModelClass;
     public $model;
 
-    public function mount($modelUrlAlias, $modelId = null)
+    public function mount($manageableModelClass, $modelId = null)
     {
-        // Find the manageable model reference by its URL alias
-        $manageableModelReference = ManageableModel::getByUrlAlias($modelUrlAlias);
-
         // If the manageable model reference is null, redirect to the dashboard
-        if (is_null($manageableModelReference)) {
-            return redirect()->route('wrla.dashboard')->with('error', "Manageable model `$modelUrlAlias` not found.");
+        if (is_null($manageableModelClass)) {
+            return redirect()->route('wrla.dashboard')->with('error', "Manageable model `$manageableModelClass` not found.");
         }
 
-        // Get the model class
-        $modelClass = $manageableModelReference::$baseModel;
-
-        // If the model class is null, redirect to the dashboard
-        if (is_null($modelClass)) {
-            return redirect()->route('wrla.dashboard')->with('error', "Model class `$modelClass` not found from manageable model `$modelUrlAlias`.");
-        }
+        // Get the base model class
+        $modelClass = $manageableModelClass::$baseModel;
 
         // If the model ID is null, create a new model instance
         if (is_null($modelId)) {

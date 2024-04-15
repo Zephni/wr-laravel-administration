@@ -37,6 +37,19 @@ class ManageableModel
     }
 
     /**
+     * Get manageable model by model class.
+     *
+     * @param string $modelClass
+     * @return mixed
+     */
+    public static function getByModelClass(string $modelClass): mixed
+    {
+        return self::$manageableModels->first(function ($manageableModel) use ($modelClass) {
+            return $manageableModel::$baseModel === $modelClass;
+        });
+    }
+
+    /**
      * Get manageable model by URL alias.
      *
      * @param string $urlAlias
@@ -44,7 +57,9 @@ class ManageableModel
      */
     public static function getByUrlAlias(string $urlAlias): mixed
     {
-        return self::$manageableModels->first(fn ($model) => $model::getUrlAlias() === $urlAlias);
+        return self::$manageableModels->first(function ($manageableModel) use ($urlAlias) {
+            return $manageableModel::getUrlAlias() === $urlAlias;
+        });
     }
 
     /**
