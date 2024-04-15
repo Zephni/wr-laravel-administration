@@ -7,7 +7,7 @@ use WebRegulate\LaravelAdministration\Classes\ManageableModel;
 
 class {{ $MODEL }} extends ManageableModel
 {
-    public static $baseModel = \App\Models\{{ $MODEL }}::class;
+    public static $baseModel = \App\Models\{{ $MODEL_WITH_PATH }}::class;
 
     public static function getUrlAlias(): string
     {

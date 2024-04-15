@@ -250,6 +250,12 @@ class WRLAHelper
             $stub = str_replace($key, $value, $stub);
         }
 
+        // If directory does not exist, create it
+        $directory = dirname($destination);
+        if (!File::isDirectory($directory)) {
+            File::makeDirectory($directory, 0755, true, true);
+        }
+
         // Create the file
         File::put($destination, $stub);
 

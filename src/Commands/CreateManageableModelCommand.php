@@ -70,10 +70,12 @@ class CreateManageableModelCommand extends Command
      */
     public static function getStubVariables(string $model, string $icon): array
     {
+        $modelWithPath = $model;
+
         // If the model contains a backslash, it means it's namespaced
         if (str($model)->contains('\\')) {
             $namespace = 'App\\WRLA\\' . str($model)->beforeLast('\\')->__toString();
-            $model = str($model)->afterLast('\\')->__toString();
+            $model = str($modelWithPath)->afterLast('\\')->__toString();
         // Otherwise, it's just the model
         } else {
             $namespace = 'App\\WRLA';
@@ -82,6 +84,7 @@ class CreateManageableModelCommand extends Command
         return [
             '{{ $NAMESPACE }}' => $namespace,
             '{{ $MODEL }}' => $model,
+            '{{ $MODEL_WITH_PATH }}' => $modelWithPath,
             '{{ $URL_ALIAS }}' => str($model)->kebab()->lower()->__toString(),
             '{{ $DISPLAY_NAME }}' => str($model)->headline()->__toString(),
             '{{ $ICON }}' => $icon,
