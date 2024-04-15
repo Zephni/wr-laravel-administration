@@ -11,14 +11,14 @@ class NavigationItem
      * Constructor
      *
      * @param string $route
-     * @param ?array $routeData
+     * @param array $routeData
      * @param string $name
      * @param string $icon
      * @param array $children
      */
     public function __construct(
-        public ?string $route,
-        public ?array $routeData = [],
+        public string $route,
+        public array $routeData,
         public string $name,
         public string $icon = 'fa fa-question',
         public array $children = [],

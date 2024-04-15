@@ -3,8 +3,9 @@
 namespace WebRegulate\LaravelAdministration\Commands;
 
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\File;
 use Illuminate\Support\Pluralizer;
+use Illuminate\Support\Facades\File;
+use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 
 class CreateManageableModelCommand extends Command
 {
@@ -29,29 +30,25 @@ class CreateManageableModelCommand extends Command
      */
     public function handle()
     {
-        // Use the stubs/app/WRLA/ManageableModel.stub file to create the app/WRLA/NewModel.php file
-        File::ensureDirectoryExists(app_path('WRLA'));
-
-        // Get the model name
+        // Get the model name and file path
         $model = $this->argument('model');
-
-        // Get the model stub
-        $stub = File::get(__DIR__ . '/../stubs/app/WRLA/ManageableModel.stub');
+        $filePath = str($model)->replace('\\', '/')->__toString();
 
         // Question 1: Icon for the model (default: fa fa-question-circle)
-        $icon = $this->ask('Icon for the model (default: fa fa-question-circle)', 'fa fa-question-circle');
+        $icon = $this->ask('Icon for the model', 'fa fa-question-circle');
 
-        // Replace the stub variables
-        foreach ($this->getStubVariables($model, $icon) as $key => $value) {
-            $stub = str_replace($key, $value, $stub);
-        }
-
-        // Convert model to file path and create the file
-        $filePath = str($model)->replace('\\', '/')->__toString();
-        File::put(app_path('WRLA/' . $filePath . '.php'), $stub);
+        // Now we use WRLAHelper to generate the file from the stub
+        WRLAHelper::generateFileFromStub(
+            'ManageableModel.stub',
+            self::getStubVariables($model, $icon),
+            app_path('WRLA/' . $filePath . '.php')
+        );
 
         // Success message
-        $this->info("Manageable model $model created successfully here: app/WRLA/$filePath.php");
+        $this->info("Manageable model $model created successfully here: " . WRLAHelper::forwardSlashPath(str_replace(base_path(), '', app_path('WRLA/' . $filePath . '.php'))));
+
+        // New line for separation
+        $this->line('');
     }
 
     /**
@@ -59,7 +56,7 @@ class CreateManageableModelCommand extends Command
      *
      * @return array
      */
-    protected function getStubVariables(string $model, string $icon): array
+    public static function getStubVariables(string $model, string $icon): array
     {
         // If the model contains a backslash, it means it's namespaced
         if (str($model)->contains('\\')) {

@@ -3,6 +3,7 @@
 namespace WebRegulate\LaravelAdministration\Classes;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\File;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Support\Facades\RateLimiter;
 use WebRegulate\LaravelAdministration\Models\User;
@@ -215,6 +216,46 @@ class WRLAHelper
         }
     }
 
+    /**
+     * generate a file from a stub and replace variables.
+     *
+     * @param string $stub The stub to replace variables in.
+     * @param array $variables The variables to replace in the stub.
+     * @param string $destination The destination path to save the final file.
+     * @return string|false Whether the stub was successfully created.
+     */
+    public static function generateFileFromStub(string $stub, array $variables, string $destination, bool $forceOverwrite = false): string|false
+    {
+        // If $forceOverwrite is false and the file already exists, return false
+        if(!$forceOverwrite && File::exists($destination)) {
+            return false;
+        }
+
+        // Get the stub
+        $stub = File::get(__DIR__ . '/../stubs/' . $stub);
+
+        // Replace the stub variables
+        foreach ($variables as $key => $value) {
+            $stub = str_replace($key, $value, $stub);
+        }
+
+        // Create the file
+        File::put($destination, $stub);
+
+        return $destination;
+    }
+
+    /**
+     * Replace backslashes with forward slashes.
+     *
+     * @param string $string The string to replace backslashes with forward slashes.
+     * @return string The string with backslashes replaced with forward slashes.
+     */
+    public static function forwardSlashPath(string $string): string
+    {
+        $string = addslashes($string);
+        return str_replace('//', '/', str_replace('\\', '/', $string));
+    }
 
     /**
      * Evaulate arguments as string and define as array.

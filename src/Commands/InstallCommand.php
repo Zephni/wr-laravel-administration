@@ -3,8 +3,9 @@
 namespace WebRegulate\LaravelAdministration\Commands;
 
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\File;
 use Illuminate\Support\Pluralizer;
+use Illuminate\Support\Facades\File;
+use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 
 class InstallCommand extends Command
 {
@@ -29,25 +30,36 @@ class InstallCommand extends Command
      */
     public function handle()
     {
-        // Use the stubs/app/WRLA/ManageableModel.stub file to create the app/WRLA/User.php file
-        File::ensureDirectoryExists(app_path('WRLA'));
+        // Publish the config file
+        $this->call('vendor:publish', [
+            '--provider' => 'WebRegulate\LaravelAdministration\WRLAServiceProvider',
+            '--tag' => 'wrla-config',
+        ]);
 
-        if (!File::exists(app_path('WRLA/User.php'))) {
-            File::copy(__DIR__ . '/stubs/app/WRLA/ManageableModel.stub', app_path('WRLA/User.php'));
+        // Publish the assets
+        $this->call('vendor:publish', [
+            '--provider' => 'WebRegulate\LaravelAdministration\WRLAServiceProvider',
+            '--tag' => 'wrla-assets',
+        ]);
+
+        // Create user manageable model
+        $createdUserAt = WRLAHelper::generateFileFromStub(
+            'ManageableModel.stub',
+            CreateManageableModelCommand::getStubVariables('User', 'fa fa-user'),
+            app_path('WRLA/User.php')
+        );
+
+        // Success message
+        $this->info('WRLA installed successfully.');
+
+        // If the user model was created, show a message
+        if ($createdUserAt !== false) {
+            $this->info('User model created successfully here: ' . $createdUserAt);
+        } else {
+            $this->warn('User model already exists at ' . WRLAHelper::forwardSlashPath(str_replace(base_path(), '', app_path('WRLA/User.php'))) . '. If you want to recreate it, delete the file and run the command again.');
         }
-    }
 
-    /**
-     * Get stub variables
-     *
-     * @return array
-     */
-    protected function getStubVariables(): array
-    {
-        return [
-            'NAMESPACE' => 'App\WRLA',
-            'MANAGEABLE_MODEL' => 'User',
-            'DummyPluralClass' => Pluralizer::plural($this->getClassName()),
-        ];
+        // New line for separation
+        $this->line('');
     }
 }
