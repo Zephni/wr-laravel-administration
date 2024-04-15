@@ -56,7 +56,7 @@ class InstallCommand extends Command
         if ($createdUserAt !== false) {
             $this->info('User model created successfully here: ' . $createdUserAt);
         } else {
-            $this->warn('User model already exists at ' . WRLAHelper::forwardSlashPath(str_replace(base_path(), '', app_path('WRLA/User.php'))) . '. If you want to recreate it, delete the file and run the command again.');
+            $this->warn('User model already exists at ' . WRLAHelper::removeBasePath(app_path('WRLA/User.php')) . '. If you want to recreate it, delete the file and run the command again.');
         }
 
         // New line for separation

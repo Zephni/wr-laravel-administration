@@ -222,7 +222,7 @@ class WRLAHelper
      * @param string $stub The stub to replace variables in.
      * @param array $variables The variables to replace in the stub.
      * @param string $destination The destination path to save the final file.
-     * @return string|false Whether the stub was successfully created.
+     * @return string|false The path of the file created (minus the base path) or false if the file already exists and $forceOverwrite is false.
      */
     public static function generateFileFromStub(string $stub, array $variables, string $destination, bool $forceOverwrite = false): string|false
     {
@@ -242,7 +242,7 @@ class WRLAHelper
         // Create the file
         File::put($destination, $stub);
 
-        return $destination;
+        return WRLAHelper::removeBasePath($destination);
     }
 
     /**
@@ -255,6 +255,17 @@ class WRLAHelper
     {
         $string = addslashes($string);
         return str_replace('//', '/', str_replace('\\', '/', $string));
+    }
+
+    /**
+     * Remove base path
+     *
+     * @param string $string The string to remove the base path from.
+     * @return string The string with the base path removed.
+     */
+    public static function removeBasePath(string $path): string
+    {
+        return WRLAHelper::forwardSlashPath(str_replace(base_path(), '', $path));
     }
 
     /**

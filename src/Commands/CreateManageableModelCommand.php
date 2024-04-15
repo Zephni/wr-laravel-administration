@@ -34,6 +34,17 @@ class CreateManageableModelCommand extends Command
         $model = $this->argument('model');
         $filePath = str($model)->replace('\\', '/')->__toString();
 
+        // Check if file already exists, if so ask the user if they want to overwrite it
+        $forceOverwrite = false;
+        if (File::exists(app_path('WRLA/' . $filePath . '.php'))) {
+            if ($this->confirm('The model already exists. Do you want to overwrite it?', false)) {
+                $forceOverwrite = true;
+            } else {
+                $this->warn('Model creation cancelled.');
+                return 0;
+            }
+        }
+
         // Question 1: Icon for the model (default: fa fa-question-circle)
         $icon = $this->ask('Icon for the model', 'fa fa-question-circle');
 
@@ -41,11 +52,12 @@ class CreateManageableModelCommand extends Command
         WRLAHelper::generateFileFromStub(
             'ManageableModel.stub',
             self::getStubVariables($model, $icon),
-            app_path('WRLA/' . $filePath . '.php')
+            app_path('WRLA/' . $filePath . '.php'),
+            $forceOverwrite
         );
 
         // Success message
-        $this->info("Manageable model $model created successfully here: " . WRLAHelper::forwardSlashPath(str_replace(base_path(), '', app_path('WRLA/' . $filePath . '.php'))));
+        $this->info("Manageable model $model created successfully here: " . WRLAHelper::removeBasePath(app_path('WRLA/' . $filePath . '.php')));
 
         // New line for separation
         $this->line('');
