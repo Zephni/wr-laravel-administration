@@ -45,7 +45,14 @@ class InstallCommand extends Command
         // Create user manageable model
         $createdUserAt = WRLAHelper::generateFileFromStub(
             'ManageableModel.stub',
-            CreateManageableModelCommand::getStubVariables('User', 'fa fa-user'),
+            CreateManageableModelCommand::getStubVariables('User', 'fa fa-user', [
+                'browsableColumnsMethod' =>
+        "return collect([
+            'name' => 'Name',
+            'email' => 'Email',
+            'created_at' => 'Created',
+        ]);"
+            ]),
             app_path('WRLA/User.php')
         );
 

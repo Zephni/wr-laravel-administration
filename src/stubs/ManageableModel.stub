@@ -2,8 +2,9 @@
 
 namespace {{ $NAMESPACE }};
 
-use Illuminate\Support\Stringable;
 use WebRegulate\LaravelAdministration\Classes\ManageableModel;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Stringable;
 
 class {{ $MODEL }} extends ManageableModel
 {
@@ -26,9 +27,6 @@ class {{ $MODEL }} extends ManageableModel
 
     public static function getBrowsableColumns(): Collection
     {
-        return collect([
-            'id' => 'ID',
-            // 'column_name' => 'Column Name',
-        ]);
+        {{ $BROWSABLE_COLUMNS }}
     }
 }

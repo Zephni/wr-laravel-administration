@@ -27,6 +27,10 @@ class NavigationItemsAllManageableModels extends NavigationItem
         $navItems = [];
         $manageableModels = ManageableModel::$manageableModels;
 
+        if(empty($manageableModels)) {
+            return $navItems;
+        }
+
         foreach ($manageableModels as $manageableModel) {
             $navItems[] = new NavigationItemManageableModel($manageableModel);
         }

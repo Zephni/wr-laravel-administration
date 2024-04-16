@@ -7,6 +7,7 @@
                 @themeComponent('forms.input-text', [
                     'attr' => [
                         'wire:model.live.debounce.400ms' => 'search',
+                        'placeholder' => 'Search filter...'
                     ],
                     'label' => 'Search',
                     'type' => 'text',
