@@ -53,12 +53,8 @@ class NavigationItem
      * Get Url
      * @return string
      */
-    public function getUrl($prependPackagePrefix = true): string
+    public function getUrl(): string
     {
-        if($prependPackagePrefix) {
-            return route($this->route, $this->routeData);
-        }
-
         return route($this->route, $this->routeData);
     }
 

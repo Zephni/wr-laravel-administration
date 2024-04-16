@@ -29,7 +29,7 @@
     {{-- Content container --}}
     <div class="flex flex-row">
         {{-- Gap --}}
-        <div class=" w-16 h-full"></div>
+        <div class=" w-14 h-full"></div>
 
         {{-- Yield content --}}
         <div class="relative w-full flex flex-col pt-8 pb-96 pr-10">

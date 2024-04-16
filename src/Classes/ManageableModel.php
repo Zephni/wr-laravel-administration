@@ -11,7 +11,7 @@ class ManageableModel
      *
      * @var string|null
      */
-    private static $baseModel = null;
+    private static $baseModelClass = null;
 
     /**
      * Collection of manageable models, pushed to in the register method which is called within the serice provider.
@@ -45,7 +45,7 @@ class ManageableModel
     public static function getByModelClass(string $modelClass): mixed
     {
         return self::$manageableModels->first(function ($manageableModel) use ($modelClass) {
-            return $manageableModel::$baseModel === $modelClass;
+            return $manageableModel::$baseModelClass === $modelClass;
         });
     }
 
@@ -67,9 +67,9 @@ class ManageableModel
      *
      * @return string
      */
-    public static function getBaseModel(): string
+    public static function getBaseModelClass(): string
     {
-        return static::$baseModel;
+        return static::$baseModelClass;
     }
 
     /**
