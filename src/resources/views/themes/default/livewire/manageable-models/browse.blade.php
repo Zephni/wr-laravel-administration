@@ -31,14 +31,6 @@
                 </tr>
             </thead>
             <tbody>
-                @php
-                    // Temporary models array for testing purposes
-                    $models = [
-                        $models[0], $models[0], $models[0], $models[0], $models[0],
-                        $models[0], $models[0], $models[0], $models[0], $models[0],
-                        $models[0], $models[0], $models[0], $models[0], $models[0]
-                    ];
-                @endphp
                 @foreach($models as $model)
                     <tr class="odd:bg-slate-100 dark:odd:bg-slate-700 even:bg-slate-200 dark:even:bg-slate-800">
                         @foreach($columns as $column => $label)
@@ -62,5 +54,32 @@
                 @endforeach
             </tbody>
         </table>
+    </div>
+
+    {{-- If empty, show message and link to create new model --}}
+    @if($models->isEmpty())
+        <div class="flex flex-row gap-4 justify-center items-center mt-10 text-slate-700 dark:text-slate-300">
+            @if(empty($search))
+                <span>No records exist in this table</span>
+            @else
+                <span>No records found, try expanding your search or </span>
+            @endif
+            @themeComponent('forms.anchor', [
+                'size' => 'normal',
+                'type' => 'button',
+                'text' => 'Create a new ' . $manageableModelClass::getDisplayName() .' record',
+                'icon' => 'fa fa-plus py-2',
+                'class' => 'px-4',
+                'attr' => [
+                    'href' => route('wrla.manageable-model.create', ['modelUrlAlias' => $manageableModelClass::getUrlAlias()]),
+                ]
+            ])
+        </div>
+    @endif
+
+    {{-- Pagination --}}
+    <div class="mx-auto p-8 text-center">
+        {{ $models->links($WRLAHelper::getViewPath('livewire.pagination.tailwind')) }}
+    </div>
 
 </div>

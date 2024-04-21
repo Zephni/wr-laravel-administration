@@ -3,6 +3,7 @@
 namespace WebRegulate\LaravelAdministration\Livewire\ManageableModels;
 
 use Livewire\Component;
+use Livewire\WithPagination;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 
 /**
@@ -12,6 +13,8 @@ use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
  */
 class ManageableModelBrowse extends Component
 {
+    use WithPagination;
+
     /* Properties
     --------------------------------------------------------------------------*/
 
@@ -21,13 +24,6 @@ class ManageableModelBrowse extends Component
      * @var string
      */
     public $manageableModelClass;
-
-    /**
-     * Model instances.
-     *
-     * @var \Illuminate\Database\Eloquent\Collection
-     */
-    public $models;
 
     /**
      * Columns to display (Collection of column names)
@@ -71,9 +67,6 @@ class ManageableModelBrowse extends Component
 
         // Build columns from manageable model
         $this->columns = $manageableModelClass::getBrowsableColumns();
-
-        // Get the models
-        $this->models = $this->browseModels();
     }
 
     /**
@@ -87,8 +80,6 @@ class ManageableModelBrowse extends Component
         $this->validate([
             'search' => 'string|max:100',
         ]);
-
-        $this->models = $this->browseModels();
     }
 
     /**
@@ -98,7 +89,11 @@ class ManageableModelBrowse extends Component
      */
     public function render()
     {
-        return view(WRLAHelper::getViewPath('livewire.manageable-models.browse'));
+        $models = $this->browseModels();
+
+        return view(WRLAHelper::getViewPath('livewire.manageable-models.browse'), [
+            'models' => $models,
+        ]);
     }
 
     /* Methods
@@ -106,20 +101,18 @@ class ManageableModelBrowse extends Component
 
     /**
      * Browse the models.
-     *
-     * @return \Illuminate\Database\Eloquent\Collection
      */
     protected function browseModels()
     {
         if($this->search == '') {
-            return $this->manageableModelClass::$baseModelClass::limit(1000)->get();
+            return $this->manageableModelClass::$baseModelClass::paginate(1);
         }
         else {
             return $this->manageableModelClass::$baseModelClass::where(function($query) {
                 foreach($this->columns as $column => $label) {
                     $query->orWhere($column, 'like', "%$this->search%");
                 }
-            })->limit(1000)->get();
+            })->paginate(1);
         }
     }
 }
