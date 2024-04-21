@@ -14,18 +14,11 @@ use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 class ManageableModelUpsert extends Component
 {
     /**
-     * The fully qualified class name of the manageable model.
+     * Manageable model instance.
      *
-     * @var string
+     * @var ManageableModel
      */
-    public $manageableModelClass;
-
-    /**
-     * The model instance being upserted.
-     *
-     * @var mixed
-     */
-    public $model;
+    private $manageableModel;
 
     /**
      * Mount the component.
@@ -42,7 +35,7 @@ class ManageableModelUpsert extends Component
         }
 
         // Get the manageable model and base model class
-        $this->manageableModelClass = $manageableModelClass;
+        $this->manageableModel = new $manageableModelClass();
         $modelClass = $manageableModelClass::getBaseModelClass();
 
         // If the model class does not exist, redirect to the dashboard
@@ -52,13 +45,13 @@ class ManageableModelUpsert extends Component
 
         // If the model ID is null, create a new model instance
         if (is_null($modelId)) {
-            $this->model = new $modelClass();
+            $this->manageableModel->setModelInstance(new $modelClass());
         } else {
             // Find the model by its ID
-            $this->model = $modelClass::find($modelId);
+            $this->manageableModel->setModelInstance($modelClass::find($modelId));
 
             // If the model is null, redirect to the dashboard
-            if (is_null($this->model)) {
+            if (is_null($this->manageableModel->modelInstance)) {
                 return redirect()->route('wrla.dashboard')->with('error', "Model `$modelClass` with ID `$modelId` not found.");
             }
         }
@@ -71,6 +64,8 @@ class ManageableModelUpsert extends Component
      */
     public function render()
     {
-        return view(WRLAHelper::getViewPath('livewire.manageable-models.upsert'));
+        return view(WRLAHelper::getViewPath('livewire.manageable-models.upsert'), [
+            'manageableModel' => $this->manageableModel,
+        ]);
     }
 }

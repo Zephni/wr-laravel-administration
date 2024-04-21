@@ -11,7 +11,14 @@ class ManageableModel
      *
      * @var string|null
      */
-    private static $baseModelClass = null;
+    public static $baseModelClass = null;
+
+    /**
+     * Base model instance
+     *
+     * @var mixed
+     */
+    public $modelInstance = null;
 
     /**
      * Collection of manageable models, pushed to in the register method which is called within the serice provider.
@@ -34,6 +41,18 @@ class ManageableModel
 
         // Register the model
         self::$manageableModels->push(static::class);
+    }
+
+    /**
+     * Set the base model instance.
+     *
+     * @param mixed $modelInstance
+     * @return ManageableModel
+     */
+    public function setModelInstance($modelInstance): ManageableModel
+    {
+        $this->modelInstance = $modelInstance;
+        return $this;
     }
 
     /**

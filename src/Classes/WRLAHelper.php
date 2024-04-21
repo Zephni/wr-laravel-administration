@@ -86,6 +86,10 @@ class WRLAHelper
             else if(view()->exists('wr-laravel-administration::themes.' . $currentTheme . '.' . $view)) {
                 return 'wr-laravel-administration::themes.' . $currentTheme . '.' . $view;
             }
+            // Else check if view exists in views directory without any theme
+            else if(view()->exists('wr-laravel-administration::' . $view)) {
+                return 'wr-laravel-administration::' . $view;
+            }
             // Else return false
             else {
                 return false;
