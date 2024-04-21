@@ -20,12 +20,12 @@
         </div>
     </div>
 
-    <div class="overflow-x-auto mt-6 text-slate-900 dark:text-slate-100">
-        <table class="table w-full">
-            <thead class="text-sm border-b border-slate-400 dark:border-slate-600">
+    <div class="overflow-x-auto mt-6">
+        <table class="table w-full rounded-md bg-slate-100 dark:bg-slate-700">
+            <thead class="text-sm border-b bg-slate-700 dark:bg-slate-400 text-slate-100 dark:text-slate-800 border-slate-400 dark:border-slate-600">
                 <tr>
                     @foreach($columns as $column => $label)
-                        <th class="text-left">{{ $label }}</th>
+                        <th class="text-left px-3 py-2">{{ $label }}</th>
                     @endforeach
                     <th></th>
                 </tr>
@@ -34,9 +34,9 @@
                 @foreach($models as $model)
                     <tr>
                         @foreach($columns as $column => $label)
-                            <td class="py-1">{{ $model->{$column} }}</td>
+                            <td class="px-3 py-2">{{ $model->{$column} }}</td>
                         @endforeach
-                        <td class="py-1">
+                        <td class="px-3 py-2">
                             <div class="flex justify-end">
                                 <a href="{{ route('wrla.manageable-model.edit', ['modelUrlAlias' => $manageableModelClass::getUrlAlias(), 'id' => $model->id]) }}"
                                     class="text-primary-500 dark:text-primary-400 hover:text-primary-600 dark:hover:text-primary-500">Edit</a>

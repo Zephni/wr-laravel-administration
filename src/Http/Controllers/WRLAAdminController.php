@@ -10,6 +10,14 @@ use Illuminate\Http\RedirectResponse;
 use WebRegulate\LaravelAdministration\Classes\ManageableModel;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 
+/**
+ * Class WRLAAdminController
+ *
+ * This class is responsible for handling the administration routes and actions in the Laravel application.
+ * It extends the base Controller class and provides methods for managing the dashboard, browsing and upserting manageable models, and logging out.
+ *
+ * @package WebRegulate\LaravelAdministration\Http\Controllers
+ */
 class WRLAAdminController extends Controller
 {
     /**
