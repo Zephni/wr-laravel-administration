@@ -105,14 +105,14 @@ class ManageableModelBrowse extends Component
     protected function browseModels()
     {
         if($this->search == '') {
-            return $this->manageableModelClass::$baseModelClass::paginate(1);
+            return $this->manageableModelClass::$baseModelClass::paginate(10);
         }
         else {
             return $this->manageableModelClass::$baseModelClass::where(function($query) {
                 foreach($this->columns as $column => $label) {
                     $query->orWhere($column, 'like', "%$this->search%");
                 }
-            })->paginate(1);
+            })->paginate(10);
         }
     }
 }

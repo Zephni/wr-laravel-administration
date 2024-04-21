@@ -75,11 +75,11 @@
                 ]
             ])
         </div>
+    @else
+        {{-- Pagination --}}
+        <div class="mx-auto p-8 text-center">
+            {{ $models->links($WRLAHelper::getViewPath('livewire.pagination.tailwind')) }}
+        </div>
     @endif
-
-    {{-- Pagination --}}
-    <div class="mx-auto p-8 text-center">
-        {{ $models->links($WRLAHelper::getViewPath('livewire.pagination.tailwind')) }}
-    </div>
 
 </div>
