@@ -7,7 +7,7 @@
     $id = empty($id) ? 'wrinput-'.$name : $id;
 @endphp
 
-<button {{ $attributes->merge([
+<a {{ $attributes->merge([
     'id' => $id,
     'type' => $type,
     'name' => $name,
@@ -18,7 +18,7 @@
         <i class="{{ $icon }} text-white dark:text-slate-900 mr-1"></i>
     @endif
     {!! $text !!}
-</button>
+</a>
 
 @if(!empty($error))
     <p class="text-sm text-red-500 mt-2">{{ $error }}</p>

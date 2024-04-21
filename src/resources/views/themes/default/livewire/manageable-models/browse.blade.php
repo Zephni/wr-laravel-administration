@@ -46,8 +46,16 @@
                         @endforeach
                         <td class="px-3 py-2">
                             <div class="flex justify-end">
-                                <a href="{{ route('wrla.manageable-model.edit', ['modelUrlAlias' => $manageableModelClass::getUrlAlias(), 'id' => $model->id]) }}"
-                                    class="text-primary-500 dark:text-primary-400 hover:text-primary-600 dark:hover:text-primary-500">Edit</a>
+                                @themeComponent('forms.anchor', [
+                                    'size' => 'small',
+                                    'type' => 'button',
+                                    'text' => 'Edit',
+                                    'icon' => 'fa fa-edit !mr-0 py-1',
+                                    'attr' => [
+                                        'href' => route('wrla.manageable-model.edit', ['modelUrlAlias' => $manageableModelClass::getUrlAlias(), 'id' => $model->id]),
+                                        'title' => 'Edit',
+                                    ]
+                                ])
                             </div>
                         </td>
                     </tr>

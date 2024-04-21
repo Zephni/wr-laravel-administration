@@ -9,7 +9,7 @@
     x-bind:style="'width: ' + leftPanelWidth + 'px;'"
     :class="(leftPanelOpen ? 'min-w-44 max-w-[33%] ' : 'min-w-0 max-w-0 border-none ') + (!dragging ? 'transition-all' : '')"
     id="left-panel"
-    class="fixed flex flex-col justify-start items-start h-full border-r-2 border-slate-300 dark:border-slate-950 bg-slate-700 dark:bg-slate-850 shadow-lg shadow-slate-500 dark:shadow-slate-950 z-10">
+    class="fixed flex flex-col justify-start items-start h-full border-r-2 border-slate-300 dark:border-slate-950 bg-slate-700 dark:bg-slate-700 shadow-lg shadow-slate-500 dark:shadow-slate-950 z-10">
 
     {{-- Collapse button (Use collapse icon from fontawesome) --}}
     <button
@@ -25,7 +25,7 @@
     {{-- Resize bar --}}
     <div
         :class="leftPanelOpen ? 'cursor-ew-resize' : 'hidden cursor-auto';"
-        class="absolute top-0 -right-1 h-full w-[4px] bg-slate-300 dark:bg-slate-800 border-r border-slate-400 dark:border-slate-500"
+        class="absolute top-0 -right-1 h-full w-[4px] bg-slate-400 dark:bg-slate-800 border-r border-slate-400 dark:border-slate-500"
         @mousedown="$event.preventDefault(); if(leftPanelOpen && !dragging) startX = $event.clientX; dragging = true;"
         @mousemove.window="if (dragging) {
             leftPanelWidth = leftPanelWidth + $event.clientX - startX;

@@ -59,6 +59,7 @@
                 @themeComponent('forms.input-button', [
                     'type' => 'submit',
                     'text' => 'Login',
+                    'icon' => 'fa fa-sign-in-alt',
                     'class' => 'w-full'
                 ])
             </div>
