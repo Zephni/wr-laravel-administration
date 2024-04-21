@@ -20,9 +20,9 @@
         </div>
     </div>
 
-    <div class="overflow-x-auto mt-6">
-        <table class="table w-full rounded-md bg-slate-100 dark:bg-slate-700">
-            <thead class="text-sm border-b bg-slate-700 dark:bg-slate-400 text-slate-100 dark:text-slate-800 border-slate-400 dark:border-slate-600">
+    <div class="rounded-md overflow-hidden mt-6 shadow-lg shadow-slate-300 dark:shadow-slate-950">
+        <table class="table w-full text-sm bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-300">
+            <thead class="border-b bg-slate-700 dark:bg-slate-400 text-slate-100 dark:text-slate-800 border-slate-400 dark:border-slate-600">
                 <tr>
                     @foreach($columns as $column => $label)
                         <th class="text-left px-3 py-2">{{ $label }}</th>
@@ -31,8 +31,16 @@
                 </tr>
             </thead>
             <tbody>
+                @php
+                    // Temporary models array for testing purposes
+                    $models = [
+                        $models[0], $models[0], $models[0], $models[0], $models[0],
+                        $models[0], $models[0], $models[0], $models[0], $models[0],
+                        $models[0], $models[0], $models[0], $models[0], $models[0]
+                    ];
+                @endphp
                 @foreach($models as $model)
-                    <tr>
+                    <tr class="odd:bg-slate-100 dark:odd:bg-slate-700 even:bg-slate-200 dark:even:bg-slate-800">
                         @foreach($columns as $column => $label)
                             <td class="px-3 py-2">{{ $model->{$column} }}</td>
                         @endforeach

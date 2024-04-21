@@ -1,5 +1,10 @@
 <!DOCTYPE html>
-<html lang="en" class="h-full">
+<html
+    lang="en"
+    class="h-full"
+    x-cloak
+    x-data="{ darkMode: $persist({{ $themeData->default_mode == 'dark' ? 'true' : 'false' }}) }"
+    :class="{'dark': darkMode === true }">
 <head>
     {{-- Meta data --}}
     <meta charset="UTF-8">
@@ -10,10 +15,16 @@
     {{-- Partial head --}}
     @include('wr-laravel-administration::themes.default.layouts.partials.partial-head')
 </head>
-<body x-cloak x-data="{ darkMode: $persist({{ $themeData->default_mode == 'dark' ? 'true' : 'false' }}) }" :class="{'dark': darkMode === true }" class="h-full antialiased">
+<body
+    class="h-full antialiased bg-slate-200 dark:bg-slate-900">
 
     {{-- Main container --}}
-    <div class="relative flex flex-row w-full h-full items-center text-slate-900 dark:text-slate-100 bg-slate-200 dark:bg-slate-900">
+    <div
+        x-data="{
+            leftPanelOpen: $persist(true).using(sessionStorage),
+            leftPanelWidth: $persist(360),
+        }"
+        class="relative flex flex-row w-full h-full items-center text-slate-900 dark:text-slate-100">
 
         {{-- Left panel --}}
         @include('wr-laravel-administration::themes.default.layouts.partials.partial-left-panel')
