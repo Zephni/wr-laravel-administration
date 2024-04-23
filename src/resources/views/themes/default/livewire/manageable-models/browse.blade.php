@@ -42,7 +42,7 @@
                                     'size' => 'small',
                                     'type' => 'button',
                                     'text' => 'Edit',
-                                    'icon' => 'fa fa-edit !mr-0 py-1',
+                                    'icon' => 'fa fa-edit text-xs !mr-0 py-1',
                                     'attr' => [
                                         'href' => route('wrla.manageable-model.edit', ['modelUrlAlias' => $manageableModelClass::getUrlAlias(), 'id' => $model->id]),
                                         'title' => 'Edit',

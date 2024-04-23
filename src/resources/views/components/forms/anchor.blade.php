@@ -17,7 +17,7 @@
     @if(!empty($icon))
         <i class="{{ $icon }} text-white dark:text-slate-900 mr-1"></i>
     @endif
-    {!! $text !!}
+    <span style="position: relative; {{ $size == 'small' ? 'top: 1px;' : '' }}">{!! $text !!}</span>
 </a>
 
 @if(!empty($error))
