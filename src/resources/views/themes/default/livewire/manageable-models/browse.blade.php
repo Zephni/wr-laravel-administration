@@ -57,15 +57,15 @@
     </div>
 
     {{-- If empty, show message and link to create new model --}}
-    @if($models->isEmpty())
+    @if(true || $models->isEmpty())
         <div class="flex flex-row gap-4 justify-center items-center mt-10 text-slate-700 dark:text-slate-300">
             @if(empty($search))
                 <span>No records exist in this table</span>
             @else
                 <span>No records found, try expanding your search or </span>
             @endif
-            @themeComponent('forms.anchor', [
-                'size' => 'normal',
+            @themeComponent('forms.button', [
+                'size' => 'small',
                 'type' => 'button',
                 'text' => 'Create a new ' . $manageableModelClass::getDisplayName() .' record',
                 'icon' => 'fa fa-plus py-2',
