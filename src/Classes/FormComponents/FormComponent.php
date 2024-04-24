@@ -3,6 +3,7 @@
 namespace WebRegulate\LaravelAdministration\Classes\FormComponents;
 
 use Illuminate\View\View;
+use WebRegulate\LaravelAdministration\Classes\ManageableModel;
 
 class FormComponent
 {
@@ -30,13 +31,27 @@ class FormComponent
     /**
      * Make method (can be used in any class that extends FormComponent).
      *
-     * @param string $name
-     * @param mixed $value
+     * @param ManageableModel $manageableModel
+     * @param mixed $column
      * @return static
      */
-    public static function make(string $name, mixed $value): static
+    public static function make(ManageableModel $manageableModel, string $column): static
     {
-        return new static($name, $value);
+        return new static($column, $manageableModel->modelInstance->{$column});
+    }
+
+    /**
+     * Set attribute.
+     *
+     * @param string $key
+     * @param mixed $value
+     * @return $this
+     */
+    public function setAttribute(string $key, mixed $value): static
+    {
+        $this->attributes[$key] = $value;
+
+        return $this;
     }
 
     /**

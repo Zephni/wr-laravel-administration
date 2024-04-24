@@ -26,6 +26,8 @@ class Text extends FormComponent
             'name' => $this->attributes['name'],
             'label' => Str::title(str_replace('_', ' ', $this->attributes['name'])),
             'value' => $this->attributes['value'],
+            'type' => $this->attributes['type'] ?? 'text',
+            'attr' => collect($this->attributes)->forget(['name', 'value', 'type'])->toArray(),
         ])->render());
     }
 }

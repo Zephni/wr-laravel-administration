@@ -6,9 +6,10 @@
 @endphp
 
 @if(!empty($label))
-    <label for="{{ $id }}" class="block text-sm font-medium text-slate-800 dark:text-slate-400">
-        {{ $label }}
-    </label>
+    {!! view($WRLAHelper::getViewPath('components.forms.label'), [
+        'id' => $id,
+        'label' => $label
+    ])->render() !!}
 @endif
 
 <input {{ $attributes->merge([
