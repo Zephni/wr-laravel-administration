@@ -41,15 +41,36 @@ class FormComponent
     }
 
     /**
-     * Set attribute.
+     * Set / Get attribute.
      *
      * @param string $key
-     * @param mixed $value
+     * @param ?string $value
+     * @return $this | string $value
+     */
+    public function attribute(string $key, ?string $value): static
+    {
+        if($value == null) {
+            return $this->attributes[$key];
+        }
+
+        $this->attributes[$key] = $value;
+
+        return $this;
+    }
+
+    /**
+     * Merge or get attributes.
+     *
+     * @param ?array $attributes
      * @return $this
      */
-    public function setAttribute(string $key, mixed $value): static
+    public function attributes(?array $attributes): static
     {
-        $this->attributes[$key] = $value;
+        if($attributes == null) {
+            return $this->attributes;
+        }
+
+        $this->attributes = array_merge($this->attributes, $attributes);
 
         return $this;
     }

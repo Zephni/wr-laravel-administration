@@ -1,4 +1,14 @@
 <div>
+    @themeComponent('forms.button', [
+        'href' => route('wrla.manageable-model.browse', ['modelUrlAlias' => $manageableModel->getUrlAlias()]),
+        'text' => 'Back',
+        'size' => 'small',
+        'color' => 'primary',
+        'icon' => 'fa fa-arrow-left',
+    ])
+
+    <br />
+
     @if($manageableModel->modelInstance->id == null)
         Creating new {{ $manageableModel->getDisplayName() }}
     @else
@@ -21,7 +31,7 @@
         ])
 
         @themeComponent('forms.button', [
-            'href' => url()->previous(),
+            'href' => route('wrla.manageable-model.browse', ['modelUrlAlias' => $manageableModel->getUrlAlias()]),
             'text' => 'Cancel',
             'size' => 'medium',
             'color' => 'danger',

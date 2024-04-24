@@ -35,8 +35,10 @@
                     'value' => old('email'),
                     'error' => $errors->first('email'),
                     'placeholder' => 'email@address.com',
-                    'required' => true,
-                    'autofocus' => true
+                    'attr' => [
+                        'autofocus' => true,
+                        'required' => true,
+                    ]
                 ])
             </div>
 

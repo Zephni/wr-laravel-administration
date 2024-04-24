@@ -14,6 +14,23 @@
     };
 </script>
 
+{{-- Custom JS  --}}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        setTimeout(() => {
+            // If field exists with "autofocus" attribute, set focus on it
+            const autofocusField = document.querySelector('[autofocus]');
+            if (autofocusField) {
+                autofocusField.focus();
+                return;
+            }
+
+            // Otherwise set focus on first input
+            document.querySelector('input').focus();
+        }, 100);
+    });
+</script>
+
 {{-- Font Awesome cdn --}}
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.0-2/css/all.min.css" />
 

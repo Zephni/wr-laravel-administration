@@ -27,8 +27,10 @@
                     'name' => 'email',
                     'value' => old('email'),
                     'error' => $errors->first('email'),
-                    'required' => true,
-                    'autofocus' => true
+                    'attr' => [
+                        'autofocus' => true,
+                        'required' => true,
+                    ]
                 ])
             </div>
 
@@ -39,7 +41,9 @@
                     'name' => 'password',
                     'value' => '',
                     'error' => $errors->first('password'),
-                    'required' => true
+                    'attr' => [
+                        'required' => true,
+                    ]
                 ])
             </div>
 

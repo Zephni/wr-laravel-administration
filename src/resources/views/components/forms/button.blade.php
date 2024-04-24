@@ -8,8 +8,8 @@
 
     // Set size classes
     if($size == 'large') $sizeClasses = 'w-full px-4 py-2';
-    else if($size == 'medium') $sizeClasses = 'px-4 py-1';
-    else if($size == 'small') $sizeClasses = 'px-2';
+    else if($size == 'medium') $sizeClasses = 'w-fit px-4 py-1';
+    else if($size == 'small') $sizeClasses = 'w-fit px-2';
 
     // Set colour classes
     if($color == 'primary') $colorClasses = 'bg-primary-500 hover:bg-primary-600 border-slate-400 dark:border-slate-400';
