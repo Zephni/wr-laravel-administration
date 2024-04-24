@@ -12,7 +12,7 @@
     'type' => $type,
     'name' => $name,
     'class' => 'block '.($size == 'large' ? 'w-full px-3 py-2' : 'px-2').' font-semibold text-white dark:text-slate-900
-        border border-slate-400 dark:border-slate-500 bg-primary-500 dark:bg-primary-500 rounded-md shadow-sm'
+        border border-slate-400 dark:border-slate-500 bg-primary-500 hover:bg-primary-600 rounded-md shadow-sm'
 ])->merge($attr) }}>
     @if(!empty($icon))
         <i class="{{ $icon }} text-white dark:text-slate-900 mr-1"></i>

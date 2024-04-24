@@ -41,7 +41,7 @@
             </div>
 
             <div>
-                @themeComponent('forms.input-button', [
+                @themeComponent('forms.button', [
                     'type' => 'submit',
                     'text' => 'Request password reset link',
                     'class' => 'w-full'

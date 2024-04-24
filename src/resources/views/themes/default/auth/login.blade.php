@@ -56,11 +56,11 @@
             </div>
 
             <div>
-                @themeComponent('forms.input-button', [
+                @themeComponent('forms.button', [
                     'type' => 'submit',
+                    'size' => 'large',
                     'text' => 'Login',
                     'icon' => 'fa fa-sign-in-alt',
-                    'class' => 'w-full'
                 ])
             </div>
 

@@ -10,4 +10,22 @@
             {!! $manageableField->render() !!}
         @endforeach
     </div>
+
+    <div class="flex justify-center gap-4 mt-10">
+        @themeComponent('forms.button', [
+            'type' => 'submit',
+            'size' => 'medium',
+            'color' => 'primary',
+            'text' => 'Save',
+            'icon' => 'fa fa-edit',
+        ])
+
+        @themeComponent('forms.button', [
+            'href' => url()->previous(),
+            'text' => 'Cancel',
+            'size' => 'medium',
+            'color' => 'danger',
+            'icon' => 'fa fa-times',
+        ])
+    </div>
 </div>

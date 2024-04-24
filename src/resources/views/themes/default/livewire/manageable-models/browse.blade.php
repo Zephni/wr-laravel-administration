@@ -38,14 +38,14 @@
                         @endforeach
                         <td class="px-3 py-2">
                             <div class="flex justify-end">
-                                @themeComponent('forms.anchor', [
+                                @themeComponent('forms.button', [
+                                    'href' => route('wrla.manageable-model.edit', ['modelUrlAlias' => $manageableModelClass::getUrlAlias(), 'id' => $model->id]),
                                     'size' => 'small',
                                     'type' => 'button',
                                     'text' => 'Edit',
-                                    'icon' => 'fa fa-edit text-xs !mr-0 py-1',
+                                    'icon' => 'fa fa-edit relative top-[-1px] !mr-0 text-xs',
                                     'attr' => [
-                                        'href' => route('wrla.manageable-model.edit', ['modelUrlAlias' => $manageableModelClass::getUrlAlias(), 'id' => $model->id]),
-                                        'title' => 'Edit',
+                                        'title' => 'Edit'
                                     ]
                                 ])
                             </div>
