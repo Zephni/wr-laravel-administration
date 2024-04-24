@@ -57,7 +57,7 @@
     </div>
 
     {{-- If empty, show message and link to create new model --}}
-    @if(true || $models->isEmpty())
+    @if($models->isEmpty())
         <div class="flex flex-row gap-4 justify-center items-center mt-10 text-slate-700 dark:text-slate-300">
             @if(empty($search))
                 <span>No records exist in this table</span>
