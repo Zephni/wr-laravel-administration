@@ -20,7 +20,7 @@
         </div>
     </div>
 
-    <div class="rounded-md overflow-hidden mt-6 shadow-lg shadow-slate-300 dark:shadow-slate-950">
+    <div class="rounded-md overflow-hidden mt-6 shadow-lg shadow-slate-300 dark:shadow-slate-850">
         <table class="table w-full text-sm bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-300">
             <thead class="border-b bg-slate-700 dark:bg-slate-400 text-slate-100 dark:text-slate-800 border-slate-400 dark:border-slate-600">
                 <tr>

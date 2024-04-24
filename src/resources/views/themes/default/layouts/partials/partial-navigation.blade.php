@@ -35,7 +35,7 @@
                 @endif
 
                 {{-- Dropdown arrow --}}
-                <div @click="dropdownOpen = !dropdownOpen" x-bind:class="{'': !dropdownOpen, '': dropdownOpen}" class="absolute right-0 flex justify-center items-center w-8 min-w-8 min-h-full text-slate-200-slate-800 text-slate-300 dark:text-slate-500 cursor-pointer hover:text-primary-500 border-l border-gray-400 dark:border-gray-700">
+                <div @click="dropdownOpen = !dropdownOpen" x-bind:class="{'': !dropdownOpen, '': dropdownOpen}" class="flex justify-center items-center w-8 min-w-8 min-h-full hover:bg-slate-800 text-slate-300 dark:text-slate-300 cursor-pointer hover:text-primary-500 border-l border-gray-400 dark:border-gray-400">
                     <i x-bind:class="{'fas fa-chevron-right': !dropdownOpen, 'fas fa-chevron-down': dropdownOpen}" class="text-xs mt-1"></i>
                 </div>
 
