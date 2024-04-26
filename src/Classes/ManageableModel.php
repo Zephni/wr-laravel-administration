@@ -163,33 +163,6 @@ class ManageableModel
      *
      * @return Collection
      */
-    public function getManageableFieldsWithMetaData(): Collection
-    {
-        $allFields = $this->getManageableFields();
-
-        // Prepend hidden fields to the collection
-        $allFields->prepend(
-            Hidden::make()->attributes([
-                'name' => '__wrla__model_id',
-                'value' => $this->modelInstance->id ?? null,
-            ])->validation('required|integer')
-        );
-
-        $allFields->prepend(
-            Hidden::make()->attributes([
-                'name' => '__wrla__class_url_alias',
-                'value' => static::getUrlAlias(),
-            ])->validation('required|string')
-        );
-
-        return $allFields;
-    }
-
-    /**
-     * Virtual get manageable fields method.
-     *
-     * @return Collection
-     */
     public function getManageableFields(): Collection
     {
         return collect();
@@ -202,7 +175,7 @@ class ManageableModel
      */
     public function getValidationRules(): Collection
     {
-        $manageableFields = $this->getManageableFieldsWithMetaData();
+        $manageableFields = $this->getManageableFields();
 
         $validationRules = collect();
 
@@ -220,7 +193,7 @@ class ManageableModel
      */
     public function getFormFieldsKeyValues(): array
     {
-        $manageableFields = self::getManageableFieldsWithMetaData();
+        $manageableFields = $this->getManageableFields();
 
         $formFieldsValues = [];
 

@@ -31,6 +31,13 @@ class ManageableModelUpsert extends Component
     public $manageableModelClass;
 
     /**
+     * The model id
+     *
+     * @var ?int
+     */
+    public ?int $modelId = null;
+
+    /**
      * Form fields
      */
     public $formFields = [];
@@ -52,8 +59,9 @@ class ManageableModelUpsert extends Component
             return redirect()->route('wrla.dashboard')->with('error', "Manageable model `$manageableModelClass` not found.");
         }
 
-        // Set the manageable model class
+        // Set the manageable model class and model id
         $this->manageableModelClass = $manageableModelClass;
+        $this->modelId = $modelId;
 
         // Get the manageable model and base model class
         $manageableModel = new $manageableModelClass();
@@ -106,28 +114,25 @@ class ManageableModelUpsert extends Component
      */
     public function save()
     {
-        // Get model class by it's url alias
-        $manageableModelClass = ManageableModel::getByUrlAlias($this->formFields['__wrla__class_url_alias']);
-
         // Check model class exists
-        if (is_null($manageableModelClass) || !class_exists($manageableModelClass)) {
-            return redirect()->route('wrla.dashboard')->with('error', "Manageable model `".$this->formFields['__wrla__class_url_alias']."` not found.");
+        if (is_null($this->manageableModelClass) || !class_exists($this->manageableModelClass)) {
+            return redirect()->route('wrla.dashboard')->with('error', "Manageable model `$this->manageableModelClass` not found.");
         }
 
-        if($this->formFields['__wrla__model_id'] != null)
+        if($this->modelId != null)
         {
             // Get model by it's id
-            $manageableModel =  $manageableModelClass::getByInstanceId($this->formFields['__wrla__model_id']);
+            $manageableModel =  $this->manageableModelClass::getByInstanceId($this->modelId);
 
             // Check model id exists
             if ($manageableModel == null) {
-                return redirect()->route('wrla.dashboard')->with('error', "Model ".$this->formFields['__wrla__class_url_alias']." with ID `".$this->formFields['__wrla__model_id']."` not found.");
+                return redirect()->route('wrla.dashboard')->with('error', "Model ".$this->manageableModelClass." with ID `$this->modelId` not found.");
             }
         }
         else
         {
             // Create new model instance
-            $manageableModel = new $manageableModelClass();
+            $manageableModel = new $this->manageableModelClass();
         }
 
         // Get validation rules for this model
