@@ -45,7 +45,7 @@ class FormComponent
      */
     public static function make(?ManageableModel $manageableModel = null, ?string $column = null): static
     {
-        return new static($column, $manageableModel?->modelInstance->{$column});
+        return new static($column, $manageableModel?->getModelInstance()->{$column});
     }
 
     /**

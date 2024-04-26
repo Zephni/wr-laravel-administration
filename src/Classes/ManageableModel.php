@@ -13,21 +13,21 @@ class ManageableModel
      *
      * @var string|null
      */
-    public static $baseModelClass = null;
+    private static $baseModelClass = null;
 
     /**
      * Base model instance
      *
      * @var mixed
      */
-    public $modelInstance = null;
+    private $modelInstance = null;
 
     /**
      * Collection of manageable models, pushed to in the register method which is called within the serice provider.
      *
-     * @var ?\Illuminate\Support\Collection
+     * @var ?Collection
      */
-    public static ?\Illuminate\Support\Collection $manageableModels = null;
+    public static ?Collection $manageableModels = null;
 
     /**
      * Register the manageable model.
@@ -103,29 +103,6 @@ class ManageableModel
     public static function getBaseModelClass(): string
     {
         return static::$baseModelClass;
-    }
-
-    /**
-     * Get manageable model by instance ID
-     *
-     * @param int $id
-     * @return mixed
-     */
-    public static function getByInstanceId(int $id): mixed
-    {
-        // First find the model by its ID
-        $model = static::getBaseModelClass()::find($id);
-
-        // If the model is null, return null
-        if (is_null($model)) {
-            return null;
-        }
-
-        // Create a new manageable model and set it's model instance
-        $manageableModel = new static();
-        $manageableModel->setModelInstance($model);
-
-        return $manageableModel;
     }
 
     /**

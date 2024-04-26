@@ -83,7 +83,7 @@ class ManageableModelUpsert extends Component
             $this->formFields = $manageableModel->getFormFieldsKeyValues();
 
             // If the model is null, redirect to the dashboard
-            if (is_null($manageableModel->modelInstance)) {
+            if (is_null($manageableModel->getModelInstance())) {
                 return redirect()->route('wrla.dashboard')->with('error', "Model `$modelClass` with ID `$modelId` not found.");
             }
         }
@@ -122,7 +122,9 @@ class ManageableModelUpsert extends Component
         if($this->modelId != null)
         {
             // Get model by it's id
-            $manageableModel =  $this->manageableModelClass::getByInstanceId($this->modelId);
+            $manageableModel =  (new $this->manageableModelClass)->setModelInstance(
+                $this->manageableModelClass::getBaseModelClass()::find($this->modelId)
+            );
 
             // Check model id exists
             if ($manageableModel == null) {
@@ -151,7 +153,7 @@ class ManageableModelUpsert extends Component
         $manageableModel->updateModelInstanceProperties($this->formFields);
 
         // Save the model
-        $manageableModel->modelInstance->save();
+        $manageableModel->getmodelInstance()->save();
 
         // Redirect to the browse page
         return redirect()->route('wrla.manageable-model.browse', ['modelUrlAlias' => $manageableModel->getUrlAlias()]);
