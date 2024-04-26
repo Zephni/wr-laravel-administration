@@ -97,6 +97,17 @@ class FormComponent
     }
 
     /**
+     * Apply value. May be overriden in special cases, such as when applying a hash to a password.
+     *
+     * @param mixed $value
+     * @return mixed
+     */
+    public function applyValue(mixed $value): mixed
+    {
+        return $value;
+    }
+
+    /**
      * Return view component.
      *
      * @param mixed $inject

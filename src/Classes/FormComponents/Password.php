@@ -3,6 +3,7 @@
 namespace WebRegulate\LaravelAdministration\Classes\FormComponents;
 
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Hash;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 
 /**
@@ -13,6 +14,20 @@ use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 class Password extends FormComponent
 {
     /**
+     * Apply value. May be overriden in special cases, such as when applying a hash to a password.
+     *
+     * @param mixed $value
+     * @return mixed
+     */
+    public function applyValue(mixed $value): mixed
+    {
+        // First hash the password
+        $value = Hash::make($value);
+
+        return $value;
+    }
+
+    /**
      * Render the input field.
      *
      * @param mixed $inject
@@ -20,9 +35,12 @@ class Password extends FormComponent
      */
     public function render($inject = null): mixed
     {
+        // Check if wrla_show_name is set
+        $wrla_show = old('wrla_show_' . $this->attributes['name']) == '1' ? 'true' : 'false';
+
         // Contain password and checkbox within a parent div
         $HTML = <<<HTML
-            <div x-data="{ userWantsToChange: false }" class="w-full">
+            <div x-data="{ userWantsToChange: $wrla_show }" class="w-full">
         HTML;
 
         $HTML .= view(WRLAHelper::getViewPath('components.forms.label'), [
@@ -37,7 +55,7 @@ class Password extends FormComponent
         $HTML .= view(WRLAHelper::getViewPath('components.forms.input-checkbox'), [
             'name' => 'wrla_show_' . $this->attributes['name'],
             'label' => 'Change ' . Str::title(str_replace('_', ' ', $this->attributes['name'])),
-            'value' => false,
+            'value' => $wrla_show == 'true',
             'attr' => collect($this->attributes)
                         ->forget(['name', 'value', 'type'])
                         // If checked, flip userWantsToChange

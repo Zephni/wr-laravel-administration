@@ -186,15 +186,19 @@ class ManageableModel
      *
      * @param array $formFields
      */
-    public function updateModelInstanceProperties(array $formFields): void
+    public function updateModelInstanceProperties(Collection $formComponents, array $formKeyValues): void
     {
         $manageableFields = $this->getManageableFields();
 
         foreach ($manageableFields as $manageableField) {
             $fieldName = $manageableField->attribute('name');
 
-            if (array_key_exists($fieldName, $formFields)) {
-                $fieldValue = $formFields[$fieldName];
+            if (array_key_exists($fieldName, $formKeyValues)) {
+                $formComponent = $formComponents->first(function ($formComponent) use ($fieldName) {
+                    return $formComponent->attribute('name') === $fieldName;
+                });
+
+                $fieldValue = $formComponent->applyValue($formKeyValues[$fieldName]);
 
                 $this->updateModelInstanceProperty($fieldName, $fieldValue);
             }

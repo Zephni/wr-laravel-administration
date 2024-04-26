@@ -7,7 +7,7 @@
 
 <div class="flex gap-3 items-center">
     <input
-        @if($value)
+        @if($value || old($name) === '1')
             checked
         @endif
         {{ $attributes->merge([
