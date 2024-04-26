@@ -35,7 +35,7 @@ class Password extends FormComponent
 
         // Checkbox to show/enable password field
         $HTML .= view(WRLAHelper::getViewPath('components.forms.input-checkbox'), [
-            'name' => 'show_' . $this->attributes['name'],
+            'name' => 'wrla_show_' . $this->attributes['name'],
             'label' => 'Change ' . Str::title(str_replace('_', ' ', $this->attributes['name'])),
             'value' => false,
             'attr' => collect($this->attributes)

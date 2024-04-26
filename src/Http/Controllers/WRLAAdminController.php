@@ -72,14 +72,66 @@ class WRLAAdminController extends Controller
             return redirect()->route('wrla.dashboard')->with('error', "Manageable model with url alias `$modelUrlAlias` not found.");
         }
 
-        return view(WRLAHelper::getViewPath('livewire-content'), [
+        // Get manageable model instance
+        $manageableModel = $modelId == null
+            ? new $manageableModelClass()
+            : (new $manageableModelClass())->setModelInstance($manageableModelClass::getBaseModelClass()::find($modelId));
+
+        return view(WRLAHelper::getViewPath('upsert'), [
             'title' => ($modelId ? 'Edit' : 'Create') . ' ' . $manageableModelClass::getDisplayName(),
-            'livewireComponentAlias' => 'wrla.manageable-models.upsert',
-            'livewireComponentData' => [
-                'manageableModelClass' => $manageableModelClass,
-                'modelId' => $modelId
-            ]
+            'manageableModel' => $manageableModel
         ]);
+    }
+
+    /**
+     * ManageableModel upsert submit
+     * @param Request $request
+     * @param string $modelUrlAlias
+     * @param ?int $id
+     * @return RedirectResponse
+     */
+    public function upsertPost(Request $request, string $modelUrlAlias, ?int $modelId = null): RedirectResponse
+    {
+        // Get manageable model class by its URL alias
+        $manageableModelClass = ManageableModel::getByUrlAlias($modelUrlAlias);
+
+        // Check model class exists
+        if (is_null($manageableModelClass) || !class_exists($manageableModelClass)) {
+            return redirect()->route('wrla.dashboard')->with('error', "Manageable model `$manageableModelClass` not found.");
+        }
+
+        if($modelId == null)
+        {
+            // Create new model instance
+            $manageableModel = new $manageableModelClass;
+        }
+        else
+        {
+            // Get model by it's id
+            $manageableModel =  (new $manageableModelClass)->setModelInstance(
+                $manageableModelClass::getBaseModelClass()::find($modelId)
+            );
+
+            // Check model id exists
+            if ($manageableModel == null) {
+                return redirect()->route('wrla.dashboard')->with('error', "Model ".$manageableModelClass." with ID `$modelId` not found.");
+            }
+        }
+
+        // Get validation rules for this model
+        $rules = $manageableModel->getValidationRules()->toArray();
+
+        // Validate
+        $formValues = $request->validate($rules);
+
+        // Update only changed values on the model instance
+        $manageableModel->updateModelInstanceProperties($formValues);
+
+        // Save the model
+        $manageableModel->getmodelInstance()->save();
+
+        // Redirect to the browse page
+        return redirect()->route('wrla.manageable-model.browse', ['modelUrlAlias' => $manageableModel->getUrlAlias()]);
     }
 
     /**

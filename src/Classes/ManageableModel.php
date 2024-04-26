@@ -196,10 +196,19 @@ class ManageableModel
             if (array_key_exists($fieldName, $formFields)) {
                 $fieldValue = $formFields[$fieldName];
 
-                if ($this->modelInstance->$fieldName != $fieldValue) {
-                    $this->modelInstance->$fieldName = $fieldValue;
-                }
+                $this->updateModelInstanceProperty($fieldName, $fieldValue);
             }
         }
+    }
+
+    /**
+     * Update model instance property
+     *
+     * @param string $fieldName
+     * @param mixed $fieldValue
+     */
+    public function updateModelInstanceProperty(string $fieldName, mixed $fieldValue): void
+    {
+        $this->modelInstance->$fieldName = $fieldValue;
     }
 }
