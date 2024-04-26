@@ -13,12 +13,30 @@ use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
  */
 class ManageableModelUpsert extends Component
 {
+    /* Properties
+    --------------------------------------------------------------------------*/
+
     /**
-     * Manageable model instance.
+     * Manageable model instance
      *
      * @var ManageableModel
      */
     private $manageableModel;
+
+    /**
+     * The manageable model class
+     *
+     * @var string
+     */
+    public $manageableModelClass;
+
+    /**
+     * Form fields
+     */
+    public $formFields = [];
+
+    /* Livewire Methods / Hooks
+    --------------------------------------------------------------------------*/
 
     /**
      * Mount the component.
@@ -34,8 +52,11 @@ class ManageableModelUpsert extends Component
             return redirect()->route('wrla.dashboard')->with('error', "Manageable model `$manageableModelClass` not found.");
         }
 
+        // Set the manageable model class
+        $this->manageableModelClass = $manageableModelClass;
+
         // Get the manageable model and base model class
-        $this->manageableModel = new $manageableModelClass();
+        $manageableModel = new $manageableModelClass();
         $modelClass = $manageableModelClass::getBaseModelClass();
 
         // If the model class does not exist, redirect to the dashboard
@@ -45,16 +66,22 @@ class ManageableModelUpsert extends Component
 
         // If the model ID is null, create a new model instance
         if (is_null($modelId)) {
-            $this->manageableModel->setModelInstance(new $modelClass());
+            $manageableModel->setModelInstance(new $modelClass());
         } else {
             // Find the model by its ID
-            $this->manageableModel->setModelInstance($modelClass::find($modelId));
+            $manageableModel->setModelInstance($modelClass::find($modelId));
+
+            // Set form fields from the model instance
+            $this->formFields = $manageableModel->getFormFieldsKeyValues();
 
             // If the model is null, redirect to the dashboard
-            if (is_null($this->manageableModel->modelInstance)) {
+            if (is_null($manageableModel->modelInstance)) {
                 return redirect()->route('wrla.dashboard')->with('error', "Model `$modelClass` with ID `$modelId` not found.");
             }
         }
+
+        // Set the manageable model property
+        $this->manageableModel = $manageableModel;
     }
 
     /**
@@ -67,5 +94,61 @@ class ManageableModelUpsert extends Component
         return view(WRLAHelper::getViewPath('livewire.manageable-models.upsert'), [
             'manageableModel' => $this->manageableModel,
         ]);
+    }
+
+    /* Methods
+    --------------------------------------------------------------------------*/
+
+    /**
+     * Save the model.
+     *
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function save()
+    {
+        // Get model class by it's url alias
+        $manageableModelClass = ManageableModel::getByUrlAlias($this->formFields['__wrla__class_url_alias']);
+
+        // Check model class exists
+        if (is_null($manageableModelClass) || !class_exists($manageableModelClass)) {
+            return redirect()->route('wrla.dashboard')->with('error', "Manageable model `".$this->formFields['__wrla__class_url_alias']."` not found.");
+        }
+
+        if($this->formFields['__wrla__model_id'] != null)
+        {
+            // Get model by it's id
+            $manageableModel =  $manageableModelClass::getByInstanceId($this->formFields['__wrla__model_id']);
+
+            // Check model id exists
+            if ($manageableModel == null) {
+                return redirect()->route('wrla.dashboard')->with('error', "Model ".$this->formFields['__wrla__class_url_alias']." with ID `".$this->formFields['__wrla__model_id']."` not found.");
+            }
+        }
+        else
+        {
+            // Create new model instance
+            $manageableModel = new $manageableModelClass();
+        }
+
+        // Get validation rules for this model
+        $rules = $manageableModel->getValidationRules()->toArray();
+        // Prepend formFields to each key
+        $rules = array_combine(
+            array_map(function($key) {
+                return 'formFields.'.$key;
+            }, array_keys($rules)),
+            $rules
+        );
+        // Validate
+        $this->validate($rules);
+
+        // Update only changed values on the model instance
+        $manageableModel->updateModelInstanceProperties($this->formFields);
+
+        // Save the model
+        $manageableModel->modelInstance->save();
+
+        // Redirect to the browse page
+        return redirect()->route('wrla.manageable-model.browse', ['modelUrlAlias' => $manageableModel->getUrlAlias()]);
     }
 }

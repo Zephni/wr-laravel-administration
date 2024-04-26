@@ -16,7 +16,7 @@
     @endif
 
     <div class="flex flex-col gap-4 mt-12 p-4 bg-slate-100 dark:bg-slate-700 shadow-slate-300 dark:shadow-slate-850 rounded-lg shadow-lg">
-        @foreach($manageableModel->getManageableFields() as $manageableField)
+        @foreach($manageableModel->getManageableFieldsWithMetaData() as $manageableField)
             {!! $manageableField->render() !!}
         @endforeach
     </div>
@@ -28,6 +28,9 @@
             'color' => 'primary',
             'text' => 'Save',
             'icon' => 'fa fa-edit',
+            'attr' => [
+                'wire:click' => 'save',
+            ]
         ])
 
         @themeComponent('forms.button', [

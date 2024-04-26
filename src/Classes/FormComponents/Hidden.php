@@ -9,7 +9,7 @@ use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
  *
  * This class is responsible for generating input fields.
  */
-class Text extends FormComponent
+class Hidden extends FormComponent
 {
     /**
      * Render the input field.
@@ -20,10 +20,10 @@ class Text extends FormComponent
     public function render($inject = null): mixed
     {
         return parent::render(view(WRLAHelper::getViewPath('components.forms.input-text'), [
+            'label' => $this->attributes['name'],
             'name' => $this->attributes['name'],
-            'label' => str(str_replace('_', ' ', $this->attributes['name']))->title(),
             'value' => $this->attributes['value'],
-            'type' => $this->attributes['type'] ?? 'text',
+            'type' => 'text',
             'attr' => collect($this->attributes)
                 ->put('wire:model', 'formFields.' . $this->attributes['name'])
                 ->forget(['name', 'value', 'type'])

@@ -3,6 +3,7 @@
 namespace WebRegulate\LaravelAdministration\Classes\FormComponents;
 
 use Illuminate\View\View;
+use Illuminate\Contracts\Validation\ValidationRule;
 use WebRegulate\LaravelAdministration\Classes\ManageableModel;
 
 class FormComponent
@@ -15,29 +16,36 @@ class FormComponent
     public $attributes;
 
     /**
+     * Validation rule
+     *
+     * @var string|ValidationRule|null
+     */
+    public string|ValidationRule|null $validationRule;
+
+    /**
      * FormComponent constructor.
      *
-     * @param string $name
-     * @param mixed $value
+     * @param ?string $name
+     * @param ?string $value
      */
-    public function __construct(string $name, mixed $value)
+    public function __construct(?string $name, ?string $value)
     {
         $this->attributes = [
-            'name' => $name,
-            'value' => $value,
+            'name' => $name ?? '',
+            'value' => $value ?? '',
         ];
     }
 
     /**
      * Make method (can be used in any class that extends FormComponent).
      *
-     * @param ManageableModel $manageableModel
-     * @param mixed $column
+     * @param ?ManageableModel $manageableModel
+     * @param ?mixed $column
      * @return static
      */
-    public static function make(ManageableModel $manageableModel, string $column): static
+    public static function make(?ManageableModel $manageableModel = null, ?string $column = null): static
     {
-        return new static($column, $manageableModel->modelInstance->{$column});
+        return new static($column, $manageableModel?->modelInstance->{$column});
     }
 
     /**
@@ -45,9 +53,9 @@ class FormComponent
      *
      * @param string $key
      * @param ?string $value
-     * @return $this | string $value
+     * @return $this | string
      */
-    public function attribute(string $key, ?string $value): static
+    public function attribute(string $key, ?string $value = null): static|string
     {
         if($value == null) {
             return $this->attributes[$key];
@@ -62,15 +70,28 @@ class FormComponent
      * Merge or get attributes.
      *
      * @param ?array $attributes
-     * @return $this
+     * @return $this|array
      */
-    public function attributes(?array $attributes): static
+    public function attributes(?array $attributes = null): static|array
     {
         if($attributes == null) {
             return $this->attributes;
         }
 
         $this->attributes = array_merge($this->attributes, $attributes);
+
+        return $this;
+    }
+
+    /**
+     * Add validation rules
+     *
+     * @param string|ValidationRule|null
+     * @return $this
+     */
+    public function validation(string|ValidationRule|null $validationRule): static
+    {
+        $this->validationRule = $validationRule;
 
         return $this;
     }

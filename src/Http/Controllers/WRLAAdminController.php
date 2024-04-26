@@ -47,6 +47,7 @@ class WRLAAdminController extends Controller
         }
 
         return view(WRLAHelper::getViewPath('livewire-content'), [
+            'title' => 'Browse ' . $manageableModelClass::getDisplayName(),
             'livewireComponentAlias' => 'wrla.manageable-models.browse',
             'livewireComponentData' => [
                 'manageableModelClass' => $manageableModelClass
@@ -72,6 +73,7 @@ class WRLAAdminController extends Controller
         }
 
         return view(WRLAHelper::getViewPath('livewire-content'), [
+            'title' => ($modelId ? 'Edit' : 'Create') . ' ' . $manageableModelClass::getDisplayName(),
             'livewireComponentAlias' => 'wrla.manageable-models.upsert',
             'livewireComponentData' => [
                 'manageableModelClass' => $manageableModelClass,

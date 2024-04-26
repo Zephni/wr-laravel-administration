@@ -1,6 +1,6 @@
 @extends($WRLAHelper::getViewPath("layouts.admin-layout"))
 
-@section('title', 'Browse')
+@section('title', $title ?? 'Title not set')
 
 @section('content')
     {{-- @dd($livewireComponentAlias, $livewireComponentData) --}}

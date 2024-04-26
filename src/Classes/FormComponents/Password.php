@@ -2,10 +2,8 @@
 
 namespace WebRegulate\LaravelAdministration\Classes\FormComponents;
 
-use Illuminate\View\View;
 use Illuminate\Support\Str;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
-use WebRegulate\LaravelAdministration\Classes\ManageableModel;
 
 /**
  * Class Input
@@ -60,6 +58,7 @@ class Password extends FormComponent
                         ->forget(['name', 'value', 'type'])
                         // Set show and set class hidden if userWantsToChange is false
                         ->merge([
+                            'wire:model' => 'formFields.' . $this->attributes['name'],
                             'x-ref' => 'passwordField',
                             'x-show' => 'userWantsToChange',
                             'x-bind:disabled' => '!userWantsToChange',

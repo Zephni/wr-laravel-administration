@@ -2,7 +2,9 @@
 
 namespace WebRegulate\LaravelAdministration\Classes;
 
+use Illuminate\Support\Collection;
 use Illuminate\Support\Stringable;
+use WebRegulate\LaravelAdministration\Classes\FormComponents\Hidden;
 
 class ManageableModel
 {
@@ -56,6 +58,16 @@ class ManageableModel
     }
 
     /**
+     * Get the base model instance.
+     *
+     * @return mixed
+     */
+    public function getModelInstance(): mixed
+    {
+        return $this->modelInstance;
+    }
+
+    /**
      * Get manageable model by model class.
      *
      * @param string $modelClass
@@ -76,9 +88,11 @@ class ManageableModel
      */
     public static function getByUrlAlias(string $urlAlias): mixed
     {
-        return self::$manageableModels->first(function ($manageableModel) use ($urlAlias) {
+        $manageableModel = self::$manageableModels->first(function ($manageableModel) use ($urlAlias) {
             return $manageableModel::getUrlAlias() === $urlAlias;
         });
+
+        return $manageableModel;
     }
 
     /**
@@ -89,6 +103,29 @@ class ManageableModel
     public static function getBaseModelClass(): string
     {
         return static::$baseModelClass;
+    }
+
+    /**
+     * Get manageable model by instance ID
+     *
+     * @param int $id
+     * @return mixed
+     */
+    public static function getByInstanceId(int $id): mixed
+    {
+        // First find the model by its ID
+        $model = static::getBaseModelClass()::find($id);
+
+        // If the model is null, return null
+        if (is_null($model)) {
+            return null;
+        }
+
+        // Create a new manageable model and set it's model instance
+        $manageableModel = new static();
+        $manageableModel->setModelInstance($model);
+
+        return $manageableModel;
     }
 
     /**
@@ -119,5 +156,100 @@ class ManageableModel
     public static function getIcon(): string
     {
         return 'fa fa-question';
+    }
+
+    /**
+     * Virtual get manageable fields method.
+     *
+     * @return Collection
+     */
+    public function getManageableFieldsWithMetaData(): Collection
+    {
+        $allFields = $this->getManageableFields();
+
+        // Prepend hidden fields to the collection
+        $allFields->prepend(
+            Hidden::make()->attributes([
+                'name' => '__wrla__model_id',
+                'value' => $this->modelInstance->id ?? null,
+            ])->validation('required|integer')
+        );
+
+        $allFields->prepend(
+            Hidden::make()->attributes([
+                'name' => '__wrla__class_url_alias',
+                'value' => static::getUrlAlias(),
+            ])->validation('required|string')
+        );
+
+        return $allFields;
+    }
+
+    /**
+     * Virtual get manageable fields method.
+     *
+     * @return Collection
+     */
+    public function getManageableFields(): Collection
+    {
+        return collect();
+    }
+
+    /**
+     * Get validation rules
+     *
+     * @return array
+     */
+    public function getValidationRules(): Collection
+    {
+        $manageableFields = $this->getManageableFieldsWithMetaData();
+
+        $validationRules = collect();
+
+        foreach ($manageableFields as $manageableField) {
+            $validationRules->put($manageableField->attribute('name'), $manageableField->validationRule);
+        }
+
+        return $validationRules;
+    }
+
+    /**
+     * Get form fields values array
+     *
+     * @return array
+     */
+    public function getFormFieldsKeyValues(): array
+    {
+        $manageableFields = self::getManageableFieldsWithMetaData();
+
+        $formFieldsValues = [];
+
+        foreach ($manageableFields as $manageableField) {
+            $formFieldsValues[$manageableField->attribute('name')] = $manageableField->attribute('value');
+        }
+
+        return $formFieldsValues;
+    }
+
+    /**
+     * Update model instance from form fields, only update values that haven't changed
+     *
+     * @param array $formFields
+     */
+    public function updateModelInstanceProperties(array $formFields): void
+    {
+        $manageableFields = $this->getManageableFields();
+
+        foreach ($manageableFields as $manageableField) {
+            $fieldName = $manageableField->attribute('name');
+
+            if (array_key_exists($fieldName, $formFields)) {
+                $fieldValue = $formFields[$fieldName];
+
+                if ($this->modelInstance->$fieldName != $fieldValue) {
+                    $this->modelInstance->$fieldName = $fieldValue;
+                }
+            }
+        }
     }
 }
