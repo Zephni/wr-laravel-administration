@@ -5,6 +5,7 @@ namespace App\WRLA;
 use \Illuminate\Http\Request;
 use \Illuminate\Support\Collection;
 use \Illuminate\Support\Stringable;
+use WebRegulate\LaravelAdministration\Enums\PageType;
 use \WebRegulate\LaravelAdministration\Classes\ManageableModel;
 use \WebRegulate\LaravelAdministration\Classes\FormComponents\Text;
 use \WebRegulate\LaravelAdministration\Classes\FormComponents\Password;
@@ -65,10 +66,14 @@ class User extends ManageableModel
      */
     public function getManageableFields(): Collection {
         return collect([
-            Text::make($this, 'name')->validation('required|string|max:255'),
-            Text::make($this, 'email')->validation('required|string|email|max:255'),
+            Text::make($this, 'name')->validation('required|string|max:255')
+                ->attribute('placeholder', 'John Doe'),
+
+            Text::make($this, 'email')->validation('required|string|email|max:255')
+                ->attribute('placeholder', 'email@domain.com'),
+
             Password::make($this, 'password')
-                ->validation('required_if:wrla_show_password,1|string|min:6|regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/')
+                ->validation('required_if:wrla_show_password,1|string|confirmed|min:6|regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/')
                 ->attribute('placeholder', 'Atleast 6 characters, and have atleast 1 uppercase, 1 lowercase, 1 number'),
         ]);
     }
