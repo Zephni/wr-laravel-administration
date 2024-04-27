@@ -1,6 +1,6 @@
 @extends($WRLAHelper::getViewPath("layouts.admin-layout"))
 
-@section('title', $title ?? 'Title not set')
+@section('title', $upsertType->getString() . ' ' . $manageableModel->getDisplayName())
 
 @section('content')
 

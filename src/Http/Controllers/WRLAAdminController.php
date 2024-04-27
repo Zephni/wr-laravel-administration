@@ -79,7 +79,6 @@ class WRLAAdminController extends Controller
             : new $manageableModelClass($modelId);
 
         return view(WRLAHelper::getViewPath('upsert'), [
-            'title' => ($modelId ? 'Edit' : 'Create') . ' ' . $manageableModelClass::getDisplayName(),
             'upsertType' => $modelId ? UpsertType::EDIT : UpsertType::CREATE,
             'manageableModel' => $manageableModel
         ]);
