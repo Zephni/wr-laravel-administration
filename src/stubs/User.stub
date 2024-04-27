@@ -1,0 +1,88 @@
+<?php
+
+namespace App\WRLA;
+
+use \Illuminate\Http\Request;
+use \Illuminate\Support\Collection;
+use \Illuminate\Support\Stringable;
+use \WebRegulate\LaravelAdministration\Classes\ManageableModel;
+use \WebRegulate\LaravelAdministration\Classes\FormComponents\Text;
+use \WebRegulate\LaravelAdministration\Classes\FormComponents\Password;
+
+class User extends ManageableModel
+{
+    /**
+     * The base model class for the User.
+     *
+     * @var string
+     */
+    public static $baseModelClass = \App\Models\User::class;
+
+    /**
+     * Get the URL alias for the User.
+     *
+     * @return string
+     */
+    public static function getUrlAlias(): string {
+        return 'user';
+    }
+
+    /**
+     * Get the display name for the User.
+     *
+     * @return Stringable
+     */
+    public static function getDisplayName(): Stringable {
+        return str('User');
+    }
+
+    /**
+     * Get the icon for the User.
+     *
+     * @return string
+     */
+    public static function getIcon(): string {
+        return 'fa fa-user';
+    }
+
+    /**
+     * Get the browsable columns for the User.
+     *
+     * @return Collection
+     */
+    public static function getBrowsableColumns(): Collection {
+        return collect([
+            'name' => 'Name',
+            'email' => 'Email',
+            'created_at' => 'Created',
+        ]);
+    }
+
+    /**
+     * Get the manageable fields for the User.
+     *
+     * @return Collection
+     */
+    public function getManageableFields(): Collection {
+        return collect([
+            Text::make($this, 'name')->validation('required|string|max:255'),
+            Text::make($this, 'email')->validation('required|string|email|max:255'),
+            Password::make($this, 'password')
+                ->validation('required_if:wrla_show_password,1|string|min:6|regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/')
+                ->attribute('placeholder', 'Atleast 6 characters, and have atleast 1 uppercase, 1 lowercase, 1 number'),
+        ]);
+    }
+
+    /**
+     * Update the model instance after a POST request.
+     *
+     * @param Request $request
+     * @return void
+     */
+    public function postUpdateModelInstance(Request $request): void {
+        // Relogin as the user if the id is the same as the current user, and email or password has been changed
+        if ($this->getModelInstance()->id === auth()->id() && ($request->email !== $this->getModelInstance()->email || $request->password)) {
+            auth()->login($this->getModelInstance());
+        }
+    }
+}

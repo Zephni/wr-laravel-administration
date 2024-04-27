@@ -75,7 +75,7 @@ class WRLAAdminController extends Controller
         // Get manageable model instance
         $manageableModel = $modelId == null
             ? new $manageableModelClass()
-            : (new $manageableModelClass())->setModelInstance($manageableModelClass::getBaseModelClass()::find($modelId));
+            : new $manageableModelClass($modelId);
 
         return view(WRLAHelper::getViewPath('upsert'), [
             'title' => ($modelId ? 'Edit' : 'Create') . ' ' . $manageableModelClass::getDisplayName(),
@@ -108,9 +108,7 @@ class WRLAAdminController extends Controller
         else
         {
             // Get model by it's id
-            $manageableModel =  (new $manageableModelClass)->setModelInstance(
-                $manageableModelClass::getBaseModelClass()::find($modelId)
-            );
+            $manageableModel =  new $manageableModelClass($modelId);
 
             // Check model id exists
             if ($manageableModel == null) {

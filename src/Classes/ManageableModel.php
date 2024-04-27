@@ -47,6 +47,27 @@ class ManageableModel
     }
 
     /**
+     * If model instance is passed (must be an instance of the base model), set it as the model instance.
+     * If model ID is passed, get the model instance by ID.
+     * Otherwise, set the model instance to a new instance of the base model.
+     *
+     * @param mixed|int|null $modelInstance
+     */
+    public function __construct($modelInstanceOrId = null)
+    {
+        // If model instance (extends base model) is passed, set it as the model instance
+        if ($modelInstanceOrId instanceof static::$baseModelClass) {
+            $this->setModelInstance($modelInstanceOrId);
+        // If model ID is passed, get the model instance by ID
+        } elseif (is_numeric($modelInstanceOrId)) {
+            $this->setModelInstance(static::$baseModelClass::find($modelInstanceOrId));
+        // Otherwise, set the model instance to a new instance of the base model
+        } else {
+            $this->setModelInstance(new static::$baseModelClass);
+        }
+    }
+
+    /**
      * Set the base model instance.
      *
      * @param mixed $modelInstance
