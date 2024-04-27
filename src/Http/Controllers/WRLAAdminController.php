@@ -125,7 +125,7 @@ class WRLAAdminController extends Controller
         $formKeyValues = $request->validate($rules);
 
         // Update only changed values on the model instance
-        $manageableModel->updateModelInstanceProperties($manageableModel->getManageableFields(), $formKeyValues);
+        $manageableModel->updateModelInstanceProperties($request, $manageableModel->getManageableFields(), $formKeyValues);
 
         // Save the model
         $manageableModel->getmodelInstance()->save();

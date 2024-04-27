@@ -2,6 +2,7 @@
 
 namespace WebRegulate\LaravelAdministration\Classes;
 
+use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Stringable;
 use WebRegulate\LaravelAdministration\Classes\FormComponents\Hidden;
@@ -186,8 +187,10 @@ class ManageableModel
      *
      * @param array $formFields
      */
-    public function updateModelInstanceProperties(Collection $formComponents, array $formKeyValues): void
+    public function updateModelInstanceProperties(Request $request, Collection $formComponents, array $formKeyValues): void
     {
+        $this->postUpdateModelInstance($request);
+
         $manageableFields = $this->getManageableFields();
 
         foreach ($manageableFields as $manageableField) {
@@ -200,19 +203,18 @@ class ManageableModel
 
                 $fieldValue = $formComponent->applyValue($formKeyValues[$fieldName]);
 
-                $this->updateModelInstanceProperty($fieldName, $fieldValue);
+                $this->modelInstance->$fieldName = $fieldValue;
             }
         }
     }
 
     /**
-     * Update model instance property
+     * Post update model instance hook
      *
-     * @param string $fieldName
-     * @param mixed $fieldValue
+     * @return void
      */
-    public function updateModelInstanceProperty(string $fieldName, mixed $fieldValue): void
+    public function postUpdateModelInstance(Request $request): void
     {
-        $this->modelInstance->$fieldName = $fieldValue;
+        // Override this method in your model to add custom logic after updating the model instance
     }
 }
