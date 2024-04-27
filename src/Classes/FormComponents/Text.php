@@ -26,7 +26,6 @@ class Text extends FormComponent
             'value' => $this->attributes['value'],
             'type' => $this->attributes['type'] ?? 'text',
             'attr' => collect($this->attributes)
-                ->put('wire:model', 'formFields.' . $this->attributes['name'])
                 ->forget(['name', 'value', 'type'])
                 ->toArray(),
         ])->render();

@@ -85,12 +85,25 @@ class Password extends FormComponent
                         ->forget(['name', 'value', 'type'])
                         // Set show and set class hidden if userWantsToChange is false
                         ->merge($upsertType == UpsertType::EDIT ? [
-                            'wire:model' => 'formFields.' . $this->attributes['name'],
                             'x-ref' => 'passwordField',
                             'x-show' => 'userWantsToChange',
                             'x-bind:disabled' => '!userWantsToChange',
                         ] : [])
                         ->toArray(),
+        ])->render();
+
+        // Render confirm password field (hide if checkbox not checked)
+        $HTML .= view(WRLAHelper::getViewPath('components.forms.input-text'), [
+            'name' => $this->attributes['name'].'_confirmation',
+            'value' => '',
+            'type' => 'password',
+            'attr' => collect($upsertType == UpsertType::EDIT ? [
+                        'x-show' => 'userWantsToChange',
+                        'x-bind:disabled' => '!userWantsToChange',
+                    ] : [])->merge([
+                        'placeholder' => 'Confirm ' . str(str_replace('_', ' ', $this->attributes['name']))->title(),
+                    ])
+                    ->toArray(),
         ])->render();
 
         if($upsertType == UpsertType::EDIT) {
