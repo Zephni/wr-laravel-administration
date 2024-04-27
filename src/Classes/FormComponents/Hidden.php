@@ -2,7 +2,7 @@
 
 namespace WebRegulate\LaravelAdministration\Classes\FormComponents;
 
-use WebRegulate\LaravelAdministration\Enums\UpsertType;
+use WebRegulate\LaravelAdministration\Enums\PageType;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 
 /**
@@ -15,10 +15,10 @@ class Hidden extends FormComponent
     /**
      * Render the input field.
      *
-     * @param UpsertType $upsertType
+     * @param PageType $upsertType
      * @return mixed
      */
-    public function render(UpsertType $upsertType): mixed
+    public function render(PageType $upsertType): mixed
     {
         return view(WRLAHelper::getViewPath('components.forms.input-text'), [
             'label' => $this->attributes['name'],

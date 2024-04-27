@@ -5,7 +5,7 @@ namespace WebRegulate\LaravelAdministration\Classes\FormComponents;
 use Illuminate\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Contracts\Validation\ValidationRule;
-use WebRegulate\LaravelAdministration\Enums\UpsertType;
+use WebRegulate\LaravelAdministration\Enums\PageType;
 use WebRegulate\LaravelAdministration\Classes\ManageableModel;
 
 class FormComponent
@@ -23,6 +23,17 @@ class FormComponent
      * @var string|ValidationRule|null
      */
     public string|ValidationRule|null $validationRule;
+
+    /**
+     * Show on pages
+     *
+     * @var array
+     */
+    public array $showOnPages = [
+        PageType::CREATE,
+        PageType::EDIT,
+        // UpsertType::BROWSE,
+    ];
 
     /**
      * FormComponent constructor.
@@ -110,14 +121,57 @@ class FormComponent
     }
 
     /**
+     * Hide from pages.
+     *
+     * @param PageType ...$pageTypes
+     */
+    public function hideFrom(...$pageTypes): static
+    {
+        $this->showOnPages = array_filter($this->showOnPages, function($pageType) use ($pageTypes) {
+            return !in_array($pageType, $pageTypes);
+        });
+
+        return $this;
+    }
+
+    /**
+     * Show on pages.
+     *
+     * @param PageType ...$pageTypes
+     */
+    public function showOn(...$pageTypes): static
+    {
+        $this->showOnPages = array_merge($this->showOnPages, $pageTypes);
+
+        return $this;
+    }
+
+    /**
+     * Show only on pages.
+     *
+     * @param PageType ...$pageTypes
+     */
+    public function showOnlyOn(...$pageTypes): static
+    {
+        $this->showOnPages = $pageTypes;
+
+        return $this;
+    }
+
+    /**
      * Return view component.
      *
-     * @param UpsertType $upsertType
+     * @param PageType $upsertType
      * @param mixed $inject
      * @return mixed
      */
-    public function renderParent(UpsertType $upsertType): mixed
+    public function renderParent(PageType $upsertType): mixed
     {
+        if(!in_array($upsertType, $this->showOnPages))
+        {
+            return '';
+        }
+
         $HTML = $this->render($upsertType);
 
         if(empty($HTML))
@@ -143,10 +197,10 @@ class FormComponent
     /**
      * Render the input field.
      *
-     * @param UpsertType $upsertType
+     * @param PageType $upsertType
      * @return mixed
      */
-    public function render(UpsertType $upsertType): mixed
+    public function render(PageType $upsertType): mixed
     {
         return null;
     }

@@ -5,7 +5,7 @@ namespace WebRegulate\LaravelAdministration\Classes\FormComponents;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use WebRegulate\LaravelAdministration\Enums\UpsertType;
+use WebRegulate\LaravelAdministration\Enums\PageType;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 
 /**
@@ -32,14 +32,14 @@ class Password extends FormComponent
     /**
      * Render the input field.
      *
-     * @param UpsertType $upsertType
+     * @param PageType $upsertType
      * @return mixed
      */
-    public function render(UpsertType $upsertType): mixed
+    public function render(PageType $upsertType): mixed
     {
         $HTML = '';
 
-        if($upsertType == UpsertType::EDIT) {
+        if($upsertType == PageType::EDIT) {
             // Check if wrla_show_name is set
             $wrla_show = old('wrla_show_' . $this->attributes['name']) == '1' ? 'true' : 'false';
 
@@ -76,7 +76,7 @@ class Password extends FormComponent
         // Render password field (hide if checkbox not checked)
         $HTML .= view(WRLAHelper::getViewPath('components.forms.input-text'), [
             'name' => $this->attributes['name'],
-            'label' => $upsertType == UpsertType::EDIT
+            'label' => $upsertType == PageType::EDIT
                 ? null
                 : str(str_replace('_', ' ', $this->attributes['name']))->title(),
             'value' => '',
@@ -84,7 +84,7 @@ class Password extends FormComponent
             'attr' => collect($this->attributes)
                         ->forget(['name', 'value', 'type'])
                         // Set show and set class hidden if userWantsToChange is false
-                        ->merge($upsertType == UpsertType::EDIT ? [
+                        ->merge($upsertType == PageType::EDIT ? [
                             'x-ref' => 'passwordField',
                             'x-show' => 'userWantsToChange',
                             'x-bind:disabled' => '!userWantsToChange',
@@ -97,7 +97,7 @@ class Password extends FormComponent
             'name' => $this->attributes['name'].'_confirmation',
             'value' => '',
             'type' => 'password',
-            'attr' => collect($upsertType == UpsertType::EDIT ? [
+            'attr' => collect($upsertType == PageType::EDIT ? [
                         'x-show' => 'userWantsToChange',
                         'x-bind:disabled' => '!userWantsToChange',
                     ] : [])->merge([
@@ -106,7 +106,7 @@ class Password extends FormComponent
                     ->toArray(),
         ])->render();
 
-        if($upsertType == UpsertType::EDIT) {
+        if($upsertType == PageType::EDIT) {
             // Close parent div
             $HTML .= <<<HTML
                 </div>
