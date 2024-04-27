@@ -5,6 +5,7 @@ namespace WebRegulate\LaravelAdministration\Classes;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Stringable;
+use WebRegulate\LaravelAdministration\Enums\UpsertType;
 use WebRegulate\LaravelAdministration\Classes\FormComponents\Hidden;
 
 class ManageableModel
@@ -201,6 +202,22 @@ class ManageableModel
         }
 
         return $formFieldsValues;
+    }
+
+    /**
+     * Get form components HTML
+     *
+     * @param UpsertType $upsertType
+     * @return string
+     */
+    public function getFormComponentsHTML(UpsertType $upsertType): string
+    {
+        $html = '';
+        foreach($this->getManageableFields() as $manageableField) {
+            $html .= $manageableField->render($upsertType);
+        }
+
+        return $html;
     }
 
     /**

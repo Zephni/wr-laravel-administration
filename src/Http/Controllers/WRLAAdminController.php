@@ -9,6 +9,7 @@ use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
 use WebRegulate\LaravelAdministration\Classes\ManageableModel;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
+use WebRegulate\LaravelAdministration\Enums\UpsertType;
 
 /**
  * Class WRLAAdminController
@@ -79,6 +80,7 @@ class WRLAAdminController extends Controller
 
         return view(WRLAHelper::getViewPath('upsert'), [
             'title' => ($modelId ? 'Edit' : 'Create') . ' ' . $manageableModelClass::getDisplayName(),
+            'upsertType' => $modelId ? UpsertType::EDIT : UpsertType::CREATE,
             'manageableModel' => $manageableModel
         ]);
     }

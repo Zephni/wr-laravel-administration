@@ -2,6 +2,7 @@
 
 namespace WebRegulate\LaravelAdministration\Classes\FormComponents;
 
+use WebRegulate\LaravelAdministration\Enums\UpsertType;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 
 /**
@@ -14,12 +15,12 @@ class Hidden extends FormComponent
     /**
      * Render the input field.
      *
-     * @param mixed $inject
+     * @param UpsertType $upsertType
      * @return mixed
      */
-    public function render($inject = null): mixed
+    public function render(UpsertType $upsertType): mixed
     {
-        return parent::render(view(WRLAHelper::getViewPath('components.forms.input-text'), [
+        return view(WRLAHelper::getViewPath('components.forms.input-text'), [
             'label' => $this->attributes['name'],
             'name' => $this->attributes['name'],
             'value' => $this->attributes['value'],
@@ -28,6 +29,6 @@ class Hidden extends FormComponent
                 ->put('wire:model', 'formFields.' . $this->attributes['name'])
                 ->forget(['name', 'value', 'type'])
                 ->toArray(),
-        ])->render());
+        ])->render();
     }
 }

@@ -3,7 +3,9 @@
 namespace WebRegulate\LaravelAdministration\Classes\FormComponents;
 
 use Illuminate\View\View;
+use Illuminate\Http\Request;
 use Illuminate\Contracts\Validation\ValidationRule;
+use WebRegulate\LaravelAdministration\Enums\UpsertType;
 use WebRegulate\LaravelAdministration\Classes\ManageableModel;
 
 class FormComponent
@@ -110,12 +112,15 @@ class FormComponent
     /**
      * Return view component.
      *
+     * @param UpsertType $upsertType
      * @param mixed $inject
      * @return mixed
      */
-    public function render(?string $inject = null): mixed
+    public function renderParent(UpsertType $upsertType): mixed
     {
-        if($inject == null)
+        $HTML = $this->render($upsertType);
+
+        if(empty($HTML))
         {
             return <<<HTML
                 <br />
@@ -129,9 +134,20 @@ class FormComponent
         {
             return <<<HTML
                 <div>
-                    $inject
+                    $HTML
                 </div>
             HTML;
         }
+    }
+
+    /**
+     * Render the input field.
+     *
+     * @param UpsertType $upsertType
+     * @return mixed
+     */
+    public function render(UpsertType $upsertType): mixed
+    {
+        return null;
     }
 }
