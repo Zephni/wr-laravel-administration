@@ -48,12 +48,12 @@ class ManageableModel
     public static function register(): void
     {
         // If manageable models is null, set it to a collection
-        if (is_null(self::$manageableModels)) {
-            self::$manageableModels = collect();
+        if (is_null(static::$manageableModels)) {
+            static::$manageableModels = collect();
         }
 
         // Register the model
-        self::$manageableModels->push(static::class);
+        static::$manageableModels->push(static::class);
     }
 
     /**
@@ -118,7 +118,7 @@ class ManageableModel
      */
     public static function getByModelClass(string $modelClass): mixed
     {
-        return self::$manageableModels->first(function ($manageableModel) use ($modelClass) {
+        return static::$manageableModels->first(function ($manageableModel) use ($modelClass) {
             return $manageableModel::$baseModelClass === $modelClass;
         });
     }
@@ -131,7 +131,7 @@ class ManageableModel
      */
     public static function getByUrlAlias(string $urlAlias): mixed
     {
-        $manageableModel = self::$manageableModels->first(function ($manageableModel) use ($urlAlias) {
+        $manageableModel = static::$manageableModels->first(function ($manageableModel) use ($urlAlias) {
             return $manageableModel::getUrlAlias() === $urlAlias;
         });
 
@@ -181,16 +181,33 @@ class ManageableModel
     /**
      * Get browse actions
      *
+     * @return Collection
+     */
+    public static function getBrowseActions(): Collection {
+        $browseActions = collect();
+
+        $browseActions->put('create', view(WRLAHelper::getViewPath('components.forms.button'), [
+            'text' => 'Create ' . static::getDisplayName(),
+            'icon' => 'fa fa-plus text-sm',
+            'href' => route('wrla.manageable-model.create', ['modelUrlAlias' => static::getUrlAlias()])
+        ]));
+
+        return $browseActions;
+    }
+
+    /**
+     * Get browse item actions
+     *
      * @param mixed $model
      * @return Collection
      */
-    public static function getBrowseActions(mixed $model): Collection {
+    public static function getBrowseItemActions(mixed $model): Collection {
         $manageableModel = static::make($model);
 
         $browseActions = collect();
 
         // If model doesn't have soft delets and not trashed
-        if(!self::isSoftDeletable() || !$model->trashed()) {
+        if(!static::isSoftDeletable() || !$model->trashed()) {
             $browseActions->put('edit', view(WRLAHelper::getViewPath('components.browse-actions.edit-button'), [
                 'manageableModel' => $manageableModel
             ]));

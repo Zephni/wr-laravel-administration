@@ -61,12 +61,12 @@ class User extends ManageableModel
     }
 
     /**
-     * Get browse actions
+     * Get browse item actions
      *
      * @param mixed $model
      * @return Collection
      */
-    public static function getBrowseActions(mixed $model): Collection {
+    public static function getBrowseItemActions(mixed $model): Collection {
         $manageableModel = static::make($model);
 
         $browseActions = collect();

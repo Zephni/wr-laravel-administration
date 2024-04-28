@@ -1,8 +1,8 @@
 {{-- Livewire browse models, a very modern style browse system, includes a search filter and a table with the models data. --}}
 <div>
 
-    <div class="w-full rounded-lg p-4 bg-slate-100 shadow-md dark:bg-slate-800">
-        <div class="flex justify-between items-center">
+    <div class="w-full rounded-lg p-4 pt-3 bg-slate-100 shadow-md dark:bg-slate-800">
+        <div class="flex items-stretch gap-6">
             <div class="w-full md:w-2/3">
                 {{-- Search input --}}
                 @themeComponent('forms.input-text', [
@@ -10,7 +10,7 @@
                         'wire:model.live.debounce.400ms' => 'filters.search',
                         'placeholder' => 'Search filter...'
                     ],
-                    'label' => 'Search',
+                    // 'label' => 'Filters',
                     'type' => 'text',
                     'name' => 'search',
                     'value' => old('search'),
@@ -18,7 +18,7 @@
                     'autofocus' => true
                 ])
             </div>
-            <div>
+            <div class="flex-1 flex justify-end items-end pb-2">
                 {{-- Show soft deleted checkbox --}}
                 @if($manageableModelClass::isSoftDeletable())
                     @themeComponent('forms.input-checkbox', [
@@ -35,7 +35,13 @@
         </div>
     </div>
 
-    <div class="rounded-md overflow-hidden mt-6 shadow-lg shadow-slate-300 dark:shadow-slate-850">
+    <div class="flex justify-start gap-4 py-4">
+        @foreach($manageableModelClass::getBrowseActions() as $browseAction)
+            {!! $browseAction->render() !!}
+        @endforeach
+    </div>
+
+    <div class="rounded-md overflow-hidden shadow-lg shadow-slate-300 dark:shadow-slate-850">
         <table class="table w-full text-sm bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-300">
             <thead class="border-b bg-slate-700 dark:bg-slate-400 text-slate-100 dark:text-slate-800 border-slate-400 dark:border-slate-600">
                 <tr>
@@ -54,7 +60,7 @@
                         <td class="px-3 py-2">
                             <div class="flex justify-end gap-2">
 
-                                @foreach($manageableModelClass::getBrowseActions($model) as $browseAction)
+                                @foreach($manageableModelClass::getBrowseItemActions($model) as $browseAction)
                                     {!! $browseAction->render() !!}
                                 @endforeach
 
