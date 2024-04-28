@@ -97,6 +97,7 @@ class ManageableModelBrowse extends Component
 
         return view(WRLAHelper::getViewPath('livewire.manageable-models.browse'), [
             'models' => $models,
+            'hasFilters' => $this->hasFilters(),
         ]);
     }
 
@@ -171,5 +172,15 @@ class ManageableModelBrowse extends Component
 
         $model = $this->manageableModelClass::$baseModelClass::withTrashed()->find($id);
         $model->restore();
+    }
+
+    /**
+     * Check if any filters are set
+     *
+     * @return bool
+     */
+    public function hasFilters()
+    {
+        return $this->filters['search'] != '' || $this->filters['showSoftDeleted'];
     }
 }

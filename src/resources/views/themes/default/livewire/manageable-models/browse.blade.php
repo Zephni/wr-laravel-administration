@@ -1,7 +1,13 @@
 {{-- Livewire browse models, a very modern style browse system, includes a search filter and a table with the models data. --}}
-<div>
+<div class="flex flex-col gap-4">
 
-    <div class="w-full rounded-lg p-4 pt-3 bg-slate-100 shadow-md dark:bg-slate-800">
+    <div class="flex justify-start gap-4">
+        @foreach($manageableModelClass::getBrowseActions() as $browseAction)
+            {!! $browseAction->render() !!}
+        @endforeach
+    </div>
+
+    <div class="w-full rounded-lg p-4 pt-3 mb-1 bg-slate-100 shadow-md dark:bg-slate-800">
         <div class="flex items-stretch gap-6">
             <div class="w-full md:w-2/3">
                 {{-- Search input --}}
@@ -33,12 +39,6 @@
                 @endif
             </div>
         </div>
-    </div>
-
-    <div class="flex justify-start gap-4 py-4">
-        @foreach($manageableModelClass::getBrowseActions() as $browseAction)
-            {!! $browseAction->render() !!}
-        @endforeach
     </div>
 
     <div class="rounded-md overflow-hidden shadow-lg shadow-slate-300 dark:shadow-slate-850">
@@ -74,12 +74,16 @@
 
     {{-- If empty, show message and link to create new model --}}
     @if($models->isEmpty())
-        <div class="flex flex-row gap-4 justify-center items-center mt-10 text-slate-700 dark:text-slate-300">
-            <span>No records found</span>
+        <div class="flex flex-row gap-4 justify-center items-center mt-6 text-slate-700 dark:text-slate-300">
+            @if(!$hasFilters)
+                <span>No records exist in this table</span>
+            @else
+                <span>No records found with the current filters</span>
+            @endif
             @themeComponent('forms.button', [
                 'size' => 'small',
                 'type' => 'button',
-                'text' => 'Create a new ' . $manageableModelClass::getDisplayName() .' record',
+                'text' => 'Create a new ' . $manageableModelClass::getDisplayName(),
                 'icon' => 'fa fa-plus py-2',
                 'class' => 'px-4',
                 'attr' => [
