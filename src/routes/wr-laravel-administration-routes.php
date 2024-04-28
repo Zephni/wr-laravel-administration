@@ -33,6 +33,9 @@ Route::group(['namespace' => 'WebRegulate\LaravelAdministration\Http\Controllers
             // Dashboard
             Route::get('dashboard', 'index')->name('dashboard');
 
+            // Manage account
+            Route::get('manage-account', 'manageAccount')->name('manage-account');
+
             // Manageable model routes
             Route::get('browse/{modelUrlAlias}', 'browse')->name('manageable-model.browse');
             Route::get('create/{modelUrlAlias}', 'upsert')->name('manageable-model.create');

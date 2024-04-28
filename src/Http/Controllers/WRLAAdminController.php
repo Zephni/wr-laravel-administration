@@ -4,6 +4,7 @@ namespace WebRegulate\LaravelAdministration\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\WRLA\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -131,6 +132,23 @@ class WRLAAdminController extends Controller
 
         // Redirect to the browse page
         return redirect()->route('wrla.manageable-model.browse', ['modelUrlAlias' => $manageableModel->getUrlAlias()]);
+    }
+
+    /**
+     * Manage account view
+     *
+     * @param Request $request
+     * @return View
+     */
+    public function manageAccount(Request $request): View
+    {
+        // Get manageable model instance
+        $manageableModel = User::current();
+
+        return view(WRLAHelper::getViewPath('manage-account'), [
+            'upsertType' => PageType::EDIT,
+            'manageableModel' => $manageableModel
+        ]);
     }
 
     /**

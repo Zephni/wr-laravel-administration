@@ -50,6 +50,9 @@ return [
 
         // Example manageable model
         // new NavigationItemManageableModel(App\WRLA\YourModel::class),
+
+        // Manage account
+        new NavigationItem('wrla.manage-account', [], 'Manage Account', 'fa fa-user-circle'),
     ],
 
     // Rate limiting for wrla. routes
