@@ -5,11 +5,10 @@ namespace App\WRLA;
 use \Illuminate\Http\Request;
 use \Illuminate\Support\Collection;
 use \Illuminate\Support\Stringable;
-use WebRegulate\LaravelAdministration\Enums\PageType;
 use \WebRegulate\LaravelAdministration\Classes\ManageableModel;
 use \WebRegulate\LaravelAdministration\Classes\FormComponents\Text;
+use WebRegulate\LaravelAdministration\Classes\FormComponents\Textarea;
 use \WebRegulate\LaravelAdministration\Classes\FormComponents\Password;
-use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 
 class User extends ManageableModel
 {
@@ -18,7 +17,7 @@ class User extends ManageableModel
      *
      * @var string
      */
-    public static $baseModelClass = \App\Models\User::class;
+    public static $baseModelClass = \WebRegulate\LaravelAdministration\Models\User::class;
 
     /**
      * Get the URL alias for the User.
@@ -61,24 +60,27 @@ class User extends ManageableModel
     }
 
     /**
-     * Get browse item actions
+     * Get current user manageable model
+     *
+     * @return User
+     */
+    public static function current(): User {
+        return new User(
+            \WebRegulate\LaravelAdministration\Models\User::current()
+        );
+    }
+
+    /**
+     * Get browse actions
      *
      * @param mixed $model
      * @return Collection
      */
     public static function getBrowseItemActions(mixed $model): Collection {
-        $manageableModel = static::make($model);
+        $browseActions = parent::getBrowseItemActions($model);
 
-        $browseActions = collect();
-
-        $browseActions->put('edit', view(WRLAHelper::getViewPath('components.browse-actions.edit-button'), [
-            'manageableModel' => $manageableModel
-        ]));
-
-        if($model->id !== auth()->id()) {
-            $browseActions->put('delete', view(WRLAHelper::getViewPath('components.browse-actions.delete-button'), [
-                'manageableModel' => $manageableModel
-            ]));
+        if($model->id === auth()->id()) {
+            $browseActions->forget('delete');
         }
 
         return $browseActions;
@@ -100,6 +102,15 @@ class User extends ManageableModel
             Password::make($this, 'password')
                 ->validation('required_if:wrla_show_password,1|string|confirmed|min:6|regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/')
                 ->attribute('placeholder', 'Atleast 6 characters, and have atleast 1 uppercase, 1 lowercase, 1 number'),
+
+            Textarea::make($this, 'permissions')->validation('required|json')
+                ->attributes(['placeholder' => 'JSON Data', 'rows' => 3]),
+
+            Textarea::make($this, 'settings')->validation('required|json')
+                ->attributes(['placeholder' => 'JSON Data', 'rows' => 3]),
+
+            Textarea::make($this, 'data')->validation('required|json')
+                ->attributes(['placeholder' => 'JSON Data', 'rows' => 3]),
         ]);
     }
 
