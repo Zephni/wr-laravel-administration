@@ -47,5 +47,7 @@
         <img src="{{ asset(config('wr-laravel-administration.logo.dark')) }}" title="Dark Logo" alt="Dark Logo" class="dark:block w-full" />
     </div>
 
-    @include('wr-laravel-administration::themes.default.layouts.partials.partial-navigation')
+    <div class="w-full border-t border-slate-500">
+        @include('wr-laravel-administration::themes.default.layouts.partials.partial-navigation')
+    </div>
 </div>
