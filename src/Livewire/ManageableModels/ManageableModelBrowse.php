@@ -4,6 +4,7 @@ namespace WebRegulate\LaravelAdministration\Livewire\ManageableModels;
 
 use Livewire\Component;
 use Livewire\WithPagination;
+use Illuminate\Pagination\LengthAwarePaginator;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 
 /**
@@ -101,6 +102,8 @@ class ManageableModelBrowse extends Component
 
     /**
      * Browse the models.
+     *
+     * @return LengthAwarePaginator
      */
     protected function browseModels()
     {
@@ -114,5 +117,16 @@ class ManageableModelBrowse extends Component
                 }
             })->paginate(10);
         }
+    }
+
+    /**
+     * Delete a model.
+     *
+     * @param int $id The ID of the model to delete.
+     */
+    public function deleteModel($id)
+    {
+        $model = $this->manageableModelClass::$baseModelClass::find($id);
+        $model->delete();
     }
 }
