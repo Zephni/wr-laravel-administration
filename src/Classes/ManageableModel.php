@@ -190,7 +190,7 @@ class ManageableModel
         $browseActions = collect();
 
         // If model doesn't have soft delets and not trashed
-        if(!self::isSoftDeletable() && !$model->trashed()) {
+        if(!self::isSoftDeletable() || !$model->trashed()) {
             $browseActions->put('edit', view(WRLAHelper::getViewPath('components.browse-actions.edit-button'), [
                 'manageableModel' => $manageableModel
             ]));
