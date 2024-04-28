@@ -20,7 +20,10 @@ class IsAdmin
 
         // Check if not logged in or not admin
         if ($user == null || $user->getPermission('admin') == false) {
-            return redirect()->route('wrla.login');
+            return redirect()->route('wrla.login')->with(
+                'error',
+                'You do not have permission to access this page.'
+            );
         }
 
         return $next($request);
