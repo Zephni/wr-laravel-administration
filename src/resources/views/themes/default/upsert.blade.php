@@ -6,7 +6,7 @@
 
     @themeComponent('forms.button', [
         'href' => route('wrla.manageable-model.browse', ['modelUrlAlias' => $manageableModel->getUrlAlias()]),
-        'text' => 'Back',
+        'text' => $manageableModel->getDisplayName()->plural(),
         'size' => 'small',
         'color' => 'primary',
         'icon' => 'fa fa-arrow-left',
@@ -14,11 +14,13 @@
 
     <br />
 
-    @if($manageableModel->getmodelInstance()->id == null)
-        Creating new {{ $manageableModel->getDisplayName() }}
-    @else
-        Editing {{ $manageableModel->getDisplayName() }}, ID: {{ $manageableModel->getmodelInstance()->id }}
-    @endif
+    <div class="text-xl font-semibold">
+        @if($manageableModel->getmodelInstance()->id == null)
+            Creating new {{ $manageableModel->getDisplayName() }}
+        @else
+            Editing {{ $manageableModel->getDisplayName() }} #{{ $manageableModel->getmodelInstance()->id }}
+        @endif
+    </div>
 
     <form action="{{ route('wrla.manageable-model.upsert.post', [
         'modelUrlAlias' => $manageableModel->getUrlAlias(),
@@ -26,7 +28,7 @@
     ]) }}" method="POST" class="w-full">
         @csrf
 
-        <div class="flex flex-col gap-4 mt-12 p-4 bg-slate-100 dark:bg-slate-700 shadow-slate-300 dark:shadow-slate-850 rounded-lg shadow-lg">
+        <div class="flex flex-col gap-4 mt-8 p-4 bg-slate-100 dark:bg-slate-700 shadow-slate-300 dark:shadow-slate-850 rounded-lg shadow-lg">
             @foreach($manageableModel->getManageableFields() as $manageableField)
                 {!! $manageableField->renderParent($upsertType) !!}
             @endforeach
