@@ -32,6 +32,15 @@ class ManageableModel
     public static ?Collection $manageableModels = null;
 
     /**
+     * Cache
+     *
+     * @var array
+     */
+    public static array $cache = [
+        'isSoftDeletable' => null
+    ];
+
+    /**
      * Register the manageable model.
      *
      * @return void
@@ -180,13 +189,27 @@ class ManageableModel
 
         $browseActions = collect();
 
-        $browseActions->put('edit', view(WRLAHelper::getViewPath('components.browse-actions.edit-button'), [
-            'manageableModel' => $manageableModel
-        ]));
+        // If model doesn't have soft delets and not trashed
+        if(!self::isSoftDeletable() && !$model->trashed()) {
+            $browseActions->put('edit', view(WRLAHelper::getViewPath('components.browse-actions.edit-button'), [
+                'manageableModel' => $manageableModel
+            ]));
 
-        $browseActions->put('delete', view(WRLAHelper::getViewPath('components.browse-actions.delete-button'), [
-            'manageableModel' => $manageableModel
-        ]));
+            $browseActions->put('delete', view(WRLAHelper::getViewPath('components.browse-actions.delete-button'), [
+                'manageableModel' => $manageableModel
+            ]));
+        // If trashed
+        } else {
+            $browseActions->put('restore', view(WRLAHelper::getViewPath('components.browse-actions.restore-button'), [
+                'manageableModel' => $manageableModel
+            ]));
+
+            $browseActions->put('delete', view(WRLAHelper::getViewPath('components.browse-actions.delete-button'), [
+                'manageableModel' => $manageableModel,
+                'text' => 'Permanent Delete',
+                'permanent' => true
+            ]));
+        }
 
         return $browseActions;
     }
@@ -271,5 +294,20 @@ class ManageableModel
     public function postUpdateModelInstance(Request $request): void
     {
         // Override this method in your model to add custom logic after updating the model instance
+    }
+
+    /**
+     * Is model soft deletable
+     *
+     * @return bool
+     */
+    public static function isSoftDeletable(): bool
+    {
+        if(static::$cache['isSoftDeletable'] == null) {
+            $model = new static::$baseModelClass;
+            static::$cache['isSoftDeletable'] = method_exists($model, 'trashed');
+        }
+
+        return static::$cache['isSoftDeletable'];
     }
 }

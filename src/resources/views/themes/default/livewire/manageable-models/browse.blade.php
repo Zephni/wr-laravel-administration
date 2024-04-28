@@ -4,9 +4,10 @@
     <div class="w-full rounded-lg p-4 bg-slate-100 shadow-md dark:bg-slate-800">
         <div class="flex justify-between items-center">
             <div class="w-full md:w-2/3">
+                {{-- Search input --}}
                 @themeComponent('forms.input-text', [
                     'attr' => [
-                        'wire:model.live.debounce.400ms' => 'search',
+                        'wire:model.live.debounce.400ms' => 'filters.search',
                         'placeholder' => 'Search filter...'
                     ],
                     'label' => 'Search',
@@ -16,6 +17,20 @@
                     'error' => $errors->first('search'),
                     'autofocus' => true
                 ])
+            </div>
+            <div>
+                {{-- Show soft deleted checkbox --}}
+                @if($manageableModelClass::isSoftDeletable())
+                    @themeComponent('forms.input-checkbox', [
+                        'attr' => [
+                            'wire:model.live' => 'filters.showSoftDeleted'
+                        ],
+                        'label' => 'Show soft deleted',
+                        'name' => 'showSoftDeleted',
+                        'checked' => $filters['showSoftDeleted'],
+                        'error' => $errors->first('showSoftDeleted'),
+                    ])
+                @endif
             </div>
         </div>
     </div>
@@ -54,11 +69,7 @@
     {{-- If empty, show message and link to create new model --}}
     @if($models->isEmpty())
         <div class="flex flex-row gap-4 justify-center items-center mt-10 text-slate-700 dark:text-slate-300">
-            @if(empty($search))
-                <span>No records exist in this table</span>
-            @else
-                <span>No records found, try expanding your search or </span>
-            @endif
+            <span>No records found</span>
             @themeComponent('forms.button', [
                 'size' => 'small',
                 'type' => 'button',

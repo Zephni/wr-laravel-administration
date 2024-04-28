@@ -2,12 +2,12 @@
     'size' => 'small',
     'type' => 'button',
     'color' => 'danger',
-    'text' => 'Delete',
+    'text' => $text ?? 'Delete',
     'icon' => 'fa fa-trash relative top-[-1px] !mr-0 text-xs',
     'class' => 'bg-red-500 hover:bg-red-600 text-white',
     'attr' => [
+        'title' => $text ?? 'Delete',
         'onclick' => "confirm('Are you sure?') || event.stopImmediatePropagation()",
-        'title' => 'Delete',
-        'wire:click' => 'deleteModel("'.$manageableModel::getUrlAlias().'", '.$manageableModel->getModelInstance()->id.')',
+        'wire:click' => 'deleteModel("'.$manageableModel::getUrlAlias().'", '.$manageableModel->getModelInstance()->id.', '.($permanent ?? false ? '1' : '0').')',
     ]
 ])

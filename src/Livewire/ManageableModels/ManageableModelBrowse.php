@@ -34,11 +34,14 @@ class ManageableModelBrowse extends Component
     public $columns = null;
 
     /**
-     * Search query.
+     * Filters.
      *
      * @var string
      */
-    public $search = '';
+    public $filters = [
+        'search' => '',
+        'showSoftDeleted' => false,
+    ];
 
 
     /* Livewire Methods / Hooks
@@ -79,7 +82,7 @@ class ManageableModelBrowse extends Component
     {
         // Validate
         $this->validate([
-            'search' => 'string|max:100',
+            'search' => 'string|min:3|max:100',
         ]);
     }
 
@@ -107,16 +110,24 @@ class ManageableModelBrowse extends Component
      */
     protected function browseModels()
     {
-        if($this->search == '') {
-            return $this->manageableModelClass::$baseModelClass::paginate(10);
-        }
-        else {
-            return $this->manageableModelClass::$baseModelClass::where(function($query) {
+        // Start query builder
+        $queryBuilder = $this->manageableModelClass::$baseModelClass::query();
+
+        // Search
+        if($this->filters['search'] != '') {
+            $queryBuilder = $queryBuilder->where(function($query) {
                 foreach($this->columns as $column => $label) {
-                    $query->orWhere($column, 'like', "%$this->search%");
+                    $query->orWhere($column, 'like', '%'.$this->filters['search'].'%');
                 }
-            })->paginate(10);
+            });
         }
+
+        // Soft deleted
+        if($this->filters['showSoftDeleted']) {
+            $queryBuilder = $queryBuilder->whereNotNull('deleted_at')->withTrashed();
+        }
+
+        return $queryBuilder->paginate(10);
     }
 
     /**
@@ -124,15 +135,41 @@ class ManageableModelBrowse extends Component
      *
      * @param string $modelUrlAlias The URL alias of the model to delete.
      * @param int $id The ID of the model to delete.
+     * @param int $permanent Whether to force delete the model.
      */
-    public function deleteModel(string $modelUrlAlias, int $id)
+    public function deleteModel(string $modelUrlAlias, int $id, int $permanent = 0)
     {
         // Check that model URL alias matches the manageable model class URL alias
         if($modelUrlAlias != $this->manageableModelClass::getUrlAlias()) {
             return;
         }
 
-        $model = $this->manageableModelClass::$baseModelClass::find($id);
-        $model->delete();
+        // If permanent, force delete
+        if($permanent == 1) {
+            $model = $this->manageableModelClass::$baseModelClass::withTrashed()->find($id);
+            $model->forceDelete();
+
+        // Else, soft delete
+        } else {
+            $model = $this->manageableModelClass::$baseModelClass::find($id);
+            $model->delete();
+        }
+    }
+
+    /**
+     * Restore a model.
+     *
+     * @param string $modelUrlAlias The URL alias of the model to restore.
+     * @param int $id The ID of the model to restore.
+     */
+    public function restoreModel(string $modelUrlAlias, int $id)
+    {
+        // Check that model URL alias matches the manageable model class URL alias
+        if($modelUrlAlias != $this->manageableModelClass::getUrlAlias()) {
+            return;
+        }
+
+        $model = $this->manageableModelClass::$baseModelClass::withTrashed()->find($id);
+        $model->restore();
     }
 }
