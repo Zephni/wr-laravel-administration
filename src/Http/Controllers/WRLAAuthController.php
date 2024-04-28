@@ -2,10 +2,10 @@
 
 namespace WebRegulate\LaravelAdministration\Http\Controllers;
 
-use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use WebRegulate\LaravelAdministration\Models\User;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
@@ -60,10 +60,12 @@ class WRLAAuthController extends Controller
      */
     public function forgotPasswordPost(Request $request)
     {
+        // Get user appropriate validation rules
+        $tempUser = new \App\WRLA\User();
+        $validationRules = $tempUser->getValidationRules()->only(['email'])->toArray();
+
         // Validate
-        $request->validate([
-            'email' => 'required|email',
-        ]);
+        $request->validate($validationRules);
 
         // Get user
         $user = User::where('email', $request->input('email'))->first();
@@ -111,12 +113,13 @@ class WRLAAuthController extends Controller
      */
     public function resetPasswordPost(Request $request, $token)
     {
+        // Get user appropriate validation rules
+        $tempUser = new \App\WRLA\User();
+        $validationRules = $tempUser->getValidationRules()->only(['email', 'password'])->toArray();
+        $validationRules['password'] = str_replace('confirmed|', '', $validationRules['password']);
+
         // Validate
-        $request->validate([
-            'email' => 'required|email',
-            'password' => 'required|min:8|confirmed',
-            'password_confirmation' => 'required',
-        ]);
+        $request->validate($validationRules);
 
         // Get user
         $user = User::where('email', $request->input('email'))->first();
@@ -127,7 +130,7 @@ class WRLAAuthController extends Controller
         }
 
         // Reset password
-        $user->password = bcrypt($request->input('password'));
+        $user->password = Hash::make($request->input('password'));
         $user->save();
 
         // Return user with success

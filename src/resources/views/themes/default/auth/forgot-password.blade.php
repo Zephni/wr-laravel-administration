@@ -29,8 +29,8 @@
 
             <div>
                 @themeComponent('forms.input-text', [
-                    'label' => 'Email Address',
                     'type' => 'email',
+                    'label' => 'Email Address',
                     'name' => 'email',
                     'value' => old('email'),
                     'error' => $errors->first('email'),
@@ -45,8 +45,8 @@
             <div>
                 @themeComponent('forms.button', [
                     'type' => 'submit',
-                    'text' => 'Request password reset link',
-                    'class' => 'w-full'
+                    'size' => 'large',
+                    'text' => 'Request password reset link'
                 ])
             </div>
 

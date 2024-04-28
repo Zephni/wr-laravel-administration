@@ -244,7 +244,7 @@ class ManageableModel
     /**
      * Get validation rules
      *
-     * @return array
+     * @return Collection
      */
     public function getValidationRules(): Collection
     {

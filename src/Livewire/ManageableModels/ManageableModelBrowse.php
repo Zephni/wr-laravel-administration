@@ -82,7 +82,7 @@ class ManageableModelBrowse extends Component
     {
         // Validate
         $this->validate([
-            'search' => 'string|min:3|max:100',
+            'search' => 'string|max:100',
         ]);
     }
 

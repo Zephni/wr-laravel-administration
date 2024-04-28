@@ -41,8 +41,8 @@
 
             <div>
                 @themeComponent('forms.input-text', [
-                    'label' => 'Password',
                     'type' => 'password',
+                    'label' => 'Password',
                     'name' => 'password',
                     'value' => '',
                     'error' => $errors->first('password'),
@@ -53,8 +53,8 @@
 
             <div>
                 @themeComponent('forms.input-text', [
-                    'label' => 'Confirm Password',
                     'type' => 'password',
+                    'label' => 'Confirm Password',
                     'name' => 'password_confirmation',
                     'value' => '',
                     'error' => $errors->first('password_confirmation'),
@@ -65,8 +65,8 @@
             <div>
                 @themeComponent('forms.button', [
                     'type' => 'submit',
-                    'text' => 'Request password reset link',
-                    'class' => 'w-full'
+                    'size' => 'large',
+                    'text' => 'Request password reset link'
                 ])
             </div>
 
