@@ -122,10 +122,16 @@ class ManageableModelBrowse extends Component
     /**
      * Delete a model.
      *
+     * @param string $modelUrlAlias The URL alias of the model to delete.
      * @param int $id The ID of the model to delete.
      */
-    public function deleteModel($id)
+    public function deleteModel(string $modelUrlAlias, int $id)
     {
+        // Check that model URL alias matches the manageable model class URL alias
+        if($modelUrlAlias != $this->manageableModelClass::getUrlAlias()) {
+            return;
+        }
+
         $model = $this->manageableModelClass::$baseModelClass::find($id);
         $model->delete();
     }

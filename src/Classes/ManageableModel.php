@@ -69,6 +69,17 @@ class ManageableModel
     }
 
     /**
+     * Make, a static version of the constructor
+     *
+     * @param mixed|int|null $modelInstance
+     * @return static
+     */
+    public static function make($modelInstanceOrId = null): static
+    {
+        return new static($modelInstanceOrId);
+    }
+
+    /**
      * Set the base model instance.
      *
      * @param mixed $modelInstance
@@ -156,6 +167,28 @@ class ManageableModel
     public static function getIcon(): string
     {
         return 'fa fa-question';
+    }
+
+    /**
+     * Get browse actions
+     *
+     * @param mixed $model
+     * @return Collection
+     */
+    public static function getBrowseActions(mixed $model): Collection {
+        $manageableModel = static::make($model);
+
+        $browseActions = collect();
+
+        $browseActions->put('edit', view(WRLAHelper::getViewPath('components.browse-actions.edit-button'), [
+            'manageableModel' => $manageableModel
+        ]));
+
+        $browseActions->put('delete', view(WRLAHelper::getViewPath('components.browse-actions.delete-button'), [
+            'manageableModel' => $manageableModel
+        ]));
+
+        return $browseActions;
     }
 
     /**

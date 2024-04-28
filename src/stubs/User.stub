@@ -9,6 +9,7 @@ use WebRegulate\LaravelAdministration\Enums\PageType;
 use \WebRegulate\LaravelAdministration\Classes\ManageableModel;
 use \WebRegulate\LaravelAdministration\Classes\FormComponents\Text;
 use \WebRegulate\LaravelAdministration\Classes\FormComponents\Password;
+use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 
 class User extends ManageableModel
 {
@@ -57,6 +58,30 @@ class User extends ManageableModel
             'email' => 'Email',
             'created_at' => 'Created',
         ]);
+    }
+
+    /**
+     * Get browse actions
+     *
+     * @param mixed $model
+     * @return Collection
+     */
+    public static function getBrowseActions(mixed $model): Collection {
+        $manageableModel = static::make($model);
+
+        $browseActions = collect();
+
+        $browseActions->put('edit', view(WRLAHelper::getViewPath('components.browse-actions.edit-button'), [
+            'manageableModel' => $manageableModel
+        ]));
+
+        if($model->id !== auth()->id()) {
+            $browseActions->put('delete', view(WRLAHelper::getViewPath('components.browse-actions.delete-button'), [
+                'manageableModel' => $manageableModel
+            ]));
+        }
+
+        return $browseActions;
     }
 
     /**

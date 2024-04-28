@@ -38,31 +38,11 @@
                         @endforeach
                         <td class="px-3 py-2">
                             <div class="flex justify-end gap-2">
-                                @themeComponent('forms.button', [
-                                    'href' => route('wrla.manageable-model.edit', ['modelUrlAlias' => $manageableModelClass::getUrlAlias(), 'id' => $model->id]),
-                                    'size' => 'small',
-                                    'color' => 'primary',
-                                    'type' => 'button',
-                                    'text' => 'Edit',
-                                    'icon' => 'fa fa-edit relative top-[-1px] !mr-0 text-xs',
-                                    'attr' => [
-                                        'title' => 'Edit'
-                                    ]
-                                ])
 
-                                @themeComponent('forms.button', [
-                                    'size' => 'small',
-                                    'type' => 'button',
-                                    'color' => 'danger',
-                                    'text' => 'Delete',
-                                    'icon' => 'fa fa-trash relative top-[-1px] !mr-0 text-xs',
-                                    'class' => 'bg-red-500 hover:bg-red-600 text-white',
-                                    'attr' => [
-                                        'onclick' => "confirm('Are you sure?') || event.stopImmediatePropagation()",
-                                        'title' => 'Delete',
-                                        'wire:click' => 'deleteModel(' . $model->id . ')'
-                                    ]
-                                ])
+                                @foreach($manageableModelClass::getBrowseActions($model) as $browseAction)
+                                    {!! $browseAction->render() !!}
+                                @endforeach
+
                             </div>
                         </td>
                     </tr>
