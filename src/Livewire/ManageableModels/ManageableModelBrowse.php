@@ -41,6 +41,7 @@ class ManageableModelBrowse extends Component
     public $filters = [
         'search' => '',
         'showSoftDeleted' => false,
+        'showAdminOnly' => false,
     ];
 
 
@@ -83,6 +84,8 @@ class ManageableModelBrowse extends Component
         // Validate
         $this->validate([
             'search' => 'string|max:100',
+            'showSoftDeleted' => 'boolean',
+            'showAdminOnly' => 'boolean',
         ]);
     }
 
@@ -126,6 +129,12 @@ class ManageableModelBrowse extends Component
         // Soft deleted
         if($this->filters['showSoftDeleted']) {
             $queryBuilder = $queryBuilder->whereNotNull('deleted_at')->withTrashed();
+        }
+
+        // Admin only
+        if($this->filters['showAdminOnly']) {
+            // We need to get whether the user is an admin from their permissions json column, field "admin"
+            $queryBuilder = $queryBuilder->whereJsonContains('permissions', ['admin' => true]);
         }
 
         return $queryBuilder->paginate(10);
@@ -181,6 +190,9 @@ class ManageableModelBrowse extends Component
      */
     public function hasFilters()
     {
-        return $this->filters['search'] != '' || $this->filters['showSoftDeleted'];
+        return
+            $this->filters['search'] != ''
+            || $this->filters['showSoftDeleted']
+            || $this->filters['showAdminOnly'];
     }
 }

@@ -9,7 +9,7 @@
 
     <div class="w-full rounded-lg p-4 pt-3 mb-1 bg-slate-100 shadow-md dark:bg-slate-800">
         <div class="flex items-stretch gap-6">
-            <div class="w-full md:w-2/3">
+            <div class="w-full md:w-7/12">
                 {{-- Search input --}}
                 @themeComponent('forms.input-text', [
                     'attr' => [
@@ -24,7 +24,19 @@
                     'autofocus' => true
                 ])
             </div>
-            <div class="flex-1 flex justify-end items-end pb-2">
+            <div class="flex-1 flex justify-end items-end gap-6 pb-2">
+
+                {{-- Show admin only checkbox --}}
+                @themeComponent('forms.input-checkbox', [
+                    'attr' => [
+                        'wire:model.live' => 'filters.showAdminOnly'
+                    ],
+                    'label' => 'Show admins only',
+                    'name' => 'showAdminOnly',
+                    'checked' => $filters['showAdminOnly'],
+                    'error' => $errors->first('showAdminOnly'),
+                ])
+
                 {{-- Show soft deleted checkbox --}}
                 @if($manageableModelClass::isSoftDeletable())
                     @themeComponent('forms.input-checkbox', [
@@ -37,6 +49,7 @@
                         'error' => $errors->first('showSoftDeleted'),
                     ])
                 @endif
+
             </div>
         </div>
     </div>
