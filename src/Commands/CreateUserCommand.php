@@ -5,6 +5,7 @@ namespace WebRegulate\LaravelAdministration\Commands;
 use App\Models\User;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Hash;
+use Faker;
 
 class CreateUserCommand extends Command
 {
@@ -33,9 +34,17 @@ class CreateUserCommand extends Command
         // Check if master flag passed
         $master = $this->argument('master') !== null;
 
+        // Generate a random name and email address
+        $faker = Faker\Factory::create();
+        $defaults = [
+            'name' => $faker->name,
+            'email' => $faker->email,
+            'password' => $faker->password(8, 20)
+        ];
+
         // If master isn't passed, check if the user wants to create a master user
         if (!$master) {
-            $master = $this->confirm('Do you want to create a master user?', false);
+            $master = $this->confirm('Should we create a master user?', false);
         }
 
         // If not master, then ask if the user should be an admin
@@ -49,12 +58,12 @@ class CreateUserCommand extends Command
         $userText = str($master ? 'Master user' : 'User');
 
         // Ask for name
-        $name = $this->ask('Enter the name for the '.$userText->lower(), $userText);
+        $name = $this->ask('Enter the name for the '.$userText->lower(), $defaults['name']);
 
         $emailSuccess = false;
         while($emailSuccess === false) {
             // Ask for the email
-            $email = $this->ask('Enter the email for the user', $master ? 'master@domain.com' : 'user@domain.com');
+            $email = $this->ask('Enter the email for the user', $defaults['email'] );
 
             // Check if user already exists
             $user = User::where('email', $email)->first();
@@ -67,7 +76,7 @@ class CreateUserCommand extends Command
         }
 
         // Generate a random password for the default, and ask user to set
-        $defaultPassword = substr(str_shuffle('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'), 0, 10);
+        $defaultPassword = $defaults['password'];
         $password = $this->ask('Enter the password for the '.$userText->lower(), $defaultPassword);
 
         // Create a dummy user
