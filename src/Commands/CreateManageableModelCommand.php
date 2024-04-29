@@ -61,6 +61,8 @@ class CreateManageableModelCommand extends Command
 
         // New line for separation
         $this->line('');
+
+        return 1;
     }
 
     /**

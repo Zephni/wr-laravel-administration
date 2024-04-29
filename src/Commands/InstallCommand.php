@@ -87,57 +87,14 @@ class InstallCommand extends Command
 
             // Ask if the user wants to create a default master user, default to true if no users exist
             if ($this->confirm('Would you like to create a master user?', !$anyUsersExist)) {
-                // Ask for name
-                $name = $this->ask('Enter the name for the master user', 'Master User');
-
-                $emailSuccess = false;
-                while($emailSuccess === false) {
-                    // Ask for the email
-                    $email = $this->ask('Enter the email for the master user', 'master@domain.com');
-
-                    // Check if user already exists
-                    $user = User::where('email', $email)->first();
-
-                    if ($user == null && filter_var($email, FILTER_VALIDATE_EMAIL) !== false) {
-                        $emailSuccess = true;
-                    } else {
-                        $this->error('Invalid email address or email already exists. Please try again.');
-                    }
-                }
-
-                // Generate a random password for the default, and ask user to set
-                $password = substr(str_shuffle('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'), 0, 10);
-                $password = $this->ask('Enter the password for the master user', $password);
-
-                // Create a dummy user
-                $user = new User();
-                $user->name = $name;
-                $user->email = $email;
-                $user->password = Hash::make($password);
-                $user->permissions = json_encode([
-                    "master" => true,
-                    "admin" => true
-                ]);
-                $user->settings = json_encode([]);
-                $user->data = json_encode([]);
-                $user->save();
-
-                // Success message, display email and password on seperate lines, the text should be white, but the email and password should be in green
-                $this->line('');
-                $this->line('Master user created successfully. Here are the login details:');
-                $this->line('Email: `<fg=green>'.$user->email.'`</>');
-                $this->line('Password: `<fg=green>'.$password.'</>`');
-
-                // A yellow message to remind the user to login and change the email/password
-                $this->line('');
-
-                $loginPath = route('wrla.login');
-                $this->line('<fg=yellow>Please login and change the email and password immediately.</>');
-                $this->line('<fg=yellow>Login URL: `</>'.$loginPath.'<fg=yellow>`</>');
+                // Run wrla:user command
+                $this->call('wrla:user', ['master' => true]);
             }
         }
 
         // New line for separation
         $this->line('');
+
+        return 1;
     }
 }
