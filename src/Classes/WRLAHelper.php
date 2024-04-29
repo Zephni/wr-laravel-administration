@@ -8,7 +8,6 @@ use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Support\Facades\RateLimiter;
 use WebRegulate\LaravelAdministration\Models\User;
 use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItem;
-use WebRegulate\LaravelAdministration\WRLAServiceProvider;
 
 class WRLAHelper
 {
@@ -214,6 +213,11 @@ class WRLAHelper
     {
         // Get all classes that extend ManageableModel
         // $manageableModels = array_filter(get_declared_classes(), fn($class) => is_subclass_of($class, 'WebRegulate\LaravelAdministration\Classes\ManageableModel'));
+
+        // If app_path('WRLA') does not exist, return
+        if(!File::isDirectory(app_path('WRLA'))) {
+            return;
+        }
 
         // Rather than looking at the declared classes, we now look at the files within the app_path('WRLA') directory (recursively)
         $manageableModels = [];

@@ -71,7 +71,7 @@ class WRLAServiceProvider extends ServiceProvider
 
         // Publish models
         $this->publishes([
-            __DIR__ . '/app/WRLA' => app_path('WRLA')
+            __DIR__ . '/app/WRLA' => app_path('WRLA'),
         ], 'wrla-models');
     }
 
@@ -109,7 +109,6 @@ class WRLAServiceProvider extends ServiceProvider
         $this->loadViewsFrom(__DIR__ . '/resources/views', 'wr-laravel-administration');
 
         // Livewire component registering and asset injection
-        Livewire::component('wrla.manageable-models.upsert', ManageableModelUpsert::class);
         Livewire::component('wrla.manageable-models.browse', ManageableModelBrowse::class);
         Livewire::forceAssetInjection();
     }
