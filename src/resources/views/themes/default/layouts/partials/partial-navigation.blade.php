@@ -5,9 +5,11 @@
     {{-- If navigation item does not have children --}}
     @if(!$navigationItem->hasChildren())
         <div class="relative w-full overflow-hidden">
-            <a href="{{ $navigationItem->getUrl() }}" class="@if($navigationItem->getUrl() == url()->current()) !text-primary-500 @endif flex justify-start items-center whitespace-nowrap w-full select-none px-6 pt-2 pb-1 font-bold text-slate-200 hover:text-primary-500 bg-slate-700 hover:bg-slate-800 border-b border-slate-500">
-                <i class="{{ $navigationItem->icon }} w-6 h-6 text-primary-500 mt-1 mr-1"></i>
-                <span class="text-sm">{{ $navigationItem->render() }}</span>
+            <a href="{{ $navigationItem->getUrl() }}" class="grid grid-cols-[36px,1fr] justify-start items-center @if($navigationItem->getUrl() == url()->current()) !text-primary-500 bg-slate-800 @endif whitespace-nowrap w-full select-none pl-2 pt-2 pb-1 font-bold text-slate-200 hover:text-primary-500 bg-slate-700 hover:bg-slate-800 border-b border-slate-500">
+                <div class="text-center">
+                    <i class="{{ $navigationItem->icon }} w-6 h-6 text-primary-500 mt-1"></i>
+                </div>
+                <span class="relative text-sm" style="top: -1px;">{{ $navigationItem->render() }}</span>
             </a>
         </div>
     {{-- If navigation item has children --}}
@@ -21,16 +23,20 @@
                 {{-- If navigation item has a route --}}
                 @if(!empty($navigationItem->route))
                     <a href="{{ $navigationItem->getUrl() }}"
-                        :class="{ '!text-primary-500 font-bold': !dropdownOpen && childIsActive }"
-                        class="flex-1 h-full px-6 text-slate-200-6 pt-2 pb-1 text-start text-slate-200 hover:text-primary-500 hover:bg-slate-800 whitespace-nowrap border-b border-slate-500">
-                        <i class="{{ $navigationItem->icon }} w-6 h-6 text-primary-500 mr-1"></i>
-                        <span class="text-sm">{{ $navigationItem->render() }}</span>
+                        :class="{ '!text-primary-500 bg-slate-800 font-bold': !dropdownOpen && childIsActive }"
+                        class="grid grid-cols-[36px,1fr] justify-start items-center whitespace-nowrap w-full select-none pl-2 pt-2 pb-1 font-bold text-slate-200 hover:text-primary-500 bg-slate-700 hover:bg-slate-800 border-b border-slate-500">
+                        <div class="text-center">
+                            <i class="{{ $navigationItem->icon }} w-6 h-6 text-primary-500 mt-1"></i>
+                        </div>
+                        <span class="relative text-sm" style="top: -1px;">{{ $navigationItem->render() }}</span>
                     </a>
                 {{-- If navigation item does not have a route --}}
                 @else
-                    <div class="flex-1 h-full px-6 pt-2 pb-1 text-start whitespace-nowrap hover:!text-primary-500">
-                        <i class="{{ $navigationItem->icon }} w-6 h-6 text-primary-500 mr-1"></i>
-                        <span class="text-sm">{{ $navigationItem->render() }}</span>
+                    <div class="grid grid-cols-[36px,1fr] flex-1 h-full px-6 pt-2 pb-1 text-start whitespace-nowrap hover:!text-primary-500">
+                        <div class="text-center">
+                            <i class="{{ $navigationItem->icon }} w-6 h-6 text-primary-500 mt-1"></i>
+                        </div>
+                        <span class="relative text-sm" style="top: -1px;">{{ $navigationItem->render() }}</span>
                     </div>
                 @endif
 
@@ -46,9 +52,12 @@
                 @foreach($navigationItem->children as $child)
                     <a
                         x-init="() => { if ('{{ $child->getUrl() }}' == '{{ url()->current() }}') { childIsActive = true; } }"
-                        href="{{ $child->getUrl() }}" class="@if($child->getUrl() == url()->current()) !text-primary-500 @endif flex items-center justify-start w-full pl-9 pr-6 pt-1 text-slate-200 pb-0 font-bold bg-slate-700 hover:bg-slate-800 hover:!text-primary-500 dark:hover:!text-primary-500 border-b border-slate-500">
-                        <i class="{{ $child->icon }} w-6 h-6 text-primary-500 mt-1 mr-1"></i>
-                        <span class="text-sm">{{ $child->render() }}</span>
+                        href="{{ $child->getUrl() }}"
+                        class="grid grid-cols-[36px,1fr] @if($child->getUrl() == url()->current()) !text-primary-500 !bg-slate-800 @endif flex items-center justify-start w-full pl-9 pr-6 pt-1 text-slate-200 pb-0 font-bold bg-slate-700 hover:bg-slate-800 hover:!text-primary-500 dark:hover:!text-primary-500 border-b border-slate-500">
+                        <div class="text-center">
+                            <i class="{{ $child->icon }} w-6 h-6 text-primary-500 mt-1"></i>
+                        </div>
+                        <span class="relative text-sm" style="top: -1px;">{{ $child->render() }}</span>
                     </a>
                 @endforeach
             </div>
