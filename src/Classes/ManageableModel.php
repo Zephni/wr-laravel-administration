@@ -280,11 +280,13 @@ class ManageableModel
      * Run inline validation on manageable fields
      *
      * @param Request $request
-     * @return RedirectResponse|true
+     * @return true|array If true then validation passed, if array (passed as [attribute.name => error]) then validation failed
      */
-    public function runInlineValidation(Request $request): RedirectResponse|true
+    public function runInlineValidation(Request $request): true|array
     {
         $manageableFields = $this->getManageableFields();
+
+        $messageBag = [];
 
         foreach ($manageableFields as $manageableField) {
             // If doesn't have inline validation then skip
@@ -295,17 +297,13 @@ class ManageableModel
             // Run inline validation on the manageable field. If true then skip, if string message then fail
             $ifMessageThenFail = $manageableField->runInlineValidation($request->input($manageableField->attribute('name')));
 
-            if($ifMessageThenFail === true) {
-                continue;
+            // Now we pass back the attribute.name and message
+            if($ifMessageThenFail !== true) {
+                $messageBag[$manageableField->attribute('name')] = $ifMessageThenFail;
             }
-
-            // Redirect back
-            return redirect()->back()->withInput()->withErrors([
-                $manageableField->attribute('name') => $ifMessageThenFail
-            ])->send();
         }
 
-        return true;
+        return empty($messageBag) ? true : $messageBag;
     }
 
     /**

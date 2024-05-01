@@ -22,5 +22,5 @@
 ])->merge($attr) }} />
 
 @error($name)
-    @themeComponent('alert', ['type' => 'error', 'message' => $message, 'class' => 'mt-3'])
+    @themeComponent('alert', ['type' => 'error', 'message' => $message, 'class' => 'mt-2'])
 @enderror

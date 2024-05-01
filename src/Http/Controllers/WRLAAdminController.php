@@ -138,13 +138,29 @@ class WRLAAdminController extends Controller
         $rules = $manageableModel->getValidationRules()->toArray();
 
         // Validate
-        $formKeyValues = $request->validate($rules);
+        $validator = \Validator::make($request->all(), $rules);
 
         // Run manageable model inline validation
         $inlineValidationResult = $manageableModel->runInlineValidation($request);
-        if($inlineValidationResult !== true) {
-            return $inlineValidationResult;
+
+        // If either validator or inline validation fails, redirect back with input and errors
+        if($validator->fails() || $inlineValidationResult !== true) {
+            // Get base validation errors
+            $validationErrors = $validator->errors();
+
+            // Add inline validation error key and value to validation errors message bag
+            if($inlineValidationResult !== true) {
+                foreach($inlineValidationResult as $key => $value) {
+                    $validationErrors->add($key, $value);
+                }
+            }
+            
+            // Redirect back with input and errors
+            return redirect()->back()->withInput()->withErrors($validationErrors);
         }
+
+        // Get form key values from validator
+        $formKeyValues = collect($validator->validated());
 
         // Update only changed values on the model instance
         $manageableModel->updateModelInstanceProperties($request, $manageableFields, $formKeyValues);
