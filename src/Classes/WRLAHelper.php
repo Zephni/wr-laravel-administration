@@ -295,6 +295,28 @@ class WRLAHelper
     }
 
     /**
+     * Get all array keys from a multidimentional array recursively with a divider, dot notation by default.
+     * 
+     * @param array $array
+     * @param string $divider
+     * @return array
+     */
+    static public function arrayKeysRecursive(array $array, $divider='.'){
+        $arrayKeys = [];
+        foreach( $array as $key=>$value ){
+            if( is_array($value) ){
+                $rekusiveKeys = self::arrayKeysRecursive($value, $divider);
+                foreach( $rekusiveKeys as $rekursiveKey ){
+                    $arrayKeys[] = $key.$divider.$rekursiveKey;
+                }
+            }else{
+                $arrayKeys[] = $key;
+            }
+        }
+        return $arrayKeys;
+    }
+
+    /**
      * Json pretty print
      * 
      * @param string $json The json string to pretty print.
@@ -304,6 +326,36 @@ class WRLAHelper
     {
         $jsonArrary = json_decode($json, true);
         return json_encode($jsonArrary, JSON_PRETTY_PRINT);
+    }
+
+    /**
+     * Json format validation
+     * 
+     * @param string $json The json string to validate.
+     * @param array $valueDefinitions The value definitions to validate against, use dot notation for nested arrays.
+     * @param bool $allRequired Whether all keys are required.
+     * @return true|string True if the json is valid, otherwise the error message.
+     */
+    public static function jsonFormatValidation(string $json, array $valueDefinitions, bool $allRequired = true): true|string
+    {
+        $jsonData = json_decode($json, true);
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            return json_last_error_msg();
+        }
+
+        // Setup data array of nested.key => values,... to validate
+        $validateDataArray = [];
+        foreach($valueDefinitions as $key => $valueDefinition) {
+            $valueDefinitions[$key] = 'required|' . $valueDefinition;
+            $validateDataArray[$key] = $jsonData[$key] ?? null;
+        }
+
+        $validator = \Validator::make($validateDataArray, $valueDefinitions);
+        if ($validator->fails()) {
+            return implode(', ', $validator->errors()->all());
+        }
+
+        return true;
     }
 
     /**

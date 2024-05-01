@@ -140,6 +140,12 @@ class WRLAAdminController extends Controller
         // Validate
         $formKeyValues = $request->validate($rules);
 
+        // Run manageable model inline validation
+        $inlineValidationResult = $manageableModel->runInlineValidation($request);
+        if($inlineValidationResult !== true) {
+            return $inlineValidationResult;
+        }
+
         // Update only changed values on the model instance
         $manageableModel->updateModelInstanceProperties($request, $manageableFields, $formKeyValues);
 

@@ -2,11 +2,10 @@
 
 namespace WebRegulate\LaravelAdministration\Classes;
 
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Stringable;
-use WebRegulate\LaravelAdministration\Enums\PageType;
-use WebRegulate\LaravelAdministration\Classes\FormComponents\Hidden;
 
 class ManageableModel
 {
@@ -275,6 +274,38 @@ class ManageableModel
         }
 
         return $formFieldsValues;
+    }
+
+    /**
+     * Run inline validation on manageable fields
+     *
+     * @param Request $request
+     * @return RedirectResponse|true
+     */
+    public function runInlineValidation(Request $request): RedirectResponse|true
+    {
+        $manageableFields = $this->getManageableFields();
+
+        foreach ($manageableFields as $manageableField) {
+            // If doesn't have inline validation then skip
+            if (empty($manageableField->inlineValidationRules)) {
+                continue;
+            }
+
+            // Run inline validation on the manageable field. If true then skip, if string message then fail
+            $ifMessageThenFail = $manageableField->runInlineValidation($request->input($manageableField->attribute('name')));
+
+            if($ifMessageThenFail === true) {
+                continue;
+            }
+
+            // Redirect back
+            return redirect()->back()->withInput()->withErrors([
+                $manageableField->attribute('name') => $ifMessageThenFail
+            ])->send();
+        }
+
+        return true;
     }
 
     /**

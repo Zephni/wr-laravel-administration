@@ -32,6 +32,13 @@ class FormComponent
     public string $validationRules = '';
 
     /**
+     * Inline validation rules
+     * 
+     * @var array
+     */
+    public array $inlineValidationRules = [];
+
+    /**
      * Show on pages
      *
      * @var array
@@ -99,6 +106,40 @@ class FormComponent
     public function preValidation(?string $value): bool
     {
         return false;
+    }
+
+    /**
+     * Add inline validation rule, note each $callable must take 1 parameter of request input value
+     * object, and must return true on success, and a string message on failure.
+     * Inline validation is run within the manageable model in it's runInlineValidation method.
+     * Note that inline validation is run after the standard validation rule set.
+     * 
+     * @param callable ...$callback
+     * @return $this
+     */
+    public function inlineValidation(callable ...$callbacks): self
+    {
+        $this->inlineValidationRules = array_merge($this->inlineValidationRules, $callbacks);
+
+        return $this;
+    }
+
+    /**
+     * Run inline validation on the form component.
+     * 
+     * @param true|string $result
+     */
+    public function runInlineValidation($requestValue): true|string
+    {
+        foreach($this->inlineValidationRules as $callback) {
+            $result = $callback($requestValue);
+
+            if($result !== true) {
+                return $result;
+            }
+        }
+
+        return true;
     }
 
     /**

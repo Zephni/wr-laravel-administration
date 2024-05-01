@@ -90,6 +90,21 @@ class Json extends FormComponent
     }
 
     /**
+     * Json format validation. Accepts a list of keys or nested.keys and their validation rules.
+     * 
+     * @param array $rules
+     * @return $this
+     */
+    public function jsonFormatValidation(array $rules): static
+    {
+        $this->inlineValidation(function($value) use ($rules) {
+            return WRLAHelper::jsonFormatValidation($value, $rules);
+        });
+
+        return $this;
+    }
+
+    /**
      * Apply value. May be overriden in special cases, such as when applying a hash to a password.
      *
      * @param mixed $value
