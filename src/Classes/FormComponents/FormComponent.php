@@ -20,9 +20,9 @@ class FormComponent
     /**
      * Validation rule
      *
-     * @var string|ValidationRule|null
+     * @var string
      */
-    public string|ValidationRule|null $validationRule;
+    public string $validationRules = '';
 
     /**
      * Show on pages
@@ -36,17 +36,28 @@ class FormComponent
     ];
 
     /**
+     * Manageable model instance
+     * 
+     * @var ?ManageableModel
+     */
+    public ?ManageableModel $manageableModel = null;
+
+    /**
      * FormComponent constructor.
      *
      * @param ?string $name
      * @param ?string $value
      */
-    public function __construct(?string $name, ?string $value)
+    public function __construct(?string $name, ?string $value, ?ManageableModel $manageableModel = null)
     {
         $this->attributes = [
             'name' => $name ?? '',
             'value' => $value ?? '',
         ];
+
+        $this->manageableModel = $manageableModel;
+
+        $this->postConstructed();
     }
 
     /**
@@ -54,11 +65,21 @@ class FormComponent
      *
      * @param ?ManageableModel $manageableModel
      * @param ?mixed $column
-     * @return static
+     * @return self
      */
-    public static function make(?ManageableModel $manageableModel = null, ?string $column = null): static
+    public static function make(?ManageableModel $manageableModel = null, ?string $column = null): self
     {
-        return new static($column, $manageableModel?->getModelInstance()->{$column});
+        return new static($column, $manageableModel?->getModelInstance()->{$column}, $manageableModel);
+    }
+
+    /**
+     * Post constructed method, called after name and value attributes are set.
+     * 
+     * @return $this
+     */
+    public function postConstructed(): mixed
+    {
+        return $this;
     }
 
     /**
@@ -97,14 +118,33 @@ class FormComponent
     }
 
     /**
-     * Add validation rules
-     *
-     * @param string|ValidationRule|null
+     * Add required attribute and validation
+     * 
      * @return $this
      */
-    public function validation(string|ValidationRule|null $validationRule): static
+    public function required(): static
     {
-        $this->validationRule = $validationRule;
+        $this->attribute('required', 'required');
+        $this->validation('required');
+
+        return $this;
+    }
+
+    /**
+     * Append or overwrite validation rules
+     * TODO: Add allowance of array validations
+     *
+     * @param string $validationRules Validation rules
+     * @param bool $overwrite Overwrite existing validation rules
+     * @return $this
+     */
+    public function validation(string $validationRules, $overwrite = false): static
+    {
+        if($overwrite || empty($this->validationRules)) {
+            $this->validationRules = $validationRules;
+        } else {
+            $this->validationRules .= '|' . $validationRules;
+        }
 
         return $this;
     }
@@ -156,6 +196,16 @@ class FormComponent
         $this->showOnPages = $pageTypes;
 
         return $this;
+    }
+
+    /**
+     * Get label.
+     *
+     * @return string
+     */
+    public function getLabel(): string
+    {
+        return str(str_replace('_', ' ', $this->attributes['name']))->title();
     }
 
     /**

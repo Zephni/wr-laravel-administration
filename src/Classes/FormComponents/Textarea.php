@@ -22,7 +22,7 @@ class Textarea extends FormComponent
     {
         return view(WRLAHelper::getViewPath('components.forms.textarea'), [
             'name' => $this->attributes['name'],
-            'label' => str(str_replace('_', ' ', $this->attributes['name']))->title(),
+            'label' => $this->getLabel(),
             'value' => $this->attributes['value'],
             'attr' => collect($this->attributes)
                 ->forget(['name', 'value'])

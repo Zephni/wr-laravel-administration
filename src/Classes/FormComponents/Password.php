@@ -16,6 +16,19 @@ use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 class Password extends FormComponent
 {
     /**
+     * Post constructed method, called after name and value attributes are set.
+     * 
+     * @return $this
+     */
+    public function postConstructed(): static
+    {
+        $this->validation('required_if:wrla_show_password,1|string|confirmed|min:6|regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/');
+        $this->attribute('placeholder', 'Atleast 6 characters, and have atleast 1 uppercase, 1 lowercase, 1 number');
+
+        return $this;
+    }
+
+    /**
      * Apply value. May be overriden in special cases, such as when applying a hash to a password.
      *
      * @param mixed $value
@@ -50,7 +63,7 @@ class Password extends FormComponent
 
             $HTML .= view(WRLAHelper::getViewPath('components.forms.label'), [
                 'for' => $this->attributes['name'],
-                'label' => Str::title(str_replace('_', ' ', $this->attributes['name'])),
+                'label' => $this->getLabel(),
                 'attr' => [
                     'class' => 'mb-2'
                 ],
@@ -76,9 +89,7 @@ class Password extends FormComponent
         // Render password field (hide if checkbox not checked)
         $HTML .= view(WRLAHelper::getViewPath('components.forms.input-text'), [
             'name' => $this->attributes['name'],
-            'label' => $upsertType == PageType::EDIT
-                ? null
-                : str(str_replace('_', ' ', $this->attributes['name']))->title(),
+            'label' => $upsertType == PageType::EDIT ? null : $this->getLabel(),
             'value' => '',
             'type' => 'password',
             'attr' => collect($this->attributes)

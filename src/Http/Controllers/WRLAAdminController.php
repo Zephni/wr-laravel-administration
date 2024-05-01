@@ -131,7 +131,7 @@ class WRLAAdminController extends Controller
         $manageableModel->getmodelInstance()->save();
 
         // Redirect to the browse page
-        return redirect()->route('wrla.manageable-model.browse', ['modelUrlAlias' => $manageableModel->getUrlAlias()]);
+        return redirect()->route('wrla.manageable-model.edit', ['modelUrlAlias' => $manageableModel->getUrlAlias(), 'id' => $manageableModel->getmodelInstance()->id]);
     }
 
     /**

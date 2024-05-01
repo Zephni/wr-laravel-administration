@@ -22,7 +22,7 @@ class Text extends FormComponent
     {
         return view(WRLAHelper::getViewPath('components.forms.input-text'), [
             'name' => $this->attributes['name'],
-            'label' => str(str_replace('_', ' ', $this->attributes['name']))->title(),
+            'label' => $this->getLabel(),
             'value' => $this->attributes['value'],
             'type' => $this->attributes['type'] ?? 'text',
             'attr' => collect($this->attributes)

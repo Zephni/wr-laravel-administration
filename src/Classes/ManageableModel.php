@@ -253,7 +253,7 @@ class ManageableModel
         $validationRules = collect();
 
         foreach ($manageableFields as $manageableField) {
-            $validationRules->put($manageableField->attribute('name'), $manageableField->validationRule);
+            $validationRules->put($manageableField->attribute('name'), $manageableField->validationRules);
         }
 
         return $validationRules;

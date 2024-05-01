@@ -294,6 +294,18 @@ class WRLAHelper
     }
 
     /**
+     * Json pretty print
+     * 
+     * @param string $json The json string to pretty print.
+     * @return string The pretty printed json string.
+     */
+    public static function jsonPrettyPrint(string $json): string
+    {
+        $jsonArrary = json_decode($json, true);
+        return json_encode($jsonArrary, JSON_PRETTY_PRINT);
+    }
+
+    /**
      * Evaulate arguments as string and define as array.
      * For example the expression "'val1', ['key1' => 'val1'... etc])" would be evaluated as:
      * $args = ['val1', ['key1' => 'val1'... etc]]
