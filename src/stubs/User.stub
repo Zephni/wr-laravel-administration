@@ -5,6 +5,7 @@ namespace App\WRLA;
 use \Illuminate\Http\Request;
 use \Illuminate\Support\Collection;
 use \Illuminate\Support\Stringable;
+use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 use \WebRegulate\LaravelAdministration\Classes\ManageableModel;
 use WebRegulate\LaravelAdministration\Classes\FormComponents\Json;
 use \WebRegulate\LaravelAdministration\Classes\FormComponents\Text;
@@ -106,6 +107,10 @@ class User extends ManageableModel
             Password::make($this, 'password'),
 
             Json::make($this, 'permissions')
+                ->jsonFormatValidation([
+                    'master' => 'boolean',
+                    'admin' => 'boolean'
+                ])
                 ->hideContainingBraces()
                 ->attributes(['placeholder' => 'JSON Data', 'rows' => 4]),
 

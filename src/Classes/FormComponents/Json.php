@@ -135,24 +135,36 @@ class Json extends FormComponent
      */
     public function render(PageType $upsertType): mixed
     {
-        $value = !empty($this->attributes['value']) && $this->attributes['value'] != '[]'
-            ? WRLAHelper::jsonPrettyPrint($this->attributes['value'])
-            : '{}';
+        // Check if value is set in old() and set if so
+        if(old($this->attributes['name']) !== null) {
+            $value = old($this->attributes['name']);
+            $this->attribute('value', $value);
+        }
 
-        // If hide braces option set, remove outer braces, and subtract 4 spaces from each line
-        if($this->option(self::OPTION_HIDE_CONTAINING_BRACES)) {
-            $value = trim($value);
-            // If value has outer braces, remove them
-            if(
-                (str_starts_with($value, '{') && str_ends_with($value, '}')) ||
-                (str_starts_with($value, '[') && str_ends_with($value, ']'))
-            ) {
-                $value = substr($value, 1, -1);
+        // Check if json is valid, if not then do not format it and show as is
+        $validJson = json_decode($this->attributes['value']) !== null;
+
+        if($validJson) {
+            $value = !empty($this->attributes['value']) && $this->attributes['value'] != '[]'
+                ? WRLAHelper::jsonPrettyPrint($this->attributes['value'])
+                : '{}';
+    
+            // If hide braces option set, remove outer braces, and subtract 4 spaces from each line
+            if($this->option(self::OPTION_HIDE_CONTAINING_BRACES)) {
+                $value = trim($value);
+                // If value has outer braces, remove them
+                if(
+                    (str_starts_with($value, '{') && str_ends_with($value, '}')) ||
+                    (str_starts_with($value, '[') && str_ends_with($value, ']'))
+                ) {
+                    $value = substr($value, 1, -1);
+                }
+                $value = str_replace("\n    ", "\n", $value);
             }
-            $value = str_replace("\n    ", "\n", $value);
         }
 
         return view(WRLAHelper::getViewPath('components.forms.textarea'), [
+            'ignoreOld' => true,
             'name' => $this->attributes['name'],
             'label' => $this->getLabel(),
             'value' => $value,

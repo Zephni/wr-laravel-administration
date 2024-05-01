@@ -1,4 +1,4 @@
-@props(['attr' => [], 'label' => null, 'id' => '', 'name', 'value' => '', 'required' => false, 'autofocus' => false, 'readonly' => false])
+@props(['attr' => [], 'ignoreOld' => false, 'label' => null, 'id' => '', 'name', 'value' => '', 'required' => false, 'autofocus' => false, 'readonly' => false])
 
 @php
     // Set id from name if unset
@@ -17,7 +17,9 @@
     'name' => $name,
     'class' => 'block w-full mt-2 px-3 py-1 border border-slate-400 dark:border-slate-600 bg-slate-200 dark:bg-slate-900
         focus:outline-none focus:ring-1 focus:ring-primary-500 dark:focus:ring-primary-500 rounded-md shadow-sm placeholder-slate-400 dark:placeholder-slate-600'
-])->merge($attr) }}>{{ old($name, $value) }}</textarea>
+])->merge($attr) }}>{{
+    $ignoreOld ? $value : old($name, $value)
+}}</textarea>
 
 @error($name)
     <p class="text-sm text-red-500 mt-2">{{ $message }}</p>
