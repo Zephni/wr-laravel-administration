@@ -1,6 +1,12 @@
 {{-- Livewire browse models, a very modern style browse system, includes a search filter and a table with the models data. --}}
 <div class="flex flex-col gap-4">
 
+    @if($successMessage)
+        @themeComponent('alert', ['type' => 'success', 'message' => $successMessage])
+    @elseif($errorMessage)
+        @themeComponent('alert', ['type' => 'error', 'message' => $errorMessage])
+    @endif
+
     <div class="flex justify-start gap-4">
         @foreach($manageableModelClass::getBrowseActions() as $browseAction)
             {!! $browseAction->render() !!}

@@ -1,6 +1,8 @@
 @props(['type' => 'info', 'message'])
 
-<div class="alert mb-4">
+<div x-data="{'show': true}"
+    x-show="show"
+    class="alert mb-4">
     @if ($type == 'success')
         <div class="flex justify-between items-center bg-green-100 border border-green-400 text-green-700 px-3 py-2 rounded relative" role="alert">
             <div class="flex gap-3 items-center">
@@ -23,7 +25,7 @@
         </div>
 
         <div>
-            <button type="button" class="text-sm text-inherit focus:outline-none" data-dismiss="alert" aria-label="Close">
+            <button type="button" class="text-sm text-inherit focus:outline-none" aria-label="Close" @click="show = false">
                 <i class="fas fa-times"></i>
             </button>
         </div>

@@ -44,6 +44,20 @@ class ManageableModelBrowse extends Component
         'showAdminOnly' => false,
     ];
 
+    /**
+     * Success message.
+     * 
+     * @var ?string
+     */
+    public $successMessage = null;
+
+    /**
+     * Error message.
+     * 
+     * @var ?string
+     */
+    public $errorMessage = null;
+
 
     /* Livewire Methods / Hooks
     --------------------------------------------------------------------------*/
@@ -164,6 +178,10 @@ class ManageableModelBrowse extends Component
             $model = $this->manageableModelClass::$baseModelClass::find($id);
             $model->delete();
         }
+
+        $this->successMessage = $this->manageableModelClass::getDisplayName()
+            . ' #' . $id
+            . ' '. ($permanent == 1 ? ' permanently deleted.' : ' deleted.');
     }
 
     /**
