@@ -359,9 +359,9 @@ class WRLAHelper
 
                 // If only one value
                 if(count($inValues) === 1) {
-                    $mergeErrorMessages[$key] = '<b>' . $key . '</b> must be set to `<b>' . $inValues[0] . '</b>.';
+                    $mergeErrorMessages[$key] = "The $key field must be set to `<b>{$inValues[0]}</b>.`";
                 } else {
-                    $mergeErrorMessages[$key] = '<b>' . $key . '</b> must be set to one of the following values: <b>' . implode('</b>, <b>', $inValues) . '</b>.';
+                    $mergeErrorMessages[$key] = "The $key field must set to one of the following: `<b>".implode('</b>`, `<b>', $inValues)."</b>`.";
                 }       
             }
         }
@@ -370,7 +370,17 @@ class WRLAHelper
 
         $validator = \Validator::make($validateDataArray, $valueDefinitions, $mergeErrorMessages);
         if ($validator->fails()) {
-            return implode(', ', $validator->errors()->all());
+            // Merge error messages with validator messages
+            $mergedErrorMessages = array_merge($mergeErrorMessages, $validator->errors()->messages());
+
+            // Build an array of modified messages
+            $modifiedMessages = [];
+            foreach($mergedErrorMessages as $key => $message) {
+                // If we can find the wording "$key field", replace it with "<b>$key</b> key"
+                $modifiedMessages[$key] = str_replace($key . ' field', '<b>' . $key . '</b> key', $message[0]);
+            }
+
+            return implode(', ', $modifiedMessages);
         }
 
         return true;

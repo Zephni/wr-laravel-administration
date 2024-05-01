@@ -299,7 +299,7 @@ class ManageableModel
 
             // Now we pass back the attribute.name and message
             if($ifMessageThenFail !== true) {
-                $messageBag[$manageableField->attribute('name')] = $ifMessageThenFail;
+                $messageBag[$manageableField->attribute('name')] = $manageableField->getLabel() . ': ' . $ifMessageThenFail;
             }
         }
 

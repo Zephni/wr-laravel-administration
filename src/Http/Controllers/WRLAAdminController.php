@@ -160,7 +160,7 @@ class WRLAAdminController extends Controller
         }
 
         // Get form key values from validator
-        $formKeyValues = collect($validator->validated());
+        $formKeyValues = $validator->validated();
 
         // Update only changed values on the model instance
         $manageableModel->updateModelInstanceProperties($request, $manageableFields, $formKeyValues);
