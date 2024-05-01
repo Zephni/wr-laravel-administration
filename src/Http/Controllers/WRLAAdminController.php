@@ -2,15 +2,16 @@
 
 namespace WebRegulate\LaravelAdministration\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 use App\WRLA\User;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\RedirectResponse;
-use WebRegulate\LaravelAdministration\Classes\ManageableModel;
-use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 use WebRegulate\LaravelAdministration\Enums\PageType;
+use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
+use WebRegulate\LaravelAdministration\Classes\ManageableModel;
 
 /**
  * Class WRLAAdminController
@@ -94,44 +95,58 @@ class WRLAAdminController extends Controller
      */
     public function upsertPost(Request $request, string $modelUrlAlias, ?int $modelId = null): RedirectResponse
     {
-        // Get manageable model class by its URL alias
-        $manageableModelClass = ManageableModel::getByUrlAlias($modelUrlAlias);
+        try {
+            // Get manageable model class by its URL alias
+            $manageableModelClass = ManageableModel::getByUrlAlias($modelUrlAlias);
 
-        // Check model class exists
-        if (is_null($manageableModelClass) || !class_exists($manageableModelClass)) {
-            return redirect()->route('wrla.dashboard')->with('error', "Manageable model `$manageableModelClass` not found.");
-        }
-
-        if($modelId == null)
-        {
-            // Create new model instance
-            $manageableModel = new $manageableModelClass;
-        }
-        else
-        {
-            // Get model by it's id
-            $manageableModel =  new $manageableModelClass($modelId);
-
-            // Check model id exists
-            if ($manageableModel == null) {
-                return redirect()->route('wrla.dashboard')->with('error', "Model ".$manageableModelClass." with ID `$modelId` not found.");
+            // Check model class exists
+            if (is_null($manageableModelClass) || !class_exists($manageableModelClass)) {
+                return redirect()->route('wrla.dashboard')->with('error', "Manageable model `$manageableModelClass` not found.");
             }
+
+            if($modelId == null)
+            {
+                // Create new model instance
+                $manageableModel = new $manageableModelClass;
+            }
+            else
+            {
+                // Get model by it's id
+                $manageableModel =  new $manageableModelClass($modelId);
+
+                // Check model id exists
+                if ($manageableModel == null) {
+                    return redirect()->route('wrla.dashboard')->with('error', "Model ".$manageableModelClass." with ID `$modelId` not found.");
+                }
+            }
+
+            // Get validation rules for this model
+            $rules = $manageableModel->getValidationRules()->toArray();
+
+            // Validate
+            $formKeyValues = $request->validate($rules);
+
+            // Update only changed values on the model instance
+            $manageableModel->updateModelInstanceProperties($request, $manageableModel->getManageableFields(), $formKeyValues);
+
+            // Save the model
+            $manageableModel->getmodelInstance()->save();
+        } catch (\Exception $e) {
+            // Log error
+            Log::channel('wrla')->error('Error saving model: ' . $e->getMessage());
+
+            // Redirect with error
+            return redirect()->route('wrla.manageable-model.edit', [
+                'modelUrlAlias' => $manageableModel->getUrlAlias(),
+                'id' => $manageableModel->getmodelInstance()->id
+            ])->with('error', 'Error saving model (see wrla.log for details): ' . $e->getMessage());
         }
-
-        // Get validation rules for this model
-        $rules = $manageableModel->getValidationRules()->toArray();
-
-        // Validate
-        $formKeyValues = $request->validate($rules);
-
-        // Update only changed values on the model instance
-        $manageableModel->updateModelInstanceProperties($request, $manageableModel->getManageableFields(), $formKeyValues);
-
-        // Save the model
-        $manageableModel->getmodelInstance()->save();
 
         // Redirect to the browse page
-        return redirect()->route('wrla.manageable-model.edit', ['modelUrlAlias' => $manageableModel->getUrlAlias(), 'id' => $manageableModel->getmodelInstance()->id]);
+        return redirect()->route('wrla.manageable-model.edit', [
+            'modelUrlAlias' => $manageableModel->getUrlAlias(),
+            'id' => $manageableModel->getmodelInstance()->id
+        ])->with('success', 'Saved '.$manageableModel->getDisplayName().' successfully.');
     }
 
     /**

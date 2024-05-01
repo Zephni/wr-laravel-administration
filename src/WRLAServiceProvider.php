@@ -28,6 +28,13 @@ class WRLAServiceProvider extends ServiceProvider
         // Merge config
         $this->mergeConfigFrom(__DIR__ . '/config/wr-laravel-administration.php', 'wr-laravel-administration');
 
+        // Merge wrla logging channel
+        $this->app->make('config')->set('logging.channels.wrla', [
+            'driver' => 'single',
+            'path' => storage_path('logs/wrla.log'),
+            'level' => 'debug',
+        ]);
+
         // Register Livewire
         $this->app->register(\Livewire\LivewireServiceProvider::class);
     }

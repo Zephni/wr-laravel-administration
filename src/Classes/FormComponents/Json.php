@@ -41,15 +41,15 @@ class Json extends FormComponent
             // Check if valid json
             if(json_last_error() !== JSON_ERROR_NONE) {
                 throw new WRLARedirectException(
-                    'Invalid JSON format in ' . $this->getLabel() . ' field.',
-                    url()->previous()
+                    'Invalid JSON format in ' . $this->getLabel() . ' field.'
                 );
             }
 
             // Return minimized json
             return json_encode($jsonDecoded);
         } catch (WRLARedirectException $e) {
-            return $e->redirect();
+            $e->redirect();
+            return $this->attribute('value');
         }
     }
 

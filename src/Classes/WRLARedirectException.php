@@ -12,7 +12,7 @@ class WRLARedirectException extends \Exception
      *
      * @var string
      */
-    protected string $redirectUrl;
+    protected ?string $redirectUrl;
 
     /**
      * WRLAException constructor.
@@ -20,7 +20,7 @@ class WRLARedirectException extends \Exception
      * @param string $message
      * @param string|null $redirect
      */
-    public function __construct(string $message, string $redirectUrl)
+    public function __construct(string $message, ?string $redirectUrl = null)
     {
         $this->redirectUrl = $redirectUrl;
         parent::__construct($message);
@@ -33,7 +33,9 @@ class WRLARedirectException extends \Exception
      */
     public function redirect(): RedirectResponse
     {
-        return redirect($this->redirectUrl)
+        $redirectUrl = $this->redirectUrl ?? url()->previous();
+
+        return redirect($redirectUrl)
             ->withInput()
             ->with('error', "<b>Exception:</b> ".$this->getMessage())
             ->send();
