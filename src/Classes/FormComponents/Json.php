@@ -154,6 +154,12 @@ class Json extends FormComponent
      */
     public function calculatedValue(mixed $value): string
     {
+        // If value is empty string we are likely creating a new record, so we set it to value json so
+        // that we can apply default key values
+        if($value === '') {
+            $value = '[]';
+        }
+
         // Check if json is valid, if not then do not format it and show as is
         $jsonData = json_decode($value) !== null
             ? json_decode($value)
