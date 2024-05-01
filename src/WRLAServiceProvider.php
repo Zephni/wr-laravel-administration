@@ -28,10 +28,16 @@ class WRLAServiceProvider extends ServiceProvider
         // Merge config
         $this->mergeConfigFrom(__DIR__ . '/config/wr-laravel-administration.php', 'wr-laravel-administration');
 
-        // Merge wrla logging channel
-        $this->app->make('config')->set('logging.channels.wrla', [
+        // Merge wrla info and error logging channels
+        $this->app->make('config')->set('logging.channels.wrla-info', [
             'driver' => 'single',
-            'path' => storage_path('logs/wrla.log'),
+            'path' => storage_path('logs/wrla-info.log'),
+            'level' => 'debug',
+        ]);
+
+        $this->app->make('config')->set('logging.channels.wrla-error', [
+            'driver' => 'single',
+            'path' => storage_path('logs/wrla-error.log'),
             'level' => 'debug',
         ]);
 
