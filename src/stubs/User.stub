@@ -93,22 +93,29 @@ class User extends ManageableModel
      */
     public function getManageableFields(): Collection {
         return collect([
-            Text::make($this, 'name')->required()->validation('string|max:255')
+            Text::make($this, 'name')
+                ->required()
+                ->validation('string|max:255')
                 ->attribute('placeholder', 'John Doe'),
 
-            Text::make($this, 'email')->required()->validation('email|max:255')
+            Text::make($this, 'email')
+                ->required()
+                ->validation('email|max:255')
                 ->attribute('placeholder', 'email@domain.com'),
 
             Password::make($this, 'password'),
 
-            Json::make($this, 'permissions')->required()
-                ->attributes(['placeholder' => 'JSON Data', 'rows' => 3]),
+            Json::make($this, 'permissions')
+                ->hideContainingBraces()
+                ->attributes(['placeholder' => 'JSON Data', 'rows' => 4]),
 
-            Json::make($this, 'settings')->required()
-                ->attributes(['placeholder' => 'JSON Data', 'rows' => 3]),
+            Json::make($this, 'settings')
+                ->hideContainingBraces()
+                ->attributes(['placeholder' => 'JSON Data', 'rows' => 4]),
 
-            Json::make($this, 'data')->required()
-                ->attributes(['placeholder' => 'JSON Data', 'rows' => 3]),
+            Json::make($this, 'data')
+                ->hideContainingBraces()
+                ->attributes(['placeholder' => 'JSON Data', 'rows' => 4]),
         ]);
     }
 

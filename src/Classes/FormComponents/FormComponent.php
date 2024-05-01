@@ -18,6 +18,13 @@ class FormComponent
     public $attributes;
 
     /**
+     * Options
+     *
+     * @var array
+     */
+    public array $options = [];
+
+    /**
      * Validation rule
      *
      * @var string
@@ -47,6 +54,7 @@ class FormComponent
      *
      * @param ?string $name
      * @param ?string $value
+     * @param ?ManageableModel $manageableModel
      */
     public function __construct(?string $name, ?string $value, ?ManageableModel $manageableModel = null)
     {
@@ -80,6 +88,17 @@ class FormComponent
     public function postConstructed(): mixed
     {
         return $this;
+    }
+
+    /**
+     * Pre validation method, called before validation rules are set.
+     * 
+     * @param ?string $value
+     * @return bool Return true if we have changed the value and want to force merge into request input
+     */
+    public function preValidation(?string $value): bool
+    {
+        return false;
     }
 
     /**
@@ -126,6 +145,45 @@ class FormComponent
     {
         $this->attribute('required', 'required');
         $this->validation('required');
+
+        return $this;
+    }
+
+    /**
+     * Set / Get option.
+     * 
+     * @param string $key
+     * @param ?string $value
+     * @return $this | string
+     */
+    public function option(string $key, ?string $value = null): static|string
+    {
+        if($value == null) {
+            if(isset($this->options[$key])){
+                return $this->options[$key];
+            } else {
+                return false;
+            }
+        }
+
+        $this->options[$key] = $value;
+
+        return $this;
+    }
+
+    /**
+     * Merge or get options.
+     * 
+     * @param ?array $options
+     * @return $this|array
+     */
+    public function options(?array $options = null): static|array
+    {
+        if($options == null) {
+            return $this->options;
+        }
+
+        $this->options = array_merge($this->options, $options);
 
         return $this;
     }

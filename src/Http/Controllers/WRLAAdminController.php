@@ -2,13 +2,13 @@
 
 namespace WebRegulate\LaravelAdministration\Http\Controllers;
 
-use App\WRLA\User;
 use Illuminate\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\RedirectResponse;
+use WebRegulate\LaravelAdministration\Models\User;
 use WebRegulate\LaravelAdministration\Enums\PageType;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 use WebRegulate\LaravelAdministration\Classes\ManageableModel;
@@ -120,6 +120,21 @@ class WRLAAdminController extends Controller
                 }
             }
 
+            // Get manageable fields
+            $manageableFields = $manageableModel->getManageableFields();
+
+            // Run pre validation hook on all manageable fields and store in array to merge with request
+            $requestMerge = [];
+            foreach ($manageableFields as $manageableField) {
+                $forceMergeIntoRequest = $manageableField->preValidation($request->input($manageableField->attribute('name')));
+
+                if($forceMergeIntoRequest) {                    
+                    $requestMerge[$manageableField->attribute('name')] = $manageableField->attribute('value');
+                }
+            }
+
+            $request->merge($requestMerge);
+
             // Get validation rules for this model
             $rules = $manageableModel->getValidationRules()->toArray();
 
@@ -127,24 +142,24 @@ class WRLAAdminController extends Controller
             $formKeyValues = $request->validate($rules);
 
             // Update only changed values on the model instance
-            $manageableModel->updateModelInstanceProperties($request, $manageableModel->getManageableFields(), $formKeyValues);
+            $manageableModel->updateModelInstanceProperties($request, $manageableFields, $formKeyValues);
 
             // Save the model
             $manageableModel->getmodelInstance()->save();
         } catch (\Exception $e) {
             // Log error
-            Log::channel('wrla')->error('Error saving model: ' . $e->getMessage());
+            WRLAHelper::logError('Error saving model '.$manageableModel->getDisplayName().': ' . $e->getMessage());
 
             // Redirect with error
             if($modelId != null) {
                 return redirect()->route('wrla.manageable-model.edit', [
                     'modelUrlAlias' => $manageableModel->getUrlAlias(),
                     'id' => $manageableModel->getmodelInstance()->id
-                ])->with('error', 'Error saving model (see wrla.log for details): ' . $e->getMessage());
+                ])->with('error', 'Error saving model: ' . $e->getMessage());
             } else {
                 return redirect()->route('wrla.manageable-model.create', [
                     'modelUrlAlias' => $manageableModel->getUrlAlias()
-                ])->with('error', 'Error saving model (see wrla.log for details): ' . $e->getMessage());
+                ])->with('error', 'Error saving model: ' . $e->getMessage());
             }
         }
 

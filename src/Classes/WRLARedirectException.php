@@ -29,15 +29,16 @@ class WRLARedirectException extends \Exception
     /**
      * Run the redirect.
      * 
-     * @return RedirectResponse
+     * @return void
      */
-    public function redirect(): RedirectResponse
+    public function redirect(): void
     {
         $redirectUrl = $this->redirectUrl ?? url()->previous();
 
-        return redirect($redirectUrl)
+        redirect($redirectUrl)
             ->withInput()
             ->with('error', "<b>Exception:</b> ".$this->getMessage())
             ->send();
+        die();
     }
 }

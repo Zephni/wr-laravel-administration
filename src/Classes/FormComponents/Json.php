@@ -4,6 +4,7 @@ namespace WebRegulate\LaravelAdministration\Classes\FormComponents;
 
 use WebRegulate\LaravelAdministration\Enums\PageType;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
+use WebRegulate\LaravelAdministration\Classes\ManageableModel;
 use WebRegulate\LaravelAdministration\Classes\WRLARedirectException;
 
 /**
@@ -13,6 +14,24 @@ use WebRegulate\LaravelAdministration\Classes\WRLARedirectException;
  */
 class Json extends FormComponent
 {
+    /**
+     * Option to hide containing braces.
+     */
+    const OPTION_HIDE_CONTAINING_BRACES = 'HIDE_CONTAINING_BRACES';
+
+    /**
+     * Hide containing braces.
+     * 
+     * @param bool $hide
+     * @return $this
+     */
+    public function hideContainingBraces(bool $hide = true): static
+    {
+        $this->option(self::OPTION_HIDE_CONTAINING_BRACES, $hide);
+
+        return $this;
+    }
+    
     /**
      * Post constructed method, called after name and value attributes are set.
      *
@@ -26,6 +45,46 @@ class Json extends FormComponent
     }
 
     /**
+     * Pre validation method, called before validation rules are set.
+     * 
+     * @param ?string $value
+     * @return bool Return true if we have changed the value and want to force merge into request input
+     */
+    public function preValidation(?string $value): bool
+    {
+        if(!$this->option(self::OPTION_HIDE_CONTAINING_BRACES)) {
+            return false;
+        }
+
+        // Trim, if empty, or starts or ends with curly or square braces, handle as normal
+        $value = trim($value);
+        if(
+            empty($value) ||
+            (str_starts_with($value, '{') && str_ends_with($value, '}')) ||
+            (str_starts_with($value, '[') && str_ends_with($value, ']'))
+        ) {
+            return false;
+        }
+
+        // First try with curly braces
+        $correctedValue = '{' . $value . '}';
+        $jsonDecoded = json_decode($correctedValue, true);
+        $correctedValue = json_encode($jsonDecoded);
+
+        // If not valid json, try with square braces
+        if($correctedValue === 'null') {
+            $correctedValue = '[' . $value . ']';
+            $jsonDecoded = json_decode($correctedValue);
+            $correctedValue = json_encode($jsonDecoded);
+        }
+
+        // Set value
+        $this->attribute('value', $correctedValue);
+
+        return true;
+    }
+
+    /**
      * Apply value. May be overriden in special cases, such as when applying a hash to a password.
      *
      * @param mixed $value
@@ -35,22 +94,17 @@ class Json extends FormComponent
     {
         // Convert json from non pretty print to plain minimalistic json
         try {
-            // Get decoded json
-            $jsonDecoded = json_decode($value, true);
-
             // Check if valid json
             if(json_last_error() !== JSON_ERROR_NONE) {
                 throw new WRLARedirectException(
                     'Invalid JSON format in ' . $this->getLabel() . ' field.'
                 );
             }
-
-            // Return minimized json
-            return json_encode($jsonDecoded);
         } catch (WRLARedirectException $e) {
             $e->redirect();
-            return $this->attribute('value');
         }
+
+        return $value;
     }
 
     /**
@@ -60,13 +114,21 @@ class Json extends FormComponent
      * @return mixed
      */
     public function render(PageType $upsertType): mixed
-    {        
+    {
+        $value = !empty($this->attributes['value']) && $this->attributes['value'] != '[]'
+            ? WRLAHelper::jsonPrettyPrint($this->attributes['value'])
+            : '{}';
+
+        // If hide braces option set, remove outer braces, and subtract 4 spaces from each line
+        if($this->option(self::OPTION_HIDE_CONTAINING_BRACES)) {
+            $value = substr(trim($value), 1, -1);
+            $value = str_replace("\n    ", "\n", $value);
+        }
+
         return view(WRLAHelper::getViewPath('components.forms.textarea'), [
             'name' => $this->attributes['name'],
             'label' => $this->getLabel(),
-            'value' => !empty($this->attributes['value']) && $this->attributes['value'] != '[]'
-                ? WRLAHelper::jsonPrettyPrint($this->attributes['value'])
-                : '{}',
+            'value' => $value,
             'attr' => collect($this->attributes)
                 ->forget(['name', 'value'])
                 ->toArray(),
