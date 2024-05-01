@@ -56,10 +56,10 @@ class Json extends FormComponent
             return false;
         }
 
-        // Trim, if empty, or starts or ends with curly or square braces, handle as normal
+        // Trim, if null, or starts or ends with curly or square braces, handle as normal
         $value = trim($value);
         if(
-            empty($value) ||
+            $value == 'null' ||
             (str_starts_with($value, '{') && str_ends_with($value, '}')) ||
             (str_starts_with($value, '[') && str_ends_with($value, ']'))
         ) {
@@ -76,6 +76,11 @@ class Json extends FormComponent
             $correctedValue = '[' . $value . ']';
             $jsonDecoded = json_decode($correctedValue);
             $correctedValue = json_encode($jsonDecoded);
+        }
+
+        // If still not valid json, return false and let the validator handle it
+        if($correctedValue === 'null') {
+            return false;
         }
 
         // Set value
@@ -121,7 +126,14 @@ class Json extends FormComponent
 
         // If hide braces option set, remove outer braces, and subtract 4 spaces from each line
         if($this->option(self::OPTION_HIDE_CONTAINING_BRACES)) {
-            $value = substr(trim($value), 1, -1);
+            $value = trim($value);
+            // If value has outer braces, remove them
+            if(
+                (str_starts_with($value, '{') && str_ends_with($value, '}')) ||
+                (str_starts_with($value, '[') && str_ends_with($value, ']'))
+            ) {
+                $value = substr($value, 1, -1);
+            }
             $value = str_replace("\n    ", "\n", $value);
         }
 

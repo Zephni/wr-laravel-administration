@@ -95,73 +95,56 @@ class WRLAAdminController extends Controller
      */
     public function upsertPost(Request $request, string $modelUrlAlias, ?int $modelId = null): RedirectResponse
     {
-        try {
-            // Get manageable model class by its URL alias
-            $manageableModelClass = ManageableModel::getByUrlAlias($modelUrlAlias);
+        // Get manageable model class by its URL alias
+        $manageableModelClass = ManageableModel::getByUrlAlias($modelUrlAlias);
 
-            // Check model class exists
-            if (is_null($manageableModelClass) || !class_exists($manageableModelClass)) {
-                return redirect()->route('wrla.dashboard')->with('error', "Manageable model `$manageableModelClass` not found.");
-            }
+        // Check model class exists
+        if (is_null($manageableModelClass) || !class_exists($manageableModelClass)) {
+            return redirect()->route('wrla.dashboard')->with('error', "Manageable model `$manageableModelClass` not found.");
+        }
 
-            if($modelId == null)
-            {
-                // Create new model instance
-                $manageableModel = new $manageableModelClass;
-            }
-            else
-            {
-                // Get model by it's id
-                $manageableModel =  new $manageableModelClass($modelId);
+        if($modelId == null)
+        {
+            // Create new model instance
+            $manageableModel = new $manageableModelClass;
+        }
+        else
+        {
+            // Get model by it's id
+            $manageableModel =  new $manageableModelClass($modelId);
 
-                // Check model id exists
-                if ($manageableModel == null) {
-                    return redirect()->route('wrla.dashboard')->with('error', "Model ".$manageableModelClass." with ID `$modelId` not found.");
-                }
-            }
-
-            // Get manageable fields
-            $manageableFields = $manageableModel->getManageableFields();
-
-            // Run pre validation hook on all manageable fields and store in array to merge with request
-            $requestMerge = [];
-            foreach ($manageableFields as $manageableField) {
-                $forceMergeIntoRequest = $manageableField->preValidation($request->input($manageableField->attribute('name')));
-
-                if($forceMergeIntoRequest) {                    
-                    $requestMerge[$manageableField->attribute('name')] = $manageableField->attribute('value');
-                }
-            }
-
-            $request->merge($requestMerge);
-
-            // Get validation rules for this model
-            $rules = $manageableModel->getValidationRules()->toArray();
-
-            // Validate
-            $formKeyValues = $request->validate($rules);
-
-            // Update only changed values on the model instance
-            $manageableModel->updateModelInstanceProperties($request, $manageableFields, $formKeyValues);
-
-            // Save the model
-            $manageableModel->getmodelInstance()->save();
-        } catch (\Exception $e) {
-            // Log error
-            WRLAHelper::logError('Error saving model '.$manageableModel->getDisplayName().': ' . $e->getMessage());
-
-            // Redirect with error
-            if($modelId != null) {
-                return redirect()->route('wrla.manageable-model.edit', [
-                    'modelUrlAlias' => $manageableModel->getUrlAlias(),
-                    'id' => $manageableModel->getmodelInstance()->id
-                ])->with('error', 'Error saving model: ' . $e->getMessage());
-            } else {
-                return redirect()->route('wrla.manageable-model.create', [
-                    'modelUrlAlias' => $manageableModel->getUrlAlias()
-                ])->with('error', 'Error saving model: ' . $e->getMessage());
+            // Check model id exists
+            if ($manageableModel == null) {
+                return redirect()->route('wrla.dashboard')->with('error', "Model ".$manageableModelClass." with ID `$modelId` not found.");
             }
         }
+
+        // Get manageable fields
+        $manageableFields = $manageableModel->getManageableFields();
+
+        // Run pre validation hook on all manageable fields and store in array to merge with request
+        $requestMerge = [];
+        foreach ($manageableFields as $manageableField) {
+            $forceMergeIntoRequest = $manageableField->preValidation($request->input($manageableField->attribute('name')));
+
+            if($forceMergeIntoRequest) {                    
+                $requestMerge[$manageableField->attribute('name')] = $manageableField->attribute('value');
+            }
+        }
+
+        $request->merge($requestMerge);
+
+        // Get validation rules for this model
+        $rules = $manageableModel->getValidationRules()->toArray();
+
+        // Validate
+        $formKeyValues = $request->validate($rules);
+
+        // Update only changed values on the model instance
+        $manageableModel->updateModelInstanceProperties($request, $manageableFields, $formKeyValues);
+
+        // Save the model
+        $manageableModel->getmodelInstance()->save();
 
         // Redirect with success
         return redirect()->route('wrla.manageable-model.edit', [
