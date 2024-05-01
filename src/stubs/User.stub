@@ -107,6 +107,10 @@ class User extends ManageableModel
             Password::make($this, 'password'),
 
             Json::make($this, 'permissions')
+                ->mergeDefaultKeyValues([
+                    'master' => false,
+                    'admin' => false
+                ])
                 ->jsonFormatValidation([
                     'master' => 'boolean',
                     'admin' => 'boolean'
@@ -115,6 +119,12 @@ class User extends ManageableModel
                 ->attributes(['placeholder' => 'JSON Data', 'rows' => 4]),
 
             Json::make($this, 'settings')
+                ->mergeDefaultKeyValues([
+                    'theme' => 'default'
+                ])
+                ->jsonFormatValidation([
+                    'theme' => 'string|in:default'
+                ])
                 ->hideContainingBraces()
                 ->attributes(['placeholder' => 'JSON Data', 'rows' => 4]),
 

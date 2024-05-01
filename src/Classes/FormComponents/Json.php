@@ -20,6 +20,25 @@ class Json extends FormComponent
     const OPTION_HIDE_CONTAINING_BRACES = 'HIDE_CONTAINING_BRACES';
 
     /**
+     * Default key values to merge with nested.key values.
+     * 
+     * @var array
+     */
+    protected array $defaultKeyValues = [];
+
+    /**
+     * Merge default keys and nested.key values before render.
+     * 
+     * @param array $defaultKeyValues
+     */
+    public function mergeDefaultKeyValues(array $defaultKeyValues): static
+    {
+        $this->defaultKeyValues = $defaultKeyValues;
+
+        return $this;
+    }
+
+    /**
      * Hide containing braces.
      * 
      * @param bool $hide
@@ -128,6 +147,53 @@ class Json extends FormComponent
     }
 
     /**
+     * Calculated value
+     * 
+     * @param mixed $value
+     * @return string
+     */
+    public function calculatedValue(mixed $value): string
+    {
+        // Check if json is valid, if not then do not format it and show as is
+        $jsonData = json_decode($value) !== null
+            ? json_decode($value)
+            : false;
+
+        if($jsonData !== false) {
+            // Now we have validation, we can loop through the merge default key values and apply them
+            foreach($this->defaultKeyValues as $key => $value) {
+                if(data_get($jsonData, $key) === null) {
+                    data_set($jsonData, $key, $value);
+                }
+            }
+
+            // If not empty, pretty print json
+            $value = !empty($jsonData)
+                ? json_encode($jsonData, JSON_PRETTY_PRINT)
+                : '{}';
+        }
+
+        // Trim whitespace from the value
+        $value = trim($value);
+
+        // If hide braces option set, we need to do a final check to remove any outer braces
+        if($this->option(self::OPTION_HIDE_CONTAINING_BRACES)) {
+            // If value has outer braces, remove them
+            if(
+                (str_starts_with($value, '{') && str_ends_with($value, '}')) ||
+                (str_starts_with($value, '[') && str_ends_with($value, ']'))
+            ) {
+                $value = substr($value, 1, -1);
+            }
+
+            // Remove first tier of leading whitespace
+            $value = str_replace("\n    ", "\n", $value);
+        }
+
+        return $value;
+    }
+
+    /**
      * Render the input field.
      *
      * @param PageType $upsertType
@@ -139,29 +205,12 @@ class Json extends FormComponent
         if(old($this->attributes['name']) !== null) {
             $value = old($this->attributes['name']);
             $this->attribute('value', $value);
+        } else {
+            $value = $this->attributes['value'];
         }
 
-        // Check if json is valid, if not then do not format it and show as is
-        $validJson = json_decode($this->attributes['value']) !== null;
-
-        if($validJson) {
-            $value = !empty($this->attributes['value']) && $this->attributes['value'] != '[]'
-                ? WRLAHelper::jsonPrettyPrint($this->attributes['value'])
-                : '{}';
-    
-            // If hide braces option set, remove outer braces, and subtract 4 spaces from each line
-            if($this->option(self::OPTION_HIDE_CONTAINING_BRACES)) {
-                $value = trim($value);
-                // If value has outer braces, remove them
-                if(
-                    (str_starts_with($value, '{') && str_ends_with($value, '}')) ||
-                    (str_starts_with($value, '[') && str_ends_with($value, ']'))
-                ) {
-                    $value = substr($value, 1, -1);
-                }
-                $value = str_replace("\n    ", "\n", $value);
-            }
-        }
+        // Apply calculated value, which will apply default key values and pretty print json
+        $value = $this->calculatedValue($value);
 
         return view(WRLAHelper::getViewPath('components.forms.textarea'), [
             'ignoreOld' => true,
