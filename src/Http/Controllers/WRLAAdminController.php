@@ -136,17 +136,23 @@ class WRLAAdminController extends Controller
             Log::channel('wrla')->error('Error saving model: ' . $e->getMessage());
 
             // Redirect with error
-            return redirect()->route('wrla.manageable-model.edit', [
-                'modelUrlAlias' => $manageableModel->getUrlAlias(),
-                'id' => $manageableModel->getmodelInstance()->id
-            ])->with('error', 'Error saving model (see wrla.log for details): ' . $e->getMessage());
+            if($modelId != null) {
+                return redirect()->route('wrla.manageable-model.edit', [
+                    'modelUrlAlias' => $manageableModel->getUrlAlias(),
+                    'id' => $manageableModel->getmodelInstance()->id
+                ])->with('error', 'Error saving model (see wrla.log for details): ' . $e->getMessage());
+            } else {
+                return redirect()->route('wrla.manageable-model.create', [
+                    'modelUrlAlias' => $manageableModel->getUrlAlias()
+                ])->with('error', 'Error saving model (see wrla.log for details): ' . $e->getMessage());
+            }
         }
 
-        // Redirect to the browse page
+        // Redirect with success
         return redirect()->route('wrla.manageable-model.edit', [
             'modelUrlAlias' => $manageableModel->getUrlAlias(),
             'id' => $manageableModel->getmodelInstance()->id
-        ])->with('success', 'Saved '.$manageableModel->getDisplayName().' successfully.');
+        ])->with('success', 'Saved '.$manageableModel->getDisplayName().' #'.$manageableModel->getmodelInstance()->id.' successfully.');
     }
 
     /**

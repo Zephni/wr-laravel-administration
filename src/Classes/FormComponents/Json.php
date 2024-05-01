@@ -60,11 +60,13 @@ class Json extends FormComponent
      * @return mixed
      */
     public function render(PageType $upsertType): mixed
-    {
+    {        
         return view(WRLAHelper::getViewPath('components.forms.textarea'), [
             'name' => $this->attributes['name'],
             'label' => $this->getLabel(),
-            'value' => WRLAHelper::jsonPrettyPrint($this->attributes['value']),
+            'value' => !empty($this->attributes['value']) && $this->attributes['value'] != '[]'
+                ? WRLAHelper::jsonPrettyPrint($this->attributes['value'])
+                : '{}',
             'attr' => collect($this->attributes)
                 ->forget(['name', 'value'])
                 ->toArray(),
