@@ -3,6 +3,7 @@
 namespace WebRegulate\LaravelAdministration\Classes;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\File;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Support\Facades\RateLimiter;
@@ -303,6 +304,36 @@ class WRLAHelper
     {
         $jsonArrary = json_decode($json, true);
         return json_encode($jsonArrary, JSON_PRETTY_PRINT);
+    }
+
+    /**
+     * Log to WRLA error channel, automatically adds 'user' => user->id if available, shows as 'x' if no user.
+     * 
+     * @param string $message The message to log.
+     * @param array $context The context to log.
+     */
+    public static function logError(string $message, array $context = []): void
+    {
+        $data = array_merge([
+            'user' => User::current()?->id ?? 'x',
+        ], $context);
+
+        Log::channel('wrla-error')->error($message, $data);
+    }
+
+    /**
+     * Log to WRLA info channel, automatically adds 'user' => user->id if available, shows as 'x' if no user.
+     * 
+     * @param string $message The message to log.
+     * @param array $context The context to log.
+     */
+    public static function logInfo(string $message, array $context = []): void
+    {
+        $data = array_merge([
+            'user' => User::current()?->id ?? 'x',
+        ], $context);
+
+        Log::channel('wrla-info')->info($message, $data);
     }
 
     /**
