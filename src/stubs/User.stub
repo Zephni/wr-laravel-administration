@@ -6,8 +6,8 @@ use \Illuminate\Http\Request;
 use \Illuminate\Support\Collection;
 use \Illuminate\Support\Stringable;
 use \WebRegulate\LaravelAdministration\Classes\ManageableModel;
+use WebRegulate\LaravelAdministration\Classes\FormComponents\Json;
 use \WebRegulate\LaravelAdministration\Classes\FormComponents\Text;
-use WebRegulate\LaravelAdministration\Classes\FormComponents\Textarea;
 use \WebRegulate\LaravelAdministration\Classes\FormComponents\Password;
 
 class User extends ManageableModel
@@ -93,23 +93,21 @@ class User extends ManageableModel
      */
     public function getManageableFields(): Collection {
         return collect([
-            Text::make($this, 'name')->validation('required|string|max:255')
+            Text::make($this, 'name')->required()->validation('string|max:255')
                 ->attribute('placeholder', 'John Doe'),
 
-            Text::make($this, 'email')->validation('required|string|email|max:255')
+            Text::make($this, 'email')->required()->validation('email|max:255')
                 ->attribute('placeholder', 'email@domain.com'),
 
-            Password::make($this, 'password')
-                ->validation('required_if:wrla_show_password,1|string|confirmed|min:6|regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/')
-                ->attribute('placeholder', 'Atleast 6 characters, and have atleast 1 uppercase, 1 lowercase, 1 number'),
+            Password::make($this, 'password'),
 
-            Textarea::make($this, 'permissions')->validation('required|json')
+            Json::make($this, 'permissions')->required()
                 ->attributes(['placeholder' => 'JSON Data', 'rows' => 3]),
 
-            Textarea::make($this, 'settings')->validation('required|json')
+            Json::make($this, 'settings')->required()
                 ->attributes(['placeholder' => 'JSON Data', 'rows' => 3]),
 
-            Textarea::make($this, 'data')->validation('required|json')
+            Json::make($this, 'data')->required()
                 ->attributes(['placeholder' => 'JSON Data', 'rows' => 3]),
         ]);
     }
