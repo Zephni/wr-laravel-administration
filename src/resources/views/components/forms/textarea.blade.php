@@ -22,5 +22,5 @@
 }}</textarea>
 
 @error($name)
-    <p class="text-sm text-red-500 mt-2">{{ $message }}</p>
+    @themeComponent('alert', ['type' => 'error', 'message' => $message, 'class' => 'mt-3'])
 @enderror

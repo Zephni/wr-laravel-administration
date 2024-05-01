@@ -1,8 +1,9 @@
-@props(['type' => 'info', 'message'])
+@props(['type' => 'info', 'message', 'class' => ''])
 
 <div x-data="{'show': true}"
     x-show="show"
-    class="alert mb-4">
+    {{ $attributes->merge(['class' => 'alert mb-4 ' . $class])}}
+    >
     @if ($type == 'success')
         <div class="flex justify-between items-center bg-green-100 border border-green-400 text-green-700 px-3 py-2 rounded relative" role="alert">
             <div class="flex gap-3 items-center">

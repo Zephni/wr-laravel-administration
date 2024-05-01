@@ -343,14 +343,32 @@ class WRLAHelper
             return json_last_error_msg();
         }
 
+        // Merge error messages
+        $mergeErrorMessages = [];
+
         // Setup data array of nested.key => values,... to validate
         $validateDataArray = [];
         foreach($valueDefinitions as $key => $valueDefinition) {
             $valueDefinitions[$key] = 'required|' . $valueDefinition;
             $validateDataArray[$key] = $jsonData[$key] ?? null;
+
+            // If value definition has an in: then extract it and set the custom message
+            preg_match('/in:([a-zA-Z0-9,]+)/', $valueDefinition, $matches);
+            if(!empty($matches)) {
+                $inValues = explode(',', $matches[1]);
+
+                // If only one value
+                if(count($inValues) === 1) {
+                    $mergeErrorMessages[$key] = '<b>' . $key . '</b> must be set to `<b>' . $inValues[0] . '</b>.';
+                } else {
+                    $mergeErrorMessages[$key] = '<b>' . $key . '</b> must be set to one of the following values: <b>' . implode('</b>, <b>', $inValues) . '</b>.';
+                }       
+            }
         }
 
-        $validator = \Validator::make($validateDataArray, $valueDefinitions);
+        //dd($validateDataArray, $mergeErrorMessages);
+
+        $validator = \Validator::make($validateDataArray, $valueDefinitions, $mergeErrorMessages);
         if ($validator->fails()) {
             return implode(', ', $validator->errors()->all());
         }
