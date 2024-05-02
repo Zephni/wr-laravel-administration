@@ -1,4 +1,4 @@
-@props(['attr' => [], 'ignoreOld' => false, 'label' => null, 'id' => '', 'name', 'value' => '', 'required' => false, 'autofocus' => false, 'readonly' => false])
+@props(['attr' => [],'options' => [], 'ignoreOld' => false, 'label' => null, 'id' => '', 'name', 'value' => '', 'required' => false, 'autofocus' => false, 'readonly' => false])
 
 @php
     // Set id from name if unset
@@ -20,6 +20,11 @@
 ])->merge($attr) }}>{{
     $ignoreOld ? $value : old($name, $value)
 }}</textarea>
+
+{{-- Field notes (if options has notes key) --}}
+@if(!empty($options['notes']))
+    @themeComponent('forms.field-notes', ['notes' => $options['notes']])
+@endif
 
 @error($name)
     @themeComponent('alert', ['type' => 'error', 'message' => $message, 'class' => 'mt-2'])

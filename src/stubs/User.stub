@@ -9,6 +9,7 @@ use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 use \WebRegulate\LaravelAdministration\Classes\ManageableModel;
 use WebRegulate\LaravelAdministration\Classes\FormComponents\Json;
 use \WebRegulate\LaravelAdministration\Classes\FormComponents\Text;
+use WebRegulate\LaravelAdministration\Classes\FormComponents\Image;
 use \WebRegulate\LaravelAdministration\Classes\FormComponents\Password;
 
 class User extends ManageableModel
@@ -102,9 +103,14 @@ class User extends ManageableModel
             Text::make($this, 'email')
                 ->required()
                 ->validation('email|max:255')
-                ->attribute('placeholder', 'email@domain.com'),
+                ->attribute('placeholder', 'email@domain.com')
+                ->notes('<b>Required</b> - Must be valid and unique'),
 
             Password::make($this, 'password'),
+
+            Image::make($this, 'avatar')
+                ->validation('image|mimes:jpeg,png,jpg,gif,svg|max:2048')
+                ->notes('<b>Required</b> - Image should be a valid JPG, PNG or GIF, no larger than 1024kb. Will be cropped to square'),
 
             Json::make($this, 'permissions')
                 ->mergeDefaultKeyValues([

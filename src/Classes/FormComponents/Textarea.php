@@ -24,6 +24,7 @@ class Textarea extends ManageableField
             'name' => $this->attributes['name'],
             'label' => $this->getLabel(),
             'value' => $this->attributes['value'],
+            'options' => $this->options,
             'attr' => collect($this->attributes)
                 ->forget(['name', 'value'])
                 ->toArray(),

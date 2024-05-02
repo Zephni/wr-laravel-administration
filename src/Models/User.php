@@ -32,7 +32,7 @@ class User extends Authenticatable implements CanResetPassword
 
     /**
      * Implement method 'getEmailForPasswordReset' from 'CanResetPassword' interface
-     * 
+     *
      * @return string
      */
     public function getEmailForPasswordReset(): string
@@ -49,6 +49,23 @@ class User extends Authenticatable implements CanResetPassword
     public function sendPasswordResetNotification($token)
     {
         $this->notify(new \WebRegulate\LaravelAdministration\Notifications\WRLAResetPasswordNotification($this->email, $token));
+    }
+
+    /**
+     * Get profile image
+     *
+     * @return string
+     */
+    public function getProfileImage(): string {
+        // If data has image, return it
+        if ($this->getData('profile.image')) {
+            return $this->getData('profile.image');
+        }
+
+        // rgb(0 191 166)
+
+        // Otherwise return default
+        return 'https://ui-avatars.com/api/?name=' . urlencode($this->name) . '&color=EBF4FF&background=00BFA0&size=128&font-size=0.5&rounded=true';
     }
 
     /* Static methods

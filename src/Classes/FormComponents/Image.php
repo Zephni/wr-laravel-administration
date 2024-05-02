@@ -10,7 +10,7 @@ use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
  *
  * This class is responsible for generating input fields.
  */
-class Text extends ManageableField
+class Image extends ManageableField
 {
     /**
      * Render the input field.
@@ -20,15 +20,19 @@ class Text extends ManageableField
      */
     public function render(PageType $upsertType): mixed
     {
-        return view(WRLAHelper::getViewPath('components.forms.input-text'), [
+        $HTML = '';
+        
+        $HTML .= view(WRLAHelper::getViewPath('components.forms.input-image'), [
             'name' => $this->attributes['name'],
             'label' => $this->getLabel(),
-            'value' => $this->attributes['value'],
-            'type' => $this->attributes['type'] ?? 'text',
+            'value' => '',
+            'type' => 'file',
             'options' => $this->options,
             'attr' => collect($this->attributes)
                 ->forget(['name', 'value', 'type'])
                 ->toArray(),
         ])->render();
+
+        return $HTML;
     }
 }

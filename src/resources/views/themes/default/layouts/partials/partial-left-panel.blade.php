@@ -9,7 +9,7 @@
     x-bind:style="'width: ' + leftPanelWidth + 'px;'"
     :class="(leftPanelOpen ? 'min-w-44 max-w-[33%] ' : 'min-w-0 max-w-0 border-none ') + (!dragging ? 'transition-all' : '')"
     id="left-panel"
-    class="fixed flex flex-col justify-start items-start h-full border-r-2 border-slate-300 dark:border-slate-950 bg-slate-700 dark:bg-slate-700 shadow-lg shadow-slate-500 dark:shadow-slate-950 z-10">
+    class="fixed z-20 flex flex-col justify-start items-start h-full border-r-2 border-slate-300 dark:border-slate-950 bg-slate-700 dark:bg-slate-700 shadow-lg shadow-slate-500 dark:shadow-slate-950 z-10">
 
     {{-- Collapse button (Use collapse icon from fontawesome) --}}
     <button

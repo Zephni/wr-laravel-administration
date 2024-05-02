@@ -1,4 +1,4 @@
-@props(['attr' => [], 'label' => null, 'id' => '', 'name', 'value' => '1', 'checked' => false, 'error' => null])
+@props(['attr' => [], 'options' => [], 'label' => null, 'id' => '', 'name', 'value' => '1', 'checked' => false, 'error' => null])
 
 @php
     // Set id from name if unset
@@ -26,6 +26,11 @@
         </label>
     @endif
 </div>
+
+{{-- Field notes (if options has notes key) --}}
+@if(!empty($options['notes']))
+    @themeComponent('forms.field-notes', ['notes' => $options['notes']])
+@endif
 
 @if(!empty($error))
     <p class="text-sm text-red-500 mt-2">{{ $error }}</p>

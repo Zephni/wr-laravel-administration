@@ -227,6 +227,19 @@ class ManageableField
     }
 
     /**
+     * Notes
+     * 
+     * @param string $notes
+     * @return $this
+     */
+    public function notes(string $notes): static
+    {
+        $this->options['notes'] = $notes;
+
+        return $this;
+    }
+
+    /**
      * Append or overwrite validation rules
      * TODO: Add allowance of array validations
      *
