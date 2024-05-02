@@ -1,6 +1,10 @@
 {{-- Livewire browse models, a very modern style browse system, includes a search filter and a table with the models data. --}}
 <div class="flex flex-col gap-4">
 
+    <div class="text-xl font-semibold mb-2">
+        Browsing {{ $manageableModelClass::getDisplayName()->plural() }}
+    </div>
+
     @if($successMessage)
         @themeComponent('alert', ['type' => 'success', 'message' => $successMessage])
     @elseif($errorMessage)
