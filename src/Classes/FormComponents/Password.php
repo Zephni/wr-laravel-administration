@@ -31,10 +31,11 @@ class Password extends ManageableField
     /**
      * Apply value. May be overriden in special cases, such as when applying a hash to a password.
      *
+     * @param Request $request
      * @param mixed $value
      * @return mixed
      */
-    public function applyValue(mixed $value): mixed
+    public function applyValue(Request $request, mixed $value): mixed
     {
         // First hash the password
         $value = Hash::make($value);

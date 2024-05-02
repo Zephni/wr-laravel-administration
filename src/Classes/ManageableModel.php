@@ -320,16 +320,20 @@ class ManageableModel
         foreach ($manageableFields as $manageableField) {
             $fieldName = $manageableField->attribute('name');
 
+            dump($fieldName, array_key_exists($fieldName, $formKeyValues), $formKeyValues);
+            // Need to do a check here for the special json case (if field name has a -> in it)
+
             if (array_key_exists($fieldName, $formKeyValues)) {
                 $formComponent = $formComponents->first(function ($formComponent) use ($fieldName) {
                     return $formComponent->attribute('name') === $fieldName;
                 });
 
-                $fieldValue = $formComponent->applyValue($formKeyValues[$fieldName]);
+                $fieldValue = $formComponent->applyValue($request, $formKeyValues[$fieldName]);
 
                 $this->modelInstance->$fieldName = $fieldValue;
             }
         }
+        dd();
     }
 
     /**

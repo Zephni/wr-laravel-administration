@@ -2,6 +2,7 @@
 
 namespace WebRegulate\LaravelAdministration\Classes\FormComponents;
 
+use Illuminate\Http\Request;
 use WebRegulate\LaravelAdministration\Enums\PageType;
 use WebRegulate\LaravelAdministration\Classes\ManageableModel;
 
@@ -261,10 +262,11 @@ class ManageableField
     /**
      * Apply value. May be overriden in special cases, such as when applying a hash to a password.
      *
+     * @param Request $request
      * @param mixed $value
      * @return mixed
      */
-    public function applyValue(mixed $value): mixed
+    public function applyValue(Request $request, mixed $value): mixed
     {
         return $value;
     }
@@ -314,7 +316,17 @@ class ManageableField
      */
     public function getLabel(): string
     {
-        return str(str_replace('_', ' ', $this->attributes['name']))->title();
+        // If name is based on a json column (eg has a -> in it) then we need to get the string after the ->
+        // and then explode the . dots and get the last element.
+        if(strpos($this->attributes['name'], '->') !== false) {
+            $label = explode('->', $this->attributes['name'])[1];
+            $label = explode('.', $label);
+            $label = end($label);
+        } else {
+            $label = $this->attributes['name'];
+        }
+
+        return ucfirst(str_replace('_', ' ', $label));
     }
 
     /**

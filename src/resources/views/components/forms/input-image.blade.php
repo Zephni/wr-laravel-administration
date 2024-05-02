@@ -32,7 +32,7 @@
         ])->merge($attr) }}
             onchange="setPreviewImage(
                 this,
-                this.closest('.flex').querySelector('.wrla-image-preview')
+                this.parentElement.parentElement.querySelector('.wrla-image-preview')
             )"
         />
 
