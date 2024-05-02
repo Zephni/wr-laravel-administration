@@ -31,6 +31,16 @@ class User extends Authenticatable implements CanResetPassword
     ];
 
     /**
+     * Implement method 'getEmailForPasswordReset' from 'CanResetPassword' interface
+     * 
+     * @return string
+     */
+    public function getEmailForPasswordReset(): string
+    {
+        return $this->email;
+    }
+
+    /**
      * Send the password reset notification.
      *
      * @param  string  $token
