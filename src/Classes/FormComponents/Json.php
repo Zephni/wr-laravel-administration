@@ -30,8 +30,9 @@ class Json extends ManageableField
      * Merge default keys and nested.key values before render.
      * 
      * @param array $defaultKeyValues
+     * @return $this
      */
-    public function mergeDefaultKeyValues(array $defaultKeyValues): static
+    public function mergeDefaultKeyValues(array $defaultKeyValues): self
     {
         $this->defaultKeyValues = $defaultKeyValues;
 
@@ -44,7 +45,7 @@ class Json extends ManageableField
      * @param bool $hide
      * @return $this
      */
-    public function hideContainingBraces(bool $hide = true): static
+    public function hideContainingBraces(bool $hide = true): self
     {
         $this->option(self::OPTION_HIDE_CONTAINING_BRACES, $hide);
 
@@ -56,7 +57,7 @@ class Json extends ManageableField
      *
      * @return $this
      */
-    public function postConstructed(): static
+    public function postConstructed(): self
     {
         $this->validation('json');
 
@@ -114,7 +115,7 @@ class Json extends ManageableField
      * @param array $rules
      * @return $this
      */
-    public function jsonFormatValidation(array $rules): static
+    public function jsonFormatValidation(array $rules): self
     {
         $this->inlineValidation(function($value) use ($rules) {
             return WRLAHelper::jsonFormatValidation($value, $rules);
