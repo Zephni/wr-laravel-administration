@@ -12,7 +12,7 @@ use WebRegulate\LaravelAdministration\Classes\WRLARedirectException;
  *
  * This class is responsible for generating input fields.
  */
-class Json extends FormComponent
+class Json extends ManageableField
 {
     /**
      * Option to hide containing braces.

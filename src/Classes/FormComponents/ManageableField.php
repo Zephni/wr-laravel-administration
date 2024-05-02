@@ -2,13 +2,10 @@
 
 namespace WebRegulate\LaravelAdministration\Classes\FormComponents;
 
-use Illuminate\View\View;
-use Illuminate\Http\Request;
-use Illuminate\Contracts\Validation\ValidationRule;
 use WebRegulate\LaravelAdministration\Enums\PageType;
 use WebRegulate\LaravelAdministration\Classes\ManageableModel;
 
-class FormComponent
+class ManageableField
 {
     /**
      * Attributes of the form component.

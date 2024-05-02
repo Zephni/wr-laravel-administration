@@ -13,7 +13,7 @@ use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
  *
  * This class is responsible for generating input fields.
  */
-class Password extends FormComponent
+class Password extends ManageableField
 {
     /**
      * Post constructed method, called after name and value attributes are set.

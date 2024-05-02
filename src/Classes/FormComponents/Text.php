@@ -10,7 +10,7 @@ use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
  *
  * This class is responsible for generating input fields.
  */
-class Text extends FormComponent
+class Text extends ManageableField
 {
     /**
      * Render the input field.
