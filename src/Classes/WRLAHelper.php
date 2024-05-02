@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\File;
 use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\RateLimiter;
 use WebRegulate\LaravelAdministration\Models\User;
 use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItem;
@@ -368,7 +369,7 @@ class WRLAHelper
 
         //dd($validateDataArray, $mergeErrorMessages);
 
-        $validator = \Validator::make($validateDataArray, $valueDefinitions, $mergeErrorMessages);
+        $validator = Validator::make($validateDataArray, $valueDefinitions, $mergeErrorMessages);
         if ($validator->fails()) {
             // Merge error messages with validator messages
             $mergedErrorMessages = array_merge($mergeErrorMessages, $validator->errors()->messages());

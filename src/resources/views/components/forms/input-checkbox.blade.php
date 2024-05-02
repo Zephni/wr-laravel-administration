@@ -21,7 +21,7 @@
         ])->merge($attr) }} />
 
     @if(!empty($label))
-        <label for="{{ $id }}" class="text-sm font-medium text-slate-800 dark:text-slate-400">
+        <label for="{{ $id }}" class="text-sm font-semibold text-slate-800 dark:text-slate-300">
             {{ $label }}
         </label>
     @endif

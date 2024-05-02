@@ -2,13 +2,13 @@
 
 namespace WebRegulate\LaravelAdministration\Http\Controllers;
 
+use App\WRLA\User;
 use Illuminate\View\View;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\RedirectResponse;
-use WebRegulate\LaravelAdministration\Models\User;
+use Illuminate\Support\Facades\Validator;
 use WebRegulate\LaravelAdministration\Enums\PageType;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 use WebRegulate\LaravelAdministration\Classes\ManageableModel;
@@ -138,7 +138,7 @@ class WRLAAdminController extends Controller
         $rules = $manageableModel->getValidationRules()->toArray();
 
         // Validate
-        $validator = \Validator::make($request->all(), $rules);
+        $validator = Validator::make($request->all(), $rules);
 
         // Run manageable model inline validation
         $inlineValidationResult = $manageableModel->runInlineValidation($request);

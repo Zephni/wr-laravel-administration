@@ -8,7 +8,7 @@
 <label
     for="{{ $id }}"
     {{ $attributes->merge([
-        'class' => 'block text-sm font-medium text-slate-800 dark:text-slate-400'
+        'class' => 'block text-sm font-bold text-slate-800 dark:text-slate-300'
     ])->merge($attr) }}
 >
 
