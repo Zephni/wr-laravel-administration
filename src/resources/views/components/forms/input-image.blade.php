@@ -26,7 +26,7 @@
     {{-- Preview image container --}}
     <div class="flex flex-col items-center gap-2 w-2/12">
         <div class="w-full h-0 pb-[100%] relative">
-            <img src="{{ $src }}" alt="Image" class="wrla-image-preview object-contain w-full h-full absolute top-0 left-0 rounded-full" />
+            <img src="{{ $src }}" alt="Image" class="wrla_image_preview object-contain w-full h-full absolute top-0 left-0 rounded-full" />
         </div>
     </div>
 
@@ -38,16 +38,13 @@
                 'id' => $id,
                 'type' => $type,
                 'name' => $name,
-                'class' => 'text-sm focus:outline-none focus:ring-1 focus:ring-primary-500 dark:focus:ring-primary-500 placeholder-slate-400 dark:placeholder-slate-600'
+                'class' => 'wrla_image_input text-sm focus:outline-none focus:ring-1 focus:ring-primary-500 dark:focus:ring-primary-500 placeholder-slate-400 dark:placeholder-slate-600'
             ])->merge($attr) }}
-                onchange="setPreviewImage(
-                    this,
-                    this.parentElement.parentElement.querySelector('.wrla-image-preview')
-                )"
+                onchange="wrla_setPreviewImage(this)"
             />
 
-            {{-- Remove button (if options has allowRemove true) --}}
-            @if($imageExists && $options['allowRemove'] == true)
+            {{-- Remove button (if image does not yet exist anyway, or options has allowRemove true) --}}
+            @if(!$imageExists || ($imageExists && $options['allowRemove'] == true))
                 @themeComponent('forms.button', [
                     'size' => 'small',
                     'type' => 'button',
@@ -57,11 +54,12 @@
                     'attr' => [
                         'title' => 'Remove',
                         'class' => 'text-sm',
-                        'onclick' => 'removeImage(this)'
+                        'onclick' => 'wrla_removeImage(this)',
+                        'style' => $imageExists ? 'display: block;' : 'display: none;'
                     ]
                 ])
 
-                <input type="hidden" name="wrla_remove_{{ $name }}" value="false" />
+                <input class="wrla_remove_input" type="hidden" name="wrla_remove_{!! $name !!}" value="false" />
             @endif
         </div>
 
@@ -70,19 +68,23 @@
             @themeComponent('forms.field-notes', ['notes' => $options['notes']])
         @endif
 
-        @themeComponent('forms.field-notes', [
-            'class' => '!text-xs !px-2 !py-1',
-            'notes' => $imageExists || (!$isHttpImage && !$imageExists)
-                ? '<a href="'.$value.'" target="_blank">'.$value.'</a>'.$imageExistsHtml
-                : 'No image set'
-        ])
+        @if($imageExists)
+            @themeComponent('forms.field-notes', [
+                'class' => '!text-xs !px-2 !py-1',
+                'notes' => $imageExists || (!$isHttpImage && !$imageExists)
+                    ? '<a href="'.$value.'" target="_blank">'.$value.'</a>'.$imageExistsHtml
+                    : 'No image set'
+            ])
+        @endif
     </div>
 </div>
 
 @once
 <script>
-    function setPreviewImage(input, previewImageElement) {
+    function wrla_setPreviewImage(input) {
         if (input.files && input.files[0]) {
+            var previewImageElement = input.parentElement.parentElement.parentElement.querySelector('.wrla_image_preview');
+
             var reader = new FileReader();
             
             reader.onload = function (e) {
@@ -90,17 +92,29 @@
             }
             
             reader.readAsDataURL(input.files[0]);
+
+            // Show remove button (If exists)
+            var removeButton = input.parentElement.querySelector('.wrla_remove_input');
+            if (removeButton) {
+                removeButton.value = 'false';
+                removeButton.parentElement.querySelector('button').style.display = 'block';
+            }
         }
     }
 
-    function removeImage(button) {
-        var input = button.parentElement.parentElement.querySelector('input[type="file"]');
-        var removeInput = document.querySelector('input[name="wrla_remove_'+input.name+'"]');
-        var previewImageElement = button.parentElement.parentElement.parentElement.querySelector('.wrla-image-preview');
+    function wrla_removeImage(button) {
+        var input = button.parentElement.parentElement.querySelector('.wrla_image_input');
+        var previewImageElement = button.parentElement.parentElement.parentElement.querySelector('.wrla_image_preview');
+        var removeInput = button.parentElement.querySelector('.wrla_remove_input');
         
         input.value = '';
-        removeInput.value = 'true';
-        previewImageElement.src = ''; // TODO: Show delete image icon or something
+        button.style.display = 'none';
+        previewImageElement.src = 'https://ui-avatars.com/api/?name=X&background=FFD0CC&color=FFE2DD&size=200';
+
+        // We only need to set the removeInput value to true if a file already exists
+        @if($imageExists)
+            removeInput.value = 'true';
+        @endif
     }
 </script>
 @endonce
