@@ -62,6 +62,9 @@ return [
 
         // Manage account
         new NavigationItem('wrla.manage-account', [], 'Manage Account', 'fa fa-user-circle'),
+
+        // Logout
+        new NavigationItem('wrla.logout', [], 'Logout', 'fa fa-sign-out-alt'),
     ],
 
     // Rate limiting for wrla. routes

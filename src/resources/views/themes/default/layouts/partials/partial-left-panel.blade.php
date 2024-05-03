@@ -52,7 +52,9 @@
     <div class="w-full border-t border-slate-600"></div>
 
     {{-- Profile avatar and logged in info --}}
-    <div class="flex w-full justify-start items-center gap-4 px-5 py-4 bg-slate-800 text-slate-200 overflow-hidden">
+    <div
+        :class="leftPanelOpen ? 'flex' : 'hidden';"
+        class="flex w-full justify-start items-center gap-4 px-5 py-4 bg-slate-800 text-slate-200 overflow-hidden">
         <div class="w-18 min-w-14">
             @themeComponent('forced-aspect-image', [
                 'src' => $user->getProfileAvatar(),
