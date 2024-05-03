@@ -189,7 +189,7 @@ class ManageableField
      */
     public function attributes(?array $attributes = null): static|array
     {
-        if($attributes == null) {
+        if($attributes === null) {
             return $this->attributes;
         }
 
@@ -215,12 +215,12 @@ class ManageableField
      * Set / Get option.
      * 
      * @param string $key
-     * @param ?string $value
+     * @param mixed $value
      * @return $this | string
      */
-    public function option(string $key, ?string $value = null): static|string
+    public function option(string $key, mixed $value = null): static|string
     {
-        if($value == null) {
+        if($value === null) {
             if(isset($this->options[$key])){
                 return $this->options[$key];
             } else {
