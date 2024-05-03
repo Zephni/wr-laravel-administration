@@ -27,6 +27,7 @@
     <div class="w-2/12">
         @themeComponent('forced-aspect-image', [
             'src' => $src,
+            'class' => 'border-2 border-primary-600',
             'imageClass' => 'wrla_image_preview',
             'aspect' => '1:1',
             'rounded' => 'full'

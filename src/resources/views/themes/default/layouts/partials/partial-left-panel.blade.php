@@ -42,11 +42,43 @@
         @mouseup.window="dragging = false;"
     ></div>
 
-    <div class="w-3/4 max-w-48 mx-auto py-8">
+    {{-- Logo --}}
+    <div class="w-3/4 max-w-48 mx-auto pt-4 pb-4">
         {{-- <img src="{{ asset(config('wr-laravel-administration.logo.light')) }}" title="Light Logo" alt="Light Logo" class="dark:hidden w-full" /> --}}
-        <img src="{{ asset(config('wr-laravel-administration.logo.dark')) }}" title="Dark Logo" alt="Dark Logo" class="dark:block w-full" />
+        <img src="{{ asset(config('wr-laravel-administration.logo.dark')) }}" title="Dark Logo" alt="Dark Logo" class="w-full" />
     </div>
 
+    {{-- Divider --}}
+    <div class="w-full border-t border-slate-600"></div>
+
+    {{-- Profile avatar and logged in info --}}
+    <div class="flex w-full justify-start items-center gap-4 px-5 py-4 bg-slate-800 text-slate-200 overflow-hidden">
+        <div class="w-18 min-w-14">
+            @themeComponent('forced-aspect-image', [
+                'src' => $user->getProfileAvatar(),
+                'class' => 'border-2 border-primary-600',
+                'imageClass' => 'wrla_image_preview',
+                'aspect' => '1:1',
+                'rounded' => 'full'
+            ])
+        </div>
+        <div class="flex flex-col text-sm">
+            <div class="flex flex-col pb-2">
+                <span class="text-base">Craig Dennis</span>
+                <span class="text-xs font-semibold text-slate-400">Administrator</span>
+            </div>
+            <span class="flex justify-start items-center gap-2">
+                <i class="fa fa-circle text-primary-500" style="font-size: 8px;"></i>
+                <div class="flex gap-2">
+                    <span class="text-slate-300">Online</span>
+                    <span class="text-slate-400">|</span>
+                    <a href="{{ route('wrla.logout') }}" class="text-primary-500">Logout</a>
+                </div>
+            </span>
+        </div>
+    </div>
+
+    {{-- Navigation --}}
     <div class="w-full border-t border-slate-500">
         @include('wr-laravel-administration::themes.default.layouts.partials.partial-navigation')
     </div>

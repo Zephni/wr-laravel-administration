@@ -62,7 +62,7 @@ class User extends Authenticatable implements CanResetPassword
         if (!empty($avatar)) {
             // Return if image exists
             if (file_exists(public_path($avatar))) {
-                return $avatar;
+                return '/'.ltrim($avatar, '/');
             }
         }
 
