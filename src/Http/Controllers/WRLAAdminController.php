@@ -163,7 +163,12 @@ class WRLAAdminController extends Controller
         // $formKeyValues = $validator->validated();
 
         // Update only changed values on the model instance
-        $manageableModel->updateModelInstanceProperties($request, $manageableFields, $request->all());
+        $result = $manageableModel->updateModelInstanceProperties($request, $manageableFields, $request->all());
+
+        // If the result is not true, redirect back with input and errors
+        if($result !== true) {
+            return redirect()->back()->withInput()->withErrors($result);
+        }
 
         // Save the model
         $manageableModel->getmodelInstance()->save();

@@ -3,9 +3,11 @@
 namespace WebRegulate\LaravelAdministration\Classes\ManageableFields;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 use WebRegulate\LaravelAdministration\Enums\PageType;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 use WebRegulate\LaravelAdministration\Classes\ManageableModel;
+use WebRegulate\LaravelAdministration\Classes\WRLARedirectException;
 
 /**
  * Class Input
@@ -25,6 +27,11 @@ class Image extends ManageableField
      */
     public static function make(?ManageableModel $manageableModel = null, ?string $column = null, ?string $path = null, ?string $filename = null): self
     {
+        // If path is empty, we throw an exception
+        if (empty($path)) {
+            throw new \Exception('Path is required for Image '.$column.' field');
+        }
+
         $imageInstance = new static($column, $manageableModel?->getModelInstance()->{$column}, $manageableModel);
         $imageInstance->options([
             'path' => $path,
@@ -54,28 +61,20 @@ class Image extends ManageableField
 
             // If unlinkOld option set, and an image already exists with the old value, we delete it
             if ($this->option('unlinkOld') == true && !empty($this->attributes['value'])) {
-                // First we make sure that the value looks like a path with a file name, so we don't accidentally delete something else
-                $parts = explode('/', $this->attributes['value']);
+                // First we check that there is atleast one path item in the value, and that the last item is a filename
+                $parts = explode('/', ltrim($this->attributes['value'], '/'));
+                $hasAteastOnePath = count($parts) > 1;
                 $isAFileName = count($parts) > 1 && strpos(end($parts), '.') !== false;
 
-                if($isAFileName) {
+                if($hasAteastOnePath && $isAFileName) {
                     $oldValue = WRLAHelper::forwardSlashPath(public_path($this->attributes['value']));
+                    $testPath = WRLAHelper::forwardSlashPath(public_path($path));
 
-                    // Check that the mime type is one of the validation values
-                    // Get mimes: part of validation
-                    $validationRules = explode('|', $this->validationRules);
-                    $mimes = array_filter($validationRules, function($rule) {
-                        return strpos($rule, 'mimes:') === 0;
-                    });
+                    // Check whether the value includes the option: path, if it doesn't then we do not delete the file for safety
+                    $includesPath = strpos($oldValue, $testPath) !== false;
                     
-                    // Get the mime types from the mimes: part of validation
-                    $mimes = explode(',', explode(':', end($mimes))[1]);
-                    
-                    // Get the mime type of the file (remove the image/ part)
-                    $fileMimeType = str_replace('image/', '', $file->getMimeType());
-                    
-                    // If the old value exists and the file mime type is in the validation rules, we delete the old value
-                    if (file_exists($oldValue) && in_array($fileMimeType, $mimes)) {
+                    // If the new value includes the path and the old file exists, we delete it
+                    if ($includesPath && file_exists($oldValue)) {
                         unlink($oldValue);
                     }
                 }
@@ -108,7 +107,7 @@ class Image extends ManageableField
                 return $this->option('defaultImage');
             }
             
-            return '/'.WRLAHelper::forwardSlashPath($this->attributes['value']);
+            return '/'.ltrim(WRLAHelper::forwardSlashPath($this->attributes['value']), '/');
         }
     }
 
@@ -147,7 +146,7 @@ class Image extends ManageableField
      * @param string $path
      * @return $this
      */
-    public function defaultImage(string $path = true): self
+    public function defaultImage(string $path): self
     {
         $this->option('defaultImage', $path);
         return $this;
@@ -159,7 +158,7 @@ class Image extends ManageableField
      * @param bool $unlink
      * @return $this
      */
-    public function unlinkOld(bool $unlink): self
+    public function unlinkOld(bool $unlink = true): self
     {
         $this->option('unlinkOld', $unlink);
         return $this;

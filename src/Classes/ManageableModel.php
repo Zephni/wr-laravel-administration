@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Stringable;
 use Illuminate\Http\RedirectResponse;
-use WebRegulate\LaravelAdministration\Classes\ManageableFields\Json;
+use Illuminate\Support\MessageBag;
 
 class ManageableModel
 {
@@ -332,9 +332,9 @@ class ManageableModel
      * @param Request $request The HTTP request object.
      * @param Collection $formComponents The collection of form components.
      * @param array $formKeyValues The array of form key-value pairs.
-     * @return void
+     * @return bool|MessageBag Returns result of success, or a MessageBag of errors
      */
-    public function updateModelInstanceProperties(Request $request, Collection $formComponents, array $formKeyValues): void
+    public function updateModelInstanceProperties(Request $request, Collection $formComponents, array $formKeyValues): bool|MessageBag
     {
         // Perform any necessary actions before updating the model instance
         $this->postUpdateModelInstance($request);
@@ -385,13 +385,24 @@ class ManageableModel
                     data_set($fieldValue, $dotNotation, $newValue);
 
                     // Convert the field value to JSON
-                    $fieldValue = json_encode($fieldValue, JSON_UNESCAPED_SLASHES);
+                    if($newValue instanceof MessageBag) {
+                        return $newValue;
+                    } else {
+                        $fieldValue = json_encode($fieldValue, JSON_UNESCAPED_SLASHES);
+                    }
                 }
 
-                // Update the field value of the model instance
-                $this->modelInstance->$fieldName = $fieldValue;
+                // If field value an error bag something has failed, so return it instead of updating the model instance
+                if ($fieldValue instanceof MessageBag) {
+                    return $fieldValue;
+                } else {
+                    // Update the field value of the model instance
+                    $this->modelInstance->$fieldName = $fieldValue;
+                }
             }
         }
+
+        return true;
     }
 
     /**
