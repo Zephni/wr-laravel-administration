@@ -14,8 +14,6 @@ use WebRegulate\LaravelAdministration\Classes\ManageableModel;
  */
 class Image extends ManageableField
 {
-    public string $defaultImage = 'https://via.placeholder.com/500x500.jpg?text=No+Image+Available';
-
     /**
      * Make method (can be used in any class that extends FormComponent).
      *
@@ -31,6 +29,7 @@ class Image extends ManageableField
         $imageInstance->options([
             'path' => $path,
             'filename' => $filename,
+            'defaultImage' => 'https://via.placeholder.com/150x150.jpg?text=No+Image+Available'
         ]);
         return $imageInstance;
     }
@@ -86,18 +85,10 @@ class Image extends ManageableField
         } else {
             // If no value is set, return default image
             if (empty($this->attributes['value'])) {
-                return $this->defaultImage;
+                return $this->option('defaultImage');
             }
-
-            // Get the path
-            $path = '/'.WRLAHelper::forwardSlashPath($this->attributes['value']);
-
-            // If image exists, return the path
-            if (file_exists(public_path($path))) {
-                return $path;
-            } else {
-                return $this->defaultImage;
-            }
+            
+            return '/'.WRLAHelper::forwardSlashPath($this->attributes['value']);
         }
     }
 
@@ -138,7 +129,7 @@ class Image extends ManageableField
      */
     public function defaultImage(string $path): self
     {
-        $this->defaultImage = $path;
+        $this->option('defaultImage', $path);
         return $this;
     }
 

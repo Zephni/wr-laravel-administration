@@ -3,6 +3,16 @@
 @php
     // Set id from name if unset
     $id = empty($id) ? 'wrinput-'.$name : $id;
+
+    // Check if http image
+    $isHttpImage = preg_match('/^http(s)?:\/\//', $value);
+
+    // Check that $value exists as an image, if not then we use the $options['defaultImage']
+    $imageExists = !empty($value) && file_exists(public_path($value));
+    $src = $imageExists ? $value : $options['defaultImage'];
+    $imageExistsHtml = $imageExists
+        ? '<span class="float-right text-green-500">Image found</span>'
+        : '<span class="float-right text-red-500">Image not found</span>';
 @endphp
 
 @if(!empty($label))
@@ -16,7 +26,7 @@
     {{-- Preview image container --}}
     <div class="flex flex-col items-center gap-2 w-2/12">
         <div class="w-full h-0 pb-[100%] relative">
-            <img src="{{ $value }}" alt="Image" class="wrla-image-preview object-contain w-full h-full absolute top-0 left-0 rounded-full" />
+            <img src="{{ $src }}" alt="Image" class="wrla-image-preview object-contain w-full h-full absolute top-0 left-0 rounded-full" />
         </div>
     </div>
 
@@ -27,7 +37,6 @@
             'id' => $id,
             'type' => $type,
             'name' => $name,
-            'value' => $ignoreOld ? $value : old($name, $value),
             'class' => 'w-full text-sm focus:outline-none focus:ring-1 focus:ring-primary-500 dark:focus:ring-primary-500 placeholder-slate-400 dark:placeholder-slate-600'
         ])->merge($attr) }}
             onchange="setPreviewImage(
@@ -41,7 +50,12 @@
             @themeComponent('forms.field-notes', ['notes' => $options['notes']])
         @endif
 
-        @themeComponent('forms.field-notes', ['class' => '!text-xs !px-2 !py-1', 'notes' => ltrim($value, '/') == '' ? 'No image set' : 'Current image: '.'<a href="'.$value.'" target="_blank">'.$value.'</a>'])
+        @themeComponent('forms.field-notes', [
+            'class' => '!text-xs !px-2 !py-1',
+            'notes' => $imageExists || (!$isHttpImage && !$imageExists)
+                ? '<a href="'.$value.'" target="_blank">'.$value.'</a>'.$imageExistsHtml
+                : 'No image set'
+        ])
     </div>
 </div>
 
