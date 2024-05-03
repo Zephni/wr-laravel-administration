@@ -74,9 +74,6 @@ class ManageableField
             'value' => $value ?? '',
         ];
 
-        // If manageable field has overriden getValue() here, we override the value
-        $this->attribute('value', $this->getValue());
-
         $this->manageableModel = $manageableModel;
 
         $this->postConstructed();

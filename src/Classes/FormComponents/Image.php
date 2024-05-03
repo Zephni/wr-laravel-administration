@@ -14,6 +14,8 @@ use WebRegulate\LaravelAdministration\Classes\ManageableModel;
  */
 class Image extends ManageableField
 {
+    public string $defaultImage = 'https://via.placeholder.com/500x500.jpg?text=No+Image+Available';
+
     /**
      * Make method (can be used in any class that extends FormComponent).
      *
@@ -82,7 +84,20 @@ class Image extends ManageableField
             return $this->attributes['value'];
         // Else, we apply a forward slash to the beginning of the path
         } else {
-            return '/'.WRLAHelper::forwardSlashPath($this->attributes['value']);
+            // If no value is set, return default image
+            if (empty($this->attributes['value'])) {
+                return $this->defaultImage;
+            }
+
+            // Get the path
+            $path = '/'.WRLAHelper::forwardSlashPath($this->attributes['value']);
+
+            // If image exists, return the path
+            if (file_exists(public_path($path))) {
+                return $path;
+            } else {
+                return $this->defaultImage;
+            }
         }
     }
 
@@ -103,7 +118,28 @@ class Image extends ManageableField
             $name = str_replace('{id}', $id, $name);
         }
 
+        // If find {time} in the name
+        if (strpos($name, '{time}') !== false) {
+            // Get the current time
+            $time = time();
+
+            // Replace {time} with the current time
+            $name = str_replace('{time}', $time, $name);
+        }
+
         return $name;
+    }
+
+    /**
+     * Default if no image is set
+     * 
+     * @param string $path
+     * @return $this
+     */
+    public function defaultImage(string $path): self
+    {
+        $this->defaultImage = $path;
+        return $this;
     }
 
     /**
@@ -119,7 +155,7 @@ class Image extends ManageableField
         $HTML .= view(WRLAHelper::getViewPath('components.forms.input-image'), [
             'name' => $this->attributes['name'],
             'label' => $this->getLabel(),
-            'value' => $this->attributes['value'],
+            'value' => $this->getValue(),
             'type' => 'file',
             'options' => $this->options,
             'attr' => collect($this->attributes)

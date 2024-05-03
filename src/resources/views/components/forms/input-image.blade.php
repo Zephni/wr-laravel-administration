@@ -22,8 +22,6 @@
 
     {{-- File input and notes container --}}
     <div class="flex flex-1 flex-col justify-center items-center px-10">
-        <p class="text-primary-500">Value: {{ $value }}</p>
-
         {{-- File input --}}
         <input {{ $attributes->merge([
             'id' => $id,
@@ -42,6 +40,8 @@
         @if(!empty($options['notes']))
             @themeComponent('forms.field-notes', ['notes' => $options['notes']])
         @endif
+
+        @themeComponent('forms.field-notes', ['class' => '!text-xs !px-2 !py-1', 'notes' => ltrim($value, '/') == '' ? 'No image set' : 'Current image: '.'<a href="'.$value.'" target="_blank">'.$value.'</a>'])
     </div>
 </div>
 

@@ -56,14 +56,24 @@ class User extends Authenticatable implements CanResetPassword
      *
      * @return string
      */
-    public function getProfileImage(): string {
+    public function getProfileAvatar(): string {
         // If data has image, return it
-        if ($this->getData('profile.avatar')) {
-            return $this->getData('profile.avatar');
+        $avatar = $this->getData('profile.avatar');
+        if (!empty($avatar)) {
+            // Return if image exists
+            if (file_exists(public_path($avatar))) {
+                return $avatar;
+            }
         }
 
+        // If name is empty, use U
+        $name = !empty($this->name) ? $this->name : 'U';
+
+        // Get just the first characters of all the words
+        $name = preg_replace('/\b(\w)|./', '$1', $name);
+
         // Otherwise return default
-        return 'https://ui-avatars.com/api/?name=' . urlencode($this->name) . '&color=EBF4FF&background=00BFA0&size=128&font-size=0.5&rounded=true';
+        return 'https://ui-avatars.com/api/?name=' . urlencode($name) . '&color=EBF4FF&background=00BFA0&size=128&font-size=0.5&rounded=true';
     }
 
     /* Static methods
