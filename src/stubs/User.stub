@@ -108,7 +108,8 @@ class User extends ManageableModel
 
             Password::make($this, 'password'),
 
-            Image::make($this, 'avatar')
+            Image::make($this, 'data->profile->avatar', 'images/avatars', '{id}-avatar-{time}.png')
+                ->defaultImage($this->getModelInstance()->getProfileAvatar())
                 ->validation('image|mimes:jpeg,png,jpg,gif,svg|max:2048')
                 ->notes('<b>Required</b> - Image should be a valid JPG, PNG or GIF, no larger than 1024kb. Will be cropped to square'),
 
