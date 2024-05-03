@@ -1,6 +1,6 @@
 <?php
 
-namespace WebRegulate\LaravelAdministration\Classes\FormComponents;
+namespace WebRegulate\LaravelAdministration\Classes\ManageableFields;
 
 use Illuminate\Http\Request;
 use WebRegulate\LaravelAdministration\Enums\PageType;
@@ -126,13 +126,13 @@ class Json extends ManageableField
     }
 
     /**
-     * Apply value. May be overriden in special cases, such as when applying a hash to a password.
+     * Apply submitted value. May be overriden in special cases, such as when applying a hash to a password.
      *
      * @param Request $request
      * @param mixed $value
      * @return mixed
      */
-    public function applyValue(Request $request, mixed $value): mixed
+    public function applySubmittedValue(Request $request, mixed $value): mixed
     {
         // Convert json from non pretty print to plain minimalistic json
         try {

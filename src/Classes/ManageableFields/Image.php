@@ -1,6 +1,6 @@
 <?php
 
-namespace WebRegulate\LaravelAdministration\Classes\FormComponents;
+namespace WebRegulate\LaravelAdministration\Classes\ManageableFields;
 
 use Illuminate\Http\Request;
 use WebRegulate\LaravelAdministration\Enums\PageType;
@@ -35,27 +35,13 @@ class Image extends ManageableField
     }
 
     /**
-     * Setup the options for the image field.
-     *
-     * @param string $path
-     * @param ?string $filename
-     * @return $this
-     */
-    public function setup(string $path = null, ?string $filename = null): self
-    {
-        $this->options['path'] = $path;
-        $this->options['filename'] = $filename;
-        return $this;
-    }
-
-    /**
      * Upload the image from request and apply the value.
      *
      * @param Request $request
      * @param mixed $value
      * @return mixed
      */
-    public function applyValue(Request $request, mixed $value): mixed
+    public function applySubmittedValue(Request $request, mixed $value): mixed
     {
         if ($request->hasFile($this->attributes['name'])) {
             $file = $request->file($this->attributes['name']);

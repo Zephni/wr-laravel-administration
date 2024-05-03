@@ -7,10 +7,10 @@ use \Illuminate\Support\Collection;
 use \Illuminate\Support\Stringable;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 use \WebRegulate\LaravelAdministration\Classes\ManageableModel;
-use WebRegulate\LaravelAdministration\Classes\FormComponents\Json;
-use \WebRegulate\LaravelAdministration\Classes\FormComponents\Text;
-use WebRegulate\LaravelAdministration\Classes\FormComponents\Image;
-use \WebRegulate\LaravelAdministration\Classes\FormComponents\Password;
+use WebRegulate\LaravelAdministration\Classes\ManageableFields\Json;
+use \WebRegulate\LaravelAdministration\Classes\ManageableFields\Text;
+use WebRegulate\LaravelAdministration\Classes\ManageableFields\Image;
+use \WebRegulate\LaravelAdministration\Classes\ManageableFields\Password;
 
 class User extends ManageableModel
 {

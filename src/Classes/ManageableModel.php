@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Stringable;
 use Illuminate\Http\RedirectResponse;
-use WebRegulate\LaravelAdministration\Classes\FormComponents\Json;
+use WebRegulate\LaravelAdministration\Classes\ManageableFields\Json;
 
 class ManageableModel
 {
@@ -376,10 +376,10 @@ class ManageableModel
             if (array_key_exists($fieldName, $formKeyValues)) {
                 if (!$isUsingNestedJson) {
                     // Apply the value to the form component and get the field value
-                    $fieldValue = $formComponent->applyValue($request, $formKeyValues[$fieldName]);
+                    $fieldValue = $formComponent->applySubmittedValue($request, $formKeyValues[$fieldName]);
                 } else {
                     // Apply the value to the form component and get the new value
-                    $newValue = $formComponent->applyValue($request, $newValue);
+                    $newValue = $formComponent->applySubmittedValue($request, $newValue);
 
                     // Set the new value using dot notation on the field value
                     data_set($fieldValue, $dotNotation, $newValue);

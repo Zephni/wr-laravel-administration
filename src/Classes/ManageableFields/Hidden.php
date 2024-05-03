@@ -1,6 +1,6 @@
 <?php
 
-namespace WebRegulate\LaravelAdministration\Classes\FormComponents;
+namespace WebRegulate\LaravelAdministration\Classes\ManageableFields;
 
 use WebRegulate\LaravelAdministration\Enums\PageType;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
