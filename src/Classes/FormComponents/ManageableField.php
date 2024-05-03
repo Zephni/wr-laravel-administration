@@ -63,10 +63,19 @@ class ManageableField
      */
     public function __construct(?string $name, ?string $value, ?ManageableModel $manageableModel = null)
     {
+        // Check if name has any -> in it, if so we need to get the value useing wrla json notation
+        if(strpos($name, '->') !== false) {
+            $value = $manageableModel->getInstanceJsonValue($name);
+        }
+
+        // Set base attributes
         $this->attributes = [
             'name' => $name ?? '',
             'value' => $value ?? '',
         ];
+
+        // If manageable field has overriden getValue() here, we override the value
+        $this->attribute('value', $this->getValue());
 
         $this->manageableModel = $manageableModel;
 
@@ -83,6 +92,16 @@ class ManageableField
     public static function make(?ManageableModel $manageableModel = null, ?string $column = null): self
     {
         return new static($column, $manageableModel?->getModelInstance()->{$column}, $manageableModel);
+    }
+
+    /**
+     * Get value
+     * 
+     * @return string
+     */
+    public function getValue(): string
+    {
+        return $this->attributes['value'];
     }
 
     /**

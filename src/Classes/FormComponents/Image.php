@@ -71,6 +71,22 @@ class Image extends ManageableField
     }
 
     /**
+     * Get value
+     * 
+     * @return string
+     */
+    public function getValue(): string
+    {
+        // If starts with http, return as is
+        if (strpos($this->attributes['value'], 'http') === 0) {
+            return $this->attributes['value'];
+        // Else, we apply a forward slash to the beginning of the path
+        } else {
+            return '/'.WRLAHelper::forwardSlashPath($this->attributes['value']);
+        }
+    }
+
+    /**
      * Format image name
      * 
      * @param string $name
@@ -103,7 +119,7 @@ class Image extends ManageableField
         $HTML .= view(WRLAHelper::getViewPath('components.forms.input-image'), [
             'name' => $this->attributes['name'],
             'label' => $this->getLabel(),
-            'value' => '',
+            'value' => $this->attributes['value'],
             'type' => 'file',
             'options' => $this->options,
             'attr' => collect($this->attributes)

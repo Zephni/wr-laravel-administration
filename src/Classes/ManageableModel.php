@@ -242,6 +242,25 @@ class ManageableModel
     }
 
     /**
+     * Get a json value with -> notation, eg: column->key1->key2
+     *
+     * @param string $key The key in the json value.
+     * @return mixed The value retrieved from the json.
+     */
+    public function getInstanceJsonValue(string $key): mixed
+    {
+        // Get the model instance
+        $modelInstance = $this->getModelInstance();
+        
+        $parts = explode('->', $key); // Split the key into parts using '->' as the delimiter.
+        $column = $parts[0]; // The first part is the column name.
+        $dotNotation = implode('.', array_slice($parts, 1)); // The remaining parts are the dot notation.
+
+        // Return the value from the json.
+        return data_get(json_decode($modelInstance->{$column}, true), $dotNotation);
+    }
+
+    /**
      * Get validation rules
      *
      * @return Collection
@@ -345,7 +364,7 @@ class ManageableModel
                 if (!array_key_exists($formComponent->attribute('name'), $formKeyValues)) {
                     continue;
                 }
-                
+
                 $isUsingNestedJson = true;
                 $parts = explode('->', $fieldName);
                 $fieldName = $parts[0];

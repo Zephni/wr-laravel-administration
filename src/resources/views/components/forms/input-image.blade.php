@@ -16,12 +16,14 @@
     {{-- Preview image container --}}
     <div class="flex flex-col items-center gap-2 w-2/12">
         <div class="w-full h-0 pb-[100%] relative">
-            <img src="{{ !empty($value) ? $value : $user->getProfileImage() }}" alt="Image" class="wrla-image-preview object-contain w-full h-full absolute top-0 left-0 rounded-full" />
+            <img src="{{ $value }}" alt="Image" class="wrla-image-preview object-contain w-full h-full absolute top-0 left-0 rounded-full" />
         </div>
     </div>
 
     {{-- File input and notes container --}}
     <div class="flex flex-1 flex-col justify-center items-center px-10">
+        <p class="text-primary-500">Value: {{ $value }}</p>
+
         {{-- File input --}}
         <input {{ $attributes->merge([
             'id' => $id,

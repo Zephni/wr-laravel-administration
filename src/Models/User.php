@@ -58,11 +58,9 @@ class User extends Authenticatable implements CanResetPassword
      */
     public function getProfileImage(): string {
         // If data has image, return it
-        if ($this->getData('profile.image')) {
-            return $this->getData('profile.image');
+        if ($this->getData('profile.avatar')) {
+            return $this->getData('profile.avatar');
         }
-
-        // rgb(0 191 166)
 
         // Otherwise return default
         return 'https://ui-avatars.com/api/?name=' . urlencode($this->name) . '&color=EBF4FF&background=00BFA0&size=128&font-size=0.5&rounded=true';
