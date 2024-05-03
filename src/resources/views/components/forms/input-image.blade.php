@@ -24,10 +24,13 @@
 
 <div class="flex justify-start items-center gap-6 mt-2">
     {{-- Preview image container --}}
-    <div class="flex flex-col items-center gap-2 w-2/12">
-        <div class="w-full h-0 pb-[100%] relative">
-            <img src="{{ $src }}" alt="Image" class="wrla_image_preview object-contain w-full h-full absolute top-0 left-0 rounded-full" />
-        </div>
+    <div class="w-2/12">
+        @themeComponent('forced-aspect-image', [
+            'src' => $src,
+            'imageClass' => 'wrla_image_preview',
+            'aspect' => '1:1',
+            'rounded' => 'full'
+        ])
     </div>
 
     {{-- File input and notes container --}}
