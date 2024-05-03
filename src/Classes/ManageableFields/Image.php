@@ -29,7 +29,8 @@ class Image extends ManageableField
         $imageInstance->options([
             'path' => $path,
             'filename' => $filename,
-            'defaultImage' => 'https://via.placeholder.com/150x150.jpg?text=No+Image+Available'
+            'defaultImage' => 'https://via.placeholder.com/150x150.jpg?text=No+Image+Available',
+            'unlinkOld' => true,
         ]);
         return $imageInstance;
     }
@@ -44,13 +45,46 @@ class Image extends ManageableField
     public function applySubmittedValue(Request $request, mixed $value): mixed
     {
         if ($request->hasFile($this->attributes['name'])) {
+            // Get the file, path and filename
             $file = $request->file($this->attributes['name']);
             $path = $this->options['path'] ?? 'uploads';
             $path = WRLAHelper::forwardSlashPath($path);
             $filename = $this->options['filename'] ?? $file->getClientOriginalName();
             $filename = $this->formatImageName($filename);
+
+            // If unlinkOld option set, and an image already exists with the old value, we delete it
+            if ($this->option('unlinkOld') == true && !empty($this->attributes['value'])) {
+                // First we make sure that the value looks like a path with a file name, so we don't accidentally delete something else
+                $parts = explode('/', $this->attributes['value']);
+                $isAFileName = count($parts) > 1 && strpos(end($parts), '.') !== false;
+
+                if($isAFileName) {
+                    $oldValue = WRLAHelper::forwardSlashPath(public_path($this->attributes['value']));
+
+                    // Check that the mime type is one of the validation values
+                    // Get mimes: part of validation
+                    $validationRules = explode('|', $this->validationRules);
+                    $mimes = array_filter($validationRules, function($rule) {
+                        return strpos($rule, 'mimes:') === 0;
+                    });
+                    
+                    // Get the mime types from the mimes: part of validation
+                    $mimes = explode(',', explode(':', end($mimes))[1]);
+                    
+                    // Get the mime type of the file (remove the image/ part)
+                    $fileMimeType = str_replace('image/', '', $file->getMimeType());
+                    
+                    // If the old value exists and the file mime type is in the validation rules, we delete the old value
+                    if (file_exists($oldValue) && in_array($fileMimeType, $mimes)) {
+                        unlink($oldValue);
+                    }
+                }
+            }
+
+            // Move the file to the path and fix the value that we apply to the column
             $file->move(public_path($path), $filename);
             $value = rtrim(ltrim($path, '/'), '/') . '/' . $filename;
+            
             return $value;
         }
 
@@ -113,9 +147,21 @@ class Image extends ManageableField
      * @param string $path
      * @return $this
      */
-    public function defaultImage(string $path): self
+    public function defaultImage(string $path = true): self
     {
         $this->option('defaultImage', $path);
+        return $this;
+    }
+
+    /**
+     * Set unlink old image option if new image is set
+     * 
+     * @param bool $unlink
+     * @return $this
+     */
+    public function unlinkOld(bool $unlink): self
+    {
+        $this->option('unlinkOld', $unlink);
         return $this;
     }
 
