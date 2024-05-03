@@ -32,18 +32,38 @@
 
     {{-- File input and notes container --}}
     <div class="flex flex-1 flex-col justify-center items-center px-10">
-        {{-- File input --}}
-        <input {{ $attributes->merge([
-            'id' => $id,
-            'type' => $type,
-            'name' => $name,
-            'class' => 'w-full text-sm focus:outline-none focus:ring-1 focus:ring-primary-500 dark:focus:ring-primary-500 placeholder-slate-400 dark:placeholder-slate-600'
-        ])->merge($attr) }}
-            onchange="setPreviewImage(
-                this,
-                this.parentElement.parentElement.querySelector('.wrla-image-preview')
-            )"
-        />
+        <div class="flex w-full justify-between">
+            {{-- File input --}}
+            <input {{ $attributes->merge([
+                'id' => $id,
+                'type' => $type,
+                'name' => $name,
+                'class' => 'text-sm focus:outline-none focus:ring-1 focus:ring-primary-500 dark:focus:ring-primary-500 placeholder-slate-400 dark:placeholder-slate-600'
+            ])->merge($attr) }}
+                onchange="setPreviewImage(
+                    this,
+                    this.parentElement.parentElement.querySelector('.wrla-image-preview')
+                )"
+            />
+
+            {{-- Remove button (if options has allowRemove true) --}}
+            @if($imageExists && $options['allowRemove'] == true)
+                @themeComponent('forms.button', [
+                    'size' => 'small',
+                    'type' => 'button',
+                    'color' => 'danger',
+                    'text' => 'Remove',
+                    'icon' => 'fa fa-trash relative top-[-1px] text-xs',
+                    'attr' => [
+                        'title' => 'Remove',
+                        'class' => 'text-sm',
+                        'onclick' => 'removeImage(this)'
+                    ]
+                ])
+
+                <input type="hidden" name="wrla_remove_{{ $name }}" value="false" />
+            @endif
+        </div>
 
         {{-- Field notes (if options has notes key) --}}
         @if(!empty($options['notes']))
@@ -71,6 +91,16 @@
             
             reader.readAsDataURL(input.files[0]);
         }
+    }
+
+    function removeImage(button) {
+        var input = button.parentElement.parentElement.querySelector('input[type="file"]');
+        var removeInput = document.querySelector('input[name="wrla_remove_'+input.name+'"]');
+        var previewImageElement = button.parentElement.parentElement.parentElement.querySelector('.wrla-image-preview');
+        
+        input.value = '';
+        removeInput.value = 'true';
+        previewImageElement.src = ''; // TODO: Show delete image icon or something
     }
 </script>
 @endonce

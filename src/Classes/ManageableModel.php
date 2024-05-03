@@ -7,6 +7,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Stringable;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\MessageBag;
+use WebRegulate\LaravelAdministration\Classes\ManageableFields\ManageableField;
 
 class ManageableModel
 {
@@ -338,6 +339,23 @@ class ManageableModel
     {
         // Perform any necessary actions before updating the model instance
         $this->postUpdateModelInstance($request);
+
+        // Check id request has any values that start with wrla_remove_ and apply to formKeyValues if so
+        if (count($request->all()) > 0) {
+            // Collect all keys that start with wrla_remove_ and have a value of true
+            $removeKeys = collect($request->all())->filter(function ($value, $key) {
+                return strpos($key, 'wrla_remove_') === 0 && $value === 'true';
+            });
+
+            // If there are any keys to remove, set the special WRLA_KEY_REMOVE constant value and unset the original key
+            if ($removeKeys->count() > 0) {
+                $removeKeys->each(function ($value, $key) use(&$formKeyValues) {
+                    $keyWithoutRemovePrefix = ltrim($key, 'wrla_remove_');
+                    $formKeyValues[$keyWithoutRemovePrefix] = ManageableField::WRLA_KEY_REMOVE;
+                    unset($formKeyValues[$key]);
+                });
+            }
+        }
 
         // Get the manageable fields for the model
         $manageableFields = $this->getManageableFields();

@@ -38,6 +38,7 @@ class Image extends ManageableField
             'filename' => $filename,
             'defaultImage' => 'https://via.placeholder.com/150x150.jpg?text=No+Image+Available',
             'unlinkOld' => true,
+            'allowRemove' => true,
         ]);
         return $imageInstance;
     }
@@ -51,43 +52,70 @@ class Image extends ManageableField
      */
     public function applySubmittedValue(Request $request, mixed $value): mixed
     {
+        // Get current value of image
+        $currentImage = $this->attributes['value'];
+
+        // If value is equal to the special constant WRLA_KEY_REMOVE, we delete the image
+        if ($value === ManageableField::WRLA_KEY_REMOVE) {
+            $this->deleteImageByPath($currentImage);
+            return null;
+        }
+
         if ($request->hasFile($this->attributes['name'])) {
             // Get the file, path and filename
             $file = $request->file($this->attributes['name']);
-            $path = $this->options['path'] ?? 'uploads';
-            $path = WRLAHelper::forwardSlashPath($path);
-            $filename = $this->options['filename'] ?? $file->getClientOriginalName();
-            $filename = $this->formatImageName($filename);
-
-            // If unlinkOld option set, and an image already exists with the old value, we delete it
-            if ($this->option('unlinkOld') == true && !empty($this->attributes['value'])) {
-                // First we check that there is atleast one path item in the value, and that the last item is a filename
-                $parts = explode('/', ltrim($this->attributes['value'], '/'));
-                $hasAteastOnePath = count($parts) > 1;
-                $isAFileName = count($parts) > 1 && strpos(end($parts), '.') !== false;
-
-                if($hasAteastOnePath && $isAFileName) {
-                    $oldValue = WRLAHelper::forwardSlashPath(public_path($this->attributes['value']));
-                    $testPath = WRLAHelper::forwardSlashPath(public_path($path));
-
-                    // Check whether the value includes the option: path, if it doesn't then we do not delete the file for safety
-                    $includesPath = strpos($oldValue, $testPath) !== false;
-                    
-                    // If the new value includes the path and the old file exists, we delete it
-                    if ($includesPath && file_exists($oldValue)) {
-                        unlink($oldValue);
-                    }
-                }
-            }
+            $path = WRLAHelper::forwardSlashPath($this->getPath());
+            $filename = $this->formatImageName($this->options['filename'] ?? $file->getClientOriginalName());
 
             // Move the file to the path and fix the value that we apply to the column
             $file->move(public_path($path), $filename);
             $value = rtrim(ltrim($path, '/'), '/') . '/' . $filename;
+
+            // If unlinkOld option set, and an image already exists with the old value, we delete it
+            if ($this->option('unlinkOld') == true && !empty($currentImage)) {
+                $this->deleteImageByPath($currentImage);
+            }
             
             return $value;
         }
 
         return null;
+    }
+
+    /**
+     * Get path
+     * 
+     * @return string
+     */
+    public function getPath(): string
+    {
+        return $this->options['path'] ?? 'uploads';
+    }
+
+    /**
+     * Delete image file
+     * 
+     * @param string $pathRelativeToPublic
+     */
+    public function deleteImageByPath(string $pathRelativeToPublic)
+    {
+        // First we check that there is atleast one path item in the value, and that the last item is a filename
+        $parts = explode('/', ltrim($pathRelativeToPublic, '/'));
+        $hasAteastOnePath = count($parts) > 1;
+        $isAFileName = count($parts) > 1 && strpos(end($parts), '.') !== false;
+
+        if($hasAteastOnePath && $isAFileName) {
+            $oldValue = WRLAHelper::forwardSlashPath(public_path($pathRelativeToPublic));
+            $testPath = WRLAHelper::forwardSlashPath($this->getPath());
+
+            // Check whether the value includes the option: path, if it doesn't then we do not delete the file for safety
+            $includesPath = strpos($oldValue, $testPath) !== false;
+            
+            // If the new value includes the path and the old file exists, we delete it
+            if ($includesPath && file_exists($oldValue)) {
+                unlink($oldValue);
+            }
+        }
     }
 
     /**
@@ -161,6 +189,18 @@ class Image extends ManageableField
     public function unlinkOld(bool $unlink = true): self
     {
         $this->option('unlinkOld', $unlink);
+        return $this;
+    }
+
+    /**
+     * Set allow remove option
+     * 
+     * @param bool $allow
+     * @return $this
+     */
+    public function allowRemove(bool $allow = true): self
+    {
+        $this->option('allowRemove', $allow);
         return $this;
     }
 

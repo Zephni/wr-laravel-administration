@@ -9,6 +9,13 @@ use WebRegulate\LaravelAdministration\Classes\ManageableModel;
 class ManageableField
 {
     /**
+     * Key remove constant
+     *
+     * @var string
+     */
+    const WRLA_KEY_REMOVE = '__WRLA::KEY::REMOVE__';
+
+    /**
      * Attributes of the form component.
      *
      * @var array
