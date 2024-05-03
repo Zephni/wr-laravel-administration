@@ -326,7 +326,7 @@ class WRLAHelper
     public static function jsonPrettyPrint(string $json): string
     {
         $jsonArrary = json_decode($json, true);
-        return json_encode($jsonArrary, JSON_PRETTY_PRINT);
+        return json_encode($jsonArrary, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
     }
 
     /**

@@ -56,17 +56,38 @@ class Image extends ManageableField
      */
     public function applyValue(Request $request, mixed $value): mixed
     {
-
-        dd($request->hasFile($this->attributes['name'], $request->file($this->attributes['name'])));
         if ($request->hasFile($this->attributes['name'])) {
             $file = $request->file($this->attributes['name']);
             $path = $this->options['path'] ?? 'uploads';
+            $path = WRLAHelper::forwardSlashPath($path);
             $filename = $this->options['filename'] ?? $file->getClientOriginalName();
+            $filename = $this->formatImageName($filename);
             $file->move(public_path($path), $filename);
-            $value = $path . '/' . $filename;
+            $value = rtrim(ltrim($path, '/'), '/') . '/' . $filename;
+            return $value;
         }
 
-        return $value;
+        return null;
+    }
+
+    /**
+     * Format image name
+     * 
+     * @param string $name
+     * @return string
+     */
+    public function formatImageName(string $name): string
+    {
+        // If find {id} in the name
+        if (strpos($name, '{id}') !== false) {
+            // Get the id of the model instance
+            $id = $this->manageableModel->getModelInstance()->id;
+
+            // Replace {id} with the id of the model instance
+            $name = str_replace('{id}', $id, $name);
+        }
+
+        return $name;
     }
 
     /**

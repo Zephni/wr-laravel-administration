@@ -90,13 +90,13 @@ class Json extends ManageableField
         // First try with curly braces
         $correctedValue = '{' . $value . '}';
         $jsonDecoded = json_decode($correctedValue, true);
-        $correctedValue = json_encode($jsonDecoded);
+        $correctedValue = json_encode($jsonDecoded, JSON_UNESCAPED_SLASHES);
 
         // If not valid json, try with square braces
         if($correctedValue === 'null') {
             $correctedValue = '[' . $value . ']';
             $jsonDecoded = json_decode($correctedValue);
-            $correctedValue = json_encode($jsonDecoded);
+            $correctedValue = json_encode($jsonDecoded, JSON_UNESCAPED_SLASHES);
         }
 
         // If still not valid json, return false and let the validator handle it
@@ -178,7 +178,7 @@ class Json extends ManageableField
 
             // If not empty, pretty print json
             $value = !empty($jsonData)
-                ? json_encode($jsonData, JSON_PRETTY_PRINT)
+                ? json_encode($jsonData, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)
                 : '{}';
         }
 

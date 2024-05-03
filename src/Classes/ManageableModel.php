@@ -2,10 +2,11 @@
 
 namespace WebRegulate\LaravelAdministration\Classes;
 
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Stringable;
+use Illuminate\Http\RedirectResponse;
+use WebRegulate\LaravelAdministration\Classes\FormComponents\Json;
 
 class ManageableModel
 {
@@ -307,33 +308,71 @@ class ManageableModel
     }
 
     /**
-     * Update model instance from form fields, only update values that haven't changed
+     * Update the properties of the model instance based on the request and form data.
      *
-     * @param array $formFields
+     * @param Request $request The HTTP request object.
+     * @param Collection $formComponents The collection of form components.
+     * @param array $formKeyValues The array of form key-value pairs.
+     * @return void
      */
     public function updateModelInstanceProperties(Request $request, Collection $formComponents, array $formKeyValues): void
     {
+        // Perform any necessary actions before updating the model instance
         $this->postUpdateModelInstance($request);
 
+        // Get the manageable fields for the model
         $manageableFields = $this->getManageableFields();
 
+        // First do a loop through to check for any field names that use -> notation for nested json, if
+        // we find any we put these last in the loop so that their values can be applied after everything else
+        $manageableFields = $manageableFields->sortBy(function ($manageableField) {
+            return strpos($manageableField->attribute('name'), '->') !== false;
+        });
+
+        // Iterate over each manageable field
         foreach ($manageableFields as $manageableField) {
             $fieldName = $manageableField->attribute('name');
 
-            dump($fieldName, array_key_exists($fieldName, $formKeyValues), $formKeyValues);
-            // Need to do a check here for the special json case (if field name has a -> in it)
+            // Get the form component by name
+            $formComponent = $formComponents->first(function ($formComponent) use ($fieldName) {
+                return $formComponent->attribute('name') === $fieldName;
+            });
 
+            // Check if the field name is based on a JSON column
+            $isUsingNestedJson = false;
+            if (strpos($fieldName, '->') !== false) {
+                // If form key does not exist, then skip
+                if (!array_key_exists($formComponent->attribute('name'), $formKeyValues)) {
+                    continue;
+                }
+                
+                $isUsingNestedJson = true;
+                $parts = explode('->', $fieldName);
+                $fieldName = $parts[0];
+                $dotNotation = implode('.', array_slice($parts, 1));
+                $newValue = $formKeyValues[$formComponent->attribute('name')];
+            }
+
+            // Check if the field name exists in the form key-value pairs
             if (array_key_exists($fieldName, $formKeyValues)) {
-                $formComponent = $formComponents->first(function ($formComponent) use ($fieldName) {
-                    return $formComponent->attribute('name') === $fieldName;
-                });
+                if (!$isUsingNestedJson) {
+                    // Apply the value to the form component and get the field value
+                    $fieldValue = $formComponent->applyValue($request, $formKeyValues[$fieldName]);
+                } else {
+                    // Apply the value to the form component and get the new value
+                    $newValue = $formComponent->applyValue($request, $newValue);
 
-                $fieldValue = $formComponent->applyValue($request, $formKeyValues[$fieldName]);
+                    // Set the new value using dot notation on the field value
+                    data_set($fieldValue, $dotNotation, $newValue);
 
+                    // Convert the field value to JSON
+                    $fieldValue = json_encode($fieldValue, JSON_UNESCAPED_SLASHES);
+                }
+
+                // Update the field value of the model instance
                 $this->modelInstance->$fieldName = $fieldValue;
             }
         }
-        dd();
     }
 
     /**
