@@ -342,8 +342,7 @@ class ManageableField
         // If name is based on a json column (eg has a -> in it) then we need to get the string after the ->
         // and then explode the . dots and get the last element.
         if(strpos($this->attributes['name'], '->') !== false) {
-            $label = explode('->', $this->attributes['name'])[1];
-            $label = explode('.', $label);
+            $label = explode('->', $this->attributes['name']);
             $label = end($label);
         } else {
             $label = $this->attributes['name'];
