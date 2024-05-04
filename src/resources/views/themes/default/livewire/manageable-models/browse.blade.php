@@ -103,16 +103,19 @@
             @else
                 <span>No records found with the current filters</span>
             @endif
-            @themeComponent('forms.button', [
-                'size' => 'small',
-                'type' => 'button',
-                'text' => 'Create a new ' . $manageableModelClass::getDisplayName(),
-                'icon' => 'fa fa-plus py-2',
-                'class' => 'px-4',
-                'attr' => [
-                    'href' => route('wrla.manageable-model.create', ['modelUrlAlias' => $manageableModelClass::getUrlAlias()]),
-                ]
-            ])
+
+            @if($manageableModelClass::permissions()->hasPermission($WRLAPermissions::CREATE))
+                @themeComponent('forms.button', [
+                    'size' => 'small',
+                    'type' => 'button',
+                    'text' => 'Create a new ' . $manageableModelClass::getDisplayName(),
+                    'icon' => 'fa fa-plus py-2',
+                    'class' => 'px-4',
+                    'attr' => [
+                        'href' => route('wrla.manageable-model.create', ['modelUrlAlias' => $manageableModelClass::getUrlAlias()]),
+                    ]
+                ])
+            @endif
         </div>
     @else
         {{-- Pagination --}}

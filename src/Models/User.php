@@ -148,6 +148,15 @@ class User extends Authenticatable implements CanResetPassword
     }
 
     /**
+     * Is user a master
+     * @return bool
+     */
+    public function isMaster(): bool
+    {
+        return $this->getPermission('master') == true;
+    }
+
+    /**
      * Is user an admin
      * @return bool
      */

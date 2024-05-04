@@ -4,9 +4,10 @@ namespace WebRegulate\LaravelAdministration\Classes;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
+use Illuminate\Support\MessageBag;
 use Illuminate\Support\Stringable;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\MessageBag;
+use WebRegulate\LaravelAdministration\Models\User;
 use WebRegulate\LaravelAdministration\Classes\ManageableFields\ManageableField;
 
 class ManageableModel
@@ -31,6 +32,13 @@ class ManageableModel
      * @var ?Collection
      */
     public static ?Collection $manageableModels = null;
+
+    /**
+     * WRLAPermissions instance
+     *
+     * @var WRLAPermissions
+     */
+    private static WRLAPermissions $permissions;
 
     /**
      * Cache
@@ -76,6 +84,9 @@ class ManageableModel
         } else {
             $this->setModelInstance(new static::$baseModelClass);
         }
+
+        // Apply permissions
+        self::$permissions = new WRLAPermissions($this);
     }
 
     /**
@@ -150,6 +161,21 @@ class ManageableModel
     }
 
     /**
+     * Permissions
+     * 
+     * @return WRLAPermissions
+     */
+    public static function permissions(): WRLAPermissions
+    {
+        // If permissions not set, create a new instance
+        if(!isset(self::$permissions)) {
+            self::$permissions = new WRLAPermissions(new self());
+        }
+
+        return self::$permissions;
+    }
+
+    /**
      * Get the URL alias for the manageable model.
      *
      * @return string
@@ -187,11 +213,15 @@ class ManageableModel
     public static function getBrowseActions(): Collection {
         $browseActions = collect();
 
-        $browseActions->put('create', view(WRLAHelper::getViewPath('components.forms.button'), [
-            'text' => 'Create ' . static::getDisplayName(),
-            'icon' => 'fa fa-plus text-sm',
-            'href' => route('wrla.manageable-model.create', ['modelUrlAlias' => static::getUrlAlias()])
-        ]));
+        $manageableModel = static::make();
+
+        if($manageableModel::permissions()->hasPermission(WRLAPermissions::CREATE)) {
+            $browseActions->put('create', view(WRLAHelper::getViewPath('components.forms.button'), [
+                'text' => 'Create ' . static::getDisplayName(),
+                'icon' => 'fa fa-plus text-sm',
+                'href' => route('wrla.manageable-model.create', ['modelUrlAlias' => static::getUrlAlias()])
+            ]));
+        }
 
         return $browseActions;
     }
@@ -209,24 +239,32 @@ class ManageableModel
 
         // If model doesn't have soft delets and not trashed
         if(!static::isSoftDeletable() || !$model->trashed()) {
-            $browseActions->put('edit', view(WRLAHelper::getViewPath('components.browse-actions.edit-button'), [
-                'manageableModel' => $manageableModel
-            ]));
+            if($manageableModel::permissions()->hasPermission(WRLAPermissions::EDIT)) {
+                $browseActions->put('edit', view(WRLAHelper::getViewPath('components.browse-actions.edit-button'), [
+                    'manageableModel' => $manageableModel
+                ]));
+            }
 
-            $browseActions->put('delete', view(WRLAHelper::getViewPath('components.browse-actions.delete-button'), [
-                'manageableModel' => $manageableModel
-            ]));
+            if($manageableModel::permissions()->hasPermission(WRLAPermissions::DELETE)) {
+                $browseActions->put('delete', view(WRLAHelper::getViewPath('components.browse-actions.delete-button'), [
+                    'manageableModel' => $manageableModel
+                ]));
+            }
         // If trashed
         } else {
-            $browseActions->put('restore', view(WRLAHelper::getViewPath('components.browse-actions.restore-button'), [
-                'manageableModel' => $manageableModel
-            ]));
+            if($manageableModel::permissions()->hasPermission(WRLAPermissions::RESTORE)) {
+                $browseActions->put('restore', view(WRLAHelper::getViewPath('components.browse-actions.restore-button'), [
+                    'manageableModel' => $manageableModel
+                ]));
+            }
 
-            $browseActions->put('delete', view(WRLAHelper::getViewPath('components.browse-actions.delete-button'), [
-                'manageableModel' => $manageableModel,
-                'text' => 'Permanent Delete',
-                'permanent' => true
-            ]));
+            if($manageableModel::permissions()->hasPermission(WRLAPermissions::DELETE)) {
+                $browseActions->put('delete', view(WRLAHelper::getViewPath('components.browse-actions.delete-button'), [
+                    'manageableModel' => $manageableModel,
+                    'text' => 'Permanent Delete',
+                    'permanent' => true
+                ]));
+            }
         }
 
         return $browseActions;

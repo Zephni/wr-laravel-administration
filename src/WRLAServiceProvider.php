@@ -7,14 +7,15 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
-use WebRegulate\LaravelAdministration\Commands\CreateUserCommand;
 use WebRegulate\LaravelAdministration\Models\User;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
-use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItem;
+use WebRegulate\LaravelAdministration\Classes\WRLAPermissions;
 use WebRegulate\LaravelAdministration\Commands\InstallCommand;
-use WebRegulate\LaravelAdministration\Commands\CreateManageableModelCommand;
 use WebRegulate\LaravelAdministration\Http\Middleware\IsAdmin;
+use WebRegulate\LaravelAdministration\Commands\CreateUserCommand;
 use WebRegulate\LaravelAdministration\Http\Middleware\IsNotAdmin;
+use WebRegulate\LaravelAdministration\Commands\CreateManageableModelCommand;
+use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItem;
 use WebRegulate\LaravelAdministration\Livewire\ManageableModels\ManageableModelBrowse;
 use WebRegulate\LaravelAdministration\Livewire\ManageableModels\ManageableModelUpsert;
 
@@ -175,6 +176,9 @@ class WRLAServiceProvider extends ServiceProvider
 
             // Share WRLAHelper class
             $view->with('WRLAHelper', WRLAHelper::class);
+
+            // Share WRLAPermissions class
+            $view->with('WRLAPermissions', WRLAPermissions::class);
 
             // Navigation
             $view->with('navigation', config('wr-laravel-administration.navigation'));
