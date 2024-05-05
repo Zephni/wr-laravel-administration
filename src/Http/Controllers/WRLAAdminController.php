@@ -100,7 +100,7 @@ class WRLAAdminController extends Controller
      * @param ?int $id
      * @return RedirectResponse
      */
-    public function upsertPost(Request $request, string $modelUrlAlias, ?int $modelId = null): RedirectResponse
+    public function upsertPost(Request $request, string $modelUrlAlias, ?int $modelId = null, ?string $redirectTo = null): RedirectResponse
     {
         // Get manageable model class by its URL alias
         $manageableModelClass = ManageableModel::getByUrlAlias($modelUrlAlias);
@@ -180,8 +180,18 @@ class WRLAAdminController extends Controller
         // Save the model
         $manageableModel->getmodelInstance()->save();
 
+        // If override-redirect-route passed as GET parameter, redirect to that route
+        if($request->has('override-redirect-route')) {
+            // If override-success-message passed as GET parameter, use that as success message
+            $message = $request->has('override-success-message')
+                ? $request->get('override-success-message')
+                : 'Saved '.$manageableModel->getDisplayName().' #'.$manageableModel->getmodelInstance()->id.' successfully.';
+
+            return redirect()->route($request->get('override-redirect-route'))->with('success', $message);
+        }
+
         // Redirect with success
-        return redirect()->route('wrla.manageable-model.edit', [
+        return redirect()->route($redirectTo == null ? 'wrla.manageable-model.edit' : $redirectTo, [
             'modelUrlAlias' => $manageableModel->getUrlAlias(),
             'id' => $manageableModel->getmodelInstance()->id
         ])->with('success', 'Saved '.$manageableModel->getDisplayName().' #'.$manageableModel->getmodelInstance()->id.' successfully.');

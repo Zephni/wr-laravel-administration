@@ -4,24 +4,18 @@
 
 @section('content')
 
-    @themeComponent('forms.button', [
-        'href' => route('wrla.manageable-model.browse', ['modelUrlAlias' => $manageableModel->getUrlAlias()]),
-        'text' => $manageableModel->getDisplayName()->plural(),
-        'size' => 'small',
-        'color' => 'primary',
-        'icon' => 'fa fa-arrow-left',
-    ])
-
-    <br />
-
     <div class="text-xl font-semibold">
         @yield('title')
     </div>
 
-    <form action="{{ route('wrla.manageable-model.upsert.post', [
-        'modelUrlAlias' => $manageableModel->getUrlAlias(),
-        'modelId' => $manageableModel->getmodelInstance()->id,
-    ]) }}" method="POST" class="w-full">
+    <form
+        action="{{ route('wrla.manageable-model.upsert.post', [
+            'modelUrlAlias' => $manageableModel->getUrlAlias(),
+            'modelId' => $manageableModel->getmodelInstance()->id
+        ]) }}?override-redirect-route=wrla.manage-account&override-success-message=Account updated successfully"
+        enctype="multipart/form-data"
+        method="POST"
+        class="w-full">
         @csrf
 
         <div class="flex flex-col gap-6 mt-4 p-4 bg-slate-100 dark:bg-slate-700 shadow-slate-300 dark:shadow-slate-850 rounded-lg shadow-lg">
