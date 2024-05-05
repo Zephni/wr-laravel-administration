@@ -88,9 +88,10 @@ class User extends ManageableModel
     public static function getBrowseItemActions(mixed $model): Collection {
         $browseActions = parent::getBrowseItemActions($model);
 
-        // If not current user, add login as if permitted
+        // If not current user
         if($model->id !== auth()->id()) {
-            if((new self())->permissions()->hasPermission(User::IMPERSONATE)) {
+            // If not soft deleted and has impersonate permission, add login as browse action
+            if(!$model->trashed() && (new self())->permissions()->hasPermission(User::IMPERSONATE)) {
                 $browseActions->prepend(view(WRLAHelper::getViewPath('components.browse-actions.login-as'), [
                     'modelInstance' => $model
                 ]), 'login_as');
