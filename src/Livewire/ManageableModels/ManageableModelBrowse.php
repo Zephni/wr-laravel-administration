@@ -6,6 +6,7 @@ use Livewire\Component;
 use Livewire\WithPagination;
 use Illuminate\Pagination\LengthAwarePaginator;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
+use WebRegulate\LaravelAdministration\Classes\WRLAPermissions;
 
 /**
  * Class ManageableModelBrowse
@@ -163,6 +164,15 @@ class ManageableModelBrowse extends Component
      */
     public function deleteModel(string $modelUrlAlias, int $id, int $permanent = 0)
     {
+        // Get manageable model instance
+        $manageableModel = new $this->manageableModelClass($id);
+
+        // Check manage model has permission to delete
+        if(!($manageableModel->permissions())->hasPermission(WRLAPermissions::DELETE)) {
+            $this->errorMessage = 'You do not have permission to delete this model.';
+            return;
+        }
+
         // Check that model URL alias matches the manageable model class URL alias
         if($modelUrlAlias != $this->manageableModelClass::getUrlAlias()) {
             return;

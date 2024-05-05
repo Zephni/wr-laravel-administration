@@ -6,8 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\MessageBag;
 use Illuminate\Support\Stringable;
-use Illuminate\Http\RedirectResponse;
-use WebRegulate\LaravelAdministration\Models\User;
+use Illuminate\Database\Eloquent\Model;
 use WebRegulate\LaravelAdministration\Classes\ManageableFields\ManageableField;
 
 class ManageableModel
@@ -15,16 +14,16 @@ class ManageableModel
     /**
      * Model that this manageable model is based on, eg. \App\Models\User::class.
      *
-     * @var string|null
+     * @var ?string
      */
-    private static $baseModelClass = null;
+    private static ?string $baseModelClass = null;
 
     /**
      * Base model instance
      *
      * @var mixed
      */
-    private $modelInstance = null;
+    private mixed $modelInstance = null;
 
     /**
      * Collection of manageable models, pushed to in the register method which is called within the serice provider.
@@ -38,7 +37,7 @@ class ManageableModel
      *
      * @var WRLAPermissions
      */
-    private static WRLAPermissions $permissions;
+    private static ?WRLAPermissions $permissions = null;
 
     /**
      * Cache
@@ -74,15 +73,15 @@ class ManageableModel
      */
     public function __construct($modelInstanceOrId = null)
     {
-        // If model instance (extends base model) is passed, set it as the model instance
-        if ($modelInstanceOrId instanceof static::$baseModelClass) {
-            $this->setModelInstance($modelInstanceOrId);
+        // If model instance or id is null, set the model instance to a new instance of the base model
+        if($modelInstanceOrId == null) {
+            $this->setModelInstance(new static::$baseModelClass);
         // If model ID is passed, get the model instance by ID
         } elseif (is_numeric($modelInstanceOrId)) {
             $this->setModelInstance(static::$baseModelClass::find($modelInstanceOrId));
-        // Otherwise, set the model instance to a new instance of the base model
-        } else {
-            $this->setModelInstance(new static::$baseModelClass);
+        // If model instance (extends base model) is passed, set it as the model instance
+        } else if ($modelInstanceOrId instanceof static::$baseModelClass) {
+            $this->setModelInstance($modelInstanceOrId);
         }
 
         // Apply permissions
@@ -163,12 +162,13 @@ class ManageableModel
     /**
      * Permissions
      * 
+     * @param Model $baseModel
      * @return WRLAPermissions
      */
-    public static function permissions(): WRLAPermissions
+    public static function permissions($baseModel = null): WRLAPermissions
     {
         // If permissions not set, create a new instance
-        if(!isset(self::$permissions)) {
+        if(!isset(self::$permissions) || self::$permissions == null) {
             self::$permissions = new WRLAPermissions(new self());
         }
 

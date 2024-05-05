@@ -35,7 +35,7 @@ class WRLAPermissions
      * 
      * @var array
      */
-    protected array $permissions;
+    protected array $permissions = [];
 
     /**
      * Constructor
@@ -58,7 +58,7 @@ class WRLAPermissions
     {
         // Get user decoded permissions
         $userPermissions = json_decode($this->user->permissions);
-        
+
         // If user permissions doesn't have the model url alias key, then skip
         if(data_get($userPermissions, 'model.'.$this->manageableModel->getUrlAlias()) === null) {
             return;

@@ -82,7 +82,7 @@ class User extends Authenticatable implements CanResetPassword
      * Get current authenticated user
      * @return User|null
      */
-    public static function current($allowCache = false): ?User
+    public static function current($allowCache = true): ?User
     {
         $user = auth()->user();
 
