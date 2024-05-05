@@ -22,7 +22,7 @@ class User extends ManageableModel
     public static ?string $baseModelClass = \WebRegulate\LaravelAdministration\Models\User::class;
 
     /**
-     * Login as permission constant
+     * Impersonate permission constant
      *
      * @var string
      */
@@ -130,7 +130,7 @@ class User extends ManageableModel
             Image::make($this, 'data->profile->avatar', 'images/avatars', '{id}-avatar-{time}.png')
                 ->defaultImage($modelInstance->getProfileAvatar())
                 ->validation('image|mimes:jpeg,png,jpg,gif,svg|max:2048')
-                ->notes('<b>Required</b> - Image should be a valid JPG, PNG or GIF, no larger than 1024kb. Will be cropped to square'),
+                ->notes('<b>Required</b> - Image should be a valid JPG, PNG or GIF, no larger than 2mb. Will be cropped to square'),
 
             Json::make($this, 'permissions')
                 ->mergeDefaultKeyValues([
