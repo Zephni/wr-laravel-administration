@@ -163,7 +163,7 @@ class WRLAAdminController extends Controller
             }
             
             // Redirect back with input and errors
-            return redirect()->back()->withInput()->withErrors($validationErrors);
+            return redirect()->back()->withInput()->withErrors($validationErrors)->withFragment('#first-message');
         }
 
         // Update only changed values on the model instance
@@ -171,7 +171,7 @@ class WRLAAdminController extends Controller
         
         // If the result is not true, redirect back with input and errors
         if($result !== true) {
-            return redirect()->back()->withInput()->withErrors($result);
+            return redirect()->back()->withInput()->withErrors($result)->withFragment('#first-message');
         }
 
         // Save the model

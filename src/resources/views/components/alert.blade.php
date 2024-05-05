@@ -2,8 +2,11 @@
 
 <div x-data="{'show': true}"
     x-show="show"
-    {{ $attributes->merge(['class' => 'alert mb-4 ' . $class])}}
+    {{ $attributes->merge(['class' => 'relative alert mb-4 ' . $class])}}
     >
+    @once
+        <div class="absolute -top-56" id="first-message"></div>
+    @endonce
     @if ($type == 'success')
         <div class="flex justify-between items-center bg-green-100 border border-green-400 text-green-700 px-3 py-2 rounded relative" role="alert">
             <div class="flex gap-3 items-center">

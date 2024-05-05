@@ -37,7 +37,7 @@
         <div class=" w-14 h-full"></div>
 
         {{-- Yield content --}}
-        <div class="relative w-full flex flex-col pt-8 pb-96 pr-10">
+        <div class="relative w-full flex flex-col pt-8 pb-24 pr-10">
             @if(session('success'))
                 @themeComponent('alert', ['type' => 'success', 'message' => session('success')])
             @elseif(session('error'))
