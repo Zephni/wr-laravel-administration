@@ -2,11 +2,8 @@
 
 namespace WebRegulate\LaravelAdministration\Classes\ManageableFields;
 
-use Illuminate\Http\Request;
 use WebRegulate\LaravelAdministration\Enums\PageType;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
-use WebRegulate\LaravelAdministration\Classes\ManageableModel;
-use WebRegulate\LaravelAdministration\Classes\WRLARedirectException;
 
 /**
  * Class Input
@@ -123,30 +120,6 @@ class Json extends ManageableField
         });
 
         return $this;
-    }
-
-    /**
-     * Apply submitted value. May be overriden in special cases, such as when applying a hash to a password.
-     *
-     * @param Request $request
-     * @param mixed $value
-     * @return mixed
-     */
-    public function applySubmittedValue(Request $request, mixed $value): mixed
-    {
-        // Convert json from non pretty print to plain minimalistic json
-        try {
-            // Check if valid json
-            if(json_last_error() !== JSON_ERROR_NONE) {
-                throw new WRLARedirectException(
-                    'Invalid JSON format in ' . $this->getLabel() . ' field.'
-                );
-            }
-        } catch (WRLARedirectException $e) {
-            $e->redirect();
-        }
-
-        return $value;
     }
 
     /**

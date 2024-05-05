@@ -166,12 +166,9 @@ class WRLAAdminController extends Controller
             return redirect()->back()->withInput()->withErrors($validationErrors);
         }
 
-        // Get form key values from validator
-        // $formKeyValues = $validator->validated();
-
         // Update only changed values on the model instance
         $result = $manageableModel->updateModelInstanceProperties($request, $manageableFields, $request->all());
-
+        
         // If the result is not true, redirect back with input and errors
         if($result !== true) {
             return redirect()->back()->withInput()->withErrors($result);

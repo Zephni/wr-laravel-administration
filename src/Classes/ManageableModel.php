@@ -402,15 +402,15 @@ class ManageableModel
         // we find any we put these last in the loop so that their values can be applied after everything else
         $manageableFields = $manageableFields->sortBy(function ($manageableField) {
             return strpos($manageableField->attribute('name'), '->') !== false;
-        });
+        })->values()->toArray();
 
         // Iterate over each manageable field
         foreach ($manageableFields as $manageableField) {
             $fieldName = $manageableField->attribute('name');
 
             // Get the form component by name
-            $formComponent = $formComponents->first(function ($formComponent) use ($fieldName) {
-                return $formComponent->attribute('name') === $fieldName;
+            $formComponent = $formComponents->first(function ($_formComponent) use ($fieldName) {
+                return $_formComponent->attribute('name') === $fieldName;
             });
 
             // Check if the field name is based on a JSON column
