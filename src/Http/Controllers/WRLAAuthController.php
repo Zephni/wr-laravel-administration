@@ -34,6 +34,11 @@ class WRLAAuthController extends Controller
             'email' => 'required|email',
             'password' => 'required',
         ]);
+        
+        // For debugging, force login
+        // $user = User::where('email', $request->input('email'))->first();
+        // Auth::login($user);
+        // return redirect()->route('wrla.dashboard');
 
         // Attempt login - OLD
         if (Auth::attempt($request->only('email', 'password'), $request->has('remember'))) {

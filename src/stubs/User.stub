@@ -3,9 +3,8 @@
 namespace App\WRLA;
 
 use \Illuminate\Http\Request;
-use \Illuminate\Support\Collection;
+use Illuminate\Support\Collection;
 use \Illuminate\Support\Stringable;
-use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 use \WebRegulate\LaravelAdministration\Classes\ManageableModel;
 use WebRegulate\LaravelAdministration\Classes\ManageableFields\Json;
 use \WebRegulate\LaravelAdministration\Classes\ManageableFields\Text;
@@ -94,6 +93,9 @@ class User extends ManageableModel
      * @return Collection
      */
     public function getManageableFields(): Collection {
+        $currentUser = User::current()->getModelInstance();
+        $modelInstance = $this->getModelInstance();
+
         return collect([
             Text::make($this, 'name')
                 ->required()
@@ -109,7 +111,7 @@ class User extends ManageableModel
             Password::make($this, 'password'),
 
             Image::make($this, 'data->profile->avatar', 'images/avatars', '{id}-avatar-{time}.png')
-                ->defaultImage($this->getModelInstance()->getProfileAvatar())
+                ->defaultImage($modelInstance->getProfileAvatar())
                 ->validation('image|mimes:jpeg,png,jpg,gif,svg|max:2048')
                 ->notes('<b>Required</b> - Image should be a valid JPG, PNG or GIF, no larger than 1024kb. Will be cropped to square'),
 
@@ -119,8 +121,8 @@ class User extends ManageableModel
                     'admin' => false
                 ])
                 ->jsonFormatValidation([
-                    'master' => 'boolean',
-                    'admin' => 'boolean'
+                    'master' => 'boolean'.(($currentUser->id == $modelInstance->id) ? "|wrla_no_change:users,{$modelInstance->id},permissions->master" : ''),
+                    'admin' => 'boolean'.(($currentUser->id == $modelInstance->id) ? "|wrla_no_change:users,{$modelInstance->id},permissions->admin" : '')
                 ])
                 ->hideContainingBraces()
                 ->attributes(['placeholder' => 'JSON Data', 'rows' => 4]),

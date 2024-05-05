@@ -28,32 +28,6 @@ class Json extends ManageableField
     protected array $defaultKeyValues = [];
 
     /**
-     * Merge default keys and nested.key values before render.
-     * 
-     * @param array $defaultKeyValues
-     * @return $this
-     */
-    public function mergeDefaultKeyValues(array $defaultKeyValues): self
-    {
-        $this->defaultKeyValues = $defaultKeyValues;
-
-        return $this;
-    }
-
-    /**
-     * Hide containing braces.
-     * 
-     * @param bool $hide
-     * @return $this
-     */
-    public function hideContainingBraces(bool $hide = true): self
-    {
-        $this->option(self::OPTION_HIDE_CONTAINING_BRACES, $hide);
-
-        return $this;
-    }
-    
-    /**
      * Post constructed method, called after name and value attributes are set.
      *
      * @return $this
@@ -108,6 +82,32 @@ class Json extends ManageableField
         $this->attribute('value', $correctedValue);
 
         return true;
+    }
+
+    /**
+     * Merge default keys and nested.key values before render.
+     * 
+     * @param array $defaultKeyValues
+     * @return $this
+     */
+    public function mergeDefaultKeyValues(array $defaultKeyValues): self
+    {
+        $this->defaultKeyValues = $defaultKeyValues;
+
+        return $this;
+    }
+
+    /**
+     * Hide containing braces.
+     * 
+     * @param bool $hide
+     * @return $this
+     */
+    public function hideContainingBraces(bool $hide = true): self
+    {
+        $this->option(self::OPTION_HIDE_CONTAINING_BRACES, $hide);
+
+        return $this;
     }
 
     /**

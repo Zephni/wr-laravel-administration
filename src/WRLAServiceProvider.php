@@ -4,9 +4,11 @@ namespace WebRegulate\LaravelAdministration;
 
 use Livewire\Livewire;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\Validator;
 use WebRegulate\LaravelAdministration\Models\User;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 use WebRegulate\LaravelAdministration\Classes\WRLAPermissions;
@@ -118,6 +120,9 @@ class WRLAServiceProvider extends ServiceProvider
             $this->loadRoutesFrom(__DIR__ . '/routes/wr-laravel-administration-routes.php');
         });
 
+        // Register validation rules
+        $this->registerValidationRules();
+
         // Configure rate limiting for routes - Set in wr-laravel-administration.rate_limiting config
         $this->configureRateLimiting(Request::capture());
 
@@ -158,6 +163,48 @@ class WRLAServiceProvider extends ServiceProvider
                 $route->middleware("throttle:{$routeName}");
             }
         }
+    }
+
+    /**
+     * Register custom validation rules
+     * 
+     * @return void
+     */
+    protected function registerValidationRules(): void
+    {
+        Validator::extend('wrla_no_change', function ($attribute, $value, $parameters, $validator) {
+            // Parameter 0 is the table name, 1 is the id, 2 is the column name
+            $tableName = $parameters[0];
+            $id = $parameters[1];
+            $column = $parameters[2];
+            $jsonDotNotation = false; // Note that we must pass the column name in the format 'column->key1->key2' if using json notation
+
+            // Check if column uses wrla json notation
+            if(str($column)->contains('->')) {
+                [$column, $jsonDotNotation] = WRLAHelper::parseJsonNotation($column);
+            }
+
+            // Use query builder to get the original value
+            $originalValue = DB::table($tableName)->where('id', $id)->value($column);
+
+            // If using json notation, get the value from the json column
+            if($jsonDotNotation !== false) {
+                $originalValue = data_get(json_decode($originalValue), $jsonDotNotation);
+            }
+
+            // Add message to validator
+            $validator->addReplacer('wrla_no_change', function ($message, $attribute, $rule, $parameters) use ($originalValue) {
+                // If originonal value is a boolean, convert to string
+                if(is_bool($originalValue)) {
+                    $originalValue = $originalValue ? 'true' : 'false';
+                }
+                
+                return str_replace(':origional_value', $originalValue, $message);
+            });
+
+            // Check if value has changed, if type passed then check strict comparison
+            return $originalValue === $value;
+        }, "':attribute' cannot be changed from it's original value: :origional_value.");
     }
 
     /**

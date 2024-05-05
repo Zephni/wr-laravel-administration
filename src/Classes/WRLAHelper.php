@@ -388,6 +388,20 @@ class WRLAHelper
     }
 
     /**
+     * Get wrla column json notation parts from a key.
+     * 
+     * @param string $key The key to get the json notation parts from.
+     */
+    public static function parseJsonNotation(string $key): array
+    {
+        $parts = explode('->', $key);
+        $column = $parts[0];
+        $dotNotation = implode('.', array_slice($parts, 1));
+
+        return [$column, $dotNotation];
+    }
+
+    /**
      * Log to WRLA error channel, automatically adds 'user' => user->id if available, shows as 'x' if no user.
      * 
      * @param string $message The message to log.

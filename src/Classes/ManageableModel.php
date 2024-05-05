@@ -422,9 +422,7 @@ class ManageableModel
                 }
 
                 $isUsingNestedJson = true;
-                $parts = explode('->', $fieldName);
-                $fieldName = $parts[0];
-                $dotNotation = implode('.', array_slice($parts, 1));
+                [$fieldName, $dotNotation] = WRLAHelper::parseJsonNotation($fieldName);
                 $newValue = $formKeyValues[$formComponent->attribute('name')];
             }
 
