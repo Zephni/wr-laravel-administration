@@ -42,6 +42,9 @@ Route::group(['namespace' => 'WebRegulate\LaravelAdministration\Http\Controllers
             Route::get('edit/{modelUrlAlias}/{id}', 'upsert')->name('manageable-model.edit');
             Route::post('upsert/{modelUrlAlias}/{modelId?}', 'upsertPost')->name('manageable-model.upsert.post');
 
+            // Special
+            Route::get('login-as/{id}', 'loginAs')->name('special.login-as');
+
             // Logout
             Route::get('logout', 'logout')->name('logout');
         });

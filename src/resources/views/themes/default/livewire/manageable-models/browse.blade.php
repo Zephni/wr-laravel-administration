@@ -104,7 +104,7 @@
                 <span>No records found with the current filters</span>
             @endif
 
-            @if($manageableModelClass::permissions()->hasPermission($WRLAPermissions::CREATE))
+            @if($manageableModelClass->hasPehasPermission($WRLAPermissions::CREATE))
                 @themeComponent('forms.button', [
                     'size' => 'small',
                     'type' => 'button',

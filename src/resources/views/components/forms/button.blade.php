@@ -13,7 +13,7 @@
 
     // Set colour classes
     if($color == 'primary') $colorClasses = 'bg-primary-500 hover:bg-primary-600 border-slate-400 dark:border-slate-400';
-    else if($color == 'danger') $colorClasses = 'bg-rose-500 hover:bg-rose-600 border-rose-700'
+    else if($color == 'danger') $colorClasses = 'bg-rose-500 hover:bg-rose-600 border-rose-700';
 @endphp
 
 @if(empty($href))

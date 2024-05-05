@@ -205,6 +205,29 @@ class WRLAAdminController extends Controller
     }
 
     /**
+     * Login as user
+     * 
+     * @param Request $request
+     * @param int $userId
+     */
+    public function loginAs(Request $request, int $userId)
+    {
+        // Get user by id
+        $user = User::getBaseModelClass()::find($userId);
+
+        // Check user exists
+        if($user == null) {
+            return redirect()->route('wrla.dashboard')->with('error', "User with ID `$userId` not found.");
+        }
+
+        // Login as user
+        Auth::login($user);
+
+        // Redirect to dashboard
+        return redirect()->route('wrla.dashboard');
+    }
+
+    /**
      * logout
      * @param Request $request
      * @return \Illuminate\Http\RedirectResponse

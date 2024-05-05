@@ -7,7 +7,7 @@
     'color' => 'primary',
     'type' => 'button',
     'text' => 'Edit',
-    'icon' => 'fa fa-edit relative top-[-1px] !mr-0 text-xs',
+    'icon' => 'fa fa-edit relative top-[-2px] !mr-[3px] text-[10px]',
     'attr' => [
         'title' => 'Edit'
     ]
