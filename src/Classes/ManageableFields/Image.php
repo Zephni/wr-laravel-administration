@@ -150,6 +150,11 @@ class Image extends ManageableField
             // Get the id of the model instance
             $id = $this->manageableModel->getModelInstance()->id;
 
+            // If id is null, get the next id from the model
+            if (empty($id)) {
+                $id = $this->manageableModel->getModelInstance()->max('id') + 1;
+            }
+
             // Replace {id} with the id of the model instance
             $name = str_replace('{id}', $id, $name);
         }
