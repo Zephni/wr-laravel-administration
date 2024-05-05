@@ -5,6 +5,8 @@ namespace App\WRLA;
 use \Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use \Illuminate\Support\Stringable;
+use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
+use WebRegulate\LaravelAdministration\Classes\WRLAPermissions;
 use \WebRegulate\LaravelAdministration\Classes\ManageableModel;
 use WebRegulate\LaravelAdministration\Classes\ManageableFields\Json;
 use \WebRegulate\LaravelAdministration\Classes\ManageableFields\Text;
@@ -16,9 +18,16 @@ class User extends ManageableModel
     /**
      * The base model class for the User.
      *
+     * @var ?string
+     */
+    public static ?string $baseModelClass = \WebRegulate\LaravelAdministration\Models\User::class;
+
+    /**
+     * Login as permission constant
+     *
      * @var string
      */
-    public static $baseModelClass = \WebRegulate\LaravelAdministration\Models\User::class;
+    const LOGIN_AS = 'user_login_as';
 
     /**
      * Get the URL alias for the User.
@@ -80,7 +89,15 @@ class User extends ManageableModel
     public static function getBrowseItemActions(mixed $model): Collection {
         $browseActions = parent::getBrowseItemActions($model);
 
-        if($model->id === auth()->id()) {
+        // If not current user, add login as if permitted
+        if($model->id !== auth()->id()) {
+            if((new self())->permissions()->hasPermission(User::LOGIN_AS)) {
+                $browseActions->prepend(view(WRLAHelper::getViewPath('components.browse-actions.login-as'), [
+                    'modelInstance' => $model
+                ]), 'login_as');
+            }
+        // Remove delete browse action if current user
+        } else {
             $browseActions->forget('delete');
         }
 
