@@ -17,7 +17,7 @@
 
 @if(!empty($label))
     {!! view($WRLAHelper::getViewPath('components.forms.label'), [
-        'id' => $id,
+        'id' => $id.'-label',
         'label' => $label
     ])->render() !!}
 @endif

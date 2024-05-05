@@ -21,10 +21,9 @@ class Hidden extends ManageableField
     public function render(PageType $upsertType): mixed
     {
         return view(WRLAHelper::getViewPath('components.forms.input-text'), [
-            'label' => $this->attributes['name'],
             'name' => $this->attributes['name'],
             'value' => $this->attributes['value'],
-            'type' => 'text',
+            'type' => 'hidden',
             'attr' => collect($this->attributes)
                 ->forget(['name', 'value', 'type'])
                 ->toArray(),
