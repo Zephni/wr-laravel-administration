@@ -6,7 +6,6 @@ use \Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use \Illuminate\Support\Stringable;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
-use WebRegulate\LaravelAdministration\Classes\WRLAPermissions;
 use \WebRegulate\LaravelAdministration\Classes\ManageableModel;
 use WebRegulate\LaravelAdministration\Classes\ManageableFields\Json;
 use \WebRegulate\LaravelAdministration\Classes\ManageableFields\Text;
@@ -27,7 +26,7 @@ class User extends ManageableModel
      *
      * @var string
      */
-    const LOGIN_AS = 'user_login_as';
+    const IMPERSONATE = 'impersonate';
 
     /**
      * Get the URL alias for the User.
@@ -91,7 +90,7 @@ class User extends ManageableModel
 
         // If not current user, add login as if permitted
         if($model->id !== auth()->id()) {
-            if((new self())->permissions()->hasPermission(User::LOGIN_AS)) {
+            if((new self())->permissions()->hasPermission(User::IMPERSONATE)) {
                 $browseActions->prepend(view(WRLAHelper::getViewPath('components.browse-actions.login-as'), [
                     'modelInstance' => $model
                 ]), 'login_as');

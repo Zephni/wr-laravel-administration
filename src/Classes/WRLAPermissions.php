@@ -9,14 +9,14 @@ class WRLAPermissions
 {
     /**
      * Base manageable model
-     * 
+     *
      * @var ManageableModel
      */
     protected ManageableModel $manageableModel;
 
     /**
      * User instance
-     * 
+     *
      * @var User
      */
     protected User $user;
@@ -32,14 +32,14 @@ class WRLAPermissions
 
     /**
      * Permissions
-     * 
+     *
      * @var array
      */
     protected array $permissions = [];
 
     /**
      * Constructor
-     * 
+     *
      * @param ManageableModel $manageableModel
      */
     public function __construct(ManageableModel $manageableModel)
@@ -70,7 +70,7 @@ class WRLAPermissions
 
     /**
      * Check if user has permission
-     * 
+     *
      * @param string $permission
      * @return bool
      */
@@ -81,6 +81,14 @@ class WRLAPermissions
             return true;
         }
 
+        // First check if direct permission exists in user permissions
+        $userPermissions = json_decode($this->user->permissions);
+        $checkPermission = data_get($userPermissions, $permission);
+        if($checkPermission !== null) {
+            return $checkPermission === $equalTo;
+        }
+
+        // If direct permission doesn't exist, check if permission is in the manageable model permissions
         $permission = data_get($this->permissions, $permission);
         return $permission === $equalTo;
     }

@@ -215,6 +215,11 @@ class WRLAAdminController extends Controller
         // Get user by id
         $user = User::getBaseModelClass()::find($userId);
 
+        // Check if user has permission to "user_login_as"
+        if(!User::current()->permissions()->hasPermission(User::IMPERSONATE)) {
+            return redirect()->route('wrla.dashboard')->with('error', "You do not have permission to login as another user.");
+        }
+
         // Check user exists
         if($user == null) {
             return redirect()->route('wrla.dashboard')->with('error', "User with ID `$userId` not found.");
