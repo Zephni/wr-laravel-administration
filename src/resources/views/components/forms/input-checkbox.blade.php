@@ -5,7 +5,7 @@
     $id = empty($id) ? 'wrinput-'.$name : $id;
 @endphp
 
-<div class="flex gap-3 items-center">
+<div class="flex gap-2 items-center">
     <input
         @if($checked)
             checked

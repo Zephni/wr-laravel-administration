@@ -66,8 +66,8 @@
         </div>
         <div class="flex flex-col text-sm">
             <div class="flex flex-col pb-2">
-                <span class="text-base">Craig Dennis</span>
-                <span class="text-xs font-semibold text-slate-400">Administrator</span>
+                <span class="text-base">{{ $user->name }}</span>
+                <span class="text-xs font-semibold text-slate-400">{{ $user->getRole() }}</span>
             </div>
             <span class="flex justify-start items-center gap-2">
                 <i class="fa fa-circle text-primary-500" style="font-size: 8px;"></i>

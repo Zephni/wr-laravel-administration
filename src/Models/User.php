@@ -139,6 +139,22 @@ class User extends Authenticatable implements CanResetPassword
     }
 
     /**
+     * Get role
+     * 
+     * @return string
+     */
+    public function getRole(): string
+    {
+        if($this->isMaster()) {
+            return 'Master Administrator';
+        } else if($this->isAdmin()) {
+            return 'Administrator';
+        } else {
+            return 'User';
+        }
+    }
+
+    /**
      * Get current theme
      * @return string
      */
