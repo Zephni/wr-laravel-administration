@@ -40,10 +40,11 @@ class User extends ManageableModel
     /**
      * Get the display name for the User.
      *
-     * @return Stringable
+     * @param bool $plural
+     * @return string
      */
-    public static function getDisplayName(): Stringable {
-        return str('User');
+    public static function getDisplayName(bool $plural = false): string {
+        return !$plural ? 'User' : 'Users';
     }
 
     /**

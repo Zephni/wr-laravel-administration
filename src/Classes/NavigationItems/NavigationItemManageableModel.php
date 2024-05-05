@@ -23,7 +23,7 @@ class NavigationItemManageableModel extends NavigationItem
         parent::__construct(
             'wrla.manageable-model.browse',
             ['modelUrlAlias' => $modelClass::getUrlAlias()],
-            $modelClass::getDisplayName()->plural(),
+            $modelClass::getDisplayName(true),
             $modelClass::getIcon(),
             [
                 new NavigationItem(

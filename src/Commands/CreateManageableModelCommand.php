@@ -62,6 +62,28 @@ class CreateManageableModelCommand extends Command
         // New line for separation
         $this->line('');
 
+        // Question 2: Ask if user wants to create the model
+        $createModel = $this->confirm('Create the '.$model.' model?');
+        
+        // If create model, use the make:model command to create the model
+        if ($createModel) {
+            $this->call('make:model', ['name' => $model]);
+        }
+
+        // New line for separation
+        $this->line('');
+
+        // Question 3: Ask if user wants to create the migration, either no, or the migration name
+        $createMigration = $this->confirm('Create the '.$model.' migration?');
+
+        // If create migration, use the make:migration command to create the migration
+        if ($createMigration) {
+            $this->call('make:migration', ['name' => str($model)->plural()->snake()->__toString()]);
+        }
+
+        // New line for separation
+        $this->line('');
+
         return 1;
     }
 

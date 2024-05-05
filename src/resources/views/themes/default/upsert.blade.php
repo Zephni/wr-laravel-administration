@@ -6,7 +6,7 @@
 
     @themeComponent('forms.button', [
         'href' => route('wrla.manageable-model.browse', ['modelUrlAlias' => $manageableModel->getUrlAlias()]),
-        'text' => $manageableModel->getDisplayName()->plural(),
+        'text' => $manageableModel->getDisplayName(true),
         'size' => 'small',
         'color' => 'primary',
         'icon' => 'fa fa-arrow-left',

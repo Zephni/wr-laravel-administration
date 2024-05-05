@@ -162,10 +162,9 @@ class ManageableModel
     /**
      * Permissions
      * 
-     * @param Model $baseModel
      * @return WRLAPermissions
      */
-    public static function permissions($baseModel = null): WRLAPermissions
+    public static function permissions(): WRLAPermissions
     {
         // If permissions not set, create a new instance
         if(!isset(self::$permissions) || self::$permissions == null) {
@@ -188,11 +187,12 @@ class ManageableModel
     /**
      * Get the display name for the manageable model.
      *
+     * @param bool $plural
      * @return string
      */
-    public static function getDisplayName(): Stringable
+    public static function getDisplayName(bool $plural = false): string
     {
-        return str('Manageable Model');
+        return !$plural ? 'Manageable Model' : 'Manageable Models';
     }
 
     /**

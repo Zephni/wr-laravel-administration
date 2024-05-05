@@ -15,7 +15,7 @@ class {{ $MODEL }} extends ManageableModel
         return '{{ $URL_ALIAS }}';
     }
 
-    public static function getDisplayName(): Stringable
+    public static function getDisplayName(): string|Stringable
     {
         return str('{{ $DISPLAY_NAME }}');
     }

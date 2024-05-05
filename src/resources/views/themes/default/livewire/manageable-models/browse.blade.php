@@ -2,7 +2,7 @@
 <div class="flex flex-col gap-4">
 
     <div class="text-xl font-semibold mb-2">
-        Browsing {{ $manageableModelClass::getDisplayName()->plural() }}
+        Browsing {{ $manageableModelClass::getDisplayName(true) }}
     </div>
 
     @if($successMessage)
@@ -104,7 +104,7 @@
                 <span>No records found with the current filters</span>
             @endif
 
-            @if($manageableModelClass->hasPehasPermission($WRLAPermissions::CREATE))
+            @if($manageableModelClass::permissions()->hasPermission($WRLAPermissions::CREATE))
                 @themeComponent('forms.button', [
                     'size' => 'small',
                     'type' => 'button',
