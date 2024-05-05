@@ -27,6 +27,10 @@ class {{ $MODEL }} extends ManageableModel
 
     public static function getBrowsableColumns(): Collection
     {
-        {{ $BROWSABLE_COLUMNS }}
+        return collect([
+            'id' => 'ID',
+            // 'column_name' => 'Column Name',
+            // ...
+        ]);
     }
 }

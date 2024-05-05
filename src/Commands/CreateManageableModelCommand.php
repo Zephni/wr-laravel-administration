@@ -90,11 +90,6 @@ class CreateManageableModelCommand extends Command
             '{{ $URL_ALIAS }}' => str($model)->kebab()->lower()->__toString(),
             '{{ $DISPLAY_NAME }}' => str($model)->headline()->__toString(),
             '{{ $ICON }}' => $icon,
-            '{{ $BROWSABLE_COLUMNS }}' => isset($overrides['browsableColumnsMethod']) ? $overrides['browsableColumnsMethod'] :
-        "return collect([
-            'id' => 'ID',
-            // 'column_name' => 'Column Name',
-        ]);",
         ];
     }
 }
