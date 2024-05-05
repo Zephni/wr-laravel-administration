@@ -1,5 +1,5 @@
 @themeComponent('forms.button', [
-    'href' => route('wrla.special.login-as', [
+    'href' => route('wrla.impersonate.login-as', [
         'id' => $modelInstance->id
     ]),
     'size' => 'small',

@@ -51,6 +51,17 @@
     {{-- Divider --}}
     <div class="w-full border-t border-slate-600"></div>
 
+    {{-- Impersonating user bar --}}
+    @if($WRLAHelper::isImpersonatingUser())
+        <div class="w-full px-5 py-2 bg-slate-850 text-slate-200 overflow-hidden text-sm border-b border-slate-600">
+            <a href="{{ route('wrla.impersonate.switch-back') }}" class="text-primary-500">
+                <i class="fa fa-key mr-1"></i>
+                Switch back
+            </a>
+            to {{ $WRLAHelper::getImpersonatingOriginalUser()->name }}
+        </div>
+    @endif
+
     {{-- Profile avatar and logged in info --}}
     <div
         :class="leftPanelOpen ? 'flex' : 'hidden';"
@@ -65,11 +76,11 @@
             ])
         </div>
         <div class="flex flex-col text-sm">
-            <div class="flex flex-col pb-2">
-                <span class="text-base">{{ $user->name }}</span>
+            <div class="flex flex-col pb-1">
+                <span class="text-sm">{{ $user->name }}</span>
                 <span class="text-xs font-semibold text-slate-400">{{ $user->getRole() }}</span>
             </div>
-            <span class="flex justify-start items-center gap-2">
+            <span class="flex justify-start items-center gap-2 text-xs">
                 <i class="fa fa-circle text-primary-500" style="font-size: 8px;"></i>
                 <div class="flex gap-2">
                     <span class="text-slate-300">Online</span>

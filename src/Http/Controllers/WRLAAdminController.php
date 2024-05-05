@@ -203,46 +203,4 @@ class WRLAAdminController extends Controller
             'manageableModel' => $manageableModel
         ]);
     }
-
-    /**
-     * Login as user
-     * 
-     * @param Request $request
-     * @param int $userId
-     */
-    public function loginAs(Request $request, int $userId)
-    {
-        // Get user by id
-        $user = User::getBaseModelClass()::find($userId);
-
-        // Check if user has permission to "user_login_as"
-        if(!User::current()->permissions()->hasPermission(User::IMPERSONATE)) {
-            return redirect()->route('wrla.dashboard')->with('error', "You do not have permission to login as another user.");
-        }
-
-        // Check user exists
-        if($user == null) {
-            return redirect()->route('wrla.dashboard')->with('error', "User with ID `$userId` not found.");
-        }
-
-        // Login as user
-        Auth::login($user);
-
-        // Redirect to dashboard
-        return redirect()->route('wrla.dashboard');
-    }
-
-    /**
-     * logout
-     * @param Request $request
-     * @return \Illuminate\Http\RedirectResponse
-     */
-    public function logout(Request $request)
-    {
-        // Logout
-        Auth::logout();
-
-        // Redirect to login
-        return redirect()->route('wrla.login');
-    }
 }

@@ -402,6 +402,26 @@ class WRLAHelper
     }
 
     /**
+     * Is impersonating user
+     * 
+     * @return bool
+     */
+    public static function isImpersonatingUser(): bool
+    {
+        return session()->has('wrla_impersonating_user');
+    }
+
+    /**
+     * Get original user while impersonating
+     * 
+     * @return User|null
+     */
+    public static function getImpersonatingOriginalUser(): ?User
+    {
+        return User::find(session('wrla_impersonating_user'));
+    }
+
+    /**
      * Log to WRLA error channel, automatically adds 'user' => user->id if available, shows as 'x' if no user.
      * 
      * @param string $message The message to log.

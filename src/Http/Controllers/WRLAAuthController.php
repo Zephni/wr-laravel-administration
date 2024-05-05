@@ -49,6 +49,69 @@ class WRLAAuthController extends Controller
     }
 
     /**
+     * Impersonate / Login as user
+     * 
+     * @param Request $request
+     * @param int $userId
+     */
+    public function impersonateLoginAs(Request $request, int $userId)
+    {
+        // Get current user id
+        $origionalUserId = User::current()->id;
+
+        // Get user by id
+        $user = User::find($userId);
+
+        // Check if user has permission to "user_login_as"
+        if(!\App\WRLA\User::current()->permissions()->hasPermission(\App\WRLA\User::IMPERSONATE)) {
+            return redirect()->route('wrla.dashboard')->with('error', "You do not have permission to login as another user.");
+        }
+
+        // Check user exists
+        if($user == null) {
+            return redirect()->route('wrla.dashboard')->with('error', "User with ID `$userId` not found.");
+        }
+
+        // Login as user
+        Auth::login($user);
+
+        // Set wrla_impersonating_user in session to original user id
+        session()->put('wrla_impersonating_user', $origionalUserId);
+
+        // Redirect to dashboard
+        return redirect()->route('wrla.dashboard');
+    }
+
+    /**
+     * Impersonate / Switch back
+     * 
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function impersonateSwitchBack(Request $request)
+    {
+        // If wrla_impersonating_user is not in session, return invalid request
+        if (!$request->session()->has('wrla_impersonating_user')) {
+            abort(403, 'Invalid request');
+        }
+
+        // Get original user id
+        $origionalUserId = $request->session()->get('wrla_impersonating_user');
+
+        // Logout current user
+        Auth::logout();
+
+        // Login as original user
+        Auth::login(User::find($origionalUserId));
+
+        // Forget wrla_impersonating_user from session
+        $request->session()->forget('wrla_impersonating_user');
+        
+        // Redirect back
+        return redirect()->back();
+    }
+
+    /**
      * Forgot password view
      * @param Request $request
      * @return \Illuminate\Contracts\View\View
@@ -140,5 +203,24 @@ class WRLAAuthController extends Controller
 
         // Return user with success
         return redirect()->route('wrla.login')->with('success', 'Password has been reset successfully');
+    }
+
+    /**
+     * logout
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function logout(Request $request)
+    {
+        // Logout
+        Auth::logout();
+
+        // If wrla_impersonating_user is in session, forget it
+        if($request->session()->has('wrla_impersonating_user')) {
+            $request->session()->forget('wrla_impersonating_user');
+        }
+
+        // Redirect to login
+        return redirect()->route('wrla.login');
     }
 }

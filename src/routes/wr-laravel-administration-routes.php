@@ -41,14 +41,13 @@ Route::group(['namespace' => 'WebRegulate\LaravelAdministration\Http\Controllers
             Route::get('create/{modelUrlAlias}', 'upsert')->name('manageable-model.create');
             Route::get('edit/{modelUrlAlias}/{id}', 'upsert')->name('manageable-model.edit');
             Route::post('upsert/{modelUrlAlias}/{modelId?}', 'upsertPost')->name('manageable-model.upsert.post');
-
-            // Special
-            Route::get('login-as/{id}', 'loginAs')->name('special.login-as');
-
-            // Logout
-            Route::get('logout', 'logout')->name('logout');
         });
 
-    });
+        // Impersonate routes
+        Route::get('impersonate/login-as/{id}', [WRLAAuthController::class, 'impersonateLoginAs'])->name('impersonate.login-as');
+        Route::get('impersonate/switch-back', [WRLAAuthController::class, 'impersonateSwitchBack'])->name('impersonate.switch-back');
 
+        // Logout
+        Route::get('logout', [WRLAAuthController::class, 'logout'])->name('logout');
+    });
 });
