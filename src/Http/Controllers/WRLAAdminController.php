@@ -191,7 +191,7 @@ class WRLAAdminController extends Controller
         }
 
         // Redirect with success
-        return redirect()->route($redirectTo == null ? 'wrla.manageable-model.edit' : $redirectTo, [
+        return redirect()->route('wrla.manageable-model.edit', [
             'modelUrlAlias' => $manageableModel->getUrlAlias(),
             'id' => $manageableModel->getmodelInstance()->id
         ])->with('success', 'Saved '.$manageableModel->getDisplayName().' #'.$manageableModel->getmodelInstance()->id.' successfully.');
