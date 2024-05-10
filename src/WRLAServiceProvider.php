@@ -19,7 +19,6 @@ use WebRegulate\LaravelAdministration\Http\Middleware\IsNotAdmin;
 use WebRegulate\LaravelAdministration\Commands\CreateManageableModelCommand;
 use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItem;
 use WebRegulate\LaravelAdministration\Livewire\ManageableModels\ManageableModelBrowse;
-use WebRegulate\LaravelAdministration\Livewire\ManageableModels\ManageableModelUpsert;
 
 class WRLAServiceProvider extends ServiceProvider
 {

@@ -22,6 +22,7 @@
     ],
     "minimum-stability": "stable",
     "require": {
-        "livewire/livewire": "^3.4"
+        "livewire/livewire": "^3.4",
+        "intervention/image": "^3.6"
     }
 }
