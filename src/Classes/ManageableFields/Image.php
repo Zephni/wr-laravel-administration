@@ -3,6 +3,8 @@
 namespace WebRegulate\LaravelAdministration\Classes\ManageableFields;
 
 use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
+use Intervention\Image\ImageManager;
 use WebRegulate\LaravelAdministration\Enums\PageType;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 use WebRegulate\LaravelAdministration\Classes\ManageableModel;
@@ -60,14 +62,7 @@ class Image extends ManageableField
         }
 
         if ($request->hasFile($this->attributes['name'])) {
-            // Get the file, path and filename
-            $file = $request->file($this->attributes['name']);
-            $path = WRLAHelper::forwardSlashPath($this->getPath());
-            $filename = $this->formatImageName($this->options['filename'] ?? $file->getClientOriginalName());
-
-            // Move the file to the path and fix the value that we apply to the column
-            $file->move(public_path($path), $filename);
-            $value = rtrim(ltrim($path, '/'), '/') . '/' . $filename;
+            $value = $this->uploadImage($request->file($this->attributes['name']));
 
             // If unlinkOld option set, and an image already exists with the old value, we delete it
             if ($this->option('unlinkOld') == true && !empty($currentImage)) {
@@ -78,6 +73,26 @@ class Image extends ManageableField
         }
 
         return null;
+    }
+
+    /**
+     * Upload image
+     * 
+     * @param UploadedFile $request
+     * @return string
+     */
+    public function uploadImage(UploadedFile $file): string
+    {
+        // Get path and filename
+        $path = WRLAHelper::forwardSlashPath($this->getPath());
+        $filename = $this->formatImageName($this->options['filename'] ?? $file->getClientOriginalName());
+
+        // New, we now use Intervention
+        $imageManager = ImageManager::gd();
+        $image = $imageManager->read($file);
+        $image->save(public_path($path) . '/' . $filename);
+
+        return rtrim(ltrim($path, '/'), '/') . '/' . $filename;
     }
 
     /**
