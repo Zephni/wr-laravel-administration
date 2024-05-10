@@ -17,6 +17,13 @@ use WebRegulate\LaravelAdministration\Classes\ManageableModel;
 class Image extends ManageableField
 {
     /**
+     * Manipulate image function, set with manipulateImage method on creation
+     *
+     * @var callable
+     */
+    public $manipulateImageFunction = null;
+
+    /**
      * Make method (can be used in any class that extends FormComponent).
      *
      * @param ?ManageableModel $manageableModel
@@ -90,10 +97,25 @@ class Image extends ManageableField
         // New, we now use Intervention
         $imageManager = ImageManager::gd();
         $image = $imageManager->read($file);
+        // Todo: Fix this
+        $image = $this->manipulateImageFunction($image);
         $image->save(public_path($path) . '/' . $filename);
 
         return rtrim(ltrim($path, '/'), '/') . '/' . $filename;
     }
+
+    /**
+     * Manipulate image
+     * 
+     * @param callable $callback
+     * @return $this
+     */
+    public function manipulateImage(callable $callback): self
+    {
+        $this->manipulateImageFunction = $callback;
+        return $this;
+    }
+
 
     /**
      * Get path
