@@ -130,6 +130,11 @@ class User extends ManageableModel
 
             Image::make($this, 'data->profile->avatar', 'images/avatars', '{id}-avatar-{time}.png')
                 ->defaultImage($modelInstance->getProfileAvatar())
+                ->manipulateImage(function($image) {
+                    $image->cover(300, 300, 'center');
+                    $image->toJpg();
+                    return $image;
+                })
                 ->validation('image|mimes:jpeg,png,jpg,gif,svg|max:2048')
                 ->notes('<b>Required</b> - Image should be a valid JPG, PNG or GIF, no larger than 2mb. Will be cropped to square'),
 

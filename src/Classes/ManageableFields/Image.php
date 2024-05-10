@@ -5,6 +5,7 @@ namespace WebRegulate\LaravelAdministration\Classes\ManageableFields;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Intervention\Image\ImageManager;
+use Intervention\Image\Drivers\Gd\Driver;
 use WebRegulate\LaravelAdministration\Enums\PageType;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 use WebRegulate\LaravelAdministration\Classes\ManageableModel;
@@ -95,10 +96,10 @@ class Image extends ManageableField
         $filename = $this->formatImageName($this->options['filename'] ?? $file->getClientOriginalName());
 
         // New, we now use Intervention
-        $imageManager = ImageManager::gd();
+        $imageManager = new ImageManager(new Driver());
         $image = $imageManager->read($file);
-        // Todo: Fix this
-        $image = $this->manipulateImageFunction($image);
+        $manipulateImageFunction = $this->manipulateImageFunction;
+        $image = $manipulateImageFunction($image);
         $image->save(public_path($path) . '/' . $filename);
 
         return rtrim(ltrim($path, '/'), '/') . '/' . $filename;
