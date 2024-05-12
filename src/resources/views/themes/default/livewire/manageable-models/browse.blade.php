@@ -11,13 +11,15 @@
         @themeComponent('alert', ['type' => 'error', 'message' => $errorMessage])
     @endif
 
+    {{-- Browse actions --}}
     <div class="flex justify-start gap-4">
         @foreach($manageableModelClass::getBrowseActions() as $browseAction)
             {!! $browseAction->render() !!}
         @endforeach
     </div>
 
-    <div class="w-full rounded-lg p-4 pt-3 mb-1 bg-slate-100 shadow-md dark:bg-slate-800">
+    {{-- Filters --}}
+    <div class="w-full rounded-lg p-3 pr-4 mb-1 bg-slate-100 shadow-md dark:bg-slate-800">
         <div class="flex items-stretch gap-6">
             <div class="w-full md:w-7/12">
                 {{-- Search input --}}
@@ -29,6 +31,7 @@
                     // 'label' => 'Filters',
                     'type' => 'text',
                     'name' => 'search',
+                    'class' => '!mt-0',
                     'value' => old('search'),
                     'error' => $errors->first('search'),
                     'autofocus' => true
