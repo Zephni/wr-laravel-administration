@@ -128,7 +128,7 @@ class User extends ManageableModel
 
             Password::make($this, 'password'),
 
-            Image::make($this, 'data->profile->avatar', 'images/avatars', '{id}-avatar-{time}.png')
+            Image::make($this, 'data->profile->avatar', 'images/avatars', '{id}-avatar-{time}.jpg')
                 ->defaultImage($modelInstance->getProfileAvatar())
                 ->manipulateImage(function($image) {
                     $image->cover(300, 300, 'center');
