@@ -5,6 +5,7 @@ namespace WebRegulate\LaravelAdministration\Classes;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\RateLimiter;
@@ -419,6 +420,17 @@ class WRLAHelper
     public static function getImpersonatingOriginalUser(): ?User
     {
         return User::find(session('wrla_impersonating_user'));
+    }
+
+    /**
+     * Check if table exists in database
+     * 
+     * @param string $table The table to check if exists.
+     * @return bool
+     */
+    public static function tableExists(string $table): bool
+    {
+        return Schema::hasTable($table);
     }
 
     /**

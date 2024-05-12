@@ -5,6 +5,7 @@ namespace WebRegulate\LaravelAdministration\Livewire\ManageableModels;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Illuminate\Support\Collection;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Pagination\LengthAwarePaginator;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 use WebRegulate\LaravelAdministration\Classes\WRLAPermissions;
@@ -151,12 +152,19 @@ class ManageableModelBrowse extends Component
     /**
      * Browse the models.
      *
-     * @return LengthAwarePaginator
+     * @return LengthAwarePaginator | Collection
      */
     protected function browseModels()
     {
         // Get table name
         $tableName = (new $this->manageableModelClass::$baseModelClass)->getTable();
+        
+        // If table does not exist in database, redirect to dashboard with error
+        if(!WRLAHelper::tableExists($tableName)) {
+            session()->flash('error', 'Table `' . $tableName . '` does not exist in the database.');
+            $this->redirectRoute('wrla.dashboard');
+            return collect([]); // We have to return a collection so that the view does not error
+        }
 
         // Get Relationship and Json reference columns
         $relationshipColumns = $this->getRelationshipColumns();
