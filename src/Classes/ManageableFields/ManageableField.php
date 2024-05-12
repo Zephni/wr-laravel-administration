@@ -38,7 +38,7 @@ class ManageableField
 
     /**
      * Inline validation rules
-     * 
+     *
      * @var array
      */
     public array $inlineValidationRules = [];
@@ -56,7 +56,7 @@ class ManageableField
 
     /**
      * Manageable model instance
-     * 
+     *
      * @var ?ManageableModel
      */
     public ?ManageableModel $manageableModel = null;
@@ -100,7 +100,7 @@ class ManageableField
 
     /**
      * Get value
-     * 
+     *
      * @return string
      */
     public function getValue(): string
@@ -110,7 +110,7 @@ class ManageableField
 
     /**
      * Post constructed method, called after name and value attributes are set.
-     * 
+     *
      * @return $this
      */
     public function postConstructed(): mixed
@@ -120,7 +120,7 @@ class ManageableField
 
     /**
      * Pre validation method, called before validation rules are set.
-     * 
+     *
      * @param ?string $value
      * @return bool Return true if we have changed the value and want to force merge into request input
      */
@@ -134,7 +134,7 @@ class ManageableField
      * object, and must return true on success, and a string message on failure.
      * Inline validation is run within the manageable model in it's runInlineValidation method.
      * Note that inline validation is run after the standard validation rule set.
-     * 
+     *
      * @param callable ...$callback
      * @return $this
      */
@@ -147,7 +147,7 @@ class ManageableField
 
     /**
      * Run inline validation on the form component.
-     * 
+     *
      * @param true|string $result
      */
     public function runInlineValidation($requestValue): true|string
@@ -200,7 +200,7 @@ class ManageableField
 
     /**
      * Add required attribute and validation
-     * 
+     *
      * @return $this
      */
     public function required(): static
@@ -213,7 +213,7 @@ class ManageableField
 
     /**
      * Set / Get option.
-     * 
+     *
      * @param string $key
      * @param mixed $value
      * @return $this | string
@@ -235,7 +235,7 @@ class ManageableField
 
     /**
      * Merge or get options.
-     * 
+     *
      * @param ?array $options
      * @return $this|array
      */
@@ -251,8 +251,21 @@ class ManageableField
     }
 
     /**
+     * Set label
+     *
+     * @param string $label
+     * @return $this
+     */
+    public function setLabel(string $label): static
+    {
+        $this->options['label'] = $label;
+
+        return $this;
+    }
+
+    /**
      * Notes
-     * 
+     *
      * @param string $notes
      * @return $this
      */
@@ -339,6 +352,11 @@ class ManageableField
      */
     public function getLabel(): string
     {
+        // If label set in options then use that
+        if(isset($this->options['label'])) {
+            return $this->options['label'];
+        }
+
         // If name is based on a json column (eg has a -> in it) then we need to get the string after the ->
         // and then explode the . dots and get the last element.
         if(strpos($this->attributes['name'], '->') !== false) {
