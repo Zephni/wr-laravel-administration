@@ -26,12 +26,12 @@
                 @themeComponent('forms.input-text', [
                     'attr' => [
                         'wire:model.live.debounce.400ms' => 'filters.search',
-                        'placeholder' => 'Search filter...'
+                        'placeholder' => 'Search filter...',
+                        'class' => '!mt-0'
                     ],
                     // 'label' => 'Filters',
                     'type' => 'text',
                     'name' => 'search',
-                    'class' => '!mt-0',
                     'value' => old('search'),
                     'error' => $errors->first('search'),
                     'autofocus' => true

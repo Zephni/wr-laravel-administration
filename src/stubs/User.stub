@@ -4,12 +4,12 @@ namespace App\WRLA;
 
 use \Illuminate\Http\Request;
 use Illuminate\Support\Collection;
-use \Illuminate\Support\Stringable;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 use \WebRegulate\LaravelAdministration\Classes\ManageableModel;
 use WebRegulate\LaravelAdministration\Classes\ManageableFields\Json;
 use \WebRegulate\LaravelAdministration\Classes\ManageableFields\Text;
 use WebRegulate\LaravelAdministration\Classes\ManageableFields\Image;
+use WebRegulate\LaravelAdministration\Classes\ManageableFields\Select;
 use \WebRegulate\LaravelAdministration\Classes\ManageableFields\Password;
 
 class User extends ManageableModel
@@ -127,6 +127,15 @@ class User extends ManageableModel
                 ->notes('<b>Required</b> - Must be valid and unique'),
 
             Password::make($this, 'password'),
+
+            Select::make($this, 'data->test')
+                ->setItems([
+                    'option1' => 'Option 1',
+                    'option2' => 'Option 2',
+                    'option3' => 'Option 3',
+                ])
+                ->validation('string|in:option1,option2,option3')
+                ->notes('<b>Required</b> - Must be one of the options'),
 
             Image::make($this, 'data->profile->avatar', 'images/avatars', '{id}-avatar-{time}.jpg')
                 ->defaultImage($modelInstance->getProfileAvatar())
