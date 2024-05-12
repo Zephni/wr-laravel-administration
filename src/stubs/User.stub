@@ -130,7 +130,7 @@ class User extends ManageableModel
             Password::make($this, 'password'),
 
             Select::make($this, 'data->test')
-                ->setItemsFromEloquentCollection(\App\Models\User::all(), 'id', 'name')
+                ->setItemsFromCollection(\App\Models\User::all(), 'id', 'name')
                 ->validation('integer|exists:users,id')
                 ->notes('<b>Required</b> - Must be one of the options'),
 

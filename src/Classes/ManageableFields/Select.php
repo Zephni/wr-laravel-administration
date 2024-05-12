@@ -2,7 +2,7 @@
 
 namespace WebRegulate\LaravelAdministration\Classes\ManageableFields;
 
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Collection;
 use WebRegulate\LaravelAdministration\Enums\PageType;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 
@@ -35,16 +35,16 @@ class Select extends ManageableField
     }
 
     /**
-     * Set items from model key and value.
+     * Set items from collection key and value.
      *
-     * @param Collection $eloquentCollection eg. User::all()
+     * @param Collection $collection eg. User::all()
      * @param string $key eg. 'id'
      * @param string $value eg. 'name'
      * @return $this
      */
-    public function setItemsFromEloquentCollection(Collection $eloquentCollection, string $key, string $value): static
+    public function setItemsFromCollection(Collection $collection, string $key, string $value): static
     {
-        $this->items = $eloquentCollection->pluck($value, $key)->toArray();
+        $this->items = $collection->pluck($value, $key)->toArray();
 
         return $this;
     }
