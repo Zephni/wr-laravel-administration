@@ -251,6 +251,24 @@ class ManageableField
     }
 
     /**
+     * Set default value.
+     * 
+     * @param mixed $value
+     * @return $this
+     */
+    public function default(mixed $value): static
+    {
+        // If model is being modified rather than created, then skip setting default value
+        if($this->manageableModel?->isBeingCreated() === false) {
+            return $this;
+        }
+        
+        $this->attributes['value'] = $value;
+
+        return $this;
+    }
+
+    /**
      * Set label
      *
      * @param string $label
@@ -367,6 +385,22 @@ class ManageableField
         }
 
         return ucfirst(str_replace('_', ' ', $label));
+    }
+
+    /**
+     * If condition is true, run callback.
+     * 
+     * @param bool $isTrue
+     * @param callable $callback (Must take $this as a parameter and return $this)
+     * @return $this
+     */
+    public function onCondition(bool $isTrue, callable $callback): static
+    {
+        if(!$isTrue) {
+            return $this;
+        }
+
+        return $callback($this);
     }
 
     /**

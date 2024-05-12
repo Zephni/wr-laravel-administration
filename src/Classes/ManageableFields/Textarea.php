@@ -5,12 +5,7 @@ namespace WebRegulate\LaravelAdministration\Classes\ManageableFields;
 use WebRegulate\LaravelAdministration\Enums\PageType;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 
-/**
- * Class Input
- *
- * This class is responsible for generating input fields.
- */
-class Textarea extends ManageableField
+class TextArea extends ManageableField
 {
     /**
      * Render the input field.

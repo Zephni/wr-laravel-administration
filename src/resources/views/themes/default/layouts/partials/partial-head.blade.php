@@ -22,6 +22,7 @@
             const autofocusField = document.querySelector('[autofocus]');
             if (autofocusField) {
                 autofocusField.focus();
+                autofocusField.setSelectionRange(autofocusField.value.length, autofocusField.value.length);
                 return;
             }
 

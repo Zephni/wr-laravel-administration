@@ -8,11 +8,6 @@ use Illuminate\Support\Facades\Hash;
 use WebRegulate\LaravelAdministration\Enums\PageType;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 
-/**
- * Class Input
- *
- * This class is responsible for generating input fields.
- */
 class Password extends ManageableField
 {
     /**

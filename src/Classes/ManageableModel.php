@@ -499,4 +499,14 @@ class ManageableModel
 
         return static::$cache['isSoftDeletable'];
     }
+
+    /**
+     * Is being created.
+     * 
+     * @return bool
+     */
+    public function isBeingCreated(): bool
+    {
+        return $this->getModelInstance()->id == null;
+    }
 }

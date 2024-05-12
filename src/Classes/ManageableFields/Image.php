@@ -10,11 +10,6 @@ use WebRegulate\LaravelAdministration\Enums\PageType;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 use WebRegulate\LaravelAdministration\Classes\ManageableModel;
 
-/**
- * Class Input
- *
- * This class is responsible for generating input fields.
- */
 class Image extends ManageableField
 {
     /**
