@@ -15,9 +15,9 @@ class {{ $MODEL }} extends ManageableModel
         return '{{ $URL_ALIAS }}';
     }
 
-    public static function getDisplayName(): string|Stringable
+    public static function getDisplayName(bool $plural = false): string
     {
-        return str('{{ $DISPLAY_NAME }}');
+        return '{{ $DISPLAY_NAME }}' . ($plural ? 's' : '');
     }
 
     public static function getIcon(): string
@@ -28,9 +28,18 @@ class {{ $MODEL }} extends ManageableModel
     public static function getBrowsableColumns(): Collection
     {
         return collect([
-            'id' => 'ID',
+            'id' => 'ID', // It's not standard to include id in browsable columns, but it's included for demonstration purposes
             // 'column_name' => 'Column Name',
             // ...
+        ]);
+    }
+
+    public function getManageableFields(): Collection {
+        return collect([
+            // Text::make($this, 'name')
+            //     ->required()
+            //     ->validation('string|max:255')
+            //     ->attribute('placeholder', 'John Doe'),
         ]);
     }
 }
