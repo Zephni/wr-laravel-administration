@@ -16,7 +16,7 @@
     'id' => $id,
     'name' => $name,
     'class' => 'block w-full mt-2 px-3 py-1 border border-slate-400 dark:border-slate-600 bg-slate-200 dark:bg-slate-900
-        focus:outline-none focus:ring-1 focus:ring-primary-500 dark:focus:ring-primary-500 rounded-md shadow-sm placeholder-slate-400 dark:placeholder-slate-600 '
+        focus:outline-none focus:ring-1 focus:ring-primary-500 dark:focus:ring-primary-500 rounded-md shadow-sm placeholder-slate-400 dark:placeholder-slate-600 pr-3'
 ])->merge($attr) }}>
     @foreach($items as $itemKey => $itemValue)
         <option value="{{ $itemKey }}" @if($ignoreOld ? $value == $itemKey : old($name, $value) == $itemKey) selected @endif>{{ $itemValue }}</option>

@@ -129,12 +129,10 @@ class User extends ManageableModel
             Password::make($this, 'password'),
 
             Select::make($this, 'data->test')
-                ->setItems([
-                    'option1' => 'Option 1',
-                    'option2' => 'Option 2',
-                    'option3' => 'Option 3',
-                ])
-                ->validation('string|in:option1,option2,option3')
+                ->setItems(
+                    \App\Models\User::pluck('name', 'id')->toArray()
+                )
+                ->validation('integer|exists:users,id')
                 ->notes('<b>Required</b> - Must be one of the options'),
 
             Image::make($this, 'data->profile->avatar', 'images/avatars', '{id}-avatar-{time}.jpg')

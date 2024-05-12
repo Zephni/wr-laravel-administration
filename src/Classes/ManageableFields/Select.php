@@ -20,7 +20,8 @@ class Select extends ManageableField
     protected array $items = [];
 
     /**
-     * Set items
+     * Set items for the options list. $items must use the following format:
+     * key => display_value,...
      * 
      * @param array $items
      * @return $this
