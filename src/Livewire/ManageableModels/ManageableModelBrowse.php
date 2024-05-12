@@ -173,28 +173,26 @@ class ManageableModelBrowse extends Component
         // Relationship columns look like this column::relationship.display_column, so we need to split them
         // and add left joins and selects to the query
         if($relationshipColumns->count() > 0) {
-            // Add left joins
+            // Add left joins and selects
             foreach($relationshipColumns as $column => $label) {
                 $parts = explode('::', $column);
                 $relationship = explode('.', $parts[1]);
                 $queryBuilder = $queryBuilder->leftJoin($relationship[0], $relationship[0] . '.id', '=', $parts[0]);
+                $queryBuilder = $queryBuilder->addSelect($relationship[0] . '.' . $relationship[1] . ' as ' . $parts[0]);
             }
+        }
 
-            // Add selects
-            $queryBuilder = $queryBuilder->addSelect($relationshipColumns->map(function($label, $column) {
-                $parts = explode('::', $column);
-                $relationship = explode('.', $parts[1]);
-                return $relationship[0] . '.' . $relationship[1] . ' as ' . $parts[0];
-            })->toArray());
+        // TODO: If Json reference columns exist, add them to the query
+        if($jsonReferenceColumns->count() > 0) {
+            foreach($jsonReferenceColumns as $column => $label) {
+                // Note that the column can be nested any number of levels deep, for example: data->profile->avatar
+                // With query builder, json_extract is already automatically added, so we just make a nice alias for the value
+                $queryBuilder = $queryBuilder->addSelect($column . ' as ' . $column);
+            }
         }
 
         // DD with current query string for debugging
         // dd($queryBuilder->toSql());
-
-        // TODO: If Json reference columns exist, add them to the query
-        // if($jsonReferenceColumns->count() > 0) {
-        //     $queryBuilder = $queryBuilder->with($jsonReferenceColumns->keys()->toArray());
-        // }
 
         // Search
         if($this->filters['search'] != '') {

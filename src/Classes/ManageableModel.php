@@ -206,6 +206,22 @@ class ManageableModel
     }
 
     /**
+     * Get browsable columns.
+     * To add a relationship column, use the format 'local_column::other_table.display_column'.
+     * To add a json value column, use the format 'json_column->key1->key2'.
+     * 
+     * @return Collection
+     */
+    public static function getBrowsableColumns(): Collection
+    {
+        return collect([
+            'id' => 'ID',
+            // 'column_name' => 'Column Name',
+            // ...
+        ]);
+    }
+
+    /**
      * Get browse actions
      *
      * @return Collection
@@ -268,20 +284,6 @@ class ManageableModel
         }
 
         return $browseActions;
-    }
-
-    /**
-     * Get browsable columns. To add a relationship column, use the format 'local_column::other_table.display_column'.
-     * 
-     * @return Collection
-     */
-    public static function getBrowsableColumns(): Collection
-    {
-        return collect([
-            'id' => 'ID',
-            // 'column_name' => 'Column Name',
-            // ...
-        ]);
     }
 
     /**

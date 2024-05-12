@@ -65,7 +65,6 @@ class User extends ManageableModel
         return collect([
             'name' => 'Name',
             'email' => 'Email',
-            'data->test' => 'JSON Test',
             'created_at' => 'Created',
         ]);
     }
@@ -128,11 +127,6 @@ class User extends ManageableModel
                 ->notes('<b>Required</b> - Must be valid and unique'),
 
             Password::make($this, 'password'),
-
-            Select::make($this, 'data->test')
-                ->setItemsFromCollection(\App\Models\User::all(), 'id', 'name')
-                ->validation('integer|exists:users,id')
-                ->notes('<b>Required</b> - Must be one of the options'),
 
             Image::make($this, 'data->profile->avatar', 'images/avatars', '{id}-avatar-{time}.jpg')
                 ->defaultImage($modelInstance->getProfileAvatar())

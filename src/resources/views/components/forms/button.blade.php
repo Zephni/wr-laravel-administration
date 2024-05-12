@@ -26,7 +26,7 @@
         'type' => $type,
         'name' => $name,
         'class' =>
-            "block $sizeClasses font-semibold text-white dark:text-slate-900 border $colorClasses rounded-md shadow-sm"
+            "block $sizeClasses font-semibold text-white dark:text-slate-900 border $colorClasses rounded-md shadow-sm whitespace-nowrap"
     ])->merge($attr) }}>
     @if(!empty($icon))
         <i class="{{ $icon }} text-white dark:text-slate-900 mr-1"></i>
