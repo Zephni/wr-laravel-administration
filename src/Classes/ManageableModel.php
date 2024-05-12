@@ -161,7 +161,7 @@ class ManageableModel
 
     /**
      * Permissions
-     * 
+     *
      * @return WRLAPermissions
      */
     public static function permissions(): WRLAPermissions
@@ -209,7 +209,7 @@ class ManageableModel
      * Get browsable columns.
      * To add a relationship column, use the format 'local_column::other_table.display_column'.
      * To add a json value column, use the format 'json_column->key1->key2'.
-     * 
+     *
      * @return Collection
      */
     public static function getBrowsableColumns(): Collection
@@ -252,7 +252,7 @@ class ManageableModel
         $manageableModel = static::make($model);
 
         $browseActions = collect();
-
+        
         // If model doesn't have soft delets and not trashed
         if(!static::isSoftDeletable() || !$model->trashed()) {
             if($manageableModel::permissions()->hasPermission(WRLAPermissions::EDIT)) {
@@ -306,7 +306,7 @@ class ManageableModel
     {
         // Get the model instance
         $modelInstance = $this->getModelInstance();
-        
+
         $parts = explode('->', $key); // Split the key into parts using '->' as the delimiter.
         $column = $parts[0]; // The first part is the column name.
         $dotNotation = implode('.', array_slice($parts, 1)); // The remaining parts are the dot notation.
@@ -502,7 +502,7 @@ class ManageableModel
 
     /**
      * Is being created.
-     * 
+     *
      * @return bool
      */
     public function isBeingCreated(): bool

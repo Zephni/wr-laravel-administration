@@ -221,6 +221,7 @@ class ManageableModelBrowse extends Component
         // Soft deleted
         if($this->filters['showSoftDeleted']) {
             $queryBuilder = $queryBuilder->whereNotNull('deleted_at')->withTrashed();
+            $queryBuilder = $queryBuilder->addSelect($tableName.'.deleted_at');
         }
 
         // Admin only
