@@ -4,6 +4,7 @@ namespace WebRegulate\LaravelAdministration\Livewire\ManageableModels;
 
 use Livewire\Component;
 use Livewire\WithPagination;
+use Illuminate\Support\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 use WebRegulate\LaravelAdministration\Classes\WRLAPermissions;
@@ -123,14 +124,34 @@ class ManageableModelBrowse extends Component
     --------------------------------------------------------------------------*/
 
     /**
+     * Get JSON reference columns
+     * 
+     * @return Collection
+     */
+    public function getJsonReferenceColumns()
+    {
+        return collect($this->columns)->filter(function($label, $column) {
+            return strpos($column, '->') !== false;
+        });
+    }
+
+    /**
      * Browse the models.
      *
      * @return LengthAwarePaginator
      */
     protected function browseModels()
     {
+        // Check / Get Json reference columns
+        $jsonReferenceColumns = $this->getJsonReferenceColumns();
+
         // Start query builder
         $queryBuilder = $this->manageableModelClass::$baseModelClass::query();
+
+        // TODO: If Json reference columns exist, add them to the query
+        // if($jsonReferenceColumns->count() > 0) {
+        //     $queryBuilder = $queryBuilder->with($jsonReferenceColumns->keys()->toArray());
+        // }
 
         // Search
         if($this->filters['search'] != '') {

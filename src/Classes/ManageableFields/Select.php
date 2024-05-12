@@ -2,6 +2,7 @@
 
 namespace WebRegulate\LaravelAdministration\Classes\ManageableFields;
 
+use Illuminate\Database\Eloquent\Collection;
 use WebRegulate\LaravelAdministration\Enums\PageType;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 
@@ -22,7 +23,7 @@ class Select extends ManageableField
     /**
      * Set items for the options list. $items must use the following format:
      * key => display_value,...
-     * 
+     *
      * @param array $items
      * @return $this
      */
@@ -32,7 +33,22 @@ class Select extends ManageableField
 
         return $this;
     }
-    
+
+    /**
+     * Set items from model key and value.
+     *
+     * @param Collection $eloquentCollection eg. User::all()
+     * @param string $key eg. 'id'
+     * @param string $value eg. 'name'
+     * @return $this
+     */
+    public function setItemsFromEloquentCollection(Collection $eloquentCollection, string $key, string $value): static
+    {
+        $this->items = $eloquentCollection->pluck($value, $key)->toArray();
+
+        return $this;
+    }
+
     /**
      * Render the input field.
      *
