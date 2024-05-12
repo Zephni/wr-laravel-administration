@@ -271,6 +271,20 @@ class ManageableModel
     }
 
     /**
+     * Get browsable columns. To add a relationship column, use the format 'local_column::other_table.display_column'.
+     * 
+     * @return Collection
+     */
+    public static function getBrowsableColumns(): Collection
+    {
+        return collect([
+            'id' => 'ID',
+            // 'column_name' => 'Column Name',
+            // ...
+        ]);
+    }
+
+    /**
      * Virtual get manageable fields method.
      *
      * @return Collection

@@ -136,17 +136,60 @@ class ManageableModelBrowse extends Component
     }
 
     /**
+     * Get relationship columns
+     * 
+     * @return Collection
+     */
+    public function getRelationshipColumns()
+    {
+        // Get any keys from columns that contain '::'
+        return collect($this->columns)->filter(function($label, $column) {
+            return strpos($column, '::') !== false;
+        });
+    }
+
+    /**
      * Browse the models.
      *
      * @return LengthAwarePaginator
      */
     protected function browseModels()
     {
-        // Check / Get Json reference columns
+        // Get table name
+        $tableName = (new $this->manageableModelClass::$baseModelClass)->getTable();
+
+        // Get Relationship and Json reference columns
+        $relationshipColumns = $this->getRelationshipColumns();
         $jsonReferenceColumns = $this->getJsonReferenceColumns();
 
         // Start query builder
         $queryBuilder = $this->manageableModelClass::$baseModelClass::query();
+
+        // Add selects for id, and all columns that don't have a relationship
+        $selectCols = [$tableName.'.id'];
+        $selectCols = array_merge($selectCols, array_diff(array_keys($this->columns->toArray()), $relationshipColumns->keys()->toArray()));
+        $queryBuilder = $queryBuilder->select($selectCols);
+
+        // Relationship columns look like this column::relationship.display_column, so we need to split them
+        // and add left joins and selects to the query
+        if($relationshipColumns->count() > 0) {
+            // Add left joins
+            foreach($relationshipColumns as $column => $label) {
+                $parts = explode('::', $column);
+                $relationship = explode('.', $parts[1]);
+                $queryBuilder = $queryBuilder->leftJoin($relationship[0], $relationship[0] . '.id', '=', $parts[0]);
+            }
+
+            // Add selects
+            $queryBuilder = $queryBuilder->addSelect($relationshipColumns->map(function($label, $column) {
+                $parts = explode('::', $column);
+                $relationship = explode('.', $parts[1]);
+                return $relationship[0] . '.' . $relationship[1] . ' as ' . $parts[0];
+            })->toArray());
+        }
+
+        // DD with current query string for debugging
+        // dd($queryBuilder->toSql());
 
         // TODO: If Json reference columns exist, add them to the query
         // if($jsonReferenceColumns->count() > 0) {
@@ -157,6 +200,13 @@ class ManageableModelBrowse extends Component
         if($this->filters['search'] != '') {
             $queryBuilder = $queryBuilder->where(function($query) {
                 foreach($this->columns as $column => $label) {
+                    // If column is relationship, then modify the column to be the related column
+                    if(strpos($column, '::') !== false) {
+                        $parts = explode('::', $column);
+                        $relationship = explode('.', $parts[1]);
+                        $column = $relationship[0] . '.' . $relationship[1];
+                    }
+
                     $query->orWhere($column, 'like', '%'.$this->filters['search'].'%');
                 }
             });
@@ -172,6 +222,9 @@ class ManageableModelBrowse extends Component
             // We need to get whether the user is an admin from their permissions json column, field "admin"
             $queryBuilder = $queryBuilder->whereJsonContains('permissions', ['admin' => true]);
         }
+
+        // Debug by showing all items as array
+        // dd($queryBuilder->get()->toArray());
 
         return $queryBuilder->paginate(10);
     }
