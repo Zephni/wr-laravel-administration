@@ -17,9 +17,9 @@ class WRLAPermissions
     /**
      * User instance
      *
-     * @var User
+     * @var User|null
      */
-    protected User $user;
+    protected User|null $user;
 
     /**
      * Permissions constants
@@ -45,6 +45,12 @@ class WRLAPermissions
     public function __construct(ManageableModel $manageableModel)
     {
         $this->user = User::current();
+
+        // We return here if user is not logged in
+        if($this->user === null) {
+            return;
+        }
+
         $this->manageableModel = $manageableModel;
         $this->applyModelDefaultPermissions();
     }
@@ -76,6 +82,11 @@ class WRLAPermissions
      */
     public function hasPermission(string $permission, mixed $equalTo = true): bool
     {
+        // If user is null then return false
+        if($this->user === null) {
+            return false;
+        }
+        
         // If user is master, return true
         if($this->user->isMaster()) {
             return true;
