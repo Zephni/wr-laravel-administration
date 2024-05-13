@@ -42,6 +42,11 @@ class WRLAAuthController extends Controller
 
         // Attempt login - OLD
         if (Auth::attempt($request->only('email', 'password'), $request->has('remember'))) {
+            // If wrla_impersonating_user is in session, forget it
+            if($request->session()->has('wrla_impersonating_user')) {
+                $request->session()->forget('wrla_impersonating_user');
+            }
+            
             return redirect()->route('wrla.dashboard');
         }
 
