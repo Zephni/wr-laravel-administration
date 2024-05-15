@@ -369,14 +369,13 @@ class ManageableField
      * @return string
      */
     public function getLabel(): string
-    {
-        // If label null then return empty string
-        if($this->options['label'] === null) {
-            return '';
-        }
-        
-        // If label set in options then use that
+    {        
+        // If label set in options and not null then use that
         if(isset($this->options['label'])) {
+            if($this->options['label'] === null) {
+                return '';
+            }
+
             return $this->options['label'];
         }
 

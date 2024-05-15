@@ -183,9 +183,17 @@ class ManageableModelBrowse extends Component
         $queryBuilder = $this->manageableModelClass::$baseModelClass::query();
 
         // Add selects for id, and all columns that don't have a relationship
-        $selectCols = [$tableName.'.id'];
-        $selectCols = array_merge($selectCols, array_diff(array_keys($this->columns->toArray()), $relationshipColumns->keys()->toArray()));
-        $queryBuilder = $queryBuilder->select($selectCols);
+        // $selectCols = [$tableName.'.id'];
+        // $selectCols = array_merge($selectCols, array_diff(array_keys($this->columns->toArray()), $relationshipColumns->keys()->toArray()));
+        // $queryBuilder = $queryBuilder->addSelect($selectCols);
+
+        // // Append select deleted_at if $manageableModel::isSoftDeletable()
+        // if($this->manageableModelClass::isSoftDeletable()) {
+        //     $queryBuilder = $queryBuilder->addSelect($tableName.'.deleted_at');
+        // }
+
+        // We now just select all fields
+        $queryBuilder = $queryBuilder->addSelect($tableName.'.*');
 
         // Relationship columns look like this column::relationship.display_column, so we need to split them
         // and add left joins and selects to the query
@@ -247,9 +255,6 @@ class ManageableModelBrowse extends Component
             $queryBuilder = $queryBuilder->whereJsonContains('permissions', ['admin' => true]);
         }
         */
-
-        // Debug by showing all items as array
-        // dd($queryBuilder->get()->toArray());
 
         return $queryBuilder->paginate(10);
     }

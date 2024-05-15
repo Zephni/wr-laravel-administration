@@ -20,60 +20,57 @@
 
     {{-- Filters --}}
     <div class="w-full rounded-lg p-3 pr-4 mb-1 bg-slate-100 shadow-md dark:bg-slate-800">
-        <div class="flex items-stretch gap-6">
-            <div class="w-full md:w-7/12">
-                {{-- Search input --}}
-                {{-- 
-                @themeComponent('forms.input-text', [
-                    'attr' => [
-                        'wire:model.live.debounce.400ms' => 'filters.search',
-                        'placeholder' => 'Search filter...',
-                        'class' => '!mt-0'
-                    ],
-                    // 'label' => 'Filters',
-                    'type' => 'text',
-                    'name' => 'search',
-                    'value' => old('search'),
-                    'error' => $errors->first('search'),
-                    'autofocus' => true
-                ])
-                --}}
-            </div>
-            <div class="flex-1 flex justify-end items-end gap-6 pb-2">
+        <div class="flex gap-6 items-stretch gap-6">
+            
+            @foreach($manageableModelClass::getBrowseFilters() as $filter)
+                {!! $filter->render() !!}
+            @endforeach
 
-                @foreach($manageableModelClass::getBrowseFilters() as $filter)
-                    {!! $filter->render() !!}
-                @endforeach
+            {{-- Search input --}}
+            {{-- 
+            @themeComponent('forms.input-text', [
+                'attr' => [
+                    'wire:model.live.debounce.400ms' => 'filters.search',
+                    'placeholder' => 'Search filter...',
+                    'class' => '!mt-0'
+                ],
+                // 'label' => 'Filters',
+                'type' => 'text',
+                'name' => 'search',
+                'value' => old('search'),
+                'error' => $errors->first('search'),
+                'autofocus' => true
+            ])
+            --}}
 
-                {{-- Show admin only checkbox --}}
-                {{--     
+            {{-- Show admin only checkbox --}}
+            {{--     
+            @themeComponent('forms.input-checkbox', [
+                'attr' => [
+                    'wire:model.live' => 'filters.showAdminOnly'
+                ],
+                'label' => 'Show admins only',
+                'name' => 'showAdminOnly',
+                'checked' => $filters['showAdminOnly'],
+                'error' => $errors->first('showAdminOnly'),
+            ])
+            --}}
+
+            {{-- Show soft deleted checkbox --}}
+            {{--
+            @if($manageableModelClass::isSoftDeletable())
                 @themeComponent('forms.input-checkbox', [
                     'attr' => [
-                        'wire:model.live' => 'filters.showAdminOnly'
+                        'wire:model.live' => 'filters.showSoftDeleted'
                     ],
-                    'label' => 'Show admins only',
-                    'name' => 'showAdminOnly',
-                    'checked' => $filters['showAdminOnly'],
-                    'error' => $errors->first('showAdminOnly'),
+                    'label' => 'Show soft deleted',
+                    'name' => 'showSoftDeleted',
+                    'checked' => $filters['showSoftDeleted'],
+                    'error' => $errors->first('showSoftDeleted'),
                 ])
-                --}}
+            @endif
+            --}}
 
-                {{-- Show soft deleted checkbox --}}
-                {{--
-                @if($manageableModelClass::isSoftDeletable())
-                    @themeComponent('forms.input-checkbox', [
-                        'attr' => [
-                            'wire:model.live' => 'filters.showSoftDeleted'
-                        ],
-                        'label' => 'Show soft deleted',
-                        'name' => 'showSoftDeleted',
-                        'checked' => $filters['showSoftDeleted'],
-                        'error' => $errors->first('showSoftDeleted'),
-                    ])
-                @endif
-                --}}
-
-            </div>
         </div>
     </div>
 

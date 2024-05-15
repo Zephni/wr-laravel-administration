@@ -257,7 +257,7 @@ class ManageableModel
         $browseActions = collect();
         
         // If model doesn't have soft delets and not trashed
-        if(!static::isSoftDeletable() || !$model->trashed()) {
+        if(!static::isSoftDeletable() || $model->deleted_at == null) {
             if($manageableModel::permissions()->hasPermission(WRLAPermissions::EDIT)) {
                 $browseActions->put('edit', view(WRLAHelper::getViewPath('components.browse-actions.edit-button'), [
                     'manageableModel' => $manageableModel
@@ -300,7 +300,12 @@ class ManageableModel
                 // Field
                 Text::make(null, 'search')
                     ->setLabel(null)
-                    ->attribute('wire:model.live.debounce.400ms', 'filters.search'),
+                    ->attributes([
+                        'wire:model.live.debounce.400ms'=> 'filters.search',
+                        'autofocus' => true,
+                        'placeholder' => 'Search filter...',
+                        'style' => 'margin-top: 0px;'
+                    ]),
 
                 // Applicable filter
                 function(Builder $query, $columns, $value) {
@@ -323,21 +328,25 @@ class ManageableModel
                 Select::make(null, 'softDeleted')
                     ->setLabel(null)
                     ->setItems([
-                        'all' => 'All',
-                        'trashed' => 'Trashed Only',
                         'not_trashed' => 'Not Trashed',
+                        'trashed' => 'Trashed Only',
+                        'all' => 'All',
                     ])
                     ->default('not_trashed')
-                    ->attribute('wire:model.live', 'filters.softDeleted')
-                    ->validation('required|in:all,trashed,not_trashed')
-                    ->attributes(['class' => 'w-1/2']),
+                    ->attributes([
+                        'wire:model.live' => 'filters.softDeleted',
+                        'style' => 'margin-top: 0px;'
+                    ])
+                    ->validation('required|in:all,trashed,not_trashed'),
 
                 // Applicable filter
                 function(Builder $query, $columns, $value) {
-                    if($value === 'trashed') {
-                        return $query->onlyTrashed();
-                    } elseif($value === 'not_trashed') {
+                    if($value === 'not_trashed') {
                         return $query->whereNull('deleted_at');
+                    } else if($value === 'trashed') {
+                        return $query->onlyTrashed();
+                    } else if($value == 'all') {
+                        return $query->withTrashed();
                     }
                     return $query;
                 }
@@ -552,8 +561,8 @@ class ManageableModel
     public static function isSoftDeletable(): bool
     {
         if(static::$cache['isSoftDeletable'] == null) {
-            $model = new static::$baseModelClass;
-            static::$cache['isSoftDeletable'] = method_exists($model, 'trashed');
+            // Get whether base model has SoftDeletes trait
+            static::$cache['isSoftDeletable'] = in_array('Illuminate\Database\Eloquent\SoftDeletes', class_uses(static::$baseModelClass));
         }
 
         return static::$cache['isSoftDeletable'];
