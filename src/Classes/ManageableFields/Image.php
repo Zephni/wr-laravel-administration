@@ -39,9 +39,11 @@ class Image extends ManageableField
         $imageInstance->options([
             'path' => $path,
             'filename' => $filename,
-            'defaultImage' => 'https://via.placeholder.com/150x150.jpg?text=No+Image+Available',
+            'defaultImage' => 'https://via.placeholder.com/120x120.jpg?text=No+Image+Available',
             'unlinkOld' => true,
             'allowRemove' => true,
+            'aspect' => null,
+            'rounded' => false,
         ]);
         return $imageInstance;
     }
@@ -89,6 +91,11 @@ class Image extends ManageableField
         // Get path and filename
         $path = WRLAHelper::forwardSlashPath($this->getPath());
         $filename = $this->formatImageName($this->options['filename'] ?? $file->getClientOriginalName());
+
+        // If directory doesn't exist, create it
+        if (!is_dir(public_path($path))) {
+            mkdir(public_path($path), 0777, true);
+        }
 
         // New, we now use Intervention
         $imageManager = new ImageManager(new Driver());

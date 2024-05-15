@@ -8,13 +8,26 @@
 ])
 
 @php
-    // Use aspect ratio to calculate padding-bottom
-    $aspect = explode(':', $aspect);
-    $paddingBottom = ($aspect[1] / $aspect[0]) * 100;
+    $height = '0px';
+
+    if($aspect != null) {
+        // Use aspect ratio to calculate padding-bottom
+        $aspect = explode(':', $aspect);
+        $paddingBottom = ($aspect[1] / $aspect[0]) * 100;
+    } else {
+        $height = 'auto';
+        $paddingBottom = '0px';
+    }
+
+    if($rounded == false || empty($rounded)) {
+        $rounded = 'none';
+    } else if ($rounded == true) {
+        $rounded = 'full';
+    }
 @endphp
 
 <div
-    class="h-0 relative overflow-hidden {{ $width }} rounded-{{ $rounded }} {{ $class }}"
+    class="relative overflow-hidden {{ $width }} {{ $height }} rounded-{{ $rounded }} {{ $class }}"
     style="padding-bottom: {{ $paddingBottom }}%;">
     <img src="{{ $src }}" alt="Image" class="object-cover w-full h-full absolute top-0 left-0 {{ $imageClass }}" />
 </div>

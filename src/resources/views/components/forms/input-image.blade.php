@@ -29,13 +29,13 @@
             'src' => $src,
             'class' => 'border-2 border-primary-600',
             'imageClass' => 'wrla_image_preview',
-            'aspect' => '1:1',
-            'rounded' => 'full'
+            'aspect' => $options["aspect"],
+            'rounded' => $options["rounded"]
         ])
     </div>
 
     {{-- File input and notes container --}}
-    <div class="flex flex-1 flex-col justify-center items-center px-10">
+    <div class="flex flex-1 flex-col justify-center items-center pl-5 pr-10">
         <div class="flex w-full justify-between">
             {{-- File input --}}
             <input {{ $attributes->merge([
@@ -76,7 +76,7 @@
             @themeComponent('forms.field-notes', [
                 'class' => '!text-xs !px-2 !py-1',
                 'notes' => $imageExists || (!$isHttpImage && !$imageExists)
-                    ? '<a href="'.$value.'" target="_blank">'.$value.'</a>'.$imageExistsHtml
+                    ? '<a href="'.$value.'" target="_blank" class="underline">'.$value.'</a>'.$imageExistsHtml
                     : 'No image set'
             ])
         @endif
