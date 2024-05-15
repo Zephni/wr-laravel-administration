@@ -27,10 +27,10 @@
                     'name' => 'email',
                     'value' => old('email'),
                     'error' => $errors->first('email'),
-                    'attr' => [
+                    'attributes' => new \Illuminate\View\ComponentAttributeBag([
                         'autofocus' => true,
                         'required' => true,
-                    ]
+                    ])
                 ])
             </div>
 
@@ -41,9 +41,9 @@
                     'name' => 'password',
                     'value' => '',
                     'error' => $errors->first('password'),
-                    'attr' => [
+                    'attributes' => new \Illuminate\View\ComponentAttributeBag([
                         'required' => true,
-                    ]
+                    ])
                 ])
             </div>
 

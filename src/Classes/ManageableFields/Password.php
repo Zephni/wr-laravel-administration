@@ -5,6 +5,7 @@ namespace WebRegulate\LaravelAdministration\Classes\ManageableFields;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\View\ComponentAttributeBag;
 use WebRegulate\LaravelAdministration\Enums\PageType;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 
@@ -58,59 +59,52 @@ class Password extends ManageableField
             HTML;
 
             $HTML .= view(WRLAHelper::getViewPath('components.forms.label'), [
-                'for' => $this->attributes['name'],
                 'label' => $this->getLabel(),
-                'attr' => [
+                'attributes' => new ComponentAttributeBag(array_merge($this->attributes, [
+                    'for' => $this->attributes['name'],
                     'class' => 'mb-2'
-                ],
+                ])),
             ])->render();
 
             // Checkbox to show/enable password field
             $HTML .= view(WRLAHelper::getViewPath('components.forms.input-checkbox'), [
-                'name' => 'wrla_show_' . $this->attributes['name'],
                 'label' => 'Change ' . Str::title(str_replace('_', ' ', $this->attributes['name'])),
-                'value' => $wrla_show == 'true',
-                'attr' => collect($this->attributes)
-                            ->forget(['name', 'value', 'type'])
-                            // If checked, flip userWantsToChange
-                            ->merge(['@click' => '
-                                userWantsToChange = !userWantsToChange;
-                                if (userWantsToChange) {
-                                    $nextTick(() => { $refs.passwordField.focus(); });
-                                }'])
-                            ->toArray(),
+                'attributes' => new ComponentAttributeBag(array_merge($this->attributes, [
+                    'name' => 'wrla_show_' . $this->attributes['name'],
+                    'value' => $wrla_show == 'true',
+                    '@click' => 'userWantsToChange = !userWantsToChange;
+                        if (userWantsToChange) {
+                            $nextTick(() => { $refs.passwordField.focus(); });
+                        }'
+                ])),
             ])->render();
         }
 
         // Render password field (hide if checkbox not checked)
         $HTML .= view(WRLAHelper::getViewPath('components.forms.input-text'), [
-            'name' => $this->attributes['name'],
             'label' => $upsertType == PageType::EDIT ? null : $this->getLabel(),
-            'value' => '',
-            'type' => 'password',
-            'attr' => collect($this->attributes)
-                        ->forget(['name', 'value', 'type'])
-                        // Set show and set class hidden if userWantsToChange is false
-                        ->merge($upsertType == PageType::EDIT ? [
-                            'x-ref' => 'passwordField',
-                            'x-show' => 'userWantsToChange',
-                            'x-bind:disabled' => '!userWantsToChange',
-                        ] : [])
-                        ->toArray(),
+            'attributes' => new ComponentAttributeBag(array_merge($this->attributes, [
+                'name' => $this->attributes['name'],
+                'value' => '',
+                'type' => 'password',
+            ], $upsertType == PageType::EDIT ? [
+                'x-ref' => 'passwordField',
+                'x-show' => 'userWantsToChange',
+                'x-bind:disabled' => '!userWantsToChange',
+            ] : []))
         ])->render();
 
         // Render confirm password field (hide if checkbox not checked)
         $HTML .= view(WRLAHelper::getViewPath('components.forms.input-text'), [
-            'name' => $this->attributes['name'].'_confirmation',
-            'value' => '',
-            'type' => 'password',
-            'attr' => collect($upsertType == PageType::EDIT ? [
-                        'x-show' => 'userWantsToChange',
-                        'x-bind:disabled' => '!userWantsToChange',
-                    ] : [])->merge([
-                        'placeholder' => 'Confirm ' . str(str_replace('_', ' ', $this->attributes['name']))->title(),
-                    ])
-                    ->toArray(),
+            'attributes' => new ComponentAttributeBag(array_merge($this->attributes, [
+                'name' => $this->attributes['name'].'_confirmation',
+                'value' => '',
+                'type' => 'password',
+                'placeholder' => 'Confirm ' . str(str_replace('_', ' ', $this->attributes['name']))->title(),
+            ], $upsertType == PageType::EDIT ? [
+                'x-show' => 'userWantsToChange',
+                'x-bind:disabled' => '!userWantsToChange',
+            ] : [])),
         ])->render();
 
         if($upsertType == PageType::EDIT) {

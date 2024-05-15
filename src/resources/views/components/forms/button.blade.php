@@ -1,10 +1,9 @@
-@props(['attr' => [], 'id' => '', 'name' => '', 'text' => 'Submit', 'type' => 'button', 'href' => null, 'icon' => '', 'size' => 'small', 'color' => 'primary', 'error' => null])
+@props(['text' => 'Submit', 'icon' => '', 'size' => 'small', 'color' => 'primary', 'error' => null])
 
 @php
-    $name = empty($name) ? 'wrinput-'.rand(1000, 9999) : $name;
-
     // Set id from name if unset
-    $id = empty($id) ? 'wrinput-'.$name : $id;
+    $id = empty($attributes->get('id')) ? 'wrinput-'.$attributes->get('name') : $attributes->get('id');
+    $name = empty($attributes->get('name')) ? 'wrinput-'.rand(1000, 9999) : $attributes->get('name');
 
     // Set size classes
     if($size == 'large') $sizeClasses = 'w-full px-4 py-2';
@@ -22,12 +21,8 @@
 <a href="{{ $href }}"
 @endif
     {{ $attributes->merge([
-        'id' => $id,
-        'type' => $type,
-        'name' => $name,
-        'class' =>
-            "block $sizeClasses font-semibold text-white dark:text-slate-900 border $colorClasses rounded-md shadow-sm whitespace-nowrap"
-    ])->merge($attr) }}>
+        'class' => "block $sizeClasses font-semibold text-white dark:text-slate-900 border $colorClasses rounded-md shadow-sm whitespace-nowrap"
+    ]) }}>
     @if(!empty($icon))
         <i class="{{ $icon }} text-white dark:text-slate-900 mr-1"></i>
     @endif

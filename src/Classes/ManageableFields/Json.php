@@ -2,6 +2,7 @@
 
 namespace WebRegulate\LaravelAdministration\Classes\ManageableFields;
 
+use Illuminate\View\ComponentAttributeBag;
 use WebRegulate\LaravelAdministration\Enums\PageType;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 
@@ -189,12 +190,12 @@ class Json extends ManageableField
 
         return view(WRLAHelper::getViewPath('components.forms.textarea'), [
             'ignoreOld' => true,
-            'name' => $this->attributes['name'],
             'label' => $this->getLabel(),
-            'value' => $value,
-            'attr' => collect($this->attributes)
-                ->forget(['name', 'value'])
-                ->toArray(),
+            'attributes' => new ComponentAttributeBag(array_merge($this->attributes, [
+                'name' => $this->attributes['name'],
+                'value' => $value,
+                'type' => 'file'
+            ])),
         ])->render();
     }
 }

@@ -1,24 +1,25 @@
-@props(['attr' => [],'options' => [], 'ignoreOld' => false, 'label' => null, 'id' => '', 'name', 'value' => '', 'required' => false, 'autofocus' => false, 'readonly' => false])
+@props(['options' => [], 'ignoreOld' => false, 'label' => null])
 
 @php
     // Set id from name if unset
-    $id = empty($id) ? 'wrinput-'.$name : $id;
+    $id = empty($attributes->get('id')) ? 'wrinput-'.$attributes->get('name') : $attributes->get('id');
 @endphp
 
 @if(!empty($label))
     {!! view($WRLAHelper::getViewPath('components.forms.label'), [
-        'id' => $id.'-label',
-        'label' => $label
+        'label' => $label,
+        'attributes' => new \Illuminate\View\ComponentAttributeBag([
+            'id' => $id.'-label',
+            'class' => $options['labelClass'] ?? ''
+        ])
     ])->render() !!}
 @endif
 
 <textarea {{ $attributes->merge([
-    'id' => $id,
-    'name' => $name,
     'class' => 'block w-full mt-2 px-3 py-1 border border-slate-400 dark:border-slate-600 bg-slate-200 dark:bg-slate-900
         focus:outline-none focus:ring-1 focus:ring-primary-500 dark:focus:ring-primary-500 rounded-md shadow-sm placeholder-slate-400 dark:placeholder-slate-600'
-])->merge($attr) }}>{{
-    $ignoreOld ? $value : old($name, $value)
+]) }}>{{
+    $ignoreOld ? $attributes->get('value') : old($attributes->get('name'), $attributes->get('value'))
 }}</textarea>
 
 {{-- Field notes (if options has notes key) --}}
@@ -26,6 +27,6 @@
     @themeComponent('forms.field-notes', ['notes' => $options['notes']])
 @endif
 
-@error($name)
+@error($attributes->get('name'))
     @themeComponent('alert', ['type' => 'error', 'message' => $message, 'class' => 'mt-2'])
 @enderror

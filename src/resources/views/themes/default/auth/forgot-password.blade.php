@@ -35,10 +35,10 @@
                     'value' => old('email'),
                     'error' => $errors->first('email'),
                     'placeholder' => 'email@address.com',
-                    'attr' => [
+                    'attributes' => new \Illuminate\View\ComponentAttributeBag([
                         'autofocus' => true,
                         'required' => true,
-                    ]
+                    ])
                 ])
             </div>
 

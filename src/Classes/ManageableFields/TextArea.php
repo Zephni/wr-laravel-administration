@@ -2,6 +2,7 @@
 
 namespace WebRegulate\LaravelAdministration\Classes\ManageableFields;
 
+use Illuminate\View\ComponentAttributeBag;
 use WebRegulate\LaravelAdministration\Enums\PageType;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 
@@ -16,13 +17,12 @@ class TextArea extends ManageableField
     public function render(PageType $upsertType): mixed
     {
         return view(WRLAHelper::getViewPath('components.forms.textarea'), [
-            'name' => $this->attributes['name'],
             'label' => $this->getLabel(),
-            'value' => $this->attributes['value'],
+            'value' => $this->getValue(),
             'options' => $this->options,
-            'attr' => collect($this->attributes)
-                ->forget(['name', 'value'])
-                ->toArray(),
+            'attributes' => new ComponentAttributeBag(array_merge($this->attributes, [
+                'name' => $this->attributes['name']
+            ])),
         ])->render();
     }
 }

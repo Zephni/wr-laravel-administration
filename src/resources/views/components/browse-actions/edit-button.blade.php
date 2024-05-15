@@ -8,7 +8,7 @@
     'type' => 'button',
     'text' => 'Edit',
     'icon' => 'fa fa-edit relative top-[-2px] !mr-[3px] text-[10px]',
-    'attr' => [
+    'attributes' => new \Illuminate\View\ComponentAttributeBag([
         'title' => 'Edit'
-    ]
+    ])
 ])

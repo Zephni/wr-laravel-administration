@@ -1,4 +1,4 @@
-@props(['attr' => [], 'id' => '', 'for' => '', 'label' => 'No label set'])
+@props(['id' => '', 'for' => '', 'label' => 'No label set'])
 
 @php
     // Set id from name if unset
@@ -9,7 +9,7 @@
     for="{{ $id }}"
     {{ $attributes->merge([
         'class' => 'block text-sm font-bold text-slate-800 dark:text-slate-300'
-    ])->merge($attr) }}
+    ]) }}
 >
 
     {{ $label }}

@@ -1,8 +1,12 @@
-@props(['attr' => [], 'options' => [], 'ignoreOld' => false, 'label' => null, 'id' => '', 'name', 'value' => '', 'type' => 'text', 'required' => false, 'autofocus' => false, 'readonly' => false])
+@props(['options' => [], 'ignoreOld' => false, 'label' => null])
 
 @php
     // Set id from name if unset
-    $id = empty($id) ? 'wrinput-'.$name : $id;
+    $id = empty($attributes->get('id')) ? 'wrinput-'.$attributes->get('name') : $attributes->get('id');
+
+    // Get $name and $value from attribute as it's used alot here
+    $name = $attributes->get('name');
+    $value = $attributes->get('value');
 
     // Check if http image
     $isHttpImage = preg_match('/^http(s)?:\/\//', $value);
@@ -21,9 +25,11 @@
 
 @if(!empty($label))
     {!! view($WRLAHelper::getViewPath('components.forms.label'), [
-        'id' => $id.'-label',
         'label' => $label,
-        'class' => $options['labelClass'] ?? ''
+        'attributes' => new \Illuminate\View\ComponentAttributeBag([
+            'id' => $id.'-label',
+            'class' => $options['labelClass'] ?? ''
+        ])
     ])->render() !!}
 @endif
 
@@ -31,11 +37,13 @@
     {{-- Preview image container --}}
     <div class="w-2/12">
         @themeComponent('forced-aspect-image', [
-            'src' => $src,
-            'class' => 'border-2 border-primary-600',
             'imageClass' => 'wrla_image_preview',
             'aspect' => $options["aspect"],
-            'rounded' => $options["rounded"]
+            'rounded' => $options["rounded"],
+            'attributes' => new \Illuminate\View\ComponentAttributeBag([
+                'src' => $src,
+                'class' => 'border-2 border-primary-600',
+            ])
         ])
     </div>
 
@@ -44,11 +52,8 @@
         <div class="flex w-full justify-between">
             {{-- File input --}}
             <input {{ $attributes->merge([
-                'id' => $id,
-                'type' => $type,
-                'name' => $name,
                 'class' => 'wrla_image_input text-sm focus:outline-none focus:ring-1 focus:ring-primary-500 dark:focus:ring-primary-500 placeholder-slate-400 dark:placeholder-slate-600'
-            ])->merge($attr) }}
+            ]) }}
                 onchange="wrla_setPreviewImage(this)"
             />
 
@@ -60,12 +65,12 @@
                     'color' => 'danger',
                     'text' => 'Remove',
                     'icon' => 'fa fa-trash relative top-[-1px] text-xs',
-                    'attr' => [
+                    'attributes' => new \Illuminate\View\ComponentAttributeBag([
                         'title' => 'Remove',
                         'class' => 'text-sm',
                         'onclick' => 'wrla_removeImage(this)',
                         'style' => $imageExists ? 'display: block;' : 'display: none;'
-                    ]
+                    ])
                 ])
 
                 <input class="wrla_remove_input" type="hidden" name="wrla_remove_{!! $name !!}" value="false" />
@@ -79,10 +84,12 @@
 
         @if($imageExists)
             @themeComponent('forms.field-notes', [
-                'class' => '!text-xs !px-2 !py-1',
                 'notes' => $imageExists || (!$isHttpImage && !$imageExists)
                     ? '<a href="'.$value.'" target="_blank" class="underline">'.$value.'</a>'.$imageExistsHtml
-                    : 'No image set'
+                    : 'No image set',
+                'attributes' => new \Illuminate\View\ComponentAttributeBag([
+                    'class' => '!text-xs !px-2 !py-1',
+                ])
             ])
         @endif
     </div>

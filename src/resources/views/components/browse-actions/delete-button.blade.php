@@ -5,9 +5,9 @@
     'text' => $text ?? 'Delete',
     'icon' => 'fa fa-trash relative top-[-1px] !mr-[3px] text-[10px]',
     'class' => 'bg-red-500 hover:bg-red-600 text-white',
-    'attr' => [
+    'attributes' => new \Illuminate\View\ComponentAttributeBag([
         'title' => $text ?? 'Delete',
         'onclick' => "confirm('Are you sure?') || event.stopImmediatePropagation()",
         'wire:click' => 'deleteModel("'.$manageableModel::getUrlAlias().'", '.$manageableModel->getModelInstance()->id.', '.($permanent ?? false ? '1' : '0').')',
-    ]
+    ])
 ])

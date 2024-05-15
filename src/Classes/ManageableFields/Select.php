@@ -3,6 +3,7 @@
 namespace WebRegulate\LaravelAdministration\Classes\ManageableFields;
 
 use Illuminate\Support\Collection;
+use Illuminate\View\ComponentAttributeBag;
 use WebRegulate\LaravelAdministration\Enums\PageType;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 
@@ -53,14 +54,13 @@ class Select extends ManageableField
     public function render(PageType $upsertType): mixed
     {
         return view(WRLAHelper::getViewPath('components.forms.input-select'), [
-            'name' => $this->attributes['name'],
             'label' => $this->getLabel(),
-            'value' => $this->attributes['value'],
+            'value' => $this->getValue(),
             'options' => $this->options,
             'items' => $this->items,
-            'attr' => collect($this->attributes)
-                ->forget(['name', 'value', 'type'])
-                ->toArray(),
+            'attributes' => new ComponentAttributeBag(array_merge($this->attributes, [
+                'name' => $this->attributes['name']
+            ])),
         ])->render();
     }
 }

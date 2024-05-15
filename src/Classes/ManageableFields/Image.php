@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver;
+use Illuminate\View\ComponentAttributeBag;
 use WebRegulate\LaravelAdministration\Enums\PageType;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 use WebRegulate\LaravelAdministration\Classes\ManageableModel;
@@ -280,14 +281,13 @@ class Image extends ManageableField
         $HTML = '';
 
         $HTML .= view(WRLAHelper::getViewPath('components.forms.input-image'), [
-            'name' => $this->attributes['name'],
             'label' => $this->getLabel(),
-            'value' => $this->getValue(),
-            'type' => 'file',
             'options' => $this->options,
-            'attr' => collect($this->attributes)
-                ->forget(['name', 'value', 'type'])
-                ->toArray(),
+            'attributes' => new ComponentAttributeBag(array_merge($this->attributes, [
+                'name' => $this->attributes['name'],
+                'value' => $this->getValue(),
+                'type' => 'file'
+            ])),
         ])->render();
 
         return $HTML;

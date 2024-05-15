@@ -2,6 +2,7 @@
 
 namespace WebRegulate\LaravelAdministration\Classes\ManageableFields;
 
+use Illuminate\View\ComponentAttributeBag;
 use WebRegulate\LaravelAdministration\Enums\PageType;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 
@@ -16,14 +17,14 @@ class Text extends ManageableField
     public function render(PageType $upsertType): mixed
     {
         return view(WRLAHelper::getViewPath('components.forms.input-text'), [
-            'name' => $this->attributes['name'],
             'label' => $this->getLabel(),
-            'value' => $this->attributes['value'],
-            'type' => $this->attributes['type'] ?? 'text',
             'options' => $this->options,
-            'attr' => collect($this->attributes)
-                ->forget(['name', 'value', 'type'])
-                ->toArray(),
+            'attributes' => new ComponentAttributeBag(array_merge($this->attributes, [
+                'name' => $this->attributes['name'],
+                'value' => $this->getValue(),
+                'type' => $this->attributes['type'] ?? 'text',
+            ])),
+
         ])->render();
     }
 }
