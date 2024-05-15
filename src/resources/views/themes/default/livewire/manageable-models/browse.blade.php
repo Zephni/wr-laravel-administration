@@ -33,8 +33,8 @@
         <table class="table w-full text-sm bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-300">
             <thead class="border-b bg-slate-700 dark:bg-slate-400 text-slate-100 dark:text-slate-800 border-slate-400 dark:border-slate-600">
                 <tr>
-                    @foreach($columns as $column => $label)
-                        <th class="text-left px-3 py-2">{{ $label }}</th>
+                    @foreach($columns as $column => $browseableColumn)
+                        <th class="text-left px-3 py-2">{{ is_string($browseableColumn) ? $browseableColumn : $browseableColumn['label'] }}</th>
                     @endforeach
                     <th></th>
                 </tr>
@@ -42,9 +42,23 @@
             <tbody>
                 @foreach($models as $model)
                     <tr class="odd:bg-slate-100 dark:odd:bg-slate-700 even:bg-slate-200 dark:even:bg-slate-800">
-                        @foreach($columns as $column => $label)
+                        @foreach($columns as $column => $browseableColumn)
                             @php $column = explode('::', $column)[0]; @endphp
-                            <td class="px-3 py-2 whitespace-nowrap">{{ $model->{$column} }}</td>
+                            @if(is_string($browseableColumn) || $browseableColumn['type'] == 'string')
+                                <td class="px-3 py-2 whitespace-nowrap">
+                                    {{ $model->{$column} }}
+                                </td>
+                            @elseif(isset($browseableColumn['type']) && $browseableColumn['type'] === 'image')
+                                <td class="px-3 py-2 whitespace-nowrap" style="width: {{ is_numeric($browseableColumn['width']) ? $browseableColumn['width'].'px' : $browseableColumn['width'] }}">
+                                    @themeComponent('forced-aspect-image', [
+                                        'src' => '/'.$model->{$column},
+                                        'class' => 'border-2 border-primary-600',
+                                        'imageClass' => 'wrla_image_preview',
+                                        'aspect' => $browseableColumn['options']['aspect'],
+                                        'rounded' => $browseableColumn['options']['rounded'] ?? false
+                                    ])
+                                </td>
+                            @endif
                         @endforeach
                         <td class="px-3 py-2">
                             <div class="flex justify-end gap-2">

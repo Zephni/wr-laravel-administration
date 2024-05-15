@@ -5,6 +5,7 @@ namespace App\WRLA;
 use \Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Contracts\Database\Eloquent\Builder;
+use WebRegulate\LaravelAdministration\Classes\BrowseableColumn;
 use WebRegulate\LaravelAdministration\Classes\Filterable;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 use \WebRegulate\LaravelAdministration\Classes\ManageableModel;
@@ -76,9 +77,13 @@ class User extends ManageableModel
      */
     public static function getBrowsableColumns(): Collection {
         return collect([
+            'data->profile->avatar' => BrowseableColumn::make('Avatar', 'image', 100)->setOptions([
+                'aspect' => '1:1',
+                'rounded' => true
+            ]),
             'name' => 'Name',
             'email' => 'Email',
-            'created_at' => 'Created',
+            'created_at' => 'Created'
         ]);
     }
 

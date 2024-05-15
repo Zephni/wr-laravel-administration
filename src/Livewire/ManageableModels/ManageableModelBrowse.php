@@ -8,6 +8,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 use WebRegulate\LaravelAdministration\Classes\WRLAPermissions;
+use WebRegulate\LaravelAdministration\Classes\BrowseableColumn;
 
 /**
  * Class ManageableModelBrowse
@@ -87,7 +88,14 @@ class ManageableModelBrowse extends Component
         }
 
         // Build columns from manageable model
-        $this->columns = $manageableModelClass::getBrowsableColumns();
+        $columns = $manageableModelClass::getBrowsableColumns()->toArray();
+        // Loop through columns, if any are of type BrowseableColumn, convert them to an array
+        foreach($columns as $key => $column) {
+            if($column instanceof BrowseableColumn) {
+                $columns[$key] = $column->toArray();
+            }
+        }
+        $this->columns = collect($columns);
 
         // Get manageable model filter keys from collection
         $manageableModelFilters = $manageableModelClass::getBrowseFilters();
