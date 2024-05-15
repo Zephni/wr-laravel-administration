@@ -248,6 +248,28 @@ class Image extends ManageableField
     }
 
     /**
+     * Set aspect ratio using 1:1 format
+     * 
+     * @param null|string $aspect
+     */
+    public function aspect(?string $aspect = null): self
+    {
+        $this->option('aspect', $aspect);
+        return $this;
+    }
+
+    /**
+     * Set rounded image, with false, null, or 'none' for none, true for 'full', or any tailwind string rounded available value
+     * 
+     * @param null|bool|string $rounded
+     */
+    public function rounded(null|bool|string $rounded = true): self
+    {
+        $this->option('rounded', $rounded);
+        return $this;
+    }
+
+    /**
      * Render the input field.
      *
      * @param PageType $upsertType
