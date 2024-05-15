@@ -27,7 +27,10 @@ class ManageableField
      *
      * @var array
      */
-    public array $options = [];
+    public array $options = [
+        'containerClass' => null,
+        'label' => 'wrla::from_field_name',
+    ];
 
     /**
      * Validation rule
@@ -300,6 +303,37 @@ class ManageableField
     }
 
     /**
+     * Get label.
+     *
+     * @return ?string
+     */
+    public function getLabel(): ?string
+    {        
+        // Get label option
+        $label = $this->getOption('label');
+
+        // If wrla::from_field_name then get the name and convert to label
+        if($label === 'wrla::from_field_name') {
+            // If name is based on a json column (eg has a -> in it) then we need to get the string after the ->
+            // and then explode the . dots and get the last element.
+            if(strpos($this->attributes['name'], '->') !== false) {
+                $label = explode('->', $this->attributes['name']);
+                $label = end($label);
+            } else {
+                $label = $this->attributes['name'];
+            }
+
+            return ucfirst(str_replace('_', ' ', $label));
+        }
+        // If null then return null
+        elseif($label === null) {
+            return null;
+        }
+
+        return $label;
+    }
+
+    /**
      * Notes
      *
      * @param string $notes
@@ -379,33 +413,6 @@ class ManageableField
         $this->showOnPages = $pageTypes;
 
         return $this;
-    }
-
-    /**
-     * Get label.
-     *
-     * @return ?string
-     */
-    public function getLabel(): ?string
-    {        
-        // Get label option
-        $label = $this->getOption('label');
-
-        // If null then return null
-        if($label === null) {
-            return $label;
-        }
-
-        // If name is based on a json column (eg has a -> in it) then we need to get the string after the ->
-        // and then explode the . dots and get the last element.
-        if(strpos($this->attributes['name'], '->') !== false) {
-            $label = explode('->', $this->attributes['name']);
-            $label = end($label);
-        } else {
-            $label = $this->attributes['name'];
-        }
-
-        return ucfirst(str_replace('_', ' ', $label));
     }
 
     /**

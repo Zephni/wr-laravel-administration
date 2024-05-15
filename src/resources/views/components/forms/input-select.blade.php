@@ -5,10 +5,15 @@
     $id = empty($id) ? 'wrinput-'.$name : $id;
 @endphp
 
+@if(isset($options['containerClass']) && $options['containerClass'] !== null)
+    <div class="{{ $options['containerClass'] }}">
+@endif
+
 @if(!empty($label))
     {!! view($WRLAHelper::getViewPath('components.forms.label'), [
         'id' => $id.'-label',
-        'label' => $label
+        'label' => $label,
+        'class' => $options['labelClass'] ?? ''
     ])->render() !!}
 @endif
 
@@ -37,3 +42,7 @@
 @error($name)
     @themeComponent('alert', ['type' => 'error', 'message' => $message, 'class' => 'mt-2'])
 @enderror
+
+@if(isset($options['containerClass']) && $options['containerClass'] !== null)
+    </div>
+@endif

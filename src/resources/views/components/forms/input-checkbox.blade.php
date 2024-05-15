@@ -5,6 +5,10 @@
     $id = empty($id) ? 'wrinput-'.$name : $id;
 @endphp
 
+@if(isset($options['containerClass']) && $options['containerClass'] !== null)
+    <div class="{{ $options['containerClass'] }}">
+@endif
+
 <div class="flex gap-2 items-center">
     <input
         @if($checked)
@@ -21,7 +25,7 @@
         ])->merge($attr) }} />
 
     @if(!empty($label))
-        <label for="{{ $id }}" class="text-sm font-semibold text-slate-800 dark:text-slate-300">
+        <label for="{{ $id }}" class="text-sm font-semibold text-slate-800 dark:text-slate-300 {{ $options['labelClass'] ?? '' }}">
             {{ $label }}
         </label>
     @endif
@@ -34,4 +38,8 @@
 
 @if(!empty($error))
     <p class="text-sm text-red-500 mt-2">{{ $error }}</p>
+@endif
+
+@if(isset($options['containerClass']) && $options['containerClass'] !== null)
+    </div>
 @endif

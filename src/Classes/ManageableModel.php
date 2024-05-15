@@ -299,12 +299,15 @@ class ManageableModel
             'search' => new BrowseFilter(
                 // Field
                 Text::make(null, 'search')
-                    ->setLabel(null)
+                    ->setLabel('Search')
+                    ->setOptions([
+                        'containerClass' => 'w-1/2',
+                        'labelClass' => 'font-thin',
+                    ])
                     ->setAttributes([
                         'wire:model.live.debounce.400ms'=> 'filters.search',
                         'autofocus' => true,
-                        'placeholder' => 'Search filter...',
-                        'style' => 'margin-top: 0px;'
+                        'placeholder' => 'Search filter...'
                     ]),
 
                 // Applicable filter
@@ -326,17 +329,18 @@ class ManageableModel
             'softDeleted' => new BrowseFilter(
                 // Field
                 Select::make(null, 'softDeleted')
-                    ->setLabel(null)
+                    ->setLabel('Status')
+                    ->setOptions([
+                        'containerClass' => 'w-1/5',
+                        'labelClass' => 'font-thin',
+                    ])
                     ->setItems([
                         'not_trashed' => 'Not Trashed',
                         'trashed' => 'Trashed Only',
                         'all' => 'All',
                     ])
                     ->default('not_trashed')
-                    ->setAttributes([
-                        'wire:model.live' => 'filters.softDeleted',
-                        'style' => 'margin-top: 0px;'
-                    ])
+                    ->setAttribute('wire:model.live', 'filters.softDeleted')
                     ->validation('required|in:all,trashed,not_trashed'),
 
                 // Applicable filter
