@@ -42,14 +42,4 @@ class BrowseableColumn
     {
         return $this->options;
     }
-
-    public function toArray(): array
-    {
-        return [
-            'label' => $this->label,
-            'type' => $this->type,
-            'width' => $this->width,
-            'options' => $this->options,
-        ];
-    }
 }

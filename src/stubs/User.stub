@@ -75,7 +75,7 @@ class User extends ManageableModel
      *
      * @return Collection
      */
-    public static function getBrowsableColumns(): Collection {
+    public function getBrowseableColumns(): Collection {
         return collect([
             'data->profile->avatar' => BrowseableColumn::make('Avatar', 'image', 100)->setOptions([
                 'aspect' => '1:1',

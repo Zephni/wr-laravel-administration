@@ -25,7 +25,7 @@ class {{ $MODEL }} extends ManageableModel
         return '{{ $ICON }}';
     }
 
-    public static function getBrowsableColumns(): Collection
+    public function getBrowseableColumns(): Collection
     {
         return collect([
             'id' => 'ID', // It's not standard to include id in browsable columns, but it's included for demonstration purposes

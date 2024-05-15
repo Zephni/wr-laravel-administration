@@ -87,15 +87,11 @@ class ManageableModelBrowse extends Component
             return redirect()->route('wrla.dashboard')->with('error', "Model `$modelClass` not found while loading manageable model `$manageableModelClass`.");
         }
 
-        // Build columns from manageable model
-        $columns = $manageableModelClass::getBrowsableColumns()->toArray();
-        // Loop through columns, if any are of type BrowseableColumn, convert them to an array
-        foreach($columns as $key => $column) {
-            if($column instanceof BrowseableColumn) {
-                $columns[$key] = $column->toArray();
-            }
-        }
-        $this->columns = collect($columns);
+        // Build parent columns from manageable model
+        $columns = $manageableModelClass::make()->getBrowseableColumns();
+        $this->columns = collect($columns)->map(function($column) {
+            return $column instanceof BrowseableColumn ? $column->label : $column;
+        });
 
         // Get manageable model filter keys from collection
         $manageableModelFilters = $manageableModelClass::getBrowseFilters();
