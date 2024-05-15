@@ -36,7 +36,7 @@ class Image extends ManageableField
         }
 
         $imageInstance = new static($column, $manageableModel?->getModelInstance()->{$column}, $manageableModel);
-        $imageInstance->options([
+        $imageInstance->setOptions([
             'path' => $path,
             'filename' => $filename,
             'defaultImage' => 'https://via.placeholder.com/120x120.jpg?text=No+Image+Available',

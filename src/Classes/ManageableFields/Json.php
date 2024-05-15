@@ -71,7 +71,7 @@ class Json extends ManageableField
         }
 
         // Set value
-        $this->attribute('value', $correctedValue);
+        $this->setAttribute('value', $correctedValue);
 
         return true;
     }
@@ -179,7 +179,7 @@ class Json extends ManageableField
         // Check if value is set in old() and set if so
         if(old($this->attributes['name']) !== null) {
             $value = old($this->attributes['name']);
-            $this->attribute('value', $value);
+            $this->setAttribute('value', $value);
         } else {
             $value = $this->attributes['value'];
         }

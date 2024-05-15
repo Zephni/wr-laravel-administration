@@ -117,13 +117,17 @@ class User extends ManageableModel
 
         $browseFilters->put('userType', new Filterable(
             Select::make(null, 'userType')
+                ->setLabel(null)
                 ->setItems([
                     'all' => 'All Users',
                     'admins_only' => 'Admins',
                     'non_admins_only' => 'Non Admins',
                 ])
                 ->default('all')
-                ->attribute('wire:model.live', 'filters.userType'),
+                ->setAttributes([
+                    'wire:model.live' => 'filters.userType',
+                    'style' => 'margin-top: 0px;',
+                ]),
 
             function(Builder $query, $columns, $value) {
                 if($value === 'admins_only') {
@@ -152,12 +156,12 @@ class User extends ManageableModel
             Text::make($this, 'name')
                 ->required()
                 ->validation('string|max:255')
-                ->attribute('placeholder', 'John Doe'),
+                ->setAttribute('placeholder', 'John Doe'),
 
             Text::make($this, 'email')
                 ->required()
                 ->validation('email|max:255|unique:users,email,'.$modelInstance->id)
-                ->attribute('placeholder', 'email@domain.com')
+                ->setAttribute('placeholder', 'email@domain.com')
                 ->notes('<b>Required</b> - Must be valid and unique'),
 
             Password::make($this, 'password'),
@@ -184,7 +188,7 @@ class User extends ManageableModel
                     'admin' => 'boolean'.(($currentUser->id == $modelInstance->id) ? "|wrla_no_change:users,{$modelInstance->id},permissions->admin" : '')
                 ])
                 ->hideContainingBraces()
-                ->attributes(['placeholder' => 'JSON Data', 'rows' => 4]),
+                ->setAttributes(['placeholder' => 'JSON Data', 'rows' => 4]),
 
             Json::make($this, 'settings')
                 ->mergeDefaultKeyValues([
@@ -194,11 +198,11 @@ class User extends ManageableModel
                     'theme' => 'string|in:default'
                 ])
                 ->hideContainingBraces()
-                ->attributes(['placeholder' => 'JSON Data', 'rows' => 4]),
+                ->setAttributes(['placeholder' => 'JSON Data', 'rows' => 4]),
 
             Json::make($this, 'data')
                 ->hideContainingBraces()
-                ->attributes(['placeholder' => 'JSON Data', 'rows' => 4]),
+                ->setAttributes(['placeholder' => 'JSON Data', 'rows' => 4]),
         ]);
     }
 

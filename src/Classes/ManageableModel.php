@@ -300,7 +300,7 @@ class ManageableModel
                 // Field
                 Text::make(null, 'search')
                     ->setLabel(null)
-                    ->attributes([
+                    ->setAttributes([
                         'wire:model.live.debounce.400ms'=> 'filters.search',
                         'autofocus' => true,
                         'placeholder' => 'Search filter...',
@@ -333,7 +333,7 @@ class ManageableModel
                         'all' => 'All',
                     ])
                     ->default('not_trashed')
-                    ->attributes([
+                    ->setAttributes([
                         'wire:model.live' => 'filters.softDeleted',
                         'style' => 'margin-top: 0px;'
                     ])
@@ -395,7 +395,7 @@ class ManageableModel
         $validationRules = collect();
 
         foreach ($manageableFields as $manageableField) {
-            $validationRules->put($manageableField->attribute('name'), $manageableField->validationRules);
+            $validationRules->put($manageableField->getAttribute('name'), $manageableField->validationRules);
         }
 
         return $validationRules;
@@ -413,7 +413,7 @@ class ManageableModel
         $formFieldsValues = [];
 
         foreach ($manageableFields as $manageableField) {
-            $formFieldsValues[$manageableField->attribute('name')] = $manageableField->attribute('value');
+            $formFieldsValues[$manageableField->getAttribute('name')] = $manageableField->getAttribute('value');
         }
 
         return $formFieldsValues;
@@ -438,11 +438,11 @@ class ManageableModel
             }
 
             // Run inline validation on the manageable field. If true then skip, if string message then fail
-            $ifMessageThenFail = $manageableField->runInlineValidation($request->input($manageableField->attribute('name')));
+            $ifMessageThenFail = $manageableField->runInlineValidation($request->input($manageableField->getAttribute('name')));
 
             // Now we pass back the attribute.name and message
             if($ifMessageThenFail !== true) {
-                $messageBag[$manageableField->attribute('name')] = $manageableField->getLabel() . ': ' . $ifMessageThenFail;
+                $messageBag[$manageableField->getAttribute('name')] = $manageableField->getLabel() . ': ' . $ifMessageThenFail;
             }
         }
 
@@ -485,29 +485,29 @@ class ManageableModel
         // First do a loop through to check for any field names that use -> notation for nested json, if
         // we find any we put these last in the loop so that their values can be applied after everything else
         $manageableFields = $manageableFields->sortBy(function ($manageableField) {
-            return strpos($manageableField->attribute('name'), '->') !== false;
+            return strpos($manageableField->getAttribute('name'), '->') !== false;
         })->values()->toArray();
 
         // Iterate over each manageable field
         foreach ($manageableFields as $manageableField) {
-            $fieldName = $manageableField->attribute('name');
+            $fieldName = $manageableField->getAttribute('name');
 
             // Get the form component by name
             $formComponent = $formComponents->first(function ($_formComponent) use ($fieldName) {
-                return $_formComponent->attribute('name') === $fieldName;
+                return $_formComponent->getAttribute('name') === $fieldName;
             });
 
             // Check if the field name is based on a JSON column
             $isUsingNestedJson = false;
             if (strpos($fieldName, '->') !== false) {
                 // If form key does not exist, then skip
-                if (!array_key_exists($formComponent->attribute('name'), $formKeyValues)) {
+                if (!array_key_exists($formComponent->getAttribute('name'), $formKeyValues)) {
                     continue;
                 }
 
                 $isUsingNestedJson = true;
                 [$fieldName, $dotNotation] = WRLAHelper::parseJsonNotation($fieldName);
-                $newValue = $formKeyValues[$formComponent->attribute('name')];
+                $newValue = $formKeyValues[$formComponent->getAttribute('name')];
             }
 
             // Check if the field name exists in the form key-value pairs

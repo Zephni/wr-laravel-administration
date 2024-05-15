@@ -137,10 +137,10 @@ class WRLAAdminController extends Controller
         // Run pre validation hook on all manageable fields and store in array to merge with request
         $requestMerge = [];
         foreach ($manageableFields as $manageableField) {
-            $forceMergeIntoRequest = $manageableField->preValidation($request->input($manageableField->attribute('name')));
+            $forceMergeIntoRequest = $manageableField->preValidation($request->input($manageableField->getAttribute('name')));
 
             if($forceMergeIntoRequest) {                    
-                $requestMerge[$manageableField->attribute('name')] = $manageableField->attribute('value');
+                $requestMerge[$manageableField->getAttribute('name')] = $manageableField->getAttribute('value');
             }
         }
 

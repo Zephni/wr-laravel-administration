@@ -164,48 +164,13 @@ class ManageableField
     }
 
     /**
-     * Set / Get attribute.
-     *
-     * @param string $key
-     * @param ?string $value
-     * @return $this | string
-     */
-    public function attribute(string $key, ?string $value = null): static|string
-    {
-        if($value == null) {
-            return $this->attributes[$key];
-        }
-
-        $this->attributes[$key] = $value;
-
-        return $this;
-    }
-
-    /**
-     * Merge or get attributes.
-     *
-     * @param ?array $attributes
-     * @return $this|array
-     */
-    public function attributes(?array $attributes = null): static|array
-    {
-        if($attributes === null) {
-            return $this->attributes;
-        }
-
-        $this->attributes = array_merge($this->attributes, $attributes);
-
-        return $this;
-    }
-
-    /**
      * Add required attribute and validation
      *
      * @return $this
      */
     public function required(): static
     {
-        $this->attribute('required', 'required');
+        $this->setAttribute('required', 'required');
         $this->validation('required');
 
         return $this;
@@ -215,10 +180,10 @@ class ManageableField
      * Set option.
      *
      * @param string $key
-     * @param mixed $value
-     * @return $this | string
+     * @param ?string $value
+     * @return $this
      */
-    public function setOption(string $key, mixed $value = null): static|string
+    public function setOption(string $key, ?string $value): static
     {
         $this->options[$key] = $value;
         return $this;
@@ -239,9 +204,9 @@ class ManageableField
      * Merge or get options.
      *
      * @param ?array $options
-     * @return $this|array
+     * @return $this
      */
-    public function setOptions(?array $options = null): static|array
+    public function setOptions(array $options): static
     {
         $this->options = array_merge($this->options, $options);
         return $this;
@@ -257,6 +222,51 @@ class ManageableField
         return $this->options;
     }
 
+    /**
+     * Set attribute.
+     *
+     * @param string $key
+     * @param ?string $value
+     * @return $this
+     */
+    public function setAttribute(string $key, ?string $value): static
+    {
+        $this->attributes[$key] = $value;
+        return $this;
+    }
+
+    /**
+     * Get attribute.
+     * 
+     * @param string $key
+     * @return mixed
+     */
+    public function getAttribute(string $key): mixed
+    {
+        return $this->attributes[$key] ?? null;
+    }
+
+    /**
+     * Set attributes.
+     *
+     * @param ?array $attributes
+     * @return $this|array
+     */
+    public function setAttributes(array $attributes = []): static
+    {
+        $this->attributes = array_merge($this->attributes, $attributes);
+        return $this;
+    }
+
+    /**
+     * Get attributes.
+     * 
+     * @return array
+     */
+    public function getAttributes(): array
+    {
+        return $this->attributes;
+    }
 
     /**
      * Set default value.

@@ -92,7 +92,7 @@ class ManageableModelBrowse extends Component
         // Get manageable model filter keys from collection
         $manageableModelFilters = $manageableModelClass::getBrowseFilters();
         foreach($manageableModelFilters as $key => $filterable) {
-            $this->filters[$key] = $filterable->field->attribute('value');
+            $this->filters[$key] = $filterable->field->getAttribute('value');
         }
     }
 
