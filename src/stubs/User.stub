@@ -123,16 +123,20 @@ class User extends ManageableModel
 
         $browseFilters->put('userType', new BrowseFilter(
             Select::make(null, 'userType')
-                ->setLabel(null)
+                ->setLabel('User Type')
                 ->setItems([
-                    'all' => 'All Users',
-                    'admins_only' => 'Admins',
-                    'non_admins_only' => 'Non Admins',
+                    'all' => 'All users',
+                    'admins_only' => 'Admins only',
+                    'non_admins_only' => 'Non admins only',
                 ])
                 ->default('all')
+                ->setOptions([
+                    'containerClass' => 'w-1/5',
+                    'labelClass' => 'font-thin',
+                ])
                 ->setAttributes([
                     'wire:model.live' => 'filters.userType',
-                    'style' => 'margin-top: 0px;',
+                    'class' => '!mt-1'
                 ]),
 
             function(Builder $query, $columns, $value) {

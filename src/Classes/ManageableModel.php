@@ -307,7 +307,8 @@ class ManageableModel
                     ->setAttributes([
                         'wire:model.live.debounce.400ms'=> 'filters.search',
                         'autofocus' => true,
-                        'placeholder' => 'Search filter...'
+                        'placeholder' => 'Search filter...',
+                        'class' => '!mt-1'
                     ]),
 
                 // Applicable filter
@@ -330,17 +331,20 @@ class ManageableModel
                 // Field
                 Select::make(null, 'softDeleted')
                     ->setLabel('Status')
+                    ->setItems([
+                        'not_trashed' => 'Active only',
+                        'trashed' => 'Soft deleted only',
+                        'all' => 'All',
+                    ])
+                    ->default('not_trashed')
                     ->setOptions([
                         'containerClass' => 'w-1/5',
                         'labelClass' => 'font-thin',
                     ])
-                    ->setItems([
-                        'not_trashed' => 'Not Trashed',
-                        'trashed' => 'Trashed Only',
-                        'all' => 'All',
+                    ->setAttributes([
+                        'wire:model.live' => 'filters.softDeleted',
+                        'class' => '!mt-1'
                     ])
-                    ->default('not_trashed')
-                    ->setAttribute('wire:model.live', 'filters.softDeleted')
                     ->validation('required|in:all,trashed,not_trashed'),
 
                 // Applicable filter

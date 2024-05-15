@@ -19,8 +19,8 @@
     </div>
 
     {{-- Filters --}}
-    <div class="w-full rounded-lg p-3 pr-4 mb-1 bg-slate-100 shadow-md dark:bg-slate-800">
-        <div class="flex justify-between items-stretch gap-4">
+    <div class="w-full rounded-lg p-3 pr-4 pt-2 mb-1 bg-slate-100 shadow-md dark:bg-slate-800">
+        <div class="flex justify-start items-stretch gap-4">
             
             @foreach($manageableModelClass::getBrowseFilters() as $filter)
                 {!! $filter->render() !!}
