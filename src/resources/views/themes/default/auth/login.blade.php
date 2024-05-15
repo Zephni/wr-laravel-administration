@@ -23,11 +23,11 @@
             <div>
                 @themeComponent('forms.input-text', [
                     'label' => 'Email Address',
-                    'type' => 'email',
-                    'name' => 'email',
-                    'value' => old('email'),
                     'error' => $errors->first('email'),
                     'attributes' => new \Illuminate\View\ComponentAttributeBag([
+                        'type' => 'email',
+                        'name' => 'email',
+                        'value' => old('email'),
                         'autofocus' => true,
                         'required' => true,
                     ])
@@ -37,11 +37,11 @@
             <div>
                 @themeComponent('forms.input-text', [
                     'label' => 'Password',
-                    'type' => 'password',
-                    'name' => 'password',
-                    'value' => '',
                     'error' => $errors->first('password'),
                     'attributes' => new \Illuminate\View\ComponentAttributeBag([
+                        'type' => 'password',
+                        'name' => 'password',
+                        'value' => '',
                         'required' => true,
                     ])
                 ])
@@ -50,8 +50,10 @@
             <div class="flex justify-between">
                 @themeComponent('forms.input-checkbox', [
                     'label' => 'Remember me',
-                    'name' => 'remember',
-                    'checked' => old('remember')
+                    'attributes' => new \Illuminate\View\ComponentAttributeBag([
+                        'name' => 'remember',
+                        'checked' => old('remember'),
+                    ])
                 ])
 
                 <a href="{{ route('wrla.forgot-password') }}" class="text-sm text-primary-500 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-200">
@@ -61,10 +63,12 @@
 
             <div>
                 @themeComponent('forms.button', [
-                    'type' => 'submit',
                     'size' => 'large',
                     'text' => 'Login',
                     'icon' => 'fa fa-sign-in-alt',
+                    'attributes' => new \Illuminate\View\ComponentAttributeBag([
+                        'type' => 'submit'
+                    ])
                 ])
             </div>
 

@@ -30,35 +30,41 @@
             <div>
                 @themeComponent('forms.input-text', [
                     'label' => 'Email Address',
-                    'type' => 'email',
-                    'name' => 'email',
-                    'value' => $email,
                     'error' => $errors->first('email'),
-                    'required' => true,
-                    'readonly' => true,
+                    'attributes' => new \Illuminate\View\ComponentAttributeBag([
+                        'type' => 'email',
+                        'name' => 'email',
+                        'value' => $email,
+                        'required' => true,
+                        'readonly' => true
+                    ])
                 ])
             </div>
 
             <div>
                 @themeComponent('forms.input-text', [
-                    'type' => 'password',
                     'label' => 'Password',
-                    'name' => 'password',
-                    'value' => '',
                     'error' => $errors->first('password'),
-                    'required' => true,
-                    'autofocus' => true
+                    'attributes' => new \Illuminate\View\ComponentAttributeBag([
+                        'type' => 'password',
+                        'name' => 'password',
+                        'value' => '',
+                        'required' => true,
+                        'autofocus' => true
+                    ])
                 ])
             </div>
 
             <div>
                 @themeComponent('forms.input-text', [
-                    'type' => 'password',
                     'label' => 'Confirm Password',
-                    'name' => 'password_confirmation',
-                    'value' => '',
                     'error' => $errors->first('password_confirmation'),
-                    'required' => true
+                    'attributes' => new \Illuminate\View\ComponentAttributeBag([
+                        'type' => 'password',
+                        'name' => 'password_confirmation',
+                        'value' => '',
+                        'required' => true
+                    ])
                 ])
             </div>
 

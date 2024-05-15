@@ -228,4 +228,14 @@ class User extends ManageableModel
             auth()->login($this->getModelInstance());
         }
     }
+
+    /**
+     * Get specific validation rule
+     *
+     * @return string
+     */
+    public function getValidationRule($column): string
+    {
+        return $this->getValidationRules()->get($column);
+    }
 }

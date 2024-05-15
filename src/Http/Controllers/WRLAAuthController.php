@@ -133,12 +133,16 @@ class WRLAAuthController extends Controller
      */
     public function forgotPasswordPost(Request $request)
     {
-        // Get user appropriate validation rules
-        $tempUser = new \App\WRLA\User();
-        $validationRules = $tempUser->getValidationRules()->only(['email'])->toArray();
+        // Get user email validation rule without unique or confirmed
+        $forgotPasswordValidation = WRLAHelper::removeRuleFromValidationString(
+            ['unique:users,email,', 'confirmed'],
+            \App\WRLA\User::make()->getValidationRule('email')
+        );
 
         // Validate
-        $request->validate($validationRules);
+        $request->validate([
+            'email' => $forgotPasswordValidation
+        ]);
 
         // Get user
         $user = User::where('email', $request->input('email'))->first();
@@ -186,13 +190,16 @@ class WRLAAuthController extends Controller
      */
     public function resetPasswordPost(Request $request, $token)
     {
-        // Get user appropriate validation rules
-        $tempUser = new \App\WRLA\User();
-        $validationRules = $tempUser->getValidationRules()->only(['email', 'password'])->toArray();
-        $validationRules['password'] = str_replace('confirmed|', '', $validationRules['password']);
+        // Get user email validation rules without unique (Note we do not have to include the id here because we are using a blank user)
+        $resetPasswordValidation = WRLAHelper::removeRuleFromValidationString(
+            'unique:users,email,',
+            \App\WRLA\User::make()->getValidationRule('email')
+        );
 
         // Validate
-        $request->validate($validationRules);
+        $request->validate([
+            'email' => $resetPasswordValidation
+        ]);
 
         // Get user
         $user = User::where('email', $request->input('email'))->first();
@@ -207,7 +214,7 @@ class WRLAAuthController extends Controller
         $user->save();
 
         // Return user with success
-        return redirect()->route('wrla.login')->with('success', 'Password has been reset successfully');
+        return redirect()->route('wrla.login')->withInput()->with('success', 'Password has been reset successfully');
     }
 
     /**

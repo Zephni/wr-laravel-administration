@@ -29,24 +29,26 @@
 
             <div>
                 @themeComponent('forms.input-text', [
-                    'type' => 'email',
                     'label' => 'Email Address',
-                    'name' => 'email',
-                    'value' => old('email'),
                     'error' => $errors->first('email'),
-                    'placeholder' => 'email@address.com',
                     'attributes' => new \Illuminate\View\ComponentAttributeBag([
+                        'type' => 'email',
+                        'name' => 'email',
+                        'value' => old('email'),
+                        'placeholder' => 'email@address.com',
                         'autofocus' => true,
-                        'required' => true,
+                        'required' => true
                     ])
                 ])
             </div>
 
             <div>
                 @themeComponent('forms.button', [
-                    'type' => 'submit',
                     'size' => 'large',
-                    'text' => 'Request password reset link'
+                    'text' => 'Request password reset link',
+                    'attributes' => new \Illuminate\View\ComponentAttributeBag([
+                        'type' => 'submit'
+                    ])
                 ])
             </div>
 

@@ -423,6 +423,34 @@ class WRLAHelper
     }
 
     /**
+     * Remove a rule from a validation string
+     * 
+     * @param string|array $rule The rule/s to remove.
+     * @param string $validation The validation string to remove the rule from.
+     * @param bool $useRegex Whether to use regex to remove the rule.
+     * @return string The validation string with the rule removed.
+     */
+    public static function removeRuleFromValidationString(string|array $rule, string $validationString, bool $useRegex = false): string
+    {
+        if(is_string($rule)) {
+            $rule = [$rule];
+        }
+
+        foreach($rule as $r) {
+            if(!$useRegex) {
+                // Simply replace the rule with an empty string
+                $validationString = str_replace($rule, '', $validationString);
+            } else {
+                // The \b here is a word boundary, so it will only match the word 'required' and not 'required_if' etc.
+                $validationString = preg_replace('/\b' . $r . '\b/', '', $validationString);
+            }
+        }
+
+        // Finally clean up the validation string by removing unnecessary pipes
+        return str_replace('||', '|', rtrim(ltrim($validationString, '|'), '|'));
+    }
+
+    /**
      * Check if table exists in database
      * 
      * @param string $table The table to check if exists.
