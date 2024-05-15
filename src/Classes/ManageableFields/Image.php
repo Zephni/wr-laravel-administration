@@ -70,7 +70,7 @@ class Image extends ManageableField
             $value = $this->uploadImage($request->file($this->attributes['name']));
 
             // If unlinkOld option set, and an image already exists with the old value, we delete it
-            if ($this->option('unlinkOld') == true && !empty($currentImage)) {
+            if ($this->getOption('unlinkOld') == true && !empty($currentImage)) {
                 $this->deleteImageByPath($currentImage);
             }
             
@@ -170,7 +170,7 @@ class Image extends ManageableField
         } else {
             // If no value is set, return default image
             if (empty($this->attributes['value'])) {
-                return $this->option('defaultImage');
+                return $this->getOption('defaultImage');
             }
             
             return '/'.ltrim(WRLAHelper::forwardSlashPath($this->attributes['value']), '/');
@@ -219,7 +219,7 @@ class Image extends ManageableField
      */
     public function defaultImage(string $path): self
     {
-        $this->option('defaultImage', $path);
+        $this->setOption('defaultImage', $path);
         return $this;
     }
 
@@ -231,7 +231,7 @@ class Image extends ManageableField
      */
     public function unlinkOld(bool $unlink = true): self
     {
-        $this->option('unlinkOld', $unlink);
+        $this->setOption('unlinkOld', $unlink);
         return $this;
     }
 
@@ -243,7 +243,7 @@ class Image extends ManageableField
      */
     public function allowRemove(bool $allow = true): self
     {
-        $this->option('allowRemove', $allow);
+        $this->setOption('allowRemove', $allow);
         return $this;
     }
 
@@ -254,7 +254,7 @@ class Image extends ManageableField
      */
     public function aspect(?string $aspect = null): self
     {
-        $this->option('aspect', $aspect);
+        $this->setOption('aspect', $aspect);
         return $this;
     }
 
@@ -265,7 +265,7 @@ class Image extends ManageableField
      */
     public function rounded(null|bool|string $rounded = true): self
     {
-        $this->option('rounded', $rounded);
+        $this->setOption('rounded', $rounded);
         return $this;
     }
 

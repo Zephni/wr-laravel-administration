@@ -212,25 +212,27 @@ class ManageableField
     }
 
     /**
-     * Set / Get option.
+     * Set option.
      *
      * @param string $key
      * @param mixed $value
      * @return $this | string
      */
-    public function option(string $key, mixed $value = null): static|string
+    public function setOption(string $key, mixed $value = null): static|string
     {
-        if($value === null) {
-            if(isset($this->options[$key])){
-                return $this->options[$key];
-            } else {
-                return false;
-            }
-        }
-
         $this->options[$key] = $value;
-
         return $this;
+    }
+
+    /*
+     * Get option.
+     *
+     * @param string $key
+     * @return mixed
+     */
+    public function getOption(string $key): mixed
+    {
+        return $this->options[$key] ?? null;
     }
 
     /**
@@ -239,16 +241,22 @@ class ManageableField
      * @param ?array $options
      * @return $this|array
      */
-    public function options(?array $options = null): static|array
+    public function setOptions(?array $options = null): static|array
     {
-        if($options == null) {
-            return $this->options;
-        }
-
         $this->options = array_merge($this->options, $options);
-
         return $this;
     }
+
+    /**
+     * Get options.
+     * 
+     * @return array
+     */
+    public function getOptions(): array
+    {
+        return $this->options;
+    }
+
 
     /**
      * Set default value.
@@ -366,17 +374,16 @@ class ManageableField
     /**
      * Get label.
      *
-     * @return string
+     * @return ?string
      */
-    public function getLabel(): string
+    public function getLabel(): ?string
     {        
-        // If label set in options and not null then use that
-        if(isset($this->options['label'])) {
-            if($this->options['label'] === null) {
-                return '';
-            }
+        // Get label option
+        $label = $this->getOption('label');
 
-            return $this->options['label'];
+        // If null then return null
+        if($label === null) {
+            return $label;
         }
 
         // If name is based on a json column (eg has a -> in it) then we need to get the string after the ->
