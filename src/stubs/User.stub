@@ -76,10 +76,13 @@ class User extends ManageableModel
      * @return Collection
      */
     public function getBrowseableColumns(): Collection {
+        $modelInstance = $this->getModelInstance();
+
         return collect([
             'data->profile->avatar' => BrowseableColumn::make('Avatar', 'image', 100)->setOptions([
                 'aspect' => '1:1',
-                'rounded' => true
+                'rounded' => true,
+                'value' => $modelInstance->getProfileAvatar()
             ]),
             'name' => 'Name',
             'email' => 'Email',

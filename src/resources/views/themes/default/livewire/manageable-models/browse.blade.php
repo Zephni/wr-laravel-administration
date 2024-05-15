@@ -48,15 +48,20 @@
                                 <td class="px-3 py-2 whitespace-nowrap">
                                     {{ $model->{$column} }}
                                 </td>
-                            @elseif(isset($browseableColumn->type) && $browseableColumn->type === 'image')
+                            @elseif($browseableColumn->type === 'image')
+                                @php
+                                    $value = $browseableColumn->getOption('value') ?? $model->{$column};
+                                @endphp
                                 <td class="px-3 py-2 whitespace-nowrap" style="width: {{ is_numeric($browseableColumn->width) ? $browseableColumn->width.'px' : $browseableColumn->width }}">
-                                    @themeComponent('forced-aspect-image', [
-                                        'src' => '/'.$model->{$column},
-                                        'class' => 'border-2 border-primary-600',
-                                        'imageClass' => 'wrla_image_preview',
-                                        'aspect' => $browseableColumn->getOption('aspect'),
-                                        'rounded' => $browseableColumn->getOption('rounded') ?? false
-                                    ])
+                                    <a href="{{ $value }}" target="_blank">
+                                        @themeComponent('forced-aspect-image', [
+                                            'src' => $value,
+                                            'class' => 'border-2 border-primary-600',
+                                            'imageClass' => 'wrla_image_preview',
+                                            'aspect' => $browseableColumn->getOption('aspect'),
+                                            'rounded' => $browseableColumn->getOption('rounded') ?? false
+                                        ])
+                                    </a>
                                 </td>
                             @endif
                         @endforeach
