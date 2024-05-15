@@ -12,6 +12,12 @@
     ])->render() !!}
 @endif
 
+{{-- @foreach($items as $itemKey => $itemValue)
+    @if($loop->index == 2)
+        @dd($value, $itemKey, $itemValue)
+    @endif
+@endforeach --}}
+
 <select {{ $attributes->merge([
     'id' => $id,
     'name' => $name,

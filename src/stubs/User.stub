@@ -9,7 +9,6 @@ use \WebRegulate\LaravelAdministration\Classes\ManageableModel;
 use WebRegulate\LaravelAdministration\Classes\ManageableFields\Json;
 use \WebRegulate\LaravelAdministration\Classes\ManageableFields\Text;
 use WebRegulate\LaravelAdministration\Classes\ManageableFields\Image;
-use WebRegulate\LaravelAdministration\Classes\ManageableFields\Select;
 use \WebRegulate\LaravelAdministration\Classes\ManageableFields\Password;
 
 class User extends ManageableModel
@@ -57,6 +56,17 @@ class User extends ManageableModel
     }
 
     /**
+     * Get current user manageable model
+     *
+     * @return User
+     */
+    public static function current(): User {
+        return new User(
+            \WebRegulate\LaravelAdministration\Models\User::current()
+        );
+    }
+
+    /**
      * Get the browsable columns for the User.
      *
      * @return Collection
@@ -67,17 +77,6 @@ class User extends ManageableModel
             'email' => 'Email',
             'created_at' => 'Created',
         ]);
-    }
-
-    /**
-     * Get current user manageable model
-     *
-     * @return User
-     */
-    public static function current(): User {
-        return new User(
-            \WebRegulate\LaravelAdministration\Models\User::current()
-        );
     }
 
     /**

@@ -7,7 +7,10 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\MessageBag;
 use Illuminate\Support\Stringable;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Contracts\Database\Eloquent\Builder;
+use WebRegulate\LaravelAdministration\Classes\ManageableFields\Select;
 use WebRegulate\LaravelAdministration\Classes\ManageableFields\ManageableField;
+use WebRegulate\LaravelAdministration\Classes\ManageableFields\Text;
 
 class ManageableModel
 {
@@ -284,6 +287,62 @@ class ManageableModel
         }
 
         return $browseActions;
+    }
+
+    /**
+     * Get browse filters (Applies to browse page)
+     *
+     * @return Collection
+     */
+    public static function getBrowseFilters(): Collection {
+        return collect([
+            'search' => new Filterable(
+                // Field
+                Text::make(null, 'search')
+                    ->setLabel(null)
+                    ->attribute('wire:model.live.debounce.400ms', 'filters.search'),
+
+                // Applicable filter
+                function(Builder $query, $columns, $value) {
+                    return $query->where(function($query) use($columns, $value) {
+                        foreach($columns as $column => $label) {
+                            // If column is relationship, then modify the column to be the related column
+                            if(strpos($column, '::') !== false) {
+                                $parts = explode('::', $column);
+                                $relationship = explode('.', $parts[1]);
+                                $column = $relationship[0] . '.' . $relationship[1];
+                            }
+        
+                            $query->orWhere($column, 'like', '%'.$value.'%');
+                        }
+                    });
+                }
+            ),
+            'softDeleted' => new Filterable(
+                // Field
+                Select::make(null, 'softDeleted')
+                    ->setLabel(null)
+                    ->setItems([
+                        'all' => 'All',
+                        'trashed' => 'Trashed Only',
+                        'not_trashed' => 'Not Trashed',
+                    ])
+                    ->default('not_trashed')
+                    ->attribute('wire:model.live', 'filters.softDeleted')
+                    ->validation('required|in:all,trashed,not_trashed')
+                    ->attributes(['class' => 'w-1/2']),
+
+                // Applicable filter
+                function(Builder $query, $columns, $value) {
+                    if($value === 'trashed') {
+                        return $query->onlyTrashed();
+                    } elseif($value === 'not_trashed') {
+                        return $query->whereNull('deleted_at');
+                    }
+                    return $query;
+                }
+            )
+        ]);
     }
 
     /**

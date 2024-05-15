@@ -23,6 +23,7 @@
         <div class="flex items-stretch gap-6">
             <div class="w-full md:w-7/12">
                 {{-- Search input --}}
+                {{-- 
                 @themeComponent('forms.input-text', [
                     'attr' => [
                         'wire:model.live.debounce.400ms' => 'filters.search',
@@ -36,10 +37,16 @@
                     'error' => $errors->first('search'),
                     'autofocus' => true
                 ])
+                --}}
             </div>
             <div class="flex-1 flex justify-end items-end gap-6 pb-2">
 
+                @foreach($manageableModelClass::getBrowseFilters() as $filter)
+                    {!! $filter->render() !!}
+                @endforeach
+
                 {{-- Show admin only checkbox --}}
+                {{--     
                 @themeComponent('forms.input-checkbox', [
                     'attr' => [
                         'wire:model.live' => 'filters.showAdminOnly'
@@ -49,8 +56,10 @@
                     'checked' => $filters['showAdminOnly'],
                     'error' => $errors->first('showAdminOnly'),
                 ])
+                --}}
 
                 {{-- Show soft deleted checkbox --}}
+                {{--
                 @if($manageableModelClass::isSoftDeletable())
                     @themeComponent('forms.input-checkbox', [
                         'attr' => [
@@ -62,6 +71,7 @@
                         'error' => $errors->first('showSoftDeleted'),
                     ])
                 @endif
+                --}}
 
             </div>
         </div>

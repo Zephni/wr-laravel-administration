@@ -5,7 +5,6 @@ namespace WebRegulate\LaravelAdministration\Livewire\ManageableModels;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Illuminate\Support\Collection;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Pagination\LengthAwarePaginator;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 use WebRegulate\LaravelAdministration\Classes\WRLAPermissions;
@@ -39,12 +38,12 @@ class ManageableModelBrowse extends Component
     /**
      * Filters.
      *
-     * @var string
+     * @var array
      */
-    public $filters = [
-        'search' => '',
-        'showSoftDeleted' => false,
-        'showAdminOnly' => false,
+    public array $filters = [
+        // 'search' => '',
+        // 'showSoftDeleted' => false,
+        // 'showAdminOnly' => false,
     ];
 
     /**
@@ -89,6 +88,12 @@ class ManageableModelBrowse extends Component
 
         // Build columns from manageable model
         $this->columns = $manageableModelClass::getBrowsableColumns();
+
+        // Get manageable model filter keys from collection
+        $manageableModelFilters = $manageableModelClass::getBrowseFilters();
+        foreach($manageableModelFilters as $key => $filterable) {
+            $this->filters[$key] = $filterable->field->attribute('value');
+        }
     }
 
     /**
@@ -98,12 +103,16 @@ class ManageableModelBrowse extends Component
      */
     public function updatedSearch()
     {
-        // Validate
-        $this->validate([
-            'search' => 'string|max:100',
-            'showSoftDeleted' => 'boolean',
-            'showAdminOnly' => 'boolean',
-        ]);
+        $manageableModelFilters = $this->manageableModelClass::getBrowseFilters();
+
+        $validateArray = [];
+        foreach($manageableModelFilters as $key => $filterable) {
+            if(!empty($filterable->field->validationRules)) {
+                $validateArray[$key] = $filterable->field->validationRules;
+            }
+        }
+
+        $this->validate($validateArray);
     }
 
     /**
@@ -202,6 +211,14 @@ class ManageableModelBrowse extends Component
         // DD with current query string for debugging
         // dd($queryBuilder->toSql());
 
+        // Now we loop through the filterable fields and apply them to the query
+        $manageableModelFilters = $this->manageableModelClass::getBrowseFilters();
+
+        foreach($manageableModelFilters as $key => $filterable) {
+            $queryBuilder = $filterable->apply($queryBuilder, $this->columns, $this->filters[$key]);
+        }
+
+        /*
         // Search
         if($this->filters['search'] != '') {
             $queryBuilder = $queryBuilder->where(function($query) {
@@ -229,6 +246,7 @@ class ManageableModelBrowse extends Component
             // We need to get whether the user is an admin from their permissions json column, field "admin"
             $queryBuilder = $queryBuilder->whereJsonContains('permissions', ['admin' => true]);
         }
+        */
 
         // Debug by showing all items as array
         // dd($queryBuilder->get()->toArray());
@@ -299,9 +317,18 @@ class ManageableModelBrowse extends Component
      */
     public function hasFilters()
     {
-        return
-            $this->filters['search'] != ''
-            || $this->filters['showSoftDeleted']
-            || $this->filters['showAdminOnly'];
+        // return
+        //     $this->filters['search'] != ''
+        //     || $this->filters['showSoftDeleted']
+        //     || $this->filters['showAdminOnly'];
+
+        // Now because $filters are dynamically passed, we just check if any are not the default value
+        $manageableModelFilters = $this->manageableModelClass::getBrowseFilters();
+
+        foreach($this->filters as $key => $value) {
+            if($value != $manageableModelFilters[$key]) {
+                return true;
+            }
+        }
     }
 }

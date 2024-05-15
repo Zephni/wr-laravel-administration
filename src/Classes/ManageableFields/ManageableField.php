@@ -271,10 +271,10 @@ class ManageableField
     /**
      * Set label
      *
-     * @param string $label
+     * @param ?string $label
      * @return $this
      */
-    public function setLabel(string $label): static
+    public function setLabel(?string $label): static
     {
         $this->options['label'] = $label;
 
@@ -370,6 +370,11 @@ class ManageableField
      */
     public function getLabel(): string
     {
+        // If label null then return empty string
+        if($this->options['label'] === null) {
+            return '';
+        }
+        
         // If label set in options then use that
         if(isset($this->options['label'])) {
             return $this->options['label'];
