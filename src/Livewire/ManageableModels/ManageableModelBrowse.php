@@ -95,8 +95,8 @@ class ManageableModelBrowse extends Component
 
         // Get manageable model filter keys from collection
         $manageableModelFilters = $manageableModelClass::getBrowseFilters();
-        foreach($manageableModelFilters as $key => $filterable) {
-            $this->filters[$key] = $filterable->field->getAttribute('value');
+        foreach($manageableModelFilters as $key => $browseFilter) {
+            $this->filters[$key] = $browseFilter->field->getAttribute('value');
         }
     }
 
@@ -110,9 +110,9 @@ class ManageableModelBrowse extends Component
         $manageableModelFilters = $this->manageableModelClass::getBrowseFilters();
 
         $validateArray = [];
-        foreach($manageableModelFilters as $key => $filterable) {
-            if(!empty($filterable->field->validationRules)) {
-                $validateArray[$key] = $filterable->field->validationRules;
+        foreach($manageableModelFilters as $key => $browseFilter) {
+            if(!empty($browseFilter->field->validationRules)) {
+                $validateArray[$key] = $browseFilter->field->validationRules;
             }
         }
 
@@ -226,8 +226,8 @@ class ManageableModelBrowse extends Component
         // Now we loop through the filterable fields and apply them to the query
         $manageableModelFilters = $this->manageableModelClass::getBrowseFilters();
 
-        foreach($manageableModelFilters as $key => $filterable) {
-            $queryBuilder = $filterable->apply($queryBuilder, $this->columns, $this->filters[$key]);
+        foreach($manageableModelFilters as $key => $browseFilter) {
+            $queryBuilder = $browseFilter->apply($queryBuilder, $this->columns, $this->filters[$key]);
         }
 
         /*

@@ -296,7 +296,7 @@ class ManageableModel
      */
     public static function getBrowseFilters(): Collection {
         return collect([
-            'search' => new Filterable(
+            'search' => new BrowseFilter(
                 // Field
                 Text::make(null, 'search')
                     ->setLabel(null)
@@ -323,7 +323,7 @@ class ManageableModel
                     });
                 }
             ),
-            'softDeleted' => new Filterable(
+            'softDeleted' => new BrowseFilter(
                 // Field
                 Select::make(null, 'softDeleted')
                     ->setLabel(null)

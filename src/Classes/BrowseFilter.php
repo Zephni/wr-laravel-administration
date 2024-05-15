@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Builder;
 use WebRegulate\LaravelAdministration\Classes\ManageableFields\ManageableField;
 use WebRegulate\LaravelAdministration\Enums\PageType;
 
-class Filterable
+class BrowseFilter
 {
     /**
      * The field to filter by.
@@ -28,7 +28,7 @@ class Filterable
     public $applicableFilter;
 
     /**
-     * Create a new Filterable instance.
+     * Create a new BrowseFilter instance.
      *
      * @param ManageableField $field
      * @param callable $applicableFilter

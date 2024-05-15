@@ -20,7 +20,7 @@
 
     {{-- Filters --}}
     <div class="w-full rounded-lg p-3 pr-4 mb-1 bg-slate-100 shadow-md dark:bg-slate-800">
-        <div class="flex gap-6 items-stretch gap-6">
+        <div class="flex gap-4 items-stretch">
             
             @foreach($manageableModelClass::getBrowseFilters() as $filter)
                 {!! $filter->render() !!}

@@ -104,7 +104,7 @@ class Image extends ManageableField
         $image = $manipulateImageFunction($image);
         $image->save(public_path($path) . '/' . $filename);
 
-        return rtrim(ltrim($path, '/'), '/') . '/' . $filename;
+        return '/'.rtrim(ltrim($path, '/'), '/') . '/' . $filename;
     }
 
     /**
