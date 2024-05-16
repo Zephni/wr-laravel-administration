@@ -12,7 +12,7 @@
     $isHttpImage = preg_match('/^http(s)?:\/\//', $value);
 
     // Check that $value exists as an image, if not then we use the $options['defaultImage']
-    $imageExists = !empty($value) && file_exists(public_path($value));
+    $imageExists = !empty($value) && file_exists(public_path($value)) && $value != $WRLAHelper::getCurrentThemeData('no_image_src');
     $src = $imageExists ? $value : $options['defaultImage'];
     $imageExistsHtml = $imageExists
         ? '<span class="float-right text-green-500">Image found</span>'
@@ -61,11 +61,11 @@
             @if(!$imageExists || ($imageExists && $options['allowRemove'] == true))
                 @themeComponent('forms.button', [
                     'size' => 'small',
-                    'type' => 'button',
                     'color' => 'danger',
                     'text' => 'Remove',
                     'icon' => 'fa fa-trash relative top-[-1px] text-xs',
                     'attributes' => new \Illuminate\View\ComponentAttributeBag([
+                        'type' => 'button',
                         'title' => 'Remove',
                         'class' => 'text-sm',
                         'onclick' => 'wrla_removeImage(this)',

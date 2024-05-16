@@ -1,5 +1,5 @@
 @props([
-    'src' => 'https://via.placeholder.com/150',
+    'src' => $WRLAHelper::getCurrentThemeData('no_image_src'),
     'class' => '',
     'imageClass' => '',
     'width' => 'w-full',

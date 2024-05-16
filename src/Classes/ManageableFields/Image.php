@@ -40,7 +40,7 @@ class Image extends ManageableField
         $imageInstance->setOptions([
             'path' => $path,
             'filename' => $filename,
-            'defaultImage' => 'https://via.placeholder.com/120x120.jpg?text=No+Image+Available',
+            'defaultImage' => WRLAHelper::getCurrentThemeData('no_image_src'),
             'unlinkOld' => true,
             'allowRemove' => true,
             'aspect' => null,
