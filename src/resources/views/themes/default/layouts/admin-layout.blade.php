@@ -16,7 +16,7 @@
     @include('wr-laravel-administration::themes.default.layouts.partials.partial-head')
 </head>
 <body
-    class="h-full antialiased bg-slate-200 dark:bg-slate-900">
+    class="h-full antialiased font-light bg-slate-200 dark:bg-slate-900">
 
     {{-- Main container --}}
     <div
