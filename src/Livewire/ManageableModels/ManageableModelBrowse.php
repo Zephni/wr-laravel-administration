@@ -230,35 +230,8 @@ class ManageableModelBrowse extends Component
             $queryBuilder = $browseFilter->apply($queryBuilder, $this->columns, $this->filters[$key]);
         }
 
-        /*
-        // Search
-        if($this->filters['search'] != '') {
-            $queryBuilder = $queryBuilder->where(function($query) {
-                foreach($this->columns as $column => $label) {
-                    // If column is relationship, then modify the column to be the related column
-                    if(strpos($column, '::') !== false) {
-                        $parts = explode('::', $column);
-                        $relationship = explode('.', $parts[1]);
-                        $column = $relationship[0] . '.' . $relationship[1];
-                    }
-
-                    $query->orWhere($column, 'like', '%'.$this->filters['search'].'%');
-                }
-            });
-        }
-
-        // Soft deleted
-        if($this->filters['showSoftDeleted']) {
-            $queryBuilder = $queryBuilder->whereNotNull('deleted_at')->withTrashed();
-            $queryBuilder = $queryBuilder->addSelect($tableName.'.deleted_at');
-        }
-
-        // Admin only
-        if($this->filters['showAdminOnly']) {
-            // We need to get whether the user is an admin from their permissions json column, field "admin"
-            $queryBuilder = $queryBuilder->whereJsonContains('permissions', ['admin' => true]);
-        }
-        */
+        // For now just order by id DESC, but need to add post query and optional ordering etc to manageable models
+        $queryBuilder = $queryBuilder->orderBy($tableName . '.id', 'DESC');
 
         return $queryBuilder->paginate(10);
     }
