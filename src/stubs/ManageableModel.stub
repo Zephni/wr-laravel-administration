@@ -8,21 +8,33 @@ use Illuminate\Support\Stringable;
 
 class {{ $MODEL }} extends ManageableModel
 {
-    public static $baseModelClass = \App\Models\{{ $MODEL_WITH_PATH }}::class;
+    public static ?string $baseModelClass = \App\Models\{{ $MODEL_WITH_PATH }}::class;
 
     public static function getUrlAlias(): string
     {
         return '{{ $URL_ALIAS }}';
     }
 
-    public static function getDisplayName(bool $plural = false): string
-    {
-        return '{{ $DISPLAY_NAME }}' . ($plural ? 's' : '');
-    }
-
     public static function getIcon(): string
     {
         return '{{ $ICON }}';
+    }
+
+    public static function getDisplayName(bool $plural = false): string
+    {
+        return parent::getDisplayName($plural);
+    }
+
+    public static function getBrowseItemActions(mixed $model): Collection {
+        return parent::getBrowseItemActions($model);
+    }
+
+    public static function getBrowseFilters(): Collection {
+        return parent::getBrowseFilters();
+    }
+
+    public static function getBrowseActions(): Collection {
+        return parent::getBrowseActions();
     }
 
     public function getBrowseableColumns(): Collection

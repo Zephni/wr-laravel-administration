@@ -195,7 +195,10 @@ class ManageableModel
      */
     public static function getDisplayName(bool $plural = false): string
     {
-        return !$plural ? 'Manageable Model' : 'Manageable Models';
+        // Class base name needs to be converted from pascal case to human readable
+        $humanName = str(class_basename(static::class))->kebab()->replace('-', ' ')->title();
+
+        return !$plural ? $humanName->singular() : $humanName->plural();
     }
 
     /**
@@ -584,5 +587,15 @@ class ManageableModel
     public function isBeingCreated(): bool
     {
         return $this->getModelInstance()->id == null;
+    }
+
+    /**
+     * Get specific validation rule
+     *
+     * @return string
+     */
+    public function getValidationRule($column): string
+    {
+        return $this->getValidationRules()->get($column);
     }
 }
