@@ -295,8 +295,13 @@ class ManageableField
      * @param ?string $label
      * @return $this
      */
-    public function setLabel(?string $label): static
+    public function setLabel(?string $label, ?string $icon = null): static
     {
+        // If icon is set then prepend it to the label
+        if($icon !== null) {
+            $label = "<i class='$icon mr-0.5'></i> $label";
+        }
+
         $this->options['label'] = $label;
 
         return $this;

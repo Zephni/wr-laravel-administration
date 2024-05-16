@@ -302,7 +302,7 @@ class ManageableModel
             'search' => new BrowseFilter(
                 // Field
                 Text::make(null, 'search')
-                    ->setLabel('Search')
+                    ->setLabel('Search', 'fas fa-search text-slate-400')
                     ->setOptions([
                         'containerClass' => 'w-1/2',
                         'labelClass' => 'font-thin',
@@ -333,7 +333,7 @@ class ManageableModel
             'softDeleted' => new BrowseFilter(
                 // Field
                 Select::make(null, 'softDeleted')
-                    ->setLabel('Status')
+                    ->setLabel('Status', 'fas fa-heartbeat text-slate-400 !mr-1')
                     ->setItems([
                         'not_trashed' => 'Active only',
                         'trashed' => 'Soft deleted only',
@@ -341,7 +341,7 @@ class ManageableModel
                     ])
                     ->default('not_trashed')
                     ->setOptions([
-                        'containerClass' => 'w-1/5',
+                        'containerClass' => 'w-1/6',
                         'labelClass' => 'font-thin',
                     ])
                     ->setAttributes([

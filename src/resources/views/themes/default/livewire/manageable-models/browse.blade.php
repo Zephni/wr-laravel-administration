@@ -1,8 +1,13 @@
 {{-- Livewire browse models, a very modern style browse system, includes a search filter and a table with the models data. --}}
 <div class="flex flex-col gap-4">
 
-    <div class="text-xl font-semibold mb-2">
-        Browsing {{ $manageableModelClass::getDisplayName(true) }}
+    <div class="flex justify-between items-center">
+        <div class="text-xl font-semibold mb-2">
+            Browsing {{ $manageableModelClass::getDisplayName(true) }}
+        </div>
+        <div class="text-sm text-slate-500">
+            Total: {{ $models?->total() ?? 0 }} records
+        </div>
     </div>
 
     @if($successMessage)
@@ -19,7 +24,7 @@
     </div>
 
     {{-- Filters --}}
-    <div class="w-full rounded-lg p-3 pr-4 pt-2 mb-1 bg-slate-100 shadow-md dark:bg-slate-800">
+    <div class="w-full rounded-lg px-3 pt-2 pb-3 mb-1 bg-slate-100 shadow-md dark:bg-slate-800">
         <div class="flex justify-start items-stretch gap-4">
             
             @foreach($manageableModelClass::getBrowseFilters() as $filter)
