@@ -3,8 +3,11 @@
 namespace {{ $NAMESPACE }};
 
 use WebRegulate\LaravelAdministration\Classes\ManageableModel;
+use WebRegulate\LaravelAdministration\Classes\BrowseableColumn;
+use WebRegulate\LaravelAdministration\Classes\ManageableFields\Text;
+use WebRegulate\LaravelAdministration\Classes\ManageableFields\Image;
+use WebRegulate\LaravelAdministration\Classes\ManageableFields\TextArea;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Stringable;
 
 class {{ $MODEL }} extends ManageableModel
 {
