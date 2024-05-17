@@ -163,21 +163,6 @@ class ManageableModel
     }
 
     /**
-     * Permissions
-     *
-     * @return WRLAPermissions
-     */
-    public static function permissions(): WRLAPermissions
-    {
-        // If permissions not set, create a new instance
-        if(!isset(self::$permissions) || self::$permissions == null) {
-            self::$permissions = new WRLAPermissions(new self());
-        }
-
-        return self::$permissions;
-    }
-
-    /**
      * Get the URL alias for the manageable model.
      *
      * @return string
@@ -209,6 +194,22 @@ class ManageableModel
     public static function getIcon(): string
     {
         return 'fa fa-question';
+    }
+
+    /**
+     * Default permissions
+     *
+     * @return Collection
+     */
+    public function getDefaultPermissions(): Collection
+    {
+        return collect([
+            WRLAPermissions::CREATE => true,
+            WRLAPermissions::BROWSE => true,
+            WRLAPermissions::EDIT => true,
+            WRLAPermissions::DELETE => false,
+            WRLAPermissions::RESTORE => false,
+        ]);
     }
 
     /**
@@ -597,5 +598,20 @@ class ManageableModel
     public function getValidationRule($column): string
     {
         return $this->getValidationRules()->get($column);
+    }
+
+    /**
+     * Permissions
+     *
+     * @return WRLAPermissions
+     */
+    public final static function permissions(): WRLAPermissions
+    {
+        // If permissions not set, create a new instance
+        if(!isset(self::$permissions) || self::$permissions == null) {
+            self::$permissions = new WRLAPermissions(new self());
+        }
+
+        return self::$permissions;
     }
 }

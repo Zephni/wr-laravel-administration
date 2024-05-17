@@ -293,24 +293,24 @@ class ManageableModelBrowse extends Component
     }
 
     /**
-     * Check if any filters are set
+     * Check if any filters are set.
      *
      * @return bool
      */
     public function hasFilters()
     {
-        // return
-        //     $this->filters['search'] != ''
-        //     || $this->filters['showSoftDeleted']
-        //     || $this->filters['showAdminOnly'];
-
-        // Now because $filters are dynamically passed, we just check if any are not the default value
+        // Get the manageable model filters
         $manageableModelFilters = $this->manageableModelClass::getBrowseFilters();
 
+        // Loop through the filters and compare their values with the default values
         foreach($this->filters as $key => $value) {
+            // Return true If any filter value is different from the default value
             if($value != $manageableModelFilters[$key]) {
                 return true;
             }
         }
+
+        // Return false if no filters are set
+        return false;
     }
 }

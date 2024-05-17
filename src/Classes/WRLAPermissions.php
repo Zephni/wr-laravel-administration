@@ -65,8 +65,10 @@ class WRLAPermissions
         // Get user decoded permissions
         $userPermissions = json_decode($this->user->permissions);
 
-        // If user permissions doesn't have the model url alias key, then skip
+        // If user permissions doesn't have the model url alias key, then apply internal model permissions
         if(data_get($userPermissions, 'model.'.$this->manageableModel->getUrlAlias()) === null) {
+            $this->permissions = $this->manageableModel->getDefaultPermissions()->toArray();
+
             return;
         }
 
@@ -82,6 +84,11 @@ class WRLAPermissions
      */
     public function hasPermission(string $permission, mixed $equalTo = true): bool
     {
+        // If permission is null, return true
+        if($permission === null) {
+            return true;
+        }
+
         // If user is null then return false
         if($this->user === null) {
             return false;
@@ -100,7 +107,12 @@ class WRLAPermissions
         }
 
         // If direct permission doesn't exist, check if permission is in the manageable model permissions
-        $permission = data_get($this->permissions, $permission);
-        return $permission === $equalTo;
+        $mmPermission = data_get($this->permissions, $permission);
+
+        if($mmPermission !== null) {
+            return $mmPermission === $equalTo;
+        }
+
+        return false;
     }
 }
