@@ -40,7 +40,7 @@
             'imageClass' => 'wrla_image_preview',
             'aspect' => $options["aspect"],
             'rounded' => $options["rounded"],
-            'imageClass' => $options['imageClass'],
+            'imageClass' => $options['imageClass'].' wrla_image_preview',
             'attributes' => new \Illuminate\View\ComponentAttributeBag([
                 'src' => $src,
                 'class' => 'border-2 border-primary-600'
@@ -121,7 +121,7 @@
 
     function wrla_removeImage(button) {
         var input = button.parentElement.parentElement.querySelector('.wrla_image_input');
-        var previewImageElement = button.parentElement.parentElement.parentElement.querySelector('.wrla_image_preview');
+        var previewImageElement = input.parentElement.parentElement.parentElement.querySelector('.wrla_image_preview');
         var removeInput = button.parentElement.querySelector('.wrla_remove_input');
         
         input.value = '';
