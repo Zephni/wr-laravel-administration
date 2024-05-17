@@ -17,11 +17,12 @@ class TextArea extends ManageableField
     public function render(PageType $upsertType): mixed
     {
         return view(WRLAHelper::getViewPath('components.forms.textarea'), [
+            'ignoreOld' => false,
             'label' => $this->getLabel(),
-            'value' => $this->getValue(),
             'options' => $this->options,
             'attributes' => new ComponentAttributeBag(array_merge($this->attributes, [
-                'name' => $this->attributes['name']
+                'name' => $this->attributes['name'],
+                'value' => $this->getValue()
             ])),
         ])->render();
     }

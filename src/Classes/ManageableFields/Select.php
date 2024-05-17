@@ -55,11 +55,11 @@ class Select extends ManageableField
     {
         return view(WRLAHelper::getViewPath('components.forms.input-select'), [
             'label' => $this->getLabel(),
-            'value' => $this->getValue(),
             'options' => $this->options,
             'items' => $this->items,
             'attributes' => new ComponentAttributeBag(array_merge($this->attributes, [
-                'name' => $this->attributes['name']
+                'name' => $this->attributes['name'],
+                'value' => $this->getValue()
             ])),
         ])->render();
     }

@@ -1,4 +1,4 @@
-@props(['options' => [], 'ignoreOld' => false, 'label' => null, 'id' => '', 'name', 'value' => '', 'items' => [], 'required' => false, 'autofocus' => false, 'readonly' => false])
+@props(['options' => [], 'ignoreOld' => false, 'label' => null, 'items' => []])
 
 @php
     // Set id from name if unset
@@ -30,7 +30,7 @@
         focus:outline-none focus:ring-1 focus:ring-primary-500 dark:focus:ring-primary-500 rounded-md shadow-sm placeholder-slate-400 dark:placeholder-slate-600 pr-3'
 ]) }}>
     @foreach($items as $itemKey => $itemValue)
-        <option value="{{ $itemKey }}" @if($ignoreOld ? $value == $itemKey : old($name, $value) == $itemKey) selected @endif>{{ $itemValue }}</option>
+        <option value="{{ $itemKey }}" @if($ignoreOld ? $attributes->get('value') == $itemKey : old($attributes->get('name'), $attributes->get('value')) == $itemKey) selected @endif>{{ $itemValue }}</option>
     @endforeach
 </select>
 
@@ -39,7 +39,7 @@
     @themeComponent('forms.field-notes', ['notes' => $options['notes']])
 @endif
 
-@error($name)
+@error($attributes->get('name'))
     @themeComponent('alert', ['type' => 'error', 'message' => $message, 'class' => 'mt-2'])
 @enderror
 

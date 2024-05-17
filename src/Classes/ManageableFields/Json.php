@@ -191,10 +191,10 @@ class Json extends ManageableField
         return view(WRLAHelper::getViewPath('components.forms.textarea'), [
             'ignoreOld' => true,
             'label' => $this->getLabel(),
+            'options' => $this->options,
             'attributes' => new ComponentAttributeBag(array_merge($this->attributes, [
                 'name' => $this->attributes['name'],
-                'value' => $value,
-                'type' => 'file'
+                'value' => $value
             ])),
         ])->render();
     }
