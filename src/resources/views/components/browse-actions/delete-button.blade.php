@@ -8,6 +8,6 @@
     'attributes' => new \Illuminate\View\ComponentAttributeBag([
         'title' => $text ?? 'Delete',
         'onclick' => "confirm('Are you sure?') || event.stopImmediatePropagation()",
-        'wire:click' => 'deleteModel("'.$manageableModel::getUrlAlias().'", '.$manageableModel->getModelInstance()->id.', '.($permanent ?? false ? '1' : '0').')',
+        'wire:click' => 'deleteModel('.$manageableModel->getModelInstance()->id.', '.($permanent ?? false ? '1' : '0').')',
     ])
 ])

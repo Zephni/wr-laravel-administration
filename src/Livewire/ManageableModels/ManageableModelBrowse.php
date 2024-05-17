@@ -243,7 +243,7 @@ class ManageableModelBrowse extends Component
      * @param int $id The ID of the model to delete.
      * @param int $permanent Whether to force delete the model.
      */
-    public function deleteModel(string $modelUrlAlias, int $id, int $permanent = 0)
+    public function deleteModel(int $id, int $permanent = 0)
     {
         // Get manageable model instance
         $manageableModel = new $this->manageableModelClass($id);
@@ -255,9 +255,9 @@ class ManageableModelBrowse extends Component
         }
 
         // Check that model URL alias matches the manageable model class URL alias
-        if($modelUrlAlias != $this->manageableModelClass::getUrlAlias()) {
-            return;
-        }
+        // if($modelUrlAlias != $this->manageableModelClass::getUrlAlias()) {
+        //     return;
+        // }
 
         // If permanent, force delete
         if($permanent == 1) {
@@ -284,9 +284,9 @@ class ManageableModelBrowse extends Component
     public function restoreModel(string $modelUrlAlias, int $id)
     {
         // Check that model URL alias matches the manageable model class URL alias
-        if($modelUrlAlias != $this->manageableModelClass::getUrlAlias()) {
-            return;
-        }
+        // if($modelUrlAlias != $this->manageableModelClass::getUrlAlias()) {
+        //     return;
+        // }
 
         $model = $this->manageableModelClass::$baseModelClass::withTrashed()->find($id);
         $model->restore();
