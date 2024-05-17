@@ -32,7 +32,7 @@
     <div class="block w-full h-9"></div>
 
     {{-- Content container --}}
-    <div class="flex flex-row w-full h-full overflow-auto">
+    <div class="flex flex-row w-full">
         {{-- Gap --}}
         <div class=" w-14 h-full"></div>
 

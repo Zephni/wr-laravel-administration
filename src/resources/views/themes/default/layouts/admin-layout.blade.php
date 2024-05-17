@@ -24,7 +24,7 @@
             leftPanelOpen: $persist(true).using(sessionStorage),
             leftPanelAttemptedWidth: $persist(360)
         }"
-        class="relative flex flex-row w-full min-h-full overflow-x-auto overflow-y-hidden text-slate-900 dark:text-slate-100">
+        class="relative flex flex-row w-full min-h-full overflow-x-auto text-slate-900 dark:text-slate-100">
 
         {{-- Left panel --}}
         @include('wr-laravel-administration::themes.default.layouts.partials.partial-left-panel')
