@@ -281,7 +281,7 @@ class ManageableModelBrowse extends Component
      * @param string $modelUrlAlias The URL alias of the model to restore.
      * @param int $id The ID of the model to restore.
      */
-    public function restoreModel(string $modelUrlAlias, int $id)
+    public function restoreModel(int $id)
     {
         // Check that model URL alias matches the manageable model class URL alias
         // if($modelUrlAlias != $this->manageableModelClass::getUrlAlias()) {
