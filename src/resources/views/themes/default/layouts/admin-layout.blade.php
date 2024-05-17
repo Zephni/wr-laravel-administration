@@ -16,7 +16,7 @@
     @include('wr-laravel-administration::themes.default.layouts.partials.partial-head')
 </head>
 <body
-    class="flex flex-col h-full antialiased font-light bg-slate-200 dark:bg-slate-900">
+    class="flex flex-col w-full h-full antialiased font-light bg-slate-200 dark:bg-slate-900">
 
     {{-- Main container --}}
     <div
@@ -24,7 +24,7 @@
             leftPanelOpen: $persist(true).using(sessionStorage),
             leftPanelAttemptedWidth: $persist(360)
         }"
-        class="relative flex flex-row w-full overflow-x-auto text-slate-900 dark:text-slate-100">
+        class="relative flex flex-row w-full min-h-full overflow-x-auto overflow-y-hidden text-slate-900 dark:text-slate-100">
 
         {{-- Left panel --}}
         @include('wr-laravel-administration::themes.default.layouts.partials.partial-left-panel')
