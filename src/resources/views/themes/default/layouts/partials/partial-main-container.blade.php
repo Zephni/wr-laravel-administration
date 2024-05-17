@@ -33,11 +33,8 @@
 
     {{-- Content container --}}
     <div class="flex flex-row w-full">
-        {{-- Gap --}}
-        <div class=" w-14 h-full"></div>
-
         {{-- Yield content --}}
-        <div class="relative w-full flex flex-col pt-8 pb-24 pr-10">
+        <div class="relative w-full flex flex-col pt-8 pb-24 pl-6 pr-5 lg:pl-16 lg:pr-10">
             @if(session('success'))
                 @themeComponent('alert', ['type' => 'success', 'message' => session('success')])
             @elseif(session('error'))
