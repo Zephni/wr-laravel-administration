@@ -14,12 +14,20 @@
 
     <br />
 
-    <div class="text-xl font-semibold">
-        @if($manageableModel->getmodelInstance()->id == null)
-            Creating new {{ $manageableModel->getDisplayName() }}
-        @else
-            Editing {{ $manageableModel->getDisplayName() }} #{{ $manageableModel->getmodelInstance()->id }}
-        @endif
+    <div class="flex justify-between">
+        <div class="text-xl font-semibold">
+            @if($manageableModel->getmodelInstance()->id == null)
+                Creating new {{ $manageableModel->getDisplayName() }}
+            @else
+                Editing {{ $manageableModel->getDisplayName() }} #{{ $manageableModel->getmodelInstance()->id }}
+            @endif
+        </div>
+        <div class="flex justify-end gap-2 !text-sm">
+            @foreach($manageableModel::getBrowseItemActions($manageableModel->getmodelInstance()) as $key => $action)
+                @continue($key == 'edit')
+                {!! $action->render() !!}
+            @endforeach
+        </div>
     </div>
 
     <form

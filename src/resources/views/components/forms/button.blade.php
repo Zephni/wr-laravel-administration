@@ -21,12 +21,12 @@
 <a href="{{ $href }}"
 @endif
     {{ $attributes->merge([
-        'class' => "block $sizeClasses font-semibold text-white dark:text-slate-900 border $colorClasses rounded-md shadow-sm whitespace-nowrap"
+        'class' => "flex justify-center items-center gap-1 $sizeClasses font-semibold text-white dark:text-slate-900 border $colorClasses rounded-md shadow-sm whitespace-nowrap"
     ]) }}>
     @if(!empty($icon))
         <i class="{{ $icon }} text-white dark:text-slate-900 mr-1"></i>
     @endif
-    {!! $text !!}
+    <div>{!! $text !!}</div>
 @if(empty($href))
 </button>
 @else

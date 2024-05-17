@@ -64,7 +64,7 @@
                     'size' => 'small',
                     'color' => 'danger',
                     'text' => 'Remove',
-                    'icon' => 'fa fa-trash relative top-[-1px] text-xs',
+                    'icon' => 'fa fa-trash relative text-xs',
                     'attributes' => new \Illuminate\View\ComponentAttributeBag([
                         'type' => 'button',
                         'title' => 'Remove',

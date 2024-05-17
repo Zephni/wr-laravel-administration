@@ -6,7 +6,7 @@
     'color' => 'primary',
     'type' => 'button',
     'text' => 'Login',
-    'icon' => 'fa fa-lock relative top-[-1px] !mr-[3px] text-[10px]',
+    'icon' => 'fa fa-lock relative !mr-[3px] text-[10px]',
     'attributes' => new \Illuminate\View\ComponentAttributeBag([
         'onclick' => "confirm('Login as ' + '{$modelInstance->email}' + '?')",
         'title' => 'Login as ' . $modelInstance->name
