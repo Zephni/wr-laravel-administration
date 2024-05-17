@@ -126,7 +126,7 @@
         
         input.value = '';
         button.style.display = 'none';
-        previewImageElement.src = 'https://ui-avatars.com/api/?name=X&background=FFD0CC&color=FFE2DD&size=200';
+        previewImageElement.src = '{{ $WRLAHelper::getCurrentThemeData('no_image_src') }}';
 
         // We only need to set the removeInput value to true if a file already exists
         @if($imageExists)
