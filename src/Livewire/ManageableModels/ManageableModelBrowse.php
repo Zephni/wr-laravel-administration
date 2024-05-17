@@ -98,6 +98,11 @@ class ManageableModelBrowse extends Component
         foreach($manageableModelFilters as $key => $browseFilter) {
             $this->filters[$key] = $browseFilter->field->getAttribute('value');
         }
+
+        // If ?delete is passed to the URL, delete the model
+        if(request()->has('delete')) {
+            $this->deleteModel(request()->input('delete'));
+        }
     }
 
     /**
