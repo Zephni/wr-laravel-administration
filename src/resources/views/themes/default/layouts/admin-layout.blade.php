@@ -22,9 +22,10 @@
     <div
         x-data="{
             leftPanelOpen: $persist(true).using(sessionStorage),
-            leftPanelWidth: $persist(360),
+            leftPanelAttemptedWidth: $persist(360),
+            leftPanelActualWidth: $persist(360)
         }"
-        class="relative flex flex-row w-full h-full items-center text-slate-900 dark:text-slate-100">
+        class="relative flex flex-row w-full h-full items-center overflow-x-auto text-slate-900 dark:text-slate-100">
 
         {{-- Left panel --}}
         @include('wr-laravel-administration::themes.default.layouts.partials.partial-left-panel')

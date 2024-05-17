@@ -1,6 +1,7 @@
 {{-- Right container --}}
 <div
-    x-bind:style="'margin-left: ' + (leftPanelOpen ? leftPanelWidth : 0) + 'px;'"
+    id="wrla_main_container"
+    x-bind:style="'margin-left: ' + (leftPanelOpen ? leftPanelActualWidth : 0) + 'px;'"
     class="flex-1 h-full">
     {{-- Top bar --}}
     <div class="fixed z-10 left-0 flex w-full gap-5 h-9 justify-end items-center border-b-2 border-slate-300 dark:border-slate-700 shadow-md dark:shadow-slate-900 bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-400">
