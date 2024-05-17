@@ -29,5 +29,5 @@
 <div
     class="relative overflow-hidden {{ $width }} {{ $height }} rounded-{{ $rounded }} {{ $class }}"
     style="padding-bottom: {{ $paddingBottom }}%;">
-    <img src="{{ $src }}" alt="Image" class="object-cover w-full h-full absolute top-0 left-0 {{ $imageClass }}" />
+    <img src="{{ $src }}" alt="Image" class="object-fill w-full h-full absolute top-0 left-0 {{ $imageClass }}" />
 </div>
