@@ -16,16 +16,15 @@
     @include('wr-laravel-administration::themes.default.layouts.partials.partial-head')
 </head>
 <body
-    class="h-full antialiased font-light bg-slate-200 dark:bg-slate-900">
+    class="flex flex-col h-full antialiased font-light bg-slate-200 dark:bg-slate-900">
 
     {{-- Main container --}}
     <div
         x-data="{
             leftPanelOpen: $persist(true).using(sessionStorage),
-            leftPanelAttemptedWidth: $persist(360),
-            leftPanelActualWidth: $persist(360)
+            leftPanelAttemptedWidth: $persist(360)
         }"
-        class="relative flex flex-row w-full h-full items-center overflow-x-auto text-slate-900 dark:text-slate-100">
+        class="relative flex flex-row w-full overflow-x-auto text-slate-900 dark:text-slate-100">
 
         {{-- Left panel --}}
         @include('wr-laravel-administration::themes.default.layouts.partials.partial-left-panel')

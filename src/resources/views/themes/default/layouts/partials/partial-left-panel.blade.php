@@ -9,7 +9,7 @@
     x-bind:style="'width: ' + leftPanelAttemptedWidth + 'px;'"
     :class="(leftPanelOpen ? 'min-w-44 max-w-[33%] ' : 'min-w-0 max-w-0 border-none ') + (!dragging ? 'transition-all' : '')"
     id="left-panel"
-    class="fixed z-20 flex flex-col justify-start items-start h-full border-r-2 border-slate-300 dark:border-slate-950 bg-slate-700 dark:bg-slate-700 shadow-lg shadow-slate-500 dark:shadow-slate-950 z-10">
+    class="relative sticky hidden md:flex z-20 top-0 flex flex-col justify-start items-start h-full border-r-2 border-slate-300 dark:border-slate-950 bg-slate-700 dark:bg-slate-700 shadow-lg shadow-slate-500 dark:shadow-slate-950 z-10">
 
     {{-- Collapse button (Use collapse icon from fontawesome) --}}
     <button
@@ -26,13 +26,19 @@
     <div
         :class="leftPanelOpen ? 'cursor-ew-resize' : 'hidden cursor-auto';"
         class="absolute top-0 -right-1 h-full w-[4px] bg-slate-400 dark:bg-slate-800 border-r border-slate-400 dark:border-slate-500"
-        @mousedown="$event.preventDefault(); if(leftPanelOpen && !dragging) startX = $event.clientX; dragging = true;"
+        @mousedown="$event.preventDefault(); if(leftPanelOpen && !dragging){ startX = $event.clientX; dragging = true; }"
         @mousemove.window="if (dragging) {
             leftPanelAttemptedWidth = leftPanelAttemptedWidth + $event.clientX - startX;
             startX = $event.clientX;
-            leftPanelActualWidth = document.getElementById('left-panel').offsetWidth;
+
+            // Get the min and max width of the left panel
+            minW = parseInt(window.getComputedStyle(document.getElementById('left-panel')).getPropertyValue('min-width'));
+            maxW = Math.floor(window.innerWidth * 0.33);
+
+            // If leftPanelWidth is lower than min width or higher than max width, set it to min or max width
+            if (leftPanelAttemptedWidth < minW) leftPanelAttemptedWidth = minW;
+            if (leftPanelAttemptedWidth > maxW) leftPanelAttemptedWidth = maxW;
         }"
-        @resize.window="leftPanelActualWidth = document.getElementById('left-panel').offsetWidth;"
         @mouseup.window="dragging = false;"
     ></div>
 
