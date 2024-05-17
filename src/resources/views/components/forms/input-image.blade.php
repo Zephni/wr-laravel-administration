@@ -40,9 +40,10 @@
             'imageClass' => 'wrla_image_preview',
             'aspect' => $options["aspect"],
             'rounded' => $options["rounded"],
+            'imageClass' => $options['imageClass'],
             'attributes' => new \Illuminate\View\ComponentAttributeBag([
                 'src' => $src,
-                'class' => 'border-2 border-primary-600',
+                'class' => 'border-2 border-primary-600'
             ])
         ])
     </div>

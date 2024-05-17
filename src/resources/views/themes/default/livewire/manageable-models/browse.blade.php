@@ -61,8 +61,8 @@
                                     <a href="{{ $value }}" target="_blank">
                                         @themeComponent('forced-aspect-image', [
                                             'src' => $value,
-                                            'class' => 'border-2 border-primary-600',
-                                            'imageClass' => 'wrla_image_preview',
+                                            'class' => $browseableColumn->getOption('containerClass') ?? 'border-2 border-primary-600',
+                                            'imageClass' => 'wrla_image_preview '.$browseableColumn->getOption('imageClass') ?? '',
                                             'aspect' => $browseableColumn->getOption('aspect'),
                                             'rounded' => $browseableColumn->getOption('rounded') ?? false
                                         ])

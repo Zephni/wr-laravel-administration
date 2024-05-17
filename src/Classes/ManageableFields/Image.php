@@ -45,6 +45,8 @@ class Image extends ManageableField
             'allowRemove' => true,
             'aspect' => null,
             'rounded' => false,
+            'class' => 'border-2 border-primary-600',
+            'imageClass' => 'object-fill',
         ]);
         return $imageInstance;
     }
