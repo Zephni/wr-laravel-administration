@@ -78,7 +78,7 @@ class CreateManageableModelCommand extends Command
 
         // If create migration, use the make:migration command to create the migration
         if ($createMigration) {
-            $this->call('make:migration', ['name' => str($model)->plural()->snake()->__toString()]);
+            $this->call('make:migration', ['name' => str($model)->plural()->__toString()]);
         }
 
         // New line for separation
