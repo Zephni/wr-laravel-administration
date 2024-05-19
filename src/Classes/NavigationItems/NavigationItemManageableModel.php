@@ -5,10 +5,10 @@ namespace WebRegulate\LaravelAdministration\Classes\NavigationItems;
 class NavigationItemManageableModel extends NavigationItem
 {
     public function __construct(
-        public string $modelClass,
+        public string $manageableModelClass,
     ) {
         try {
-            if(!class_exists($modelClass)) {
+            if(!class_exists($manageableModelClass)) {
 
             }
         } catch (\Exception $e) {
@@ -16,25 +16,25 @@ class NavigationItemManageableModel extends NavigationItem
         }
 
         // Check that $modelClass extends ManageableModel
-        if(!is_subclass_of($modelClass, 'WebRegulate\LaravelAdministration\Classes\ManageableModel')) {
-            throw new \Exception("Model class `$modelClass` must extend ManageableModel when passing to navigation item.");
+        if(!is_subclass_of($this->manageableModelClass, 'WebRegulate\LaravelAdministration\Classes\ManageableModel')) {
+            throw new \Exception("Model class `$this->manageableModelClass` must extend ManageableModel when passing to navigation item.");
         }
 
         parent::__construct(
             'wrla.manageable-models.browse',
-            ['modelUrlAlias' => $modelClass::getUrlAlias()],
-            $modelClass::getDisplayName(true),
-            $modelClass::getIcon(),
+            ['modelUrlAlias' => $this->manageableModelClass::getUrlAlias()],
+            $this->manageableModelClass::getDisplayName(true),
+            $this->manageableModelClass::getIcon(),
             [
                 new NavigationItem(
                     'wrla.manageable-models.browse',
-                    ['modelUrlAlias' => $modelClass::getUrlAlias()],
+                    ['modelUrlAlias' => $this->manageableModelClass::getUrlAlias()],
                     'Browse',
                     'fa fa-list'
                 ),
                 new NavigationItem(
                     'wrla.manageable-models.create',
-                    ['modelUrlAlias' => $modelClass::getUrlAlias()],
+                    ['modelUrlAlias' => $this->manageableModelClass::getUrlAlias()],
                     'Create',
                     'fa fa-plus'
                 ),

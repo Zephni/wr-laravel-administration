@@ -30,6 +30,13 @@ class ManageableModel
     private mixed $modelInstance = null;
 
     /**
+     * Hide from navigation
+     * 
+     * @var bool
+     */
+    public static bool $hideFromNavigation = false;
+
+    /**
      * Collection of manageable models, pushed to in the register method which is called within the serice provider.
      *
      * @var ?Collection

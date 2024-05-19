@@ -32,7 +32,13 @@ class NavigationItemsAllManageableModels extends NavigationItem
         }
 
         foreach ($manageableModels as $manageableModel) {
-            $navItems[] = new NavigationItemManageableModel($manageableModel);
+            $nimm = new NavigationItemManageableModel($manageableModel);
+
+            if($nimm->manageableModelClass::$hideFromNavigation) {
+                continue;
+            }
+
+            $navItems[] = $nimm;
         }
 
         return $navItems;
