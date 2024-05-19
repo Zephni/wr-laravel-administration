@@ -9,7 +9,7 @@
     </div>
 
     <form
-        action="{{ route('wrla.manageable-model.upsert.post', [
+        action="{{ route('wrla.manageable-models.upsert.post', [
             'modelUrlAlias' => $manageableModel->getUrlAlias(),
             'modelId' => $manageableModel->getmodelInstance()->id
         ]) }}?override-redirect-route=wrla.manage-account&override-success-message=Account updated successfully"
@@ -34,7 +34,7 @@
             ])
 
             @themeComponent('forms.button', [
-                'href' => route('wrla.manageable-model.browse', ['modelUrlAlias' => $manageableModel->getUrlAlias()]),
+                'href' => route('wrla.manageable-models.browse', ['modelUrlAlias' => $manageableModel->getUrlAlias()]),
                 'text' => 'Cancel',
                 'size' => 'medium',
                 'color' => 'danger',

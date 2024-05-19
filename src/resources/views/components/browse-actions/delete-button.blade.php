@@ -1,18 +1,18 @@
 <?php
     // If browse page
-    if(Route::currentRouteName() == 'wrla.manageable-model.browse') {
+    if($manageableModel->getCurrentPageType() == WebRegulate\LaravelAdministration\Enums\PageType::BROWSE) {
         $attributeBag = new \Illuminate\View\ComponentAttributeBag([
             'title' => $text ?? 'Delete',
             'onclick' => "confirm('Are you sure?') || event.stopImmediatePropagation();",
             'wire:click' => 'deleteModel('.$manageableModel->getModelInstance()->id.', '.($permanent ?? false ? '1' : '0').')',
         ]);
     // If edit page
-    } else if (Route::currentRouteName() == 'wrla.manageable-model.edit') {
+    } else if ($manageableModel->getCurrentPageType() == WebRegulate\LaravelAdministration\Enums\PageType::EDIT) {
         $attributeBag = new \Illuminate\View\ComponentAttributeBag([
             'title' => $text ?? 'Delete',
             'onclick' => "
                 if(confirm('Are you sure?')){
-                    window.location.href = '".route('wrla.manageable-model.browse', [
+                    window.location.href = '".route('wrla.manageable-models.browse', [
                         'modelUrlAlias' => $manageableModel->getUrlAlias(),
                         'delete' => $manageableModel->getModelInstance()->id
                     ])."';

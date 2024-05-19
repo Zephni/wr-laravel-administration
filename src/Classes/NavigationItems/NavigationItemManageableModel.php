@@ -21,19 +21,19 @@ class NavigationItemManageableModel extends NavigationItem
         }
 
         parent::__construct(
-            'wrla.manageable-model.browse',
+            'wrla.manageable-models.browse',
             ['modelUrlAlias' => $modelClass::getUrlAlias()],
             $modelClass::getDisplayName(true),
             $modelClass::getIcon(),
             [
                 new NavigationItem(
-                    'wrla.manageable-model.browse',
+                    'wrla.manageable-models.browse',
                     ['modelUrlAlias' => $modelClass::getUrlAlias()],
                     'Browse',
                     'fa fa-list'
                 ),
                 new NavigationItem(
-                    'wrla.manageable-model.create',
+                    'wrla.manageable-models.create',
                     ['modelUrlAlias' => $modelClass::getUrlAlias()],
                     'Create',
                     'fa fa-plus'

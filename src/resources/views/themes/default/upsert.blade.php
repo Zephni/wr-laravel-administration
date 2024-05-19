@@ -5,7 +5,7 @@
 @section('content')
 
     @themeComponent('forms.button', [
-        'href' => route('wrla.manageable-model.browse', ['modelUrlAlias' => $manageableModel->getUrlAlias()]),
+        'href' => route('wrla.manageable-models.browse', ['modelUrlAlias' => $manageableModel->getUrlAlias()]),
         'text' => $manageableModel->getDisplayName(true),
         'size' => 'small',
         'color' => 'primary',
@@ -31,7 +31,7 @@
     </div>
 
     <form
-        action="{{ route('wrla.manageable-model.upsert.post', [
+        action="{{ route('wrla.manageable-models.upsert.post', [
             'modelUrlAlias' => $manageableModel->getUrlAlias(),
             'modelId' => $manageableModel->getmodelInstance()->id,
         ]) }}"
@@ -56,7 +56,7 @@
             ])
 
             @themeComponent('forms.button', [
-                'href' => route('wrla.manageable-model.browse', ['modelUrlAlias' => $manageableModel->getUrlAlias()]),
+                'href' => route('wrla.manageable-models.browse', ['modelUrlAlias' => $manageableModel->getUrlAlias()]),
                 'text' => 'Cancel',
                 'size' => 'medium',
                 'color' => 'danger',

@@ -1,5 +1,5 @@
 @themeComponent('forms.button', [
-    'href' => route('wrla.manageable-model.edit', [
+    'href' => route('wrla.manageable-models.edit', [
         'modelUrlAlias' => $manageableModel::getUrlAlias(),
         'id' => $manageableModel->getModelInstance()->id
     ]),

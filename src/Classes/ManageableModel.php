@@ -11,6 +11,7 @@ use Illuminate\Contracts\Database\Eloquent\Builder;
 use WebRegulate\LaravelAdministration\Classes\ManageableFields\Select;
 use WebRegulate\LaravelAdministration\Classes\ManageableFields\ManageableField;
 use WebRegulate\LaravelAdministration\Classes\ManageableFields\Text;
+use WebRegulate\LaravelAdministration\Enums\PageType;
 
 class ManageableModel
 {
@@ -242,7 +243,7 @@ class ManageableModel
             $browseActions->put('create', view(WRLAHelper::getViewPath('components.forms.button'), [
                 'text' => 'Create ' . static::getDisplayName(),
                 'icon' => 'fa fa-plus text-sm',
-                'href' => route('wrla.manageable-model.create', ['modelUrlAlias' => static::getUrlAlias()])
+                'href' => route('wrla.manageable-models.create', ['modelUrlAlias' => static::getUrlAlias()])
             ]));
         }
 
@@ -588,6 +589,28 @@ class ManageableModel
     public function isBeingCreated(): bool
     {
         return $this->getModelInstance()->id == null;
+    }
+
+    /**
+     * Get current page type
+     * 
+     * @return ?PageType
+     */
+    public function getCurrentPageType(): ?PageType
+    {
+        // Get request route name
+        $routeName = request()->route()->getName();
+
+        // Pass name
+        if($routeName == 'wrla.manageable-models.browse') {
+            return PageType::BROWSE;
+        } else if($routeName == 'wrla.manageable-models.upsert' && $this->isBeingCreated()) {
+            return PageType::CREATE;
+        } else if($routeName == 'wrla.manageable-models.upsert' && !$this->isBeingCreated()) {
+            return PageType::EDIT;
+        }
+
+        return null;
     }
 
     /**

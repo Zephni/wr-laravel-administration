@@ -96,7 +96,7 @@
 
             @if($manageableModelClass::permissions()->hasPermission($WRLAPermissions::CREATE))
                 @themeComponent('forms.button', [
-                    'href' => route('wrla.manageable-model.create', ['modelUrlAlias' => $manageableModelClass::getUrlAlias()]),
+                    'href' => route('wrla.manageable-models.create', ['modelUrlAlias' => $manageableModelClass::getUrlAlias()]),
                     'size' => 'small',
                     'type' => 'button',
                     'text' => 'Create a new ' . $manageableModelClass::getDisplayName(),
