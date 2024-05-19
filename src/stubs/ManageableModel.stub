@@ -54,7 +54,7 @@ class {{ $MODEL }} extends ManageableModel
             // Text::make($this, 'name')
             //     ->required()
             //     ->validation('string|max:255')
-            //     ->getAttribute('placeholder', 'John Doe'),
+            //     ->setAttribute('placeholder', 'John Doe'),
         ]);
     }
 }
