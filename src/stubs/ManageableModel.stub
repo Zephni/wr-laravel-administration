@@ -28,6 +28,10 @@ class {{ $MODEL }} extends ManageableModel
         return parent::getDisplayName($plural);
     }
 
+    public static function getChildNavigationItems(): Collection {
+        return parent::getChildNavigationItems();
+    }
+
     public static function getBrowseItemActions(mixed $model): Collection {
         return parent::getBrowseItemActions($model);
     }
