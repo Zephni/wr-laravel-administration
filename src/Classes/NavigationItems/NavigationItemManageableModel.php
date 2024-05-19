@@ -20,25 +20,15 @@ class NavigationItemManageableModel extends NavigationItem
             throw new \Exception("Model class `$this->manageableModelClass` must extend ManageableModel when passing to navigation item.");
         }
 
+        // Get child navigation from model
+        $childNavigationItems = $this->manageableModelClass::getChildNavigationItems();
+
         parent::__construct(
             'wrla.manageable-models.browse',
             ['modelUrlAlias' => $this->manageableModelClass::getUrlAlias()],
             $this->manageableModelClass::getDisplayName(true),
             $this->manageableModelClass::getIcon(),
-            [
-                new NavigationItem(
-                    'wrla.manageable-models.browse',
-                    ['modelUrlAlias' => $this->manageableModelClass::getUrlAlias()],
-                    'Browse',
-                    'fa fa-list'
-                ),
-                new NavigationItem(
-                    'wrla.manageable-models.create',
-                    ['modelUrlAlias' => $this->manageableModelClass::getUrlAlias()],
-                    'Create',
-                    'fa fa-plus'
-                ),
-            ]
+            $childNavigationItems->toArray()
         );
     }
 }

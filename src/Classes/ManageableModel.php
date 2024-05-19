@@ -5,13 +5,12 @@ namespace WebRegulate\LaravelAdministration\Classes;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\MessageBag;
-use Illuminate\Support\Stringable;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Contracts\Database\Eloquent\Builder;
-use WebRegulate\LaravelAdministration\Classes\ManageableFields\Select;
-use WebRegulate\LaravelAdministration\Classes\ManageableFields\ManageableField;
-use WebRegulate\LaravelAdministration\Classes\ManageableFields\Text;
 use WebRegulate\LaravelAdministration\Enums\PageType;
+use WebRegulate\LaravelAdministration\Classes\ManageableFields\Text;
+use WebRegulate\LaravelAdministration\Classes\ManageableFields\Select;
+use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItem;
+use WebRegulate\LaravelAdministration\Classes\ManageableFields\ManageableField;
 
 class ManageableModel
 {
@@ -35,6 +34,28 @@ class ManageableModel
      * @var bool
      */
     public static bool $hideFromNavigation = false;
+
+    /**
+     * Get child navigation items
+     * 
+     * @var Collection
+     */
+    public static function getChildNavigationItems(): Collection {
+        return collect([
+            new NavigationItem(
+                'wrla.manageable-models.browse',
+                ['modelUrlAlias' => self::getUrlAlias()],
+                'Browse',
+                'fa fa-list'
+            ),
+            new NavigationItem(
+                'wrla.manageable-models.create',
+                ['modelUrlAlias' => self::getUrlAlias()],
+                'Create',
+                'fa fa-plus'
+            )
+        ]);
+    }
 
     /**
      * Collection of manageable models, pushed to in the register method which is called within the serice provider.
