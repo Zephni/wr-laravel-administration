@@ -6,7 +6,11 @@
             Browsing {{ $manageableModelClass::getDisplayName(true) }}
         </div>
         <div class="text-sm text-slate-500">
-            Total: {{ $models?->total() ?? 0 }} records
+            Total: {{ 
+                $models instanceof \Illuminate\Pagination\LengthAwarePaginator
+                    ? $models?->total()
+                    : $models->count()
+            }} records
         </div>
     </div>
 
