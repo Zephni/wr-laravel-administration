@@ -3,7 +3,7 @@
 namespace {{ $NAMESPACE }};
 
 use WebRegulate\LaravelAdministration\Classes\ManageableModel;
-use WebRegulate\LaravelAdministration\Classes\BrowseableColumn;
+use WebRegulate\LaravelAdministration\Classes\BrowsableColumn;
 use WebRegulate\LaravelAdministration\Classes\ManageableFields\Text;
 use WebRegulate\LaravelAdministration\Classes\ManageableFields\Image;
 use WebRegulate\LaravelAdministration\Classes\ManageableFields\TextArea;
@@ -44,7 +44,7 @@ class {{ $MODEL }} extends ManageableModel
         return parent::getBrowseItemActions($model);
     }
 
-    public function getBrowseableColumns(): Collection
+    public function getBrowsableColumns(): Collection
     {
         return collect([
             'id' => 'ID', // It's not standard to include id in browsable columns, but it's included for demonstration purposes

@@ -51,24 +51,24 @@
             <tbody>
                 @foreach($models as $model)
                     <tr class="odd:bg-slate-100 dark:odd:bg-slate-700 even:bg-slate-200 dark:even:bg-slate-800">
-                        @foreach($manageableModelClass::make($model)->getBrowseableColumns() as $column => $browseableColumn)
+                        @foreach($manageableModelClass::make($model)->getBrowsableColumns() as $column => $BrowsableColumn)
                             @php $column = explode('::', $column)[0]; @endphp
-                            @if(is_string($browseableColumn) || $browseableColumn->type == 'string')
+                            @if(is_string($BrowsableColumn) || $BrowsableColumn->type == 'string')
                                 <td class="px-3 py-2 whitespace-nowrap">
                                     {{ $model->{$column} }}
                                 </td>
-                            @elseif($browseableColumn->type === 'image')
+                            @elseif($BrowsableColumn->type === 'image')
                                 @php
-                                    $value = $browseableColumn->getOption('value') ?? $model->{$column};
+                                    $value = $BrowsableColumn->getOption('value') ?? $model->{$column};
                                 @endphp
-                                <td class="px-3 py-2 whitespace-nowrap" style="width: {{ is_numeric($browseableColumn->width) ? $browseableColumn->width.'px' : $browseableColumn->width }}">
+                                <td class="px-3 py-2 whitespace-nowrap" style="width: {{ is_numeric($BrowsableColumn->width) ? $BrowsableColumn->width.'px' : $BrowsableColumn->width }}">
                                     <a href="{{ $value }}" target="_blank">
                                         @themeComponent('forced-aspect-image', [
                                             'src' => $value,
-                                            'class' => $browseableColumn->getOption('containerClass') ?? 'border-2 border-primary-600',
-                                            'imageClass' => 'wrla_image_preview '.$browseableColumn->getOption('imageClass') ?? '',
-                                            'aspect' => $browseableColumn->getOption('aspect'),
-                                            'rounded' => $browseableColumn->getOption('rounded') ?? false
+                                            'class' => $BrowsableColumn->getOption('containerClass') ?? 'border-2 border-primary-600',
+                                            'imageClass' => 'wrla_image_preview '.$BrowsableColumn->getOption('imageClass') ?? '',
+                                            'aspect' => $BrowsableColumn->getOption('aspect'),
+                                            'rounded' => $BrowsableColumn->getOption('rounded') ?? false
                                         ])
                                     </a>
                                 </td>

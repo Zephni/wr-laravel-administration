@@ -242,13 +242,13 @@ class ManageableModel
     }
 
     /**
-     * Get browseable columns.
+     * Get Browsable columns.
      * To add a relationship column, use the format 'local_column::other_table.display_column'.
      * To add a json value column, use the format 'json_column->key1->key2'.
      *
      * @return Collection
      */
-    public function getBrowseableColumns(): Collection
+    public function getBrowsableColumns(): Collection
     {
         return collect([
             'id' => 'ID',

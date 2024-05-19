@@ -8,7 +8,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 use WebRegulate\LaravelAdministration\Classes\WRLAPermissions;
-use WebRegulate\LaravelAdministration\Classes\BrowseableColumn;
+use WebRegulate\LaravelAdministration\Classes\BrowsableColumn;
 
 /**
  * Class ManageableModelBrowse
@@ -88,9 +88,9 @@ class ManageableModelBrowse extends Component
         }
 
         // Build parent columns from manageable model
-        $columns = $manageableModelClass::make()->getBrowseableColumns();
+        $columns = $manageableModelClass::make()->getBrowsableColumns();
         $this->columns = collect($columns)->map(function($column) {
-            return $column instanceof BrowseableColumn ? $column->label : $column;
+            return $column instanceof BrowsableColumn ? $column->label : $column;
         });
 
         // Get manageable model filter keys from collection

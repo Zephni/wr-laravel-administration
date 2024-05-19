@@ -2,7 +2,7 @@
 
 namespace WebRegulate\LaravelAdministration\Classes;
 
-class BrowseableColumn
+class BrowsableColumn
 {
     public $label = null;
     public $type = 'string';
