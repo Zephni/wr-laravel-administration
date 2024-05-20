@@ -1,3 +1,4 @@
+@if($modelInstance->id != null)
 @themeComponent('forms.button', [
     'href' => route('wrla.impersonate.login-as', [
         'id' => $modelInstance->id
@@ -12,3 +13,4 @@
         'title' => 'Login as ' . $modelInstance->name
     ])
 ])
+@endif
