@@ -70,7 +70,7 @@
             @themeComponent('forced-aspect-image', [
                 'src' => $user->getProfileAvatar(),
                 'class' => 'border-2 border-primary-600',
-                'imageClass' => 'wrla_image_preview',
+                'imageClass' => 'object-cover',
                 'aspect' => '1:1',
                 'rounded' => 'full'
             ])
