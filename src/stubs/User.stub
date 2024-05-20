@@ -182,7 +182,7 @@ class User extends ManageableModel
                 ->rounded()
                 ->manipulateImage(function($image) {
                     $image->cover(300, 300, 'center');
-                    $image->toJpg();
+                    $image->toJpeg(100);
                     return $image;
                 })
                 ->validation('image|mimes:jpeg,png,jpg,gif,vg|max:10240')
