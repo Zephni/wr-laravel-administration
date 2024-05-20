@@ -14,6 +14,17 @@
     };
 </script>
 
+{{-- TinyMCE CDN and setup --}}
+<script src="https://cdn.tiny.cloud/1/126uh4v0nur2ag6fpa5vb60rduwp1skzx02vsmdww39mpva2/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
+<script>
+    tinymce.init({
+        selector: 'textarea.wysiwyg', // Replace this CSS selector to match the placeholder element for TinyMCE
+        menubar: 'edit insert view format table tools',
+        plugins: 'table lists autolink code',
+        toolbar: 'undo redo | blocks| bold italic | bullist numlist | table | code'
+    });
+</script>
+
 {{-- Custom JS  --}}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
