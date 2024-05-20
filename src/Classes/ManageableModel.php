@@ -30,27 +30,27 @@ class ManageableModel
 
     /**
      * Hide from navigation
-     * 
+     *
      * @var bool
      */
     public static bool $hideFromNavigation = false;
 
     /**
      * Get child navigation items
-     * 
+     *
      * @var Collection
      */
     public static function getChildNavigationItems(): Collection {
         return collect([
             new NavigationItem(
                 'wrla.manageable-models.browse',
-                ['modelUrlAlias' => self::getUrlAlias()],
+                ['modelUrlAlias' => static::getUrlAlias()],
                 'Browse',
                 'fa fa-list'
             ),
             new NavigationItem(
                 'wrla.manageable-models.create',
-                ['modelUrlAlias' => self::getUrlAlias()],
+                ['modelUrlAlias' => static::getUrlAlias()],
                 'Create',
                 'fa fa-plus'
             )
@@ -288,7 +288,7 @@ class ManageableModel
         $manageableModel = static::make($model);
 
         $browseActions = collect();
-        
+
         // If model doesn't have soft delets and not trashed
         if(!static::isSoftDeletable() || $model->deleted_at == null) {
             if($manageableModel::permissions()->hasPermission(WRLAPermissions::EDIT)) {
@@ -354,7 +354,7 @@ class ManageableModel
                                 $relationship = explode('.', $parts[1]);
                                 $column = $relationship[0] . '.' . $relationship[1];
                             }
-        
+
                             $query->orWhere($column, 'like', '%'.$value.'%');
                         }
                     });
@@ -621,7 +621,7 @@ class ManageableModel
 
     /**
      * Get current page type
-     * 
+     *
      * @return ?PageType
      */
     public function getCurrentPageType(): ?PageType
