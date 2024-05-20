@@ -185,8 +185,8 @@ class User extends ManageableModel
                     $image->toJpg();
                     return $image;
                 })
-                ->validation('image|mimes:jpeg,png,jpg,gif,svg|max:2048')
-                ->notes('<b>Required</b> - Image should be a valid JPG, PNG or GIF, no larger than 2mb.'),
+                ->validation('image|mimes:jpeg,png,jpg,gif,vg|max:10240')
+                ->notes('<b>Required</b> - Image should be a valid JPG, PNG or GIF, no larger than 10mb.'),
 
             Json::make($this, 'permissions')
                 ->mergeDefaultKeyValues([
