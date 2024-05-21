@@ -15,13 +15,13 @@
     ])->render() !!}
 @endif
 
-<div {{ $attributes->merge([
+<textarea {{ $attributes->merge([
     'id' => 'editor',
     'class' => 'wysiwyg',
     'style' => 'white-space: pre-wrap; word-wrap: break-word;'
 ]) }}>{{
     $ignoreOld ? $attributes->get('value') : old($attributes->get('name'), $attributes->get('value'))
-}}</div>
+}}</textarea>
 
 {{-- Field notes (if options has notes key) --}}
 @if(!empty($options['notes']))
@@ -31,3 +31,19 @@
 @error($attributes->get('name'))
     @themeComponent('alert', ['type' => 'error', 'message' => $message, 'class' => 'mt-2'])
 @enderror
+
+@once
+<style>
+    .ck-source-editing-area,
+    .ck-editor__editable {
+        min-height: 300px;
+    }
+
+    .ck-editor__main {
+        height: 300px;
+        min-height: 300px;
+        overflow-y: scroll;
+        border: 1px solid #bbbbbb;
+    }
+</style>
+@endonce
