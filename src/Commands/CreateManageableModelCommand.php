@@ -14,7 +14,7 @@ class CreateManageableModelCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'wrla:manageable-model {model}';
+    protected $signature = 'wrla:manageable-model {model?}';
 
     /**
      * The console command description.
@@ -30,8 +30,20 @@ class CreateManageableModelCommand extends Command
      */
     public function handle()
     {
-        // Get the model name and file path
-        $model = $this->argument('model');
+
+        // Check if model argument is set
+        if (!$this->argument('model'))
+        {
+            // Ask user to present model name
+            $model = $this->ask('Please provide a model class using studly case (eg. ModelName)');
+        }
+        else
+        {
+            // Get the model name from the argument
+            $model = $this->argument('model');
+        }
+
+        // Get the file path for the model
         $filePath = str($model)->replace('\\', '/')->__toString();
 
         // Check if file already exists, if so ask the user if they want to overwrite it
