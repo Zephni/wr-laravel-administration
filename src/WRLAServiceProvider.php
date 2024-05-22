@@ -11,6 +11,7 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Validator;
 use WebRegulate\LaravelAdministration\Models\User;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
+use WebRegulate\LaravelAdministration\Livewire\LivewireModal;
 use WebRegulate\LaravelAdministration\Classes\WRLAPermissions;
 use WebRegulate\LaravelAdministration\Commands\InstallCommand;
 use WebRegulate\LaravelAdministration\Http\Middleware\IsAdmin;
@@ -131,6 +132,7 @@ class WRLAServiceProvider extends ServiceProvider
 
         // Livewire component registering and asset injection
         Livewire::component('wrla.manageable-models.browse', ManageableModelBrowse::class);
+        Livewire::component('wrla.livewire-modal', LivewireModal::class);
         Livewire::forceAssetInjection();
     }
 

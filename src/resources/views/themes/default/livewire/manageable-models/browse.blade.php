@@ -117,3 +117,7 @@
     @endif
 
 </div>
+
+@push('appendBody')
+    @livewire('wrla.livewire-modal')
+@endpush
