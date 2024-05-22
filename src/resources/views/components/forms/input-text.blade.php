@@ -21,7 +21,7 @@
 
 <input {{ $attributes->merge([
     'value' => $ignoreOld ? $attributes->get('value') : old($attributes->get('name'), $attributes->get('value')),
-    'class' => 'block w-full mt-2 px-3 py-1 border border-slate-400 dark:border-slate-600 bg-slate-200 dark:bg-slate-900
+    'class' => 'block w-full mt-2 px-3 py-1 border border-slate-400 dark:border-slate-500 bg-slate-200 dark:bg-slate-900
         focus:outline-none focus:ring-1 focus:ring-primary-500 dark:focus:ring-primary-500 rounded-md shadow-sm placeholder-slate-400 dark:placeholder-slate-600 '
 ]) }} />
 
