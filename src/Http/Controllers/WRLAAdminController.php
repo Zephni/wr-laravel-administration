@@ -107,6 +107,8 @@ class WRLAAdminController extends Controller
      */
     public function upsertPost(Request $request, string $modelUrlAlias, ?int $modelId = null): RedirectResponse
     {
+        // dd($request->all());
+
         // Get manageable model class by its URL alias
         $manageableModelClass = ManageableModel::getByUrlAlias($modelUrlAlias);
 

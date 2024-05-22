@@ -3,6 +3,9 @@
 @php
     // Set id from name if unset
     $id = empty($attributes->get('id')) ? 'wrinput-'.$attributes->get('name') : $attributes->get('id');
+
+    // Get value
+    $value = $ignoreOld ? $attributes->get('value') : old($attributes->get('name'), $attributes->get('value'));
 @endphp
 
 @if(!empty($label))
@@ -19,8 +22,9 @@
     'id' => 'editor',
     'class' => 'wysiwyg',
     'style' => 'white-space: pre-wrap; word-wrap: break-word;'
-]) }}>{{
-    $ignoreOld ? $attributes->get('value') : old($attributes->get('name'), $attributes->get('value'))
+// Remove value from attributes
+])->except('value')  }}>{{
+    $value
 }}</textarea>
 
 {{-- Field notes (if options has notes key) --}}
