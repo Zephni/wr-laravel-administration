@@ -46,7 +46,7 @@ class Image extends ManageableField
             'aspect' => null,
             'rounded' => false,
             'class' => 'border-2 border-primary-600',
-            'imageClass' => 'object-fill',
+            'imageClass' => 'object-cover',
         ]);
         return $imageInstance;
     }
@@ -76,7 +76,7 @@ class Image extends ManageableField
             if ($this->getOption('unlinkOld') == true && !empty($currentImage)) {
                 $this->deleteImageByPath($currentImage);
             }
-            
+
             return $value;
         }
 
@@ -85,7 +85,7 @@ class Image extends ManageableField
 
     /**
      * Upload image
-     * 
+     *
      * @param UploadedFile $request
      * @return string
      */
@@ -112,7 +112,7 @@ class Image extends ManageableField
 
     /**
      * Manipulate image
-     * 
+     *
      * @param callable $callback
      * @return $this
      */
@@ -125,7 +125,7 @@ class Image extends ManageableField
 
     /**
      * Get path
-     * 
+     *
      * @return string
      */
     public function getPath(): string
@@ -135,7 +135,7 @@ class Image extends ManageableField
 
     /**
      * Delete image file
-     * 
+     *
      * @param string $pathRelativeToPublic
      */
     public function deleteImageByPath(string $pathRelativeToPublic)
@@ -151,7 +151,7 @@ class Image extends ManageableField
 
             // Check whether the value includes the option: path, if it doesn't then we do not delete the file for safety
             $includesPath = strpos($oldValue, $testPath) !== false;
-            
+
             // If the new value includes the path and the old file exists, we delete it
             if ($includesPath && file_exists($oldValue)) {
                 unlink($oldValue);
@@ -161,7 +161,7 @@ class Image extends ManageableField
 
     /**
      * Get value
-     * 
+     *
      * @return string
      */
     public function getValue(): string
@@ -175,14 +175,14 @@ class Image extends ManageableField
             if (empty($this->attributes['value'])) {
                 return $this->getOption('defaultImage');
             }
-            
+
             return '/'.ltrim(WRLAHelper::forwardSlashPath($this->attributes['value']), '/');
         }
     }
 
     /**
      * Format image name
-     * 
+     *
      * @param string $name
      * @return string
      */
@@ -216,7 +216,7 @@ class Image extends ManageableField
 
     /**
      * Default if no image is set
-     * 
+     *
      * @param string $path
      * @return $this
      */
@@ -228,7 +228,7 @@ class Image extends ManageableField
 
     /**
      * Set unlink old image option if new image is set
-     * 
+     *
      * @param bool $unlink
      * @return $this
      */
@@ -240,7 +240,7 @@ class Image extends ManageableField
 
     /**
      * Set allow remove option
-     * 
+     *
      * @param bool $allow
      * @return $this
      */
@@ -252,7 +252,7 @@ class Image extends ManageableField
 
     /**
      * Set aspect ratio using 1:1 format
-     * 
+     *
      * @param null|string $aspect
      */
     public function aspect(?string $aspect = null): self
@@ -263,7 +263,7 @@ class Image extends ManageableField
 
     /**
      * Set rounded image, with false, null, or 'none' for none, true for 'full', or any tailwind string rounded available value
-     * 
+     *
      * @param null|bool|string $rounded
      */
     public function rounded(null|bool|string $rounded = true): self
