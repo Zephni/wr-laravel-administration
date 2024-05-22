@@ -383,7 +383,8 @@ class ManageableModel
                 // Applicable filter
                 function(Builder $query, $columns, $value) {
                     if($value === 'not_trashed') {
-                        return $query->whereNull('deleted_at');
+                        // In this case we don't need to do anything because by default laravel only gets non-trashed items
+                        return $query;
                     } else if($value === 'trashed') {
                         return $query->onlyTrashed();
                     } else if($value == 'all') {

@@ -57,20 +57,9 @@
                                 <td class="px-3 py-2 whitespace-nowrap">
                                     {{ $model->{$column} }}
                                 </td>
-                            @elseif($BrowsableColumn->type === 'image')
-                                @php
-                                    $value = $BrowsableColumn->getOption('value') ?? $model->{$column};
-                                @endphp
-                                <td class="px-3 py-2 whitespace-nowrap" style="width: {{ is_numeric($BrowsableColumn->width) ? $BrowsableColumn->width.'px' : $BrowsableColumn->width }}">
-                                    <a href="{{ $value }}" target="_blank">
-                                        @themeComponent('forced-aspect-image', [
-                                            'src' => $value,
-                                            'class' => $BrowsableColumn->getOption('containerClass') ?? 'border-2 border-primary-600',
-                                            'imageClass' => 'wrla_image_preview '.$BrowsableColumn->getOption('imageClass') ?? '',
-                                            'aspect' => $BrowsableColumn->getOption('aspect'),
-                                            'rounded' => $BrowsableColumn->getOption('rounded') ?? false
-                                        ])
-                                    </a>
+                            @else
+                                <td class="px-3 py-2 whitespace-nowrap" @if($BrowsableColumn->width != null) style="width: {{ is_numeric($BrowsableColumn->width) ? $BrowsableColumn->width.'px' : $BrowsableColumn->width }}" @endif>
+                                    {!! $BrowsableColumn->renderValue($model, $column) !!}
                                 </td>
                             @endif
                         @endforeach
