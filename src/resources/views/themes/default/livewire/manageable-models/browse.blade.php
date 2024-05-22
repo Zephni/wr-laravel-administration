@@ -119,5 +119,5 @@
 </div>
 
 @push('appendBody')
-    @livewire('wrla.livewire-modal')
+    {{-- @livewire('wrla.livewire-modal') --}}
 @endpush
