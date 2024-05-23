@@ -26,8 +26,12 @@
                 return;
             }
 
-            // Otherwise set focus on first input
-            document.querySelector('input').focus();
+            // Otherwise set focus on first input if exists
+            var inputElement = document.querySelector('input');
+
+            if (inputElement) {
+                inputElement.focus();
+            }
         }, 100);
     });
 </script>

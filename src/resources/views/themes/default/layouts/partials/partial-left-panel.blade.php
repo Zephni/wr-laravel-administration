@@ -91,8 +91,13 @@
         </div>
     </div>
 
-    {{-- Navigation --}}
-    <div class="w-full border-t border-slate-500">
-        @include('wr-laravel-administration::themes.default.layouts.partials.partial-navigation')
+    {{-- Overflow Y scroll area --}}
+    <div class="flex flex-col justify-start items-start w-full h-full overflow-y-auto">
+
+        {{-- Navigation --}}
+        <div class="w-full border-t border-slate-500">
+            @include('wr-laravel-administration::themes.default.layouts.partials.partial-navigation')
+        </div>
+
     </div>
 </div>
