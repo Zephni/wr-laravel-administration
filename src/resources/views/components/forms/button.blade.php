@@ -11,9 +11,9 @@
     else if($size == 'small') $sizeClasses = 'w-fit px-2';
 
     // Set colour classes
-    if($color == 'primary') $colorClasses = 'bg-primary-500 hover:bg-primary-600 border-slate-400 dark:border-slate-400';
-    else if($color == 'danger') $colorClasses = 'bg-rose-500 hover:bg-rose-600 border-rose-700';
-    else if($color == 'grey') $colorClasses = 'bg-gray-500 hover:bg-gray-600 border-gray-700 text-gray-300';
+    if($color == 'primary') $colorClasses = 'bg-primary-500 hover:bg-primary-600 border-primary-500 shadow-lg shadow-slate-400';
+    else if($color == 'danger') $colorClasses = 'bg-rose-500 hover:bg-rose-600 border-rose-500 shadow-lg shadow-slate-400';
+    else if($color == 'grey') $colorClasses = 'bg-gray-500 hover:bg-gray-600 border-gray-500 text-gray-300 shadow-lg shadow-slate-400';
 @endphp
 
 @if(empty($href))
