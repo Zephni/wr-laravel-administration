@@ -329,16 +329,16 @@ class ManageableModel
      */
     public static function getBrowseFilters(): Collection {
         return collect([
-            'search' => new BrowseFilter(
+            'searchFilter' => new BrowseFilter(
                 // Field
-                Text::make(null, 'search')
+                Text::make(null, 'searchFilter')
                     ->setLabel('Search', 'fas fa-search text-slate-400')
                     ->setOptions([
                         'containerClass' => 'w-1/2',
                         'labelClass' => 'font-thin',
                     ])
                     ->setAttributes([
-                        'wire:model.live.debounce.400ms'=> 'filters.search',
+                        'wire:model.live.debounce.400ms'=> 'filters.searchFilter',
                         'autofocus' => true,
                         'placeholder' => 'Search filter...',
                         'class' => '!mt-1'
@@ -360,9 +360,9 @@ class ManageableModel
                     });
                 }
             ),
-            'softDeleted' => new BrowseFilter(
+            'softDeletedFilter' => new BrowseFilter(
                 // Field
-                Select::make(null, 'softDeleted')
+                Select::make(null, 'softDeletedFilter')
                     ->setLabel('Status', 'fas fa-heartbeat text-slate-400 !mr-1')
                     ->setItems([
                         'not_trashed' => 'Active only',
@@ -375,7 +375,7 @@ class ManageableModel
                         'labelClass' => 'font-thin',
                     ])
                     ->setAttributes([
-                        'wire:model.live' => 'filters.softDeleted',
+                        'wire:model.live' => 'filters.softDeletedFilter',
                         'class' => '!mt-1'
                     ])
                     ->validation('required|in:all,trashed,not_trashed'),
