@@ -61,6 +61,13 @@ class ManageableModelBrowse extends Component
      */
     public $errorMessage = null;
 
+    /**
+     * Debug message
+     * 
+     * @var ?string
+     */
+    public ?string $debugMessage = null;
+
 
     /* Livewire Methods / Hooks
     --------------------------------------------------------------------------*/
@@ -238,7 +245,11 @@ class ManageableModelBrowse extends Component
         // For now just order by id DESC, but need to add post query and optional ordering etc to manageable models
         $queryBuilder = $queryBuilder->orderBy($tableName . '.id', 'DESC');
 
-        return $queryBuilder->paginate(10);
+        $final = $queryBuilder->paginate(10);
+
+        $this->debugMessage = $queryBuilder->toRawSql();
+
+        return $final;
     }
 
     /**

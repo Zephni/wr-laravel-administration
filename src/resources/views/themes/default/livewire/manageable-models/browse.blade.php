@@ -105,6 +105,12 @@
         </div>
     @endif
 
+    @if($user->getSetting('debug') == true)
+        <p class="border border-slate-300 rounded-md p-2 mt-10">
+            {{ $debugMessage }}
+        </p>
+    @endif
+
 </div>
 
 @push('appendBody')

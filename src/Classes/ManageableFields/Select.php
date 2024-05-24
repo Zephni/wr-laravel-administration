@@ -20,12 +20,14 @@ class Select extends ManageableField
      * Set items for the options list. $items must use the following format:
      * key => display_value,...
      *
-     * @param array $items
+     * @param array|Collection $items
      * @return $this
      */
-    public function setItems(array $items): static
+    public function setItems(array|Collection $items): static
     {
         $this->items = $items;
+
+        $this->setToFirstValueIfNotSet();
 
         return $this;
     }
@@ -42,6 +44,28 @@ class Select extends ManageableField
     {
         $this->items = $collection->pluck($value, $key)->toArray();
 
+        $this->setToFirstValueIfNotSet();
+
+        return $this;
+    }
+
+    /**
+     * Set to first value in items if value not set
+     *
+     * @return $this
+     */
+    public function setToFirstValueIfNotSet(): static
+    {
+        // If items is empty, return
+        if (empty($this->items)) {
+            return $this;
+        }
+
+        // If $this->attributes['value'] is not set, set it to the first key in the items array
+        if (!isset($this->attributes['value']) || empty($this->attributes['value'])) {
+            $this->attributes['value'] = array_key_first($this->items);
+        }
+
         return $this;
     }
 
@@ -53,6 +77,8 @@ class Select extends ManageableField
      */
     public function render(PageType $upsertType): mixed
     {
+        $this->setToFirstValueIfNotSet();
+
         return view(WRLAHelper::getViewPath('components.forms.input-select'), [
             'label' => $this->getLabel(),
             'options' => $this->options,
