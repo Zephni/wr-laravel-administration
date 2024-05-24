@@ -42,6 +42,9 @@ class WRLAAdminController extends Controller
      */
     public function browse(Request $request, string $modelUrlAlias): View | RedirectResponse
     {
+        // Get preFilters from Get url
+        $preFilters = $request->get('preFilters') ?? null;
+
         // Get the manageable model class by its URL alias
         $manageableModelClass = ManageableModel::getByUrlAlias($modelUrlAlias);
 
@@ -60,7 +63,8 @@ class WRLAAdminController extends Controller
             'title' => 'Browse ' . $manageableModelClass::getDisplayName(),
             'livewireComponentAlias' => 'wrla.manageable-models.browse',
             'livewireComponentData' => [
-                'manageableModelClass' => $manageableModelClass
+                'manageableModelClass' => $manageableModelClass,
+                'preFilters' => $preFilters ?? null
             ]
         ]);
     }

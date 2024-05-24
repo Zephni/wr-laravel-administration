@@ -76,9 +76,10 @@ class ManageableModelBrowse extends Component
      * Mount the component.
      *
      * @param string $manageableModelClass The class name of the manageable model.
+     * @param ?array $preFilters Pre filters passed from the AdminController::browse -> livewire-content view
      * @return \Illuminate\Http\RedirectResponse|null
      */
-    public function mount($manageableModelClass)
+    public function mount(string $manageableModelClass, ?array $preFilters = null)
     {
         // If the manageable model reference is null, redirect to the dashboard
         if (is_null($manageableModelClass)) {
@@ -104,6 +105,15 @@ class ManageableModelBrowse extends Component
         $manageableModelFilters = $manageableModelClass::getBrowseFilters();
         foreach($manageableModelFilters as $key => $browseFilter) {
             $this->filters[$key] = $browseFilter->field->getAttribute('value');
+        }
+
+        // Check the pre filters and override default browse filters if so
+        if(!empty($preFilters)) {
+            foreach($preFilters as $key => $value) {
+                if(array_key_exists($key, $this->filters)) {
+                    $this->filters[$key] = $value;
+                }
+            }
         }
 
         // If ?delete is passed to the URL, delete the model
@@ -197,16 +207,6 @@ class ManageableModelBrowse extends Component
 
         // Start query builder
         $queryBuilder = $this->manageableModelClass::$baseModelClass::query();
-
-        // Add selects for id, and all columns that don't have a relationship
-        // $selectCols = [$tableName.'.id'];
-        // $selectCols = array_merge($selectCols, array_diff(array_keys($this->columns->toArray()), $relationshipColumns->keys()->toArray()));
-        // $queryBuilder = $queryBuilder->addSelect($selectCols);
-
-        // // Append select deleted_at if $manageableModel::isSoftDeletable()
-        // if($this->manageableModelClass::isSoftDeletable()) {
-        //     $queryBuilder = $queryBuilder->addSelect($tableName.'.deleted_at');
-        // }
 
         // We now just select all fields
         $queryBuilder = $queryBuilder->addSelect($tableName.'.*');
