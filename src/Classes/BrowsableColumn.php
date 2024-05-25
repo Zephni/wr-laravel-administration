@@ -16,12 +16,12 @@ class BrowsableColumn
         $this->width = $width;
     }
 
-    public static function make(?string $label, string $type, null|int|string $width = null): self
+    public static function make(?string $label, string $type, null|int|string $width = null): static
     {
         return new self($label, $type, $width);
     }
 
-    public function setOption($key, $value): self
+    public function setOption($key, $value): static
     {
         $this->options[$key] = $value;
         return $this;
@@ -32,7 +32,7 @@ class BrowsableColumn
         return $this->options[$key] ?? null;
     }
 
-    public function setOptions(array $options): self
+    public function setOptions(array $options): static
     {
         $this->options = array_merge($this->options, $options);
         return $this;

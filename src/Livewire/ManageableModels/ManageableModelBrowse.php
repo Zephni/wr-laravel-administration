@@ -7,8 +7,9 @@ use Livewire\WithPagination;
 use Illuminate\Support\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
-use WebRegulate\LaravelAdministration\Classes\WRLAPermissions;
 use WebRegulate\LaravelAdministration\Classes\BrowsableColumn;
+use WebRegulate\LaravelAdministration\Classes\ManageableModel;
+use WebRegulate\LaravelAdministration\Classes\WRLAPermissions;
 
 /**
  * Class ManageableModelBrowse
@@ -88,7 +89,8 @@ class ManageableModelBrowse extends Component
 
         // Get the manageable model and base model class
         $this->manageableModelClass = $manageableModelClass;
-        $modelClass = $manageableModelClass::getBaseModelClass();
+        $baseModelInstance = $this->getModelInstance();
+        $modelClass = $baseModelInstance::getBaseModelClass();
 
         // If the model class does not exist, redirect to the dashboard
         if(!class_exists($modelClass)) {
@@ -96,7 +98,7 @@ class ManageableModelBrowse extends Component
         }
 
         // Build parent columns from manageable model
-        $columns = $manageableModelClass::make()->getBrowsableColumns();
+        $columns = $baseModelInstance->getBrowsableColumns();
         $this->columns = collect($columns)->map(function($column) {
             return $column instanceof BrowsableColumn ? $column->label : $column;
         });
@@ -123,13 +125,22 @@ class ManageableModelBrowse extends Component
     }
 
     /**
+     * Get manageable model instance
+     * 
+     * @return ManageableModel
+     */
+    public function getModelInstance(): ManageableModel {
+        return new $this->manageableModelClass;
+    }
+
+    /**
      * On search filter change.
      *
      * @return void
      */
     public function updatedSearch()
     {
-        $manageableModelFilters = $this->manageableModelClass::getBrowseFilters();
+        $manageableModelFilters = $this->getModelInstance()->getBrowseFilters();
 
         $validateArray = [];
         foreach($manageableModelFilters as $key => $browseFilter) {
@@ -206,7 +217,7 @@ class ManageableModelBrowse extends Component
         $jsonReferenceColumns = $this->getJsonReferenceColumns();
 
         // Start query builder
-        $queryBuilder = $this->manageableModelClass::$baseModelClass::query();
+        $queryBuilder = $this->getModelInstance()::initialiseQueryBuilder();
 
         // We now just select all fields
         $queryBuilder = $queryBuilder->addSelect($tableName.'.*');

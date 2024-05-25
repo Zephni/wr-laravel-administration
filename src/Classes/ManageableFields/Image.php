@@ -27,9 +27,9 @@ class Image extends ManageableField
      * @param ?mixed $column
      * @param ?string $path
      * @param ?string $filename
-     * @return self
+     * @return static
      */
-    public static function make(?ManageableModel $manageableModel = null, ?string $column = null, ?string $path = null, ?string $filename = null): self
+    public static function make(?ManageableModel $manageableModel = null, ?string $column = null, ?string $path = null, ?string $filename = null): static
     {
         // If path is empty, we throw an exception
         if (empty($path)) {
@@ -116,7 +116,7 @@ class Image extends ManageableField
      * @param callable $callback
      * @return $this
      */
-    public function manipulateImage(callable $callback): self
+    public function manipulateImage(callable $callback): static
     {
         $this->manipulateImageFunction = $callback;
         return $this;
@@ -220,7 +220,7 @@ class Image extends ManageableField
      * @param string $path
      * @return $this
      */
-    public function defaultImage(string $path): self
+    public function defaultImage(string $path): static
     {
         $this->setOption('defaultImage', $path);
         return $this;
@@ -232,7 +232,7 @@ class Image extends ManageableField
      * @param bool $unlink
      * @return $this
      */
-    public function unlinkOld(bool $unlink = true): self
+    public function unlinkOld(bool $unlink = true): static
     {
         $this->setOption('unlinkOld', $unlink);
         return $this;
@@ -244,7 +244,7 @@ class Image extends ManageableField
      * @param bool $allow
      * @return $this
      */
-    public function allowRemove(bool $allow = true): self
+    public function allowRemove(bool $allow = true): static
     {
         $this->setOption('allowRemove', $allow);
         return $this;
@@ -255,7 +255,7 @@ class Image extends ManageableField
      *
      * @param null|string $aspect
      */
-    public function aspect(?string $aspect = null): self
+    public function aspect(?string $aspect = null): static
     {
         $this->setOption('aspect', $aspect);
         return $this;
@@ -266,7 +266,7 @@ class Image extends ManageableField
      *
      * @param null|bool|string $rounded
      */
-    public function rounded(null|bool|string $rounded = true): self
+    public function rounded(null|bool|string $rounded = true): static
     {
         $this->setOption('rounded', $rounded);
         return $this;

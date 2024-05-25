@@ -5,7 +5,7 @@ namespace WebRegulate\LaravelAdministration\Classes;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\MessageBag;
-use Illuminate\Contracts\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Builder;
 use WebRegulate\LaravelAdministration\Enums\PageType;
 use WebRegulate\LaravelAdministration\Classes\ManageableFields\Text;
 use WebRegulate\LaravelAdministration\Classes\ManageableFields\Select;
@@ -189,6 +189,16 @@ class ManageableModel
     public static function getBaseModelClass(): string
     {
         return static::$baseModelClass;
+    }
+
+    /**
+     * Initialise a query builder for the base model
+     * 
+     * @return Builder
+     */
+    public static function initialiseQueryBuilder(): Builder
+    {
+        return static::$baseModelClass::query();
     }
 
     /**

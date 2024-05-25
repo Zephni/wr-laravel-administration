@@ -94,9 +94,9 @@ class ManageableField
      *
      * @param ?ManageableModel $manageableModel
      * @param ?mixed $column
-     * @return self
+     * @return static
      */
-    public static function make(?ManageableModel $manageableModel = null, ?string $column = null): self
+    public static function make(?ManageableModel $manageableModel = null, ?string $column = null): static
     {
         return new static($column, $manageableModel?->getModelInstance()->{$column}, $manageableModel);
     }
@@ -141,7 +141,7 @@ class ManageableField
      * @param callable ...$callback
      * @return $this
      */
-    public function inlineValidation(callable ...$callbacks): self
+    public function inlineValidation(callable ...$callbacks): static
     {
         $this->inlineValidationRules = array_merge($this->inlineValidationRules, $callbacks);
 
