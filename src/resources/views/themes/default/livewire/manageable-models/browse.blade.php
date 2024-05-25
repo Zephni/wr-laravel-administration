@@ -3,7 +3,8 @@
 
     <div class="flex justify-between items-center">
         <div class="text-xl font-semibold mb-2">
-            Browsing {{ $manageableModelClass::getDisplayName(true) }}
+            <i class="{{ $manageableModelClass::getIcon() }} mr-2"></i>
+            {{ $manageableModelClass::getDisplayName(true) }}
         </div>
         <div class="text-sm text-slate-500">
             Total: {{ 
