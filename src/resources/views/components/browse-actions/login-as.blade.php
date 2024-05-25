@@ -4,7 +4,7 @@
         'id' => $modelInstance->id
     ]),
     'size' => 'small',
-    'color' => 'primary',
+    'color' => 'cyan',
     'type' => 'button',
     'text' => 'Login',
     'icon' => 'fa fa-lock relative !mr-[3px] text-[10px]',
