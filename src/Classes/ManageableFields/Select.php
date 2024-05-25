@@ -50,6 +50,33 @@ class Select extends ManageableField
     }
 
     /**
+     * Set items from model, with optional query amd prepended all option.
+     * 
+     * @param string $modelClass
+     * @param string $displayColumn
+     * @param ?callable $queryBuilder
+     * @param bool $prependAll
+     */
+    public function setItemsFromModel(string $modelClass, string $displayColumn, ?callable $queryBuilder = null, bool $prependAll = false): static
+    {
+        $query = $modelClass::query();
+
+        if ($queryBuilder) {
+            $query = $queryBuilder($query);
+        }
+
+        $this->items = $query->pluck($displayColumn, 'id')->toArray();
+
+        if ($prependAll) {
+            $this->items = ['all' => 'All'] + $this->items;
+        }
+
+        $this->setToFirstValueIfNotSet();
+
+        return $this;
+    }
+
+    /**
      * Set to first value in items if value not set
      *
      * @return $this

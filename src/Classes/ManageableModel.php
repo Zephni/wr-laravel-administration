@@ -349,7 +349,7 @@ class ManageableModel
                         'placeholder' => 'Search filter...'
                     ]),
 
-                // Applicable filter
+                // Apply filter
                 function(Builder $query, $columns, $value) {
                     return $query->where(function($query) use($columns, $value) {
                         foreach($columns as $column => $label) {
@@ -377,7 +377,7 @@ class ManageableModel
                     ->setOption('containerClass', 'w-1/6')
                     ->validation('required|in:all,trashed,not_trashed'),
 
-                // Applicable filter
+                // Apply filter
                 function(Builder $query, $columns, $value) {
                     if($value === 'not_trashed') {
                         return $query;
