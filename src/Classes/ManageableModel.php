@@ -341,17 +341,12 @@ class ManageableModel
         return collect([
             'searchFilter' => new BrowseFilter(
                 // Field
-                Text::make(null, 'searchFilter')
+                Text::makeBrowseFilter('searchFilter')
                     ->setLabel('Search', 'fas fa-search text-slate-400')
-                    ->setOptions([
-                        'containerClass' => 'w-1/2',
-                        'labelClass' => 'font-thin',
-                    ])
+                    ->setOption('containerClass', 'w-1/2')
                     ->setAttributes([
-                        'wire:model.live.debounce.400ms'=> 'filters.searchFilter',
                         'autofocus' => true,
-                        'placeholder' => 'Search filter...',
-                        'class' => '!mt-1'
+                        'placeholder' => 'Search filter...'
                     ]),
 
                 // Applicable filter
@@ -372,28 +367,19 @@ class ManageableModel
             ),
             'softDeletedFilter' => new BrowseFilter(
                 // Field
-                Select::make(null, 'softDeletedFilter')
+                Select::makeBrowseFilter('softDeletedFilter')
                     ->setLabel('Status', 'fas fa-heartbeat text-slate-400 !mr-1')
                     ->setItems([
                         'not_trashed' => 'Active only',
                         'trashed' => 'Soft deleted only',
                         'all' => 'All',
                     ])
-                    ->default('not_trashed')
-                    ->setOptions([
-                        'containerClass' => 'w-1/6',
-                        'labelClass' => 'font-thin',
-                    ])
-                    ->setAttributes([
-                        'wire:model.live' => 'filters.softDeletedFilter',
-                        'class' => '!mt-1'
-                    ])
+                    ->setOption('containerClass', 'w-1/6')
                     ->validation('required|in:all,trashed,not_trashed'),
 
                 // Applicable filter
                 function(Builder $query, $columns, $value) {
                     if($value === 'not_trashed') {
-                        // In this case we don't need to do anything because by default laravel only gets non-trashed items
                         return $query;
                     } else if($value === 'trashed') {
                         return $query->onlyTrashed();

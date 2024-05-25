@@ -102,6 +102,25 @@ class ManageableField
     }
 
     /**
+     * Make browse.filter version of the form component.
+     * 
+     * @param string $filterAlias Must be the same as the BrowseFilter key
+     * @return static
+     */
+    public static function makeBrowseFilter(?string $filterAlias = null): static
+    {
+        return self::make(null, 'userType')
+            ->setOptions([
+                'containerClass' => '',
+                'labelClass' => 'font-thin',
+            ])
+            ->setAttributes([
+                'wire:model.live' => 'filters.'.$filterAlias,
+                'class' => '!mt-1'
+            ]);
+    }
+
+    /**
      * Get value
      *
      * @return string

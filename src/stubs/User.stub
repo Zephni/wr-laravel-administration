@@ -4,10 +4,10 @@ namespace App\WRLA;
 
 use \Illuminate\Http\Request;
 use Illuminate\Support\Collection;
-use Illuminate\Contracts\Database\Eloquent\Builder;
-use WebRegulate\LaravelAdministration\Classes\BrowsableColumn;
-use WebRegulate\LaravelAdministration\Classes\BrowseFilter;
+use Illuminate\Database\Eloquent\Builder;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
+use WebRegulate\LaravelAdministration\Classes\BrowseFilter;
+use WebRegulate\LaravelAdministration\Classes\BrowsableColumn;
 use \WebRegulate\LaravelAdministration\Classes\ManageableModel;
 use WebRegulate\LaravelAdministration\Classes\ManageableFields\Json;
 use \WebRegulate\LaravelAdministration\Classes\ManageableFields\Text;
@@ -80,6 +80,7 @@ class User extends ManageableModel
             'data->profile->avatar' => BrowsableColumn::make('Avatar', 'image', 80)->setOptions([
                 'aspect' => '1:1',
                 'rounded' => true,
+                'imageClass' => 'object-cover',
                 'value' => $this->getModelInstance()->getProfileAvatar()
             ]),
             'name' => 'Name',
@@ -119,38 +120,25 @@ class User extends ManageableModel
      * @return Collection
      */
     public static function getBrowseFilters(): Collection {
-        $browseFilters = parent::getBrowseFilters();
+        return parent::getBrowseFilters()->merge([
+            'userTypeFilter' => new BrowseFilter(
+                Select::makeBrowseFilter('userTypeFilter')
+                    ->setLabel('User Type', 'fas fa-user-cog text-slate-400')
+                    ->setItems([
+                        'all' => 'All users',
+                        'admins_only' => 'Admins only',
+                        'non_admins_only' => 'Non admins only',
+                    ]),
 
-        $browseFilters->put('userType', new BrowseFilter(
-            Select::make(null, 'userType')
-                ->setLabel('User Type')
-                ->setItems([
-                    'all' => 'All users',
-                    'admins_only' => 'Admins only',
-                    'non_admins_only' => 'Non admins only',
-                ])
-                ->default('all')
-                ->setOptions([
-                    'containerClass' => 'w-1/5',
-                    'labelClass' => 'font-thin',
-                ])
-                ->setAttributes([
-                    'wire:model.live' => 'filters.userType',
-                    'class' => '!mt-1'
-                ]),
+                function(Builder $query, $columns, $value) {
+                    if($value !== 'all') {
+                        return $query->where('permissions->admin', $value === 'admins_only' ? true : false);
+                    }
 
-            function(Builder $query, $columns, $value) {
-                if($value === 'admins_only') {
-                    return $query->where('permissions->admin', true);
-                } elseif($value === 'non_admins_only') {
-                    return $query->where('permissions->admin', false);
+                    return $query;
                 }
-
-                return $query;
-            }
-        ));
-
-        return $browseFilters;
+            )
+        ]);
     }
 
     /**
@@ -179,6 +167,7 @@ class User extends ManageableModel
             Image::make($this, 'data->profile->avatar', 'images/avatars', '{id}-avatar-{time}.jpg')
                 ->defaultImage($modelInstance->getProfileAvatar())
                 ->aspect('1:1')
+                ->setOption('imageClass', 'object-cover')
                 ->rounded()
                 ->manipulateImage(function($image) {
                     $image->cover(300, 300, 'center');
