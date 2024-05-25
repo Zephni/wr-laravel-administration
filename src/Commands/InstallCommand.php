@@ -92,6 +92,9 @@ class InstallCommand extends Command
             }
         }
 
+        // Show link to https://beta.slimwiki.com/webregulate-laravel-administration
+        $this->alert('Please visit https://beta.slimwiki.com/webregulate-laravel-administration for documentation.');
+
         // New line for separation
         $this->line('');
 
