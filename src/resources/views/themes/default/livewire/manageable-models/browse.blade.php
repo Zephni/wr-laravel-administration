@@ -54,7 +54,7 @@
                     <tr class="odd:bg-slate-100 dark:odd:bg-slate-700 even:bg-slate-200 dark:even:bg-slate-800">
                         @foreach($manageableModelClass::make($model)->getBrowsableColumns() as $column => $BrowsableColumn)
                             @php $column = explode('::', $column)[0]; @endphp
-                            @if(is_string($BrowsableColumn) || $BrowsableColumn->type == 'string')
+                            @if(is_string($BrowsableColumn))
                                 <td class="px-3 py-2 whitespace-nowrap">
                                     {{ $model->{$column} }}
                                 </td>
