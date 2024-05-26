@@ -38,6 +38,10 @@
 
 @once
 <style>
+    .ck.ck-reset.ck-editor {
+        margin-top: 7px;
+    }
+
     .ck-source-editing-area,
     .ck-editor__editable {
         min-height: 300px;
@@ -55,8 +59,9 @@
     .dark .ck-editor { border: 1px solid rgb(100 116 139 / var(--tw-border-opacity)) !important; }
     .dark .ck-editor * { border: 1px solid rgb(71 85 105 / var(--tw-border-opacity)) !important; }
     .dark .ck-content { background: rgb(15 23 42 / var(--tw-bg-opacity)) !important; }
-    .dark .ck.ck-toolbar__items, .dark .ck.ck-toolbar__items * { background: rgb(51 65 85 / var(--tw-bg-opacity)) !important; color: #DDDDDD !important; }
     .dark .ck.ck-toolbar.ck-toolbar_grouping { background: rgb(51 65 85 / var(--tw-bg-opacity)) !important; }
     .dark .ck.ck-button:hover, .dark .ck.ck-button:hover * { background: rgb(31 35 65 / var(--tw-bg-opacity)) !important; }
+    .dark .ck-on { background: rgb(31 35 65 / var(--tw-bg-opacity)) !important; }
+    .dark .ck.ck-toolbar__items, .dark .ck.ck-toolbar__items * { background: rgb(51 65 85 / var(--tw-bg-opacity)); color: #DDDDDD !important; }
 </style>
 @endonce
