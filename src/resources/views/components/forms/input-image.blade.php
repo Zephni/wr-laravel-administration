@@ -40,7 +40,7 @@
             'imageClass' => 'wrla_image_preview',
             'aspect' => $options["aspect"],
             'rounded' => $options["rounded"],
-            'imageClass' => $options['imageClass'].' wrla_image_preview',
+            'imageClass' => $options['imageClass'].' wrla_image_preview '.($imageExists ? '' : 'wrla_no_image'),
             'attributes' => new \Illuminate\View\ComponentAttributeBag([
                 'src' => $src,
                 'class' => 'border-2 border-primary-600'
@@ -106,6 +106,7 @@
             
             reader.onload = function (e) {
                 previewImageElement.src = e.target.result;
+                previewImageElement.classList.remove('wrla_no_image');
             }
             
             reader.readAsDataURL(input.files[0]);
@@ -127,6 +128,7 @@
         input.value = '';
         button.style.display = 'none';
         previewImageElement.src = '{{ $WRLAHelper::getCurrentThemeData('no_image_src') }}';
+        previewImageElement.classList.add('wrla_no_image');
 
         // We only need to set the removeInput value to true if a file already exists
         @if($imageExists)

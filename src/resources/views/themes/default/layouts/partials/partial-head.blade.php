@@ -44,6 +44,7 @@
     @import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&display=swap');
     body { font-feature-settings: normal; font-family: "Nunito Sans", sans-serif; -webkit-font-smoothing: antialiased; }
     [x-cloak] { display: none !important; }
+    .wrla_no_image { object-fit: fill !important; }
 </style>
 
 @stack('styles')
