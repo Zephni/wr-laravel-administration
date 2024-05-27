@@ -12,12 +12,10 @@
 
     // Set colour classes
     if($color == 'primary') $colorClasses = 'bg-primary-500 hover:bg-primary-600 border-primary-500 shadow-lg shadow-slate-400';
+    else if($color == 'secondary') $colorClasses = 'bg-slate-600 dark:bg-slate-500 hover:bg-slate-700 dark:hover:bg-slate-600 border-slate-700 shadow-lg shadow-slate-400';
     else if($color == 'cyan') $colorClasses = 'bg-cyan-500 hover:bg-cyan-600 border-cyan-500 shadow-lg shadow-slate-400';
-    else if($color == 'green') $colorClasses = 'bg-green-500 hover:bg-green-600 border-green-500 shadow-lg shadow-slate-400';
-    else if($color == 'blue') $colorClasses = 'bg-blue-500 hover:bg-blue-600 border-blue-500 shadow-lg shadow-slate-400';
     else if($color == 'indigo') $colorClasses = 'bg-indigo-500 hover:bg-indigo-600 border-indigo-500 shadow-lg shadow-slate-400';
-    else if($color == 'purple') $colorClasses = 'bg-purple-500 hover:bg-purple-600 border-purple-500 shadow-lg shadow-slate-400';
-    else if($color == 'pink') $colorClasses = 'bg-pink-500 hover:bg-pink-600 border-pink-500 shadow-lg shadow-slate-400'; 
+    else if($color == 'teal') $colorClasses = 'bg-teal-600 hover:bg-teal-700 border-teal-600 shadow-lg shadow-slate-400';
     else if($color == 'danger') $colorClasses = 'bg-rose-500 hover:bg-rose-600 border-rose-500 shadow-lg shadow-slate-400';
     else if($color == 'grey') $colorClasses = 'bg-gray-500 hover:bg-gray-600 border-gray-500 text-gray-300 shadow-lg shadow-slate-400';
 @endphp
