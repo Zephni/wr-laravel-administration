@@ -6,7 +6,6 @@ use App\WRLA\User;
 use Illuminate\View\View;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Validator;
 use WebRegulate\LaravelAdministration\Enums\PageType;
@@ -191,14 +190,14 @@ class WRLAAdminController extends Controller
         // Default success message
         $defaultSuccessMessage = 'Saved '.$manageableModel->getDisplayName().' #'.$manageableModel->getmodelInstance()->id.' successfully.'.(($modelId == null) ? ' <a href="'.route('wrla.manageable-models.create', ['modelUrlAlias' => $manageableModel->getUrlAlias()]).'" class="font-bold underline">Click here</a> to create another '.$manageableModel->getDisplayName(false).' record.' : '');
 
-        // If override-redirect-route passed as GET parameter, redirect to that route
-        if($request->has('override-redirect-route')) {
-            // If override-success-message passed as GET parameter, use that as success message
-            $message = $request->has('override-success-message')
-                ? $request->get('override-success-message')
+        // If wrla_override_redirect_route passed as GET parameter, redirect to that route
+        if($request->has('wrla_override_redirect_route')) {
+            // If wrla_override_success_message passed as GET parameter, use that as success message
+            $message = $request->has('wrla_override_success_message')
+                ? $request->get('wrla_override_success_message')
                 : $defaultSuccessMessage;
 
-            return redirect()->route($request->get('override-redirect-route'))->with('success', $message);
+            return redirect()->route($request->get('wrla_override_redirect_route'))->with('success', $message);
         }
 
         // Redirect with success

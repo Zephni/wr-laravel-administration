@@ -12,7 +12,7 @@
         action="{{ route('wrla.manageable-models.upsert.post', [
             'modelUrlAlias' => $manageableModel->getUrlAlias(),
             'modelId' => $manageableModel->getmodelInstance()->id
-        ]) }}?override-redirect-route=wrla.manage-account&override-success-message=Account updated successfully"
+        ]) }}?wrla_override_redirect_route=wrla.manage-account&wrla_override_success_message=Account updated successfully"
         enctype="multipart/form-data"
         method="POST"
         class="w-full">
