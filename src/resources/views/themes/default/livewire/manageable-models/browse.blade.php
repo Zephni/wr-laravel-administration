@@ -50,7 +50,7 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach($models as $model)
+                @foreach($models as $model)                    
                     <tr class="odd:bg-slate-100 dark:odd:bg-slate-700 even:bg-slate-200 dark:even:bg-slate-800">
                         @foreach($manageableModelClass::make($model)->getBrowsableColumns() as $column => $BrowsableColumn)
                             @php $column = explode('::', $column)[0]; @endphp

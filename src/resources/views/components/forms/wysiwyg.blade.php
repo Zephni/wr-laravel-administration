@@ -44,12 +44,12 @@
 
     .ck-source-editing-area,
     .ck-editor__editable {
-        min-height: 300px;
+        min-height: 260px;
     }
 
     .ck-editor__main {
-        height: 300px;
-        min-height: 300px;
+        height: 260px;
+        min-height: 260px;
         overflow-y: scroll;
         border: 1px solid #bbbbbb;
     }

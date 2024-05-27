@@ -231,10 +231,12 @@ class ManageableModelBrowse extends Component
                 $relationship = explode('.', $parts[1]);
                 $queryBuilder = $queryBuilder->leftJoin($relationship[0], $relationship[0] . '.id', '=', $parts[0]);
                 $queryBuilder = $queryBuilder->addSelect($relationship[0] . '.' . $relationship[1] . ' as ' . $parts[0]);
+                // Add a select for the original value so that we can keep it with original_column__wrla_original
+                $queryBuilder = $queryBuilder->addSelect($parts[0] . ' as ' . $parts[0] . '__wrla_original');
             }
         }
 
-        // TODO: If Json reference columns exist, add them to the query
+        // If Json reference columns exist, add them to the query
         if($jsonReferenceColumns->count() > 0) {
             foreach($jsonReferenceColumns as $column => $label) {
                 // Note that the column can be nested any number of levels deep, for example: data->profile->avatar
