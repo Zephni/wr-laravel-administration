@@ -18,10 +18,19 @@ return [
 
     // Colors - These add/override tailwind's available colors in the layouts
     'colors' => [
+        // Use this amazing tailwind color generator: https://uicolors.app/create to generate your color palette
         'primary' => [
-            '500' => '#00BFA6',
-            '600' => '#00A88F',
-            '700' => '#008D95',
+            '50'  => '#eefffb',
+            '100' => '#c6fff3',
+            '200' => '#8effe9',
+            '300' => '#4dfbdc',
+            '400' => '#19e8ca',
+            '500' => '#00bfa6',
+            '600' => '#00a493',
+            '700' => '#028376',
+            '800' => '#08675f',
+            '900' => '#0c554e',
+            '950' => '#003432',
         ],
         'notes' => [
             '200' => '#e2f0fb',
@@ -33,8 +42,20 @@ return [
             '900' => '#1c3f6e',
         ],
         'slate' => [
+            '50'  => '#f8fafc',
+            '100' => '#f1f5f9',
+            '200' => '#e2e8f0',
+            '300' => '#cbd5e1',
+            '400' => '#94a3b8',
+            '500' => '#64748b',
+            '600' => '#475569',
+            '700' => '#334155',
+            '725' => '#303d51',
+            '750' => '#2a364a',
+            '800' => '#1e293b',
             '850' => '#161E2E',
-            '950' => '#0D1016',
+            '900' => '#0f172a',
+            '950' => '#020617',
         ],
     ],
 
