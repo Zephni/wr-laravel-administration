@@ -239,6 +239,32 @@ class WRLAHelper
     }
 
     /**
+     * Route is name, and has the specified parameters
+     * 
+     * @param string $routeName The route name to check.
+     * @param array $parameters The parameters to check.
+     * @return bool
+     */
+    public static function isCurrentRouteWithParameters(string $routeName, array $parameters): bool
+    {
+        // First check if name is true
+        if(request()->route()->getName() !== $routeName) {
+            return false;
+        }
+
+        // Check if all of the parameters passed are in the route parameters
+        $routeParameters = request()->route()->parameters();
+        foreach($parameters as $key => $value) {
+            if(!array_key_exists($key, $routeParameters) || $routeParameters[$key] !== $value) {
+                return false;
+            }
+        }
+
+        // If all checks pass, return true
+        return true;
+    }
+
+    /**
      * generate a file from a stub and replace variables.
      *
      * @param string $stub The stub to replace variables in.

@@ -1,8 +1,9 @@
 <?php
 
 use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItem;
-use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItemsAllManageableModels;
+use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItemDivider;
 use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItemManageableModel;
+use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItemsAllManageableModels;
 
 return [
 
@@ -56,11 +57,17 @@ return [
         // Dashboard
         new NavigationItem('wrla.dashboard', [], 'Dashboard', 'fa fa-tachometer-alt'),
 
+        // Divider - classes can be appened using the appendClass() method or overriden in the constructor or setClass method
+        new NavigationItemDivider(),
+
         // Import all manageable models as nav items - Optionally use example below to add individually
         NavigationItemsAllManageableModels::import(),
 
         // Example manageable model
         // new NavigationItemManageableModel(App\WRLA\YourModel::class),
+
+        // Divider
+        new NavigationItemDivider(),
 
         // Manage account
         new NavigationItem('wrla.manage-account', [], 'Manage Account', 'fa fa-user-circle'),

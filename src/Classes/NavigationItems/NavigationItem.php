@@ -2,6 +2,8 @@
 
 namespace WebRegulate\LaravelAdministration\Classes\NavigationItems;
 
+use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
+
 class NavigationItem
 {
     /**
@@ -56,6 +58,15 @@ class NavigationItem
     public function getUrl(): string
     {
         return route($this->route, $this->routeData);
+    }
+
+    /**
+     * Is active
+     * @return bool
+     */
+    public function isActive(): bool
+    {
+        return WRLAHelper::isCurrentRouteWithParameters($this->route, $this->routeData);
     }
 
     /**
