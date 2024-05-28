@@ -28,7 +28,7 @@
                 {{-- If navigation item has a route --}}
                 @if(!empty($navigationItem->route))
                     <a href="{{ $navigationItem->getUrl() }}"
-                        :class="{ '!text-primary-500 bg-slate-800': !dropdownOpen && thisActive, '!text-primary-500 bg-slate-750': childIsActive, '!border-t-2 !border-b-2 border-slate-600': !dropdownOpen && (thisActive || childIsActive), '!border-t-2 !border-b border-slate-600': dropdownOpen && (thisActive || childIsActive) }"
+                        :class="{ '!text-primary-500 !bg-slate-800': !dropdownOpen && thisActive, '!text-primary-500 bg-slate-750': childIsActive, '!border-t-2 !border-b-2 border-slate-600': !dropdownOpen && (thisActive || childIsActive), '!border-t-2 !border-b border-slate-600': dropdownOpen && (thisActive || childIsActive) }"
                         class="grid grid-cols-[36px,1fr] justify-start items-center whitespace-nowrap w-full select-none pl-2 pt-2 pb-1 font-bold text-slate-200 hover:text-primary-500 bg-slate-700 hover:bg-slate-800">
                         <div class="text-center w-8 h-8 overflow-hidden">
                             <i class="{{ $navigationItem->icon }} text-lg mr-1" :class="{ 'text-primary-500': thisActive || childIsActive }"></i>
@@ -49,14 +49,13 @@
                 <div
                     @click="dropdownOpen = !dropdownOpen"
                     :class="{ '!border-t-2 !border-b-2 border-slate-600': !dropdownOpen && (thisActive || childIsActive), '!border-t-2 !border-b border-slate-600': dropdownOpen && (thisActive || childIsActive) }"
-                    class="border-l border-slate-500 bg-slate-750 absolute right-0 bg-slate-700 z-10 flex justify-center items-center w-10 min-w-10 min-h-full hover:bg-slate-800 text-slate-300 dark:text-slate-300 cursor-pointer hover:text-primary-500">
+                    class="border-l border-slate-500 bg-slate-725 absolute right-0 bg-slate-700 z-10 flex justify-center items-center w-10 min-w-10 min-h-full hover:bg-slate-800 text-slate-300 dark:text-slate-300 cursor-pointer hover:text-primary-500">
                     <i x-bind:class="{'fas fa-chevron-right': !dropdownOpen, 'fas fa-chevron-down': dropdownOpen}" class="text-xs mt-1"></i>
                 </div>
-
             </div>
 
             {{-- Dropdown child list --}}
-            <div x-show="dropdownOpen" class="w-full bg-slate-725 border-t border-b border-slate-600" x-transition x-transition:enter.duration.300ms x-transition:leave.duration.300ms>
+            <div x-show="dropdownOpen" class="w-full bg-slate-725 border-t border-b border-slate-800" style="border-bottom-color: {{ config('wr-laravel-administration.colors.slate.600') }};" x-transition x-transition:enter.duration.300ms x-transition:leave.duration.300ms>
                 @foreach($navigationItem->children as $child)
                     <a
                         x-init="() => { if ('{{ $child->getUrl() }}' == '{{ url()->current() }}') { childIsActive = true; } }"
