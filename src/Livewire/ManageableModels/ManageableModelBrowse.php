@@ -49,6 +49,13 @@ class ManageableModelBrowse extends Component
     ];
 
     /**
+     * Display overrides for field values, such as relationship.name that are displayed in the browse table.
+     * 
+     * @var array
+     */
+    public array $displayOverrides = [];
+
+    /**
      * Success message.
      * 
      * @var ?string
@@ -230,9 +237,9 @@ class ManageableModelBrowse extends Component
                 $parts = explode('::', $column);
                 $relationship = explode('.', $parts[1]);
                 $queryBuilder = $queryBuilder->leftJoin($relationship[0], $relationship[0] . '.id', '=', $parts[0]);
-                $queryBuilder = $queryBuilder->addSelect($relationship[0] . '.' . $relationship[1] . ' as ' . $parts[0]);
-                // Add a select for the original value so that we can keep it with original_column__wrla_original
-                $queryBuilder = $queryBuilder->addSelect($parts[0] . ' as ' . $parts[0] . '__wrla_original');
+                $queryBuilder = $queryBuilder->addSelect($relationship[0] . '.' . $relationship[1] . ' as wrla_display_override.' . $parts[0]);
+                // We now prematurly set the displayOverrides to the new 'select as' column we pulled above, so we can apply the actual display value after the query
+                $this->displayOverrides[$parts[0]] = 'wrla_display_override.' . $parts[0];
             }
         }
 
@@ -259,6 +266,19 @@ class ManageableModelBrowse extends Component
         $queryBuilder = $queryBuilder->orderBy($tableName . '.id', 'DESC');
 
         $final = $queryBuilder->paginate(10);
+
+        // Loop through displayOverride values and apply special display values in this format
+        // $this->displayOverrides['column_name'][#modelId] = 'new display value';
+        foreach($this->displayOverrides as $column => $displayOverride) {
+            // if any begin with 'wrla_display_override.' we change $this->displayOverrides['column'] to an array of id => new display value
+            if(str_starts_with($column, 'wrla_display_override.')) {
+                $modelIdDisplayOverrideArray = [];
+                foreach($final as $model) {
+                    $modelIdDisplayOverrideArray[$model->id] = $model->{$displayOverride};
+                }
+                $this->displayOverrides[$column] = $modelIdDisplayOverrideArray;
+            }
+        }
 
         $this->debugMessage = $queryBuilder->toRawSql();
 
