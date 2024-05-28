@@ -239,7 +239,7 @@ class WRLAHelper
     }
 
     /**
-     * Route is name, and has the specified parameters
+     * Is the current route the given route name, and has the given parameters.
      * 
      * @param string $routeName The route name to check.
      * @param array $parameters The parameters to check.
@@ -262,6 +262,17 @@ class WRLAHelper
 
         // If all checks pass, return true
         return true;
+    }
+
+    /**
+     * Is the current route the given NavigationItem.
+     * 
+     * @param NavigationItem $navigationItem The navigation item to check.
+     * @return bool
+     */
+    public static function isNavItemCurrentRoute(NavigationItem $navigationItem): bool
+    {
+        return self::isCurrentRouteWithParameters($navigationItem->route, $navigationItem->routeData);
     }
 
     /**

@@ -95,7 +95,7 @@
     <div class="flex flex-col justify-start items-start w-full h-full overflow-y-auto">
 
         {{-- Navigation --}}
-        <div class="flex flex-col gap-0.5 w-full border-t border-slate-600 pt-1">
+        <div class="flex flex-col gap-1 w-full border-t border-slate-600 pt-1">
             @include('wr-laravel-administration::themes.default.layouts.partials.partial-navigation')
         </div>
 

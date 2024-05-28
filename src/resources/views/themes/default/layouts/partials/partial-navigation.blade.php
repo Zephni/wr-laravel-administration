@@ -8,7 +8,7 @@
             <div class="{{ $navigationItem->name }}"></div>
         @else
             <div class="relative w-full overflow-hidden">
-                <a href="{{ $navigationItem->getUrl() }}" class="grid grid-cols-[36px,1fr] justify-start items-center @if($navigationItem->getUrl() == url()->current()) !text-primary-500 bg-slate-800 @endif whitespace-nowrap w-full select-none pl-2 pt-2 pb-1 font-bold text-slate-200 hover:text-primary-500 bg-slate-700 hover:bg-slate-800">
+                <a href="{{ $navigationItem->getUrl() }}" class="@if($WRLAHelper::isNavItemCurrentRoute($navigationItem)) !text-primary-500 bg-slate-800 !border-t-2 !border-b-2 border-slate-600 @endif grid grid-cols-[36px,1fr] justify-start items-center whitespace-nowrap w-full select-none pl-2 pt-2 pb-1 font-bold text-slate-200 hover:text-primary-500 bg-slate-700 hover:bg-slate-800">
                     <div class="text-center w-8 h-8 overflow-hidden">
                         <i class="{{ $navigationItem->icon }} text-lg mr-1 @if($navigationItem->isActive()) text-primary-500 @endif"></i>
                     </div>
@@ -49,7 +49,7 @@
                 <div
                     @click="dropdownOpen = !dropdownOpen"
                     :class="{ '!border-t-2 !border-b-2 border-slate-600': !dropdownOpen && (thisActive || childIsActive), '!border-t-2 !border-b border-slate-600': dropdownOpen && (thisActive || childIsActive) }"
-                    class="border-l border-slate-500 bg-slate-725 absolute right-0 bg-slate-700 z-10 flex justify-center items-center w-10 min-w-10 min-h-full hover:bg-slate-800 text-slate-300 dark:text-slate-300 cursor-pointer hover:text-primary-500">
+                    class="border-l border-slate-550 bg-slate-725 absolute right-0 bg-slate-700 z-10 flex justify-center items-center w-10 min-w-10 min-h-full hover:bg-slate-800 text-slate-300 dark:text-slate-300 cursor-pointer hover:text-primary-500">
                     <i x-bind:class="{'fas fa-chevron-right': !dropdownOpen, 'fas fa-chevron-down': dropdownOpen}" class="text-xs mt-1"></i>
                 </div>
             </div>
