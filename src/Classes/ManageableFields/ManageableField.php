@@ -102,6 +102,16 @@ class ManageableField
     }
 
     /**
+     * Get manageable field type (eg. the class name: Text, Select, etc.)
+     * 
+     * @return string
+     */
+    public function getType(): string
+    {
+        return (new \ReflectionClass($this))->getShortName();
+    }
+
+    /**
      * Make browse.filter version of the form component.
      * 
      * @param string $filterAlias Must be the same as the BrowseFilter key

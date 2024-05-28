@@ -19,8 +19,8 @@
 @endif
 
 <textarea {{ $attributes->merge([
-    'id' => 'editor',
-    'class' => 'wysiwyg',
+    'id' => $id,
+    'class' => 'wrla_wysiwyg',
     'style' => 'white-space: pre-wrap; word-wrap: break-word;'
 // Remove value from attributes
 ])->except('value')  }}>{{
