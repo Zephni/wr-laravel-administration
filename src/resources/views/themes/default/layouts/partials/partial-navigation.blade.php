@@ -21,7 +21,7 @@
         <div x-data="{
             thisActive: {{ $navigationItem->isActive() ? 'true' : 'false' }},
             dropdownOpen: $persist(false).using(sessionStorage).as('nav_' + {{ $navigationItem->index }} + '_open'),
-            childIsActive: false
+            childIsActive: {{ $navigationItem->isChildActive() ? 'true' : 'false' }}
         }" class="relative w-full overflow-hidden">
             <div class="relative flex items-stretch justify-between h-fit w-full whitespace-nowrap select-none font-bold bg-slate-700">
 
@@ -58,11 +58,10 @@
             <div x-show="dropdownOpen" class="w-full bg-slate-725 border-t border-b border-slate-800" style="border-bottom-color: {{ config('wr-laravel-administration.colors.slate.600') }};" x-transition x-transition:enter.duration.300ms x-transition:leave.duration.300ms>
                 @foreach($navigationItem->children as $child)
                     <a
-                        x-init="() => { if ('{{ $child->getUrl() }}' == '{{ url()->current() }}') { childIsActive = true; } }"
                         href="{{ $child->getUrl() }}"
-                        class="grid grid-cols-[36px,1fr] @if($child->getUrl() == url()->current()) !text-primary-500 !bg-slate-800 @endif flex items-center justify-start w-full pl-7 pr-6 pt-1 text-slate-200 pb-0 font-bold hover:bg-slate-800 hover:!text-primary-500 dark:hover:!text-primary-500">
+                        class="grid grid-cols-[36px,1fr] @if($child->isActive()) !text-primary-500 !bg-slate-800 @endif flex items-center justify-start w-full pl-7 pr-6 pt-1 text-slate-200 pb-0 font-bold hover:bg-slate-800 hover:!text-primary-500 dark:hover:!text-primary-500">
                         <div class="text-center w-8 h-8 overflow-hidden">
-                            <i class="{{ $child->icon }} text-lg mr-1 @if($child->getUrl() == url()->current()) text-primary-500 @endif"></i>
+                            <i class="{{ $child->icon }} text-lg mr-1 @if($child->isActive()) text-primary-500 @endif"></i>
                         </div>
                         <span class="relative text-sm" style="top: -1px;">{{ $child->render() }}</span>
                     </a>

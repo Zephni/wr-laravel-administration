@@ -2,6 +2,10 @@
 
 namespace WebRegulate\LaravelAdministration\Classes\NavigationItems;
 
+use Illuminate\Support\Facades\Route;
+use WebRegulate\LaravelAdministration\Enums\PageType;
+use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
+
 class NavigationItemManageableModel extends NavigationItem
 {
     public function __construct(
@@ -30,5 +34,22 @@ class NavigationItemManageableModel extends NavigationItem
             $this->manageableModelClass::getIcon(),
             $childNavigationItems->toArray()
         );
+    }
+
+    /**
+     * Is active
+     * @return bool
+     */
+    public function isChildActive(): bool
+    {
+        // If current page is edit
+        if(WRLAHelper::getCurrentPageType() === PageType::EDIT) {
+            // If the current route data modelUrlAlias is same as $this->routeData
+            if(Route::current()->parameters['modelUrlAlias'] == $this->routeData['modelUrlAlias']) {
+                return true;
+            }
+        }
+        
+        return parent::isChildActive();
     }
 }

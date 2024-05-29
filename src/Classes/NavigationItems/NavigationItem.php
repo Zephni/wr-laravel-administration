@@ -3,6 +3,7 @@
 namespace WebRegulate\LaravelAdministration\Classes\NavigationItems;
 
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
+use WebRegulate\LaravelAdministration\Enums\PageType;
 
 class NavigationItem
 {
@@ -67,6 +68,22 @@ class NavigationItem
     public function isActive(): bool
     {
         return WRLAHelper::isCurrentRouteWithParameters($this->route, $this->routeData);
+    }
+
+    /**
+     * Is child active
+     * @return bool
+     */
+    public function isChildActive(): bool
+    {
+        foreach($this->children as $child) {
+            if($child->isActive()) {
+                return true;
+            }
+        }
+
+        return false;
+    
     }
 
     /**
