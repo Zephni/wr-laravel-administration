@@ -608,7 +608,7 @@ class ManageableModel
             static::$cache['isSoftDeletable'] = in_array('Illuminate\Database\Eloquent\SoftDeletes', class_uses(static::$baseModelClass));
         }
 
-        return static::$cache['isSoftDeletable'];
+        return static::$cache['isSoftDeletable'] ?? false;
     }
 
     /**
@@ -634,9 +634,9 @@ class ManageableModel
         // Pass name
         if($routeName == 'wrla.manageable-models.browse') {
             return PageType::BROWSE;
-        } else if($routeName == 'wrla.manageable-models.upsert' && $this->isBeingCreated()) {
+        } else if($routeName == 'wrla.manageable-models.create' && $this->isBeingCreated()) {
             return PageType::CREATE;
-        } else if($routeName == 'wrla.manageable-models.upsert' && !$this->isBeingCreated()) {
+        } else if($routeName == 'wrla.manageable-models.edit' && !$this->isBeingCreated()) {
             return PageType::EDIT;
         }
 
