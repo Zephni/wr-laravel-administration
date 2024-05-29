@@ -229,7 +229,7 @@ class ManageableModelBrowse extends Component
         // We now just select all fields
         $queryBuilder = $queryBuilder->addSelect($tableName.'.*');
 
-        // Relationship columns look like this column::relationship.display_column, so we need to split them
+        // Relationship columns look like this local_column::relationship_table.remote_column, so we need to split them
         // and add left joins and selects to the query
         if($relationshipColumns->count() > 0) {
             // Add left joins and selects
@@ -259,7 +259,7 @@ class ManageableModelBrowse extends Component
         $manageableModelFilters = $this->manageableModelClass::getBrowseFilters();
 
         foreach($manageableModelFilters as $key => $browseFilter) {
-            $queryBuilder = $browseFilter->apply($queryBuilder, $this->columns, $this->filters[$key]);
+            $queryBuilder = $browseFilter->apply($queryBuilder, $tableName, $this->columns, $this->filters[$key]);
         }
 
         // For now just order by id DESC, but need to add post query and optional ordering etc to manageable models
@@ -271,7 +271,7 @@ class ManageableModelBrowse extends Component
         // $this->displayOverrides['column_name'][#modelId] = 'new display value';
         foreach($this->displayOverrides as $column => $displayOverride) {
             // if any begin with 'wrla_display_override.' we change $this->displayOverrides['column'] to an array of id => new display value
-            if(str_starts_with($column, 'wrla_display_override.')) {
+            if(str_starts_with($displayOverride, 'wrla_display_override.')) {
                 $modelIdDisplayOverrideArray = [];
                 foreach($final as $model) {
                     $modelIdDisplayOverrideArray[$model->id] = $model->{$displayOverride};

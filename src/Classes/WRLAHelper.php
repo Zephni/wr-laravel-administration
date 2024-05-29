@@ -5,15 +5,35 @@ namespace WebRegulate\LaravelAdministration\Classes;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\RateLimiter;
 use WebRegulate\LaravelAdministration\Models\User;
+use WebRegulate\LaravelAdministration\Enums\PageType;
 use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItem;
 
 class WRLAHelper
 {
+    /**
+     * Get current page type
+     * 
+     * @return ?PageType $pageType
+     */
+    public static function getCurrentPageType(): ?PageType
+    {
+        if(Route::is('wrla.manageable-models.browse')) {
+            return PageType::BROWSE;
+        } else if(Route::is('wrla.manageable-models.create')) {
+            return PageType::CREATE;
+        } else if(Route::is('wrla.manageable-models.edit')) {
+            return PageType::EDIT;
+        }
+
+        return null;
+    }
+
     /**
      * Get the data of the current theme from config, either the entire array or key dot notation within it.
      *

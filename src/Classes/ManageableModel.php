@@ -296,36 +296,39 @@ class ManageableModel
      */
     public static function getBrowseItemActions(mixed $model): Collection {
         $manageableModel = static::make($model);
-
+        $currentPageType = WRLAHelper::getCurrentPageType();
         $browseActions = collect();
-
-        // If model doesn't have soft delets and not trashed
-        if(!static::isSoftDeletable() || $model->deleted_at == null) {
-            if($manageableModel::permissions()->hasPermission(WRLAPermissions::EDIT)) {
-                $browseActions->put('edit', view(WRLAHelper::getViewPath('components.browse-actions.edit-button'), [
-                    'manageableModel' => $manageableModel
-                ]));
-            }
-
-            if($manageableModel::permissions()->hasPermission(WRLAPermissions::DELETE)) {
-                $browseActions->put('delete', view(WRLAHelper::getViewPath('components.browse-actions.delete-button'), [
-                    'manageableModel' => $manageableModel
-                ]));
-            }
-        // If trashed
-        } else {
-            if($manageableModel::permissions()->hasPermission(WRLAPermissions::RESTORE)) {
-                $browseActions->put('restore', view(WRLAHelper::getViewPath('components.browse-actions.restore-button'), [
-                    'manageableModel' => $manageableModel
-                ]));
-            }
-
-            if($manageableModel::permissions()->hasPermission(WRLAPermissions::DELETE)) {
-                $browseActions->put('delete', view(WRLAHelper::getViewPath('components.browse-actions.delete-button'), [
-                    'manageableModel' => $manageableModel,
-                    'text' => 'Permanent Delete',
-                    'permanent' => true
-                ]));
+        
+        // If not create page
+        if($currentPageType != PageType::CREATE) {
+            // If model doesn't have soft deletes and not trashed
+            if(!static::isSoftDeletable() || $model->deleted_at == null) {
+                if($manageableModel::permissions()->hasPermission(WRLAPermissions::EDIT)) {
+                    $browseActions->put('edit', view(WRLAHelper::getViewPath('components.browse-actions.edit-button'), [
+                        'manageableModel' => $manageableModel
+                    ]));
+                }
+    
+                if($manageableModel::permissions()->hasPermission(WRLAPermissions::DELETE)) {
+                    $browseActions->put('delete', view(WRLAHelper::getViewPath('components.browse-actions.delete-button'), [
+                        'manageableModel' => $manageableModel
+                    ]));
+                }
+            // If trashed
+            } else {
+                if($manageableModel::permissions()->hasPermission(WRLAPermissions::RESTORE)) {
+                    $browseActions->put('restore', view(WRLAHelper::getViewPath('components.browse-actions.restore-button'), [
+                        'manageableModel' => $manageableModel
+                    ]));
+                }
+    
+                if($manageableModel::permissions()->hasPermission(WRLAPermissions::DELETE)) {
+                    $browseActions->put('delete', view(WRLAHelper::getViewPath('components.browse-actions.delete-button'), [
+                        'manageableModel' => $manageableModel,
+                        'text' => 'Permanent Delete',
+                        'permanent' => true
+                    ]));
+                }
             }
         }
 
@@ -350,14 +353,16 @@ class ManageableModel
                     ]),
 
                 // Apply filter
-                function(Builder $query, $columns, $value) {
-                    return $query->where(function($query) use($columns, $value) {
+                function(Builder $query, $table, $columns, $value) {
+                    return $query->where(function($query) use($table, $columns, $value) {
                         foreach($columns as $column => $label) {
                             // If column is relationship, then modify the column to be the related column
                             if(strpos($column, '::') !== false) {
                                 $parts = explode('::', $column);
                                 $relationship = explode('.', $parts[1]);
                                 $column = $relationship[0] . '.' . $relationship[1];
+                            } else {
+                                $column = $table . '.' . $column;
                             }
 
                             $query->orWhere($column, 'like', '%'.$value.'%');
@@ -378,7 +383,7 @@ class ManageableModel
                     ->validation('required|in:all,trashed,not_trashed'),
 
                 // Apply filter
-                function(Builder $query, $columns, $value) {
+                function(Builder $query, $table, $columns, $value) {
                     if($value === 'not_trashed') {
                         return $query;
                     } else if($value === 'trashed') {

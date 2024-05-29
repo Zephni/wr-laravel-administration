@@ -130,7 +130,7 @@ class User extends ManageableModel
                         'non_admins_only' => 'Non admins only',
                     ]),
 
-                function(Builder $query, $columns, $value) {
+                function(Builder $query, $table, $columns, $value) {
                     if($value !== 'all') {
                         return $query->where('permissions->admin', $value === 'admins_only' ? true : false);
                     }

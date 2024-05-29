@@ -2,9 +2,10 @@
 
 namespace WebRegulate\LaravelAdministration\Classes;
 
+use Illuminate\Support\Collection;
 use Illuminate\Database\Eloquent\Builder;
-use WebRegulate\LaravelAdministration\Classes\ManageableFields\ManageableField;
 use WebRegulate\LaravelAdministration\Enums\PageType;
+use WebRegulate\LaravelAdministration\Classes\ManageableFields\ManageableField;
 
 class BrowseFilter
 {
@@ -53,11 +54,13 @@ class BrowseFilter
      * Apply to query builder.
      * 
      * @param Builder $query
+     * @param string $table
+     * @param Collection $columns
      * @param mixed $value
      * @return Builder
      */
-    public function apply(Builder $query, $columns, $value): Builder
+    public function apply(Builder $query, string $table, Collection $columns, mixed $value): Builder
     {
-        return call_user_func($this->applicableFilter, $query, $columns, $value);
+        return call_user_func($this->applicableFilter, $query, $table, $columns, $value);
     }
 }

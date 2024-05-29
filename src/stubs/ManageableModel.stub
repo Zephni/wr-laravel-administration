@@ -48,7 +48,8 @@ class {{ $MODEL }} extends ManageableModel
     {
         return collect([
             'id' => 'ID', // It's not standard to include id in browsable columns, but it's included for demonstration purposes
-            // 'column_name' => 'Column Name',
+            // 'column_name' => 'Display Name',
+            // 'user_id::users.name' => 'User', // eg. 'local_column::relationship_table.remote_column' => 'Display Name'
             // ...
         ]);
     }
