@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\RateLimiter;
 use WebRegulate\LaravelAdministration\Models\User;
@@ -457,6 +458,28 @@ class WRLAHelper
         $dotNotation = implode('.', array_slice($parts, 1));
 
         return [$column, $dotNotation];
+    }
+
+    /**
+     * Query builder join callback function
+     * 
+     * @param Builder $query The query builder.
+     * @param string $joinTable The table to join.
+     * @param string $tableAndColumn Local table and join column, eg. 'base_table.relationship_column_id'
+     * @param ?array $selectColumns Specify extra relationship columns to select, 'id' will always be selected on the relationship table.
+     * @return Builder The query builder with the added join.
+     */
+    public static function queryBuilderJoin(Builder $query, string $joinTable, string $tableAndColumn, ?array $selectColumns = null): mixed
+    {
+        // Run the join
+        $query->join($joinTable, $tableAndColumn, '=', $joinTable.'.id');
+
+        // Plug the select columns in as selectRaw's, this way we can be more specific with the columns we want to select
+        if($selectColumns != null && count($selectColumns) > 0) {
+            $query->selectRaw(implode(', ', $selectColumns));
+        }
+
+        return $query;
     }
 
     /**

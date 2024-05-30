@@ -51,27 +51,38 @@ class Select extends ManageableField
 
     /**
      * Set items from model, with optional query amd prepended all option.
-     * 
+     *
      * @param string $modelClass
      * @param string $displayColumn
-     * @param ?callable $queryBuilder
+     * @param ?callable $queryBuilderFunction
      * @param bool $prependAll
      */
-    public function setItemsFromModel(string $modelClass, string $displayColumn, ?callable $queryBuilder = null, bool $prependAll = false): static
+    public function setItemsFromModel(string $modelClass, string $displayColumn, ?callable $queryBuilderFunction = null, bool $prependAll = false): static
     {
+        $table = (new ($modelClass))->getTable();
         $query = $modelClass::query();
 
-        if ($queryBuilder) {
-            $query = $queryBuilder($query);
+        if ($queryBuilderFunction) {
+            $query = $queryBuilderFunction($query);
+            $query->addSelect("$table.id");
+        } else {
+            $query->select('id', $displayColumn);
         }
 
-        $this->items = $query->pluck($displayColumn, 'id')->toArray();
+        try
+        {
+            $this->items = $query->pluck($displayColumn, "$table.id")->toArray();
 
-        if ($prependAll) {
-            $this->items = ['all' => 'All'] + $this->items;
+            if ($prependAll) {
+                $this->items = ['all' => 'All'] + $this->items;
+            }
+
+            $this->setToFirstValueIfNotSet();
         }
-
-        $this->setToFirstValueIfNotSet();
+        catch (\Exception $e)
+        {
+            throw new \Exception("Error in Select->setItemsFromModel on table '$table'", $e->getMessage());
+        }
 
         return $this;
     }
