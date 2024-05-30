@@ -23,7 +23,7 @@
             @endif
         </div>
         <div class="flex justify-end gap-2 !text-sm">
-            @foreach($manageableModel::getBrowseItemActions($manageableModel->getmodelInstance()) as $key => $action)
+            @foreach($manageableModel->getItemActions() as $key => $action)
                 @continue($key == 'edit')
                 {!! $action->render() !!}
             @endforeach

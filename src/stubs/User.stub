@@ -95,8 +95,9 @@ class User extends ManageableModel
      * @param mixed $model
      * @return Collection
      */
-    public static function getBrowseItemActions(mixed $model): Collection {
-        $browseActions = parent::getBrowseItemActions($model);
+    public function getItemActions(): Collection {
+        $browseActions = parent::getItemActions();
+        $model = $this->getModelInstance();
 
         // If not current user
         if($model->id !== auth()->id()) {

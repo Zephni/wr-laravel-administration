@@ -36,28 +36,6 @@ class ManageableModel
     public static bool $hideFromNavigation = false;
 
     /**
-     * Get child navigation items
-     *
-     * @var Collection
-     */
-    public static function getChildNavigationItems(): Collection {
-        return collect([
-            new NavigationItem(
-                'wrla.manageable-models.browse',
-                ['modelUrlAlias' => static::getUrlAlias()],
-                'Browse',
-                'fa fa-list'
-            ),
-            new NavigationItem(
-                'wrla.manageable-models.create',
-                ['modelUrlAlias' => static::getUrlAlias()],
-                'Create',
-                'fa fa-plus'
-            )
-        ]);
-    }
-
-    /**
      * Collection of manageable models, pushed to in the register method which is called within the serice provider.
      *
      * @var ?Collection
@@ -193,7 +171,7 @@ class ManageableModel
 
     /**
      * Initialise a query builder for the base model
-     * 
+     *
      * @return Builder
      */
     public static function initialiseQueryBuilder(): Builder
@@ -252,18 +230,24 @@ class ManageableModel
     }
 
     /**
-     * Get Browsable columns.
-     * To add a relationship column, use the format 'local_column::other_table.display_column'.
-     * To add a json value column, use the format 'json_column->key1->key2'.
+     * Get child navigation items
      *
-     * @return Collection
+     * @var Collection
      */
-    public function getBrowsableColumns(): Collection
-    {
+    public static function getChildNavigationItems(): Collection {
         return collect([
-            'id' => 'ID',
-            // 'column_name' => 'Column Name',
-            // ...
+            new NavigationItem(
+                'wrla.manageable-models.browse',
+                ['modelUrlAlias' => static::getUrlAlias()],
+                'Browse',
+                'fa fa-list'
+            ),
+            new NavigationItem(
+                'wrla.manageable-models.create',
+                ['modelUrlAlias' => static::getUrlAlias()],
+                'Create',
+                'fa fa-plus'
+            )
         ]);
     }
 
@@ -289,46 +273,67 @@ class ManageableModel
     }
 
     /**
-     * Get browse item actions
+     * Get Browsable columns.
+     * To add a relationship column, use the format 'local_column::other_table.display_column'.
+     * To add a json value column, use the format 'json_column->key1->key2'.
+     *
+     * @return Collection
+     */
+    public function getBrowsableColumns(): Collection
+    {
+        return collect([
+            'id' => 'ID',
+            // 'column_name' => 'Column Name',
+            // ...
+        ]);
+    }
+
+    /**
+     * Get item actions, such as edit, delete.
      *
      * @param mixed $model
      * @return Collection
      */
-    public static function getBrowseItemActions(mixed $model): Collection {
-        $manageableModel = static::make($model);
+    public function getItemActions(): Collection {
+        // Get current page type and set browse actions to empty collection
         $currentPageType = WRLAHelper::getCurrentPageType();
         $browseActions = collect();
-        
-        // If not create page
-        if($currentPageType != PageType::CREATE) {
-            // If model doesn't have soft deletes and not trashed
-            if(!static::isSoftDeletable() || $model->deleted_at == null) {
-                if($manageableModel::permissions()->hasPermission(WRLAPermissions::EDIT)) {
-                    $browseActions->put('edit', view(WRLAHelper::getViewPath('components.browse-actions.edit-button'), [
-                        'manageableModel' => $manageableModel
-                    ]));
-                }
-    
-                if($manageableModel::permissions()->hasPermission(WRLAPermissions::DELETE)) {
-                    $browseActions->put('delete', view(WRLAHelper::getViewPath('components.browse-actions.delete-button'), [
-                        'manageableModel' => $manageableModel
-                    ]));
-                }
-            // If trashed
-            } else {
-                if($manageableModel::permissions()->hasPermission(WRLAPermissions::RESTORE)) {
-                    $browseActions->put('restore', view(WRLAHelper::getViewPath('components.browse-actions.restore-button'), [
-                        'manageableModel' => $manageableModel
-                    ]));
-                }
-    
-                if($manageableModel::permissions()->hasPermission(WRLAPermissions::DELETE)) {
-                    $browseActions->put('delete', view(WRLAHelper::getViewPath('components.browse-actions.delete-button'), [
-                        'manageableModel' => $manageableModel,
-                        'text' => 'Permanent Delete',
-                        'permanent' => true
-                    ]));
-                }
+
+        // If create page, return empty collection
+        if($currentPageType == PageType::CREATE) {
+            return $browseActions;
+        }
+
+        // Get model instance
+        $model = $this->getModelInstance();
+
+        // If model doesn't have soft deletes and not trashed
+        if(!static::isSoftDeletable() || $model->deleted_at == null) {
+            if($this->permissions()->hasPermission(WRLAPermissions::EDIT)) {
+                $browseActions->put('edit', view(WRLAHelper::getViewPath('components.browse-actions.edit-button'), [
+                    'manageableModel' => $this
+                ]));
+            }
+
+            if($this->permissions()->hasPermission(WRLAPermissions::DELETE)) {
+                $browseActions->put('delete', view(WRLAHelper::getViewPath('components.browse-actions.delete-button'), [
+                    'manageableModel' => $this
+                ]));
+            }
+        // If trashed
+        } else {
+            if($this->permissions()->hasPermission(WRLAPermissions::RESTORE)) {
+                $browseActions->put('restore', view(WRLAHelper::getViewPath('components.browse-actions.restore-button'), [
+                    'manageableModel' => $this
+                ]));
+            }
+
+            if($this->permissions()->hasPermission(WRLAPermissions::DELETE)) {
+                $browseActions->put('delete', view(WRLAHelper::getViewPath('components.browse-actions.delete-button'), [
+                    'manageableModel' => $this,
+                    'text' => 'Permanent Delete',
+                    'permanent' => true
+                ]));
             }
         }
 

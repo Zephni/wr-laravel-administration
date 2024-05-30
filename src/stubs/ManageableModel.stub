@@ -40,8 +40,8 @@ class {{ $MODEL }} extends ManageableModel
         return parent::getBrowseFilters();
     }
 
-    public static function getBrowseItemActions(mixed $model): Collection {
-        return parent::getBrowseItemActions($model);
+    public function getItemActions(): Collection {
+        return parent::getItemActions();
     }
 
     public function getBrowsableColumns(): Collection
