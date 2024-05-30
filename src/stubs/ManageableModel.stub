@@ -3,7 +3,7 @@
 namespace {{ $NAMESPACE }};
 
 use WebRegulate\LaravelAdministration\Classes\ManageableModel;
-use WebRegulate\LaravelAdministration\Classes\BrowsableColumn;
+use WebRegulate\LaravelAdministration\Classes\BrowsableColumns\BrowsableColumn;
 use WebRegulate\LaravelAdministration\Classes\ManageableFields\Text;
 use WebRegulate\LaravelAdministration\Classes\ManageableFields\Image;
 use WebRegulate\LaravelAdministration\Classes\ManageableFields\TextArea;

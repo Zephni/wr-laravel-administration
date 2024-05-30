@@ -7,7 +7,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Database\Eloquent\Builder;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 use WebRegulate\LaravelAdministration\Classes\BrowseFilter;
-use WebRegulate\LaravelAdministration\Classes\BrowsableColumn;
+use WebRegulate\LaravelAdministration\Classes\BrowsableColumns\BrowsableColumn;
 use \WebRegulate\LaravelAdministration\Classes\ManageableModel;
 use WebRegulate\LaravelAdministration\Classes\ManageableFields\Json;
 use \WebRegulate\LaravelAdministration\Classes\ManageableFields\Text;

@@ -10,6 +10,7 @@ use WebRegulate\LaravelAdministration\Enums\PageType;
 use WebRegulate\LaravelAdministration\Classes\ManageableFields\Text;
 use WebRegulate\LaravelAdministration\Classes\ManageableFields\Select;
 use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItem;
+use WebRegulate\LaravelAdministration\Classes\BrowsableColumns\BrowsableColumn;
 use WebRegulate\LaravelAdministration\Classes\ManageableFields\ManageableField;
 
 class ManageableModel
@@ -273,7 +274,7 @@ class ManageableModel
     }
 
     /**
-     * Get Browsable columns.
+     * Get browsable columns.
      * To add a relationship column, use the format 'local_column::other_table.display_column'.
      * To add a json value column, use the format 'json_column->key1->key2'.
      *
@@ -286,6 +287,42 @@ class ManageableModel
             // 'column_name' => 'Column Name',
             // ...
         ]);
+    }
+
+    /**
+     * Get final browsable columns
+     * 
+     * @return Collection
+     */
+    public function getFinalBrowsableColumns(): Collection
+    {
+        // If any of the values are strings, we convert into BrowsableColumn instances
+        return $this->getBrowsableColumns()->map(function($value, $key) {
+            $usingAutoRelationshipNaming = strpos($key, '::') !== false;
+            $valueIsBrowsableColumn = $value instanceof BrowsableColumn;
+
+            // If $value is already a BrowsableColumn instance, return it
+            if($valueIsBrowsableColumn) {
+                return $value;
+            }
+
+            // If $key doesn't have :: then return browsable column instance version of the value
+            if(!$usingAutoRelationshipNaming) {
+                return $valueIsBrowsableColumn ? $value : BrowsableColumn::make($value, 'string');
+            // otherwise we are using auto relationship naming
+            } else {
+                $parts = explode('::', $key);
+                $relationship = explode('.', $parts[1]);
+                $relationshipName = $relationship[0];
+                $relationshipColumn = $relationship[1];
+
+                $label = $valueIsBrowsableColumn ? $value->label : $value;
+
+                return BrowsableColumn::make($label, 'string')->overrideRenderValue(function($value, $model) use($relationshipName, $relationshipColumn) {
+                    return $model->{"$relationshipName.$relationshipColumn"};
+                });
+            }
+        });
     }
 
     /**

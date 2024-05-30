@@ -7,7 +7,7 @@ use Livewire\WithPagination;
 use Illuminate\Support\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
-use WebRegulate\LaravelAdministration\Classes\BrowsableColumn;
+use WebRegulate\LaravelAdministration\Classes\BrowsableColumns\BrowsableColumn;
 use WebRegulate\LaravelAdministration\Classes\ManageableModel;
 use WebRegulate\LaravelAdministration\Classes\WRLAPermissions;
 
@@ -47,13 +47,6 @@ class ManageableModelBrowse extends Component
         // 'showSoftDeleted' => false,
         // 'showAdminOnly' => false,
     ];
-
-    /**
-     * Display overrides for field values, such as relationship.name that are displayed in the browse table.
-     * 
-     * @var array
-     */
-    public array $displayOverrides = [];
 
     /**
      * Success message.
@@ -229,17 +222,15 @@ class ManageableModelBrowse extends Component
         // We now just select all fields
         $queryBuilder = $queryBuilder->addSelect($tableName.'.*');
 
-        // Relationship columns look like this local_column::relationship_table.remote_column, so we need to split them
+        // Relationship named columns look like this local_column::relationship_table.remote_column, so we need to split them
         // and add left joins and selects to the query
         if($relationshipColumns->count() > 0) {
             // Add left joins and selects
-            foreach($relationshipColumns as $column => $label) {
+            foreach($relationshipColumns as $column => $browsableColumn) {
                 $parts = explode('::', $column);
                 $relationship = explode('.', $parts[1]);
                 $queryBuilder = $queryBuilder->leftJoin($relationship[0], $relationship[0] . '.id', '=', $parts[0]);
-                $queryBuilder = $queryBuilder->addSelect($relationship[0] . '.' . $relationship[1] . ' as wrla_display_override.' . $parts[0]);
-                // We now prematurly set the displayOverrides to the new 'select as' column we pulled above, so we can apply the actual display value after the query
-                $this->displayOverrides[$parts[0]] = 'wrla_display_override.' . $parts[0];
+                $queryBuilder = $queryBuilder->addSelect($relationship[0] . '.' . $relationship[1] . ' as '.$relationship[0].'.' . $relationship[1]);
             }
         }
 
@@ -266,19 +257,6 @@ class ManageableModelBrowse extends Component
         $queryBuilder = $queryBuilder->orderBy($tableName . '.id', 'DESC');
 
         $final = $queryBuilder->paginate(10);
-
-        // Loop through displayOverride values and apply special display values in this format
-        // $this->displayOverrides['column_name'][#modelId] = 'new display value';
-        foreach($this->displayOverrides as $column => $displayOverride) {
-            // if any begin with 'wrla_display_override.' we change $this->displayOverrides['column'] to an array of id => new display value
-            if(str_starts_with($displayOverride, 'wrla_display_override.')) {
-                $modelIdDisplayOverrideArray = [];
-                foreach($final as $model) {
-                    $modelIdDisplayOverrideArray[$model->id] = $model->{$displayOverride};
-                }
-                $this->displayOverrides[$column] = $modelIdDisplayOverrideArray;
-            }
-        }
 
         $this->debugMessage = $queryBuilder->toRawSql();
 

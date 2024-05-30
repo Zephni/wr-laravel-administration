@@ -55,21 +55,10 @@
                         $manageableModel = $manageableModelClass::make($model);
                     @endphp
                     <tr class="odd:bg-slate-100 dark:odd:bg-slate-700 even:bg-slate-200 dark:even:bg-slate-800">
-                        @foreach($manageableModel->getBrowsableColumns() as $column => $browsableColumn)
-                            @php $column = explode('::', $column)[0]; @endphp
-                            @if(array_key_exists($column, $displayOverrides))
-                                <td class="px-3 py-2 whitespace-nowrap">
-                                    {!! $displayOverrides[$column][$model->id] !!}
-                                </td>
-                            @elseif(is_string($browsableColumn))
-                                <td class="px-3 py-2 whitespace-nowrap">
-                                    {{ $model->{$column} }}
-                                </td>
-                            @else
-                                <td class="px-3 py-2 whitespace-nowrap" @if($browsableColumn->width != null) style="width: {{ is_numeric($browsableColumn->width) ? $browsableColumn->width.'px' : $browsableColumn->width }}" @endif>
-                                    {!! $browsableColumn->renderValue($model, $column) !!}
-                                </td>
-                            @endif
+                        @foreach($manageableModel->getFinalBrowsableColumns() as $column => $browsableColumn)
+                            <td class="px-3 py-2 whitespace-nowrap" @if($browsableColumn->width != null) style="width: {{ is_numeric($browsableColumn->width) ? $browsableColumn->width.'px' : $browsableColumn->width }}" @endif>
+                                {!! $browsableColumn->renderValue($model, $column) !!}
+                            </td>
                         @endforeach
                         <td class="px-3 py-2">
                             <div class="flex justify-end gap-2">
