@@ -1,13 +1,13 @@
 <?php
     // If browse page
-    if($manageableModel->getCurrentPageType() == WebRegulate\LaravelAdministration\Enums\PageType::BROWSE) {
+    if($WRLAHelper::getCurrentPageType() == WebRegulate\LaravelAdministration\Enums\PageType::BROWSE) {
         $attributeBag = new \Illuminate\View\ComponentAttributeBag([
             'title' => $text ?? 'Delete',
             'onclick' => "confirm('Are you sure?') || event.stopImmediatePropagation();",
             'wire:click' => 'deleteModel('.$manageableModel->getModelInstance()->id.', '.($permanent ?? false ? '1' : '0').')',
         ]);
     // If edit page
-    } else if ($manageableModel->getCurrentPageType() == WebRegulate\LaravelAdministration\Enums\PageType::EDIT) {
+    } else if ($WRLAHelper::getCurrentPageType() == WebRegulate\LaravelAdministration\Enums\PageType::EDIT) {
         $attributeBag = new \Illuminate\View\ComponentAttributeBag([
             'title' => $text ?? 'Delete',
             'onclick' => "

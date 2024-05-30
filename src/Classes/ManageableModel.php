@@ -622,28 +622,6 @@ class ManageableModel
     }
 
     /**
-     * Get current page type
-     *
-     * @return ?PageType
-     */
-    public function getCurrentPageType(): ?PageType
-    {
-        // Get request route name
-        $routeName = request()->route()->getName();
-
-        // Pass name
-        if($routeName == 'wrla.manageable-models.browse') {
-            return PageType::BROWSE;
-        } else if($routeName == 'wrla.manageable-models.create' && $this->isBeingCreated()) {
-            return PageType::CREATE;
-        } else if($routeName == 'wrla.manageable-models.edit' && !$this->isBeingCreated()) {
-            return PageType::EDIT;
-        }
-
-        return null;
-    }
-
-    /**
      * Get specific validation rule
      *
      * @return string
