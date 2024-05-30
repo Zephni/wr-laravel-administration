@@ -308,7 +308,7 @@ class ManageableModel
 
             // If $key doesn't have :: then return browsable column instance version of the value
             if(!$usingAutoRelationshipNaming) {
-                return $valueIsBrowsableColumn ? $value : BrowsableColumn::make($value, 'string');
+                $returnBrowsableColumn = $valueIsBrowsableColumn ? $value : BrowsableColumn::make($value, 'string');
             // otherwise we are using auto relationship naming
             } else {
                 $parts = explode('::', $key);
@@ -316,12 +316,12 @@ class ManageableModel
                 $relationshipName = $relationship[0];
                 $relationshipColumn = $relationship[1];
 
-                $label = $valueIsBrowsableColumn ? $value->label : $value;
-
-                return BrowsableColumn::make($label, 'string')->overrideRenderValue(function($value, $model) use($relationshipName, $relationshipColumn) {
+                $returnBrowsableColumn = BrowsableColumn::make($value, 'string')->overrideRenderValue(function($value, $model) use($relationshipName, $relationshipColumn) {
                     return $model->{"$relationshipName.$relationshipColumn"};
                 });
             }
+
+            return $returnBrowsableColumn;
         });
     }
 
