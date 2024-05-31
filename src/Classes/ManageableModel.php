@@ -12,6 +12,7 @@ use WebRegulate\LaravelAdministration\Classes\ManageableFields\Select;
 use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItem;
 use WebRegulate\LaravelAdministration\Classes\BrowsableColumns\BrowsableColumn;
 use WebRegulate\LaravelAdministration\Classes\ManageableFields\ManageableField;
+use WebRegulate\LaravelAdministration\Classes\BrowsableColumns\BrowsableColumnBase;
 use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItemManageableModel;
 
 class ManageableModel
@@ -310,7 +311,7 @@ class ManageableModel
         // If any of the values are strings, we convert into BrowsableColumn instances
         return $this->getBrowsableColumns()->map(function($value, $key) {
             $usingAutoRelationshipNaming = strpos($key, '::') !== false;
-            $valueIsBrowsableColumn = $value instanceof BrowsableColumn;
+            $valueIsBrowsableColumn = $value instanceof BrowsableColumnBase;
 
             // If $value is already a BrowsableColumn instance, return it
             if($valueIsBrowsableColumn) {
