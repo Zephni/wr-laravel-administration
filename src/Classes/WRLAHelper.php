@@ -473,7 +473,7 @@ class WRLAHelper
      * @param ?string $useAlias
      * @return Builder The query builder with the added join.
      */
-    public static function queryBuilderJoin(Builder $query, string $joinTable, string $tableAndColumn, ?array $selectColumns = null, ?string $useAlias): mixed
+    public static function queryBuilderJoin(Builder $query, string $joinTable, string $tableAndColumn, ?array $selectColumns = null, ?string $useAlias = null): mixed
     {
         // NOTE: MAYBE AT SOME POINT WE CAN ALSO SPLIT $joinTable to allow user to specify something other than $joinTable.id
         // Split table and column
