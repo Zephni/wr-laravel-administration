@@ -5,6 +5,7 @@ namespace WebRegulate\LaravelAdministration\Livewire\ManageableModels;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Pagination\LengthAwarePaginator;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 use WebRegulate\LaravelAdministration\Classes\ManageableModel;
@@ -229,8 +230,27 @@ class ManageableModelBrowse extends Component
             foreach($relationshipColumns as $column => $browsableColumn) {
                 $parts = explode('::', $column);
                 $relationship = explode('.', $parts[1]);
-                $queryBuilder = $queryBuilder->leftJoin($relationship[0], $relationship[0] . '.id', '=', $parts[0]);
-                $queryBuilder = $queryBuilder->addSelect($relationship[0] . '.' . $relationship[1] . ' as '.$relationship[0].'.' . $relationship[1]);
+
+                // If relationship is not the same table
+                $queryBuilder = WRLAHelper::queryBuilderJoin(
+                    $queryBuilder,
+                    $relationship[0],
+                    $tableName.'.'.$parts[0], [
+                        $relationship[0] != $tableName
+                            ? "$relationship[0]_other.id as `$relationship[0]_other.id`"
+                            : "$relationship[0]_other.id as `$relationship[0]_other.id`",
+                        
+                        $relationship[0] != $tableName
+                            ? "$relationship[0]_other.$relationship[1] as `$relationship[0]_other.$relationship[1]`"
+                            : "$relationship[0]_other.$relationship[1] as `$relationship[0]_other.$relationship[1]`"
+                    ],
+                    $relationship[0] != $tableName ? null : $tableName.'_other'
+                );
+                
+                // dd($queryBuilder->toRawSql(), $queryBuilder->get());
+
+                // $queryBuilder = $queryBuilder->leftJoin($relationship[0], $relationship[0] . '.id', '=', $parts[0]);
+                // $queryBuilder = $queryBuilder->addSelect($relationship[0] . '.' . $relationship[1] . ' as '.$relationship[0].'.' . $relationship[1]);
             }
         }
 

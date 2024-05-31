@@ -137,7 +137,16 @@ class BrowsableColumnBase
             ? explode('::', $column)[1]
             : $column;
 
+        // If $useColumn is relationship on same table as $model, appen _other to table name
+        if(count($useColumnTemp = explode('.', $useColumn)) > 1) {
+            if($useColumnTemp[0] == $model->getTable()) {
+                $useColumn = "$useColumnTemp[0]_other.$useColumnTemp[1]";
+            }
+        }
+        
         $value = $this->getOption('value') ?? $model->{$useColumn};
+        
+        // dd($model, $column, $this->getOption('value'), $useColumn, $model->{$useColumn});
 
         if($this->overrideRenderValue)
         {
@@ -146,7 +155,7 @@ class BrowsableColumnBase
 
         if($this->type == 'string')
         {
-            return $value;
+            return $value ?? '';
         }
         elseif($this->type == 'image')
         {

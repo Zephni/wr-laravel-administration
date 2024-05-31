@@ -3,14 +3,17 @@
 namespace WebRegulate\LaravelAdministration\Classes;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Query\Expression;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Database\Query\Grammars\Grammar;
 use WebRegulate\LaravelAdministration\Models\User;
 use WebRegulate\LaravelAdministration\Enums\PageType;
 use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItem;
@@ -467,17 +470,32 @@ class WRLAHelper
      * @param string $joinTable The table to join.
      * @param string $tableAndColumn Local table and join column, eg. 'base_table.relationship_column_id'
      * @param ?array $selectColumns Specify extra relationship columns to select, 'id' will always be selected on the relationship table.
+     * @param ?string $useAlias
      * @return Builder The query builder with the added join.
      */
-    public static function queryBuilderJoin(Builder $query, string $joinTable, string $tableAndColumn, ?array $selectColumns = null): mixed
+    public static function queryBuilderJoin(Builder $query, string $joinTable, string $tableAndColumn, ?array $selectColumns = null, ?string $useAlias): mixed
     {
-        // Run the join
-        $query->join($joinTable, $tableAndColumn, '=', $joinTable.'.id');
+        // NOTE: MAYBE AT SOME POINT WE CAN ALSO SPLIT $joinTable to allow user to specify something other than $joinTable.id
+        // Split table and column
+        $tableColumnSplit = explode('.', $tableAndColumn);
+
+        // If $tableAndColumn is not using 'table.column' format then throw exception
+        if(count($tableColumnSplit) != 2) {
+            throw new \Exception('queryBuilderJoin $tableAndColumn parameter must be in the format of "table.column". '.$tableAndColumn.' passed.');
+        }
 
         // Plug the select columns in as selectRaw's, this way we can be more specific with the columns we want to select
         if($selectColumns != null && count($selectColumns) > 0) {
             $query->selectRaw(implode(', ', $selectColumns));
         }
+
+        // Run join
+        $query->leftJoin(
+            DB::raw($joinTable.(empty($useAlias) ? '' : " $useAlias")),
+            $tableAndColumn,
+            '=',
+            empty($useAlias) ? "$joinTable.id" : "$useAlias.id"
+        );
 
         return $query;
     }

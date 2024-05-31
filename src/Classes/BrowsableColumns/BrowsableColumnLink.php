@@ -15,6 +15,7 @@ class BrowsableColumnLink extends BrowsableColumnBase
      *     'icon'  => ?string // optional,
      *     'class' => ?string // optional
      * ]
+     * or null if nothing should be displayed
      *
      * @var callable
      */
@@ -24,7 +25,7 @@ class BrowsableColumnLink extends BrowsableColumnBase
      * Create a new instance of the class
      *
      * @param string|null $label
-     * @param callable $linkBuilderCallback Must take $value, $model as arguments and return an array of ['url' => string, 'label' => string, 'icon' => ?string]
+     * @param callable $linkBuilderCallback Must take $value, $model as arguments and return an array of ['url' => string, 'label' => string, 'icon' => ?string, 'class' => ?string] or return null to display nothing
      * @param null|integer|string|null $width
      * @return static
      */
@@ -39,6 +40,11 @@ class BrowsableColumnLink extends BrowsableColumnBase
         // Set the override render value callback which internally calls the link builder callback
         $browsableColumnLink->overrideRenderValue = function ($value, $model) use ($browsableColumnLink) {
             $linkData = call_user_func($browsableColumnLink->linkBuilderCallback, $value, $model);
+
+            if($linkData === null) {
+                return '';
+            }
+
             return view(WRLAHelper::getViewPath('components.forms.link'), [
                 'href' => $linkData['url'],
                 'text' => $linkData['text'],
