@@ -54,10 +54,10 @@ class Select extends ManageableField
      *
      * @param string $modelClass
      * @param string $displayColumn
-     * @param ?callable $queryBuilderFunction
-     * @param bool $prependAll
+     * @param ?callable $queryBuilderFunction Takes query builder as argument and returns query builder
+     * @param ?callable $postModifyFunction Takes items array as argument and returns items array
      */
-    public function setItemsFromModel(string $modelClass, string $displayColumn, ?callable $queryBuilderFunction = null, bool $prependAll = false): static
+    public function setItemsFromModel(string $modelClass, string $displayColumn, ?callable $queryBuilderFunction = null, ?callable $postModifyFunction = null): static
     {
         $table = (new ($modelClass))->getTable();
         $query = $modelClass::query();
@@ -73,8 +73,9 @@ class Select extends ManageableField
         {
             $this->items = $query->pluck($displayColumn, "$table.id")->toArray();
 
-            if ($prependAll) {
-                $this->items = ['all' => 'All'] + $this->items;
+            if ($postModifyFunction !== null) {
+                // $this->items = ['all' => 'All'] + $this->items;
+                $this->items = $postModifyFunction($this->items);
             }
 
             $this->setToFirstValueIfNotSet();
