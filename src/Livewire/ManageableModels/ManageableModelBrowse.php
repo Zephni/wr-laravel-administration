@@ -237,11 +237,11 @@ class ManageableModelBrowse extends Component
                     $relationship[0],
                     $tableName.'.'.$parts[0], [
                         $relationship[0] != $tableName
-                            ? "$relationship[0]_other.id as `$relationship[0]_other.id`"
+                            ? "$relationship[0].id as `$relationship[0].id`"
                             : "$relationship[0]_other.id as `$relationship[0]_other.id`",
                         
                         $relationship[0] != $tableName
-                            ? "$relationship[0]_other.$relationship[1] as `$relationship[0]_other.$relationship[1]`"
+                            ? "$relationship[0].$relationship[1] as `$relationship[0].$relationship[1]`"
                             : "$relationship[0]_other.$relationship[1] as `$relationship[0]_other.$relationship[1]`"
                     ],
                     $relationship[0] != $tableName ? null : $tableName.'_other'
