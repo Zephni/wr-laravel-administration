@@ -86,7 +86,7 @@ return [
         NavigationItemsAllManageableModels::import(),
 
         // Example manageable model
-        // new NavigationItemManageableModel(App\WRLA\YourModel::class),
+        // App\WRLA\YourModel::getNavigationItem(),
 
         // Divider
         new NavigationItemDivider(),

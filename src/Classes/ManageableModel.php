@@ -12,6 +12,7 @@ use WebRegulate\LaravelAdministration\Classes\ManageableFields\Select;
 use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItem;
 use WebRegulate\LaravelAdministration\Classes\BrowsableColumns\BrowsableColumn;
 use WebRegulate\LaravelAdministration\Classes\ManageableFields\ManageableField;
+use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItemManageableModel;
 
 class ManageableModel
 {
@@ -178,6 +179,16 @@ class ManageableModel
     public static function initialiseQueryBuilder(): Builder
     {
         return static::$baseModelClass::query();
+    }
+
+    /**
+     * Get navigation item for this manageable model
+     * 
+     * @return NavigationItemManageableModel
+     */
+    public static function getNavigationItem(): NavigationItemManageableModel
+    {
+        return new NavigationItemManageableModel(static::class);
     }
 
     /**
