@@ -22,7 +22,10 @@
             thisActive: {{ $navigationItem->isActive() ? 'true' : 'false' }},
             dropdownOpen: $persist(false).using(sessionStorage).as('nav_' + {{ $navigationItem->index }} + '_open'),
             childIsActive: {{ $navigationItem->isChildActive() ? 'true' : 'false' }}
-        }" class="relative w-full overflow-hidden">
+        }"
+            @navigation_item_clicked.window="if($event.detail.except !== {{ $navigationItem->index }}) dropdownOpen = false"
+            @click="$dispatch('navigation_item_clicked', { except: {{ $navigationItem->index }} })"
+            class="relative w-full overflow-hidden">
             <div class="relative flex items-stretch justify-between h-fit w-full whitespace-nowrap select-none font-bold bg-slate-700">
 
                 {{-- If navigation item has a route --}}
@@ -47,7 +50,7 @@
 
                 {{-- Dropdown arrow --}}
                 <div
-                    @click="dropdownOpen = !dropdownOpen"
+                    @click="dropdownOpen = !dropdownOpen;"
                     :class="{ '!border-t-2 !border-b-2 border-slate-600': !dropdownOpen && (thisActive || childIsActive), '!border-t-2 !border-b border-slate-600': dropdownOpen && (thisActive || childIsActive) }"
                     class="border-l border-slate-550 bg-slate-725 absolute right-0 bg-slate-700 z-10 flex justify-center items-center w-10 min-w-10 min-h-full hover:bg-slate-800 text-slate-300 dark:text-slate-300 cursor-pointer hover:text-primary-500">
                     <i x-bind:class="{'fas fa-chevron-right': !dropdownOpen, 'fas fa-chevron-down': dropdownOpen}" class="text-xs mt-1"></i>
@@ -55,7 +58,11 @@
             </div>
 
             {{-- Dropdown child list --}}
-            <div x-show="dropdownOpen" class="w-full bg-slate-725 border-t border-b border-slate-800" style="border-bottom-color: {{ config('wr-laravel-administration.colors.slate.600') }};" x-transition x-transition:enter.duration.300ms x-transition:leave.duration.300ms>
+            <div x-show="dropdownOpen"
+                x-transition
+                x-transition:enter.duration.200ms
+                x-transition:leave.duration.50ms
+                class="w-full bg-slate-725 border-t border-b border-slate-800" style="border-bottom-color: {{ config('wr-laravel-administration.colors.slate.600') }};">
                 @foreach($navigationItem->children as $child)
                     <a
                         href="{{ $child->getUrl() }}"
