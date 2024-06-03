@@ -1,4 +1,4 @@
-@props(['options' => [], 'ignoreOld' => false, 'label' => null])
+@props(['options' => [], 'label' => null])
 
 @php
     // Set id from name if unset, and value

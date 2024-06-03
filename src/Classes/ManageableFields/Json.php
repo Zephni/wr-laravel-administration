@@ -189,7 +189,6 @@ class Json extends ManageableField
         $value = $this->calculatedValue($value);
 
         return view(WRLAHelper::getViewPath('components.forms.textarea'), [
-            'ignoreOld' => true,
             'label' => $this->getLabel(),
             'options' => $this->options,
             'attributes' => new ComponentAttributeBag(array_merge($this->attributes, [

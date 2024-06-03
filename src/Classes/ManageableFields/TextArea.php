@@ -17,7 +17,6 @@ class TextArea extends ManageableField
     public function render(PageType $upsertType): mixed
     {
         return view(WRLAHelper::getViewPath('components.forms.textarea'), [
-            'ignoreOld' => false,
             'label' => $this->getLabel(),
             'options' => $this->options,
             'attributes' => new ComponentAttributeBag(array_merge($this->attributes, [

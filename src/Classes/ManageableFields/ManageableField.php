@@ -131,13 +131,18 @@ class ManageableField
     }
 
     /**
-     * Get value
+     * Get value, if option ignoreOld is set then return the value attribute, otherwise return
+     * the old value if it exists in the request.
      *
      * @return string
      */
     public function getValue(): string
     {
-        return $this->attributes['value'];
+        if($this->options['ignoreOld'] ?? false) {
+            return $this->attributes['value'];
+        }
+
+        return old($this->attributes['name'], $this->attributes['value']);
     }
 
     /**

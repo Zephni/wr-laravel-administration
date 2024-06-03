@@ -20,6 +20,7 @@ class Password extends ManageableField
     {
         $this->validation('required_if:wrla_show_password,1|string|confirmed|min:6|regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/');
         $this->setAttribute('placeholder', 'Atleast 6 characters, and have atleast 1 uppercase, 1 lowercase, 1 number');
+        $this->setOption('ignoreOld', true);
 
         return $this;
     }

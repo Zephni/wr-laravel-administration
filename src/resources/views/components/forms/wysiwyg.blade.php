@@ -1,11 +1,8 @@
-@props(['options' => [], 'ignoreOld' => false, 'label' => null])
+@props(['options' => [], 'label' => null])
 
 @php
     // Set id from name if unset
     $id = empty($attributes->get('id')) ? 'wrinput-'.$attributes->get('name') : $attributes->get('id');
-
-    // Get value
-    $value = $ignoreOld ? $attributes->get('value') : old($attributes->get('name'), $attributes->get('value'));
 @endphp
 
 @if(!empty($label))
@@ -24,7 +21,7 @@
     'style' => 'white-space: pre-wrap; word-wrap: break-word;'
 // Remove value from attributes
 ])->except('value')  }}>{{
-    $value
+    $attributes->get('value')
 }}</textarea>
 
 {{-- Field notes (if options has notes key) --}}

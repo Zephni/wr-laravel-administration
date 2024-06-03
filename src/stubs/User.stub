@@ -160,7 +160,7 @@ class User extends ManageableModel
             Text::make($this, 'email')
                 ->required()
                 ->validation('email|max:255|unique:users,email,'.$modelInstance->id)
-                ->setAttribute('placeholder', 'email@domain.com')
+                ->setAttributes(['type' => 'email', 'placeholder' => 'email@domain.com'])
                 ->notes('<b>Required</b> - Must be valid and unique'),
 
             Password::make($this, 'password'),
