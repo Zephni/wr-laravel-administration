@@ -310,6 +310,10 @@ class ManageableModel
     {
         // If any of the values are strings, we convert into BrowsableColumn instances
         return $this->getBrowsableColumns()->map(function($value, $key) {
+            if($value == null) {
+                return null;
+            }
+
             $usingAutoRelationshipNaming = strpos($key, '::') !== false;
             $valueIsBrowsableColumn = $value instanceof BrowsableColumnBase;
 

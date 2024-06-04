@@ -119,7 +119,7 @@ class ManageableField
      */
     public static function makeBrowseFilter(?string $filterAlias = null): static
     {
-        return self::make(null, 'userType')
+        return self::make(null, $filterAlias)
             ->setOptions([
                 'containerClass' => '',
                 'labelClass' => 'font-thin',

@@ -44,6 +44,7 @@
             <thead class="border-b bg-slate-700 dark:bg-slate-400 text-slate-100 dark:text-slate-800 border-slate-400 dark:border-slate-600">
                 <tr>
                     @foreach($columns as $column => $label)
+                        @continue($label === null)
                         <th class="text-left px-3 py-2">{{ $label }}</th>
                     @endforeach
                     <th></th>
@@ -56,6 +57,7 @@
                     @endphp
                     <tr class="odd:bg-slate-100 dark:odd:bg-slate-700 even:bg-slate-200 dark:even:bg-slate-800">
                         @foreach($manageableModel->getFinalBrowsableColumns() as $column => $browsableColumn)
+                            @continue($browsableColumn === null)
                             <td class="px-3 py-2 whitespace-nowrap" @if($browsableColumn->width != null) style="width: {{ is_numeric($browsableColumn->width) ? $browsableColumn->width.'px' : $browsableColumn->width }}" @endif>
                                 {!! $browsableColumn->renderValue($model, $column) !!}
                             </td>

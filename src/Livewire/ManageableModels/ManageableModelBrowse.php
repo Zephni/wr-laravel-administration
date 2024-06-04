@@ -226,10 +226,20 @@ class ManageableModelBrowse extends Component
         // Relationship named columns look like this local_column::relationship_table.remote_column, so we need to split them
         // and add left joins and selects to the query
         if($relationshipColumns->count() > 0) {
+            $tablesAlreadyJoined = [];
+
             // Add left joins and selects
             foreach($relationshipColumns as $column => $browsableColumn) {
                 $parts = explode('::', $column);
                 $relationship = explode('.', $parts[1]);
+                
+                // If already joined just do the select part
+                if(in_array($relationship[0], $tablesAlreadyJoined)) {
+                    $queryBuilder = $queryBuilder->addSelect($relationship[0] . '.' . $relationship[1] . ' as '.$relationship[0].'.' . $relationship[1]);
+                    continue;
+                }
+
+                $tablesAlreadyJoined[] = $relationship[0];
 
                 // If relationship is not the same table
                 $queryBuilder = WRLAHelper::queryBuilderJoin(

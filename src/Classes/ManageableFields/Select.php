@@ -70,7 +70,7 @@ class Select extends ManageableField
         $table = $model->getTable();
         $query = $model::query();
 
-        if ($queryBuilderFunction) {
+        if ($queryBuilderFunction != null) {
             $query = $queryBuilderFunction($query);
             $query->addSelect("$table.id");
         } else {
@@ -90,7 +90,7 @@ class Select extends ManageableField
         }
         catch (\Exception $e)
         {
-            throw new \Exception("Error in Select->setItemsFromModel on table '$table'", $e->getMessage());
+            throw new \Exception("Error in Select->setItemsFromModel on table '$table':". $e->getMessage());
         }
 
         return $this;
