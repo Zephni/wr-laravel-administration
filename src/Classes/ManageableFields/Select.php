@@ -63,13 +63,12 @@ class Select extends ManageableField
         // Get model instance, if it's a manageable model then get the model instance
         $model = new $modelClass;
 
-        if($model instanceof ManageableModel)
-        {
+        if($model instanceof ManageableModel) {
             $model = $model->getModelInstance();
         }
 
-        $table = (new ($modelClass))->getTable();
-        $query = $modelClass::query();
+        $table = $model->getTable();
+        $query = $model::query();
 
         if ($queryBuilderFunction) {
             $query = $queryBuilderFunction($query);
