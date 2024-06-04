@@ -6,6 +6,7 @@ use Illuminate\Support\Collection;
 use Illuminate\View\ComponentAttributeBag;
 use WebRegulate\LaravelAdministration\Enums\PageType;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
+use WebRegulate\LaravelAdministration\Classes\ManageableModel;
 
 class Select extends ManageableField
 {
@@ -59,6 +60,14 @@ class Select extends ManageableField
      */
     public function setItemsFromModel(string $modelClass, string $displayColumn, ?callable $queryBuilderFunction = null, ?callable $postModifyFunction = null): static
     {
+        // Get model instance, if it's a manageable model then get the model instance
+        $model = new $modelClass;
+
+        if($model instanceof ManageableModel)
+        {
+            $model = $model->getModelInstance();
+        }
+
         $table = (new ($modelClass))->getTable();
         $query = $modelClass::query();
 
