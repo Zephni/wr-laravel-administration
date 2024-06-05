@@ -77,11 +77,11 @@ class WRLAHelper
 
         // Check if a specific key dot notation is provided
         if(!empty($keyDotNotation)) {
-            // If the key dot notation exists does not exist in the current theme, return an error message
-            if(!data_get($themes[$themeKey], $keyDotNotation)) {
-                // If the key dot notation does not exist, return an error message
-                return dd("The key '$keyDotNotation' does not exist within the current theme.");
-            }
+            // If the key dot notation exists does not exist in the current theme, throw error
+            throw_if(
+                data_get($themes[$themeKey], $keyDotNotation),
+                new \Exception("The key dot notation '$keyDotNotation' does not exist in the current theme '$themeKey'.")
+            );
 
             // Return the value of the key dot notation in the current theme
             return data_get($themes[$themeKey], $keyDotNotation);

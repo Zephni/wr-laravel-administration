@@ -256,15 +256,11 @@ class WRLAServiceProvider extends ServiceProvider
                 $fullComponentPath = WRLAHelper::getViewPath($componentPath, false);
             }
 
-            // If still false, return an error message
-            if($fullComponentPath === false) {
-                dd(
-                    "@themeComponent error",
-                    "args passed: $expression",
-                    "The component '$componentPath' does not exist within the current theme or the default theme.",
-                    $fullComponentPath
-                );
-            }
+            // If still false, throw error
+            throw_if(
+                $fullComponentPath === false,
+                new \Exception("@themeComponent error, args passed: $expression, The component '$componentPath' does not exist within the current theme or the default theme. Full component path: $fullComponentPath")
+            );
 
             // Display the component with the provided attributes
             return "<?php echo view('{$fullComponentPath}', {$args[1]})->render(); ?>";
