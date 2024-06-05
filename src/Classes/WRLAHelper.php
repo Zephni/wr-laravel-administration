@@ -79,7 +79,7 @@ class WRLAHelper
         if(!empty($keyDotNotation)) {
             // If the key dot notation exists does not exist in the current theme, throw error
             throw_if(
-                data_get($themes[$themeKey], $keyDotNotation),
+                !data_get($themes[$themeKey], $keyDotNotation),
                 new \Exception("The key dot notation '$keyDotNotation' does not exist in the current theme '$themeKey'.")
             );
 
