@@ -314,7 +314,7 @@ class ManageableModel
                 return null;
             }
 
-            $usingAutoRelationshipNaming = strpos($key, '::') !== false;
+            $iseBrowsableColumnRelationship = WRLAHelper::isBrowsableColumnRelationship($key);
             $valueIsBrowsableColumn = $value instanceof BrowsableColumnBase;
 
             // If $value is already a BrowsableColumn instance, return it
@@ -323,17 +323,14 @@ class ManageableModel
             }
 
             // If $key doesn't have :: then return browsable column instance version of the value
-            if(!$usingAutoRelationshipNaming) {
+            if(!$iseBrowsableColumnRelationship) {
                 $returnBrowsableColumn = $valueIsBrowsableColumn ? $value : BrowsableColumn::make($value, 'string');
             // otherwise we are using auto relationship naming
             } else {
-                $parts = explode('::', $key);
-                $relationship = explode('.', $parts[1]);
-                $relationshipName = $relationship[0];
-                $relationshipColumn = $relationship[1];
+                $relationshipParts = WRLAHelper::parseBrowsableColumnRelationship($key);
 
-                $returnBrowsableColumn = BrowsableColumn::make($value, 'string')->overrideRenderValue(function($value, $model) use($relationshipName, $relationshipColumn) {
-                    return $model->{"$relationshipName.$relationshipColumn"};
+                $returnBrowsableColumn = BrowsableColumn::make($value, 'string')->overrideRenderValue(function($value, $model) use($relationshipParts) {
+                    return $model->{"{$relationshipParts['table']}.{$relationshipParts['column']}"};
                 });
             }
 
@@ -415,12 +412,12 @@ class ManageableModel
                     return $query->where(function($query) use($table, $columns, $value) {
                         foreach($columns as $column => $label) {
                             // If column is relationship, then modify the column to be the related column
-                            if(strpos($column, '::') !== false) {
-                                $parts = explode('::', $column);
-                                $relationship = explode('.', $parts[1]);
-                                $column = $relationship[0] . '.' . $relationship[1];
+                            if((WRLAHelper::isBrowsableColumnRelationship($column))) {
+                                $relationshipParts = WRLAHelper::parseBrowsableColumnRelationship($column);
+                                $column = "{$relationshipParts['table']}.{$relationshipParts['column']}";
+                            // Otherwise just use the table and column
                             } else {
-                                $column = $table . '.' . $column;
+                                $column = "$table.$column";
                             }
 
                             $query->orWhere($column, 'like', '%'.$value.'%');

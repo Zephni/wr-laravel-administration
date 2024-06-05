@@ -159,21 +159,20 @@ class BrowsableColumnBase
      */
     public function renderValue(mixed $model, string $column): string
     {
-        // If $column has :: then we assume it has been selected and just take the second part, which should be rel_table.column
-        $useColumn = (strpos($column, '::') !== false)
-            ? explode('::', $column)[1]
-            : $column;
-
-        // If $useColumn is relationship on same table as $model, appen _other to table name
-        if(count($useColumnTemp = explode('.', $useColumn)) > 1) {
-            if($useColumnTemp[0] == $model->getTable()) {
-                $useColumn = "$useColumnTemp[0]_other.$useColumnTemp[1]";
+        // If column is a relationship, modify the column to include the relationship
+        if(WRLAHelper::isBrowsableColumnRelationship($column)) {
+            $relationshipData = WRLAHelper::parseBrowsableColumnRelationship($column);
+            if($relationshipData['table'] == $model->getTable()) {
+                $column = "{$relationshipData['table']}_other.{$relationshipData['column']}";
+            } else {
+                $column = "{$relationshipData['table']}.{$relationshipData['column']}";
             }
         }
 
-        $value = $this->getOption('value') ?? $model->{$useColumn};
+        // Get value if set in option, if not the use the value from the models column
+        $value = $this->getOption('value') ?? $model->{$column};
 
-        // dd($model, $column, $this->getOption('value'), $useColumn, $model->{$useColumn});
+        // dd($model, $column, $this->getOption('value'), $useColumn, $model->{$column});
 
         if($this->overrideRenderValue)
         {

@@ -141,6 +141,48 @@ class WRLAHelper
     }
 
     /**
+     * Uses browsable column relationship syntax. Relationship key strings use the format: 'local_column::table.column'.
+     * 
+     * @string $relationshipKeyString The relationship string to check against.
+     * @return bool
+     */
+    public static function isBrowsableColumnRelationship(string $relationshipKeyString): bool
+    {
+        return self::parseBrowsableColumnRelationship($relationshipKeyString) !== false;
+    }
+
+    /**
+     * Interpret browsable column relationship string
+     * 
+     * @param string $relationshipKeyString The relationship string to interpret.
+     * @return array|false The interpreted relationship array.
+     */
+    public static function parseBrowsableColumnRelationship(string $relationshipKeyString): array|false
+    {
+        // If does not contain :: then return false
+        if(strpos($relationshipKeyString, '::') === false) {
+            return false;
+        }
+
+        // Split by ::
+        $parts = explode('::', $relationshipKeyString);
+
+        // If does not contain . then return false
+        if(strpos($parts[1], '.') === false) {
+            return false;
+        }
+
+        // Split relationship by .
+        $relationship = explode('.', $parts[1]);
+
+        return [
+            'local_column' => $parts[0],
+            'table' => $relationship[0],
+            'column' => $relationship[1],
+        ];
+    }
+
+    /**
      * Get navigation items from the config and return them as an array of NavigationItem objects.
      * @return array The array of NavigationItem objects.
      */

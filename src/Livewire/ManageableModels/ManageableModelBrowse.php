@@ -218,9 +218,9 @@ class ManageableModelBrowse extends Component
      */
     public function getRelationshipColumns()
     {
-        // Get any keys from columns that contain '::'
+        // Get any keys from columns that have a relationship
         return collect($this->columns)->filter(function($label, $column) {
-            return strpos($column, '::') !== false;
+            return WRLAHelper::isBrowsableColumnRelationship($column);
         });
     }
 
@@ -258,31 +258,30 @@ class ManageableModelBrowse extends Component
 
             // Add left joins and selects
             foreach($relationshipColumns as $column => $browsableColumn) {
-                $parts = explode('::', $column);
-                $relationship = explode('.', $parts[1]);
+                $relationship = WRLAHelper::parseBrowsableColumnRelationship($column);
                 
                 // If already joined just do the select part
-                if(in_array($relationship[0], $tablesAlreadyJoined)) {
-                    $queryBuilder = $queryBuilder->addSelect($relationship[0] . '.' . $relationship[1] . ' as '.$relationship[0].'.' . $relationship[1]);
+                if(in_array($relationship['table'], $tablesAlreadyJoined)) {
+                    $queryBuilder = $queryBuilder->addSelect("{$relationship['table']}.{$relationship['column']} as `{$relationship['table']}.{$relationship['column']}`");
                     continue;
                 }
 
-                $tablesAlreadyJoined[] = $relationship[0];
+                $tablesAlreadyJoined[] = $relationship['table'];
 
                 // If relationship is not the same table
                 $queryBuilder = WRLAHelper::queryBuilderJoin(
                     $queryBuilder,
-                    $relationship[0],
-                    $tableName.'.'.$parts[0], [
-                        $relationship[0] != $tableName
-                            ? "$relationship[0].id as `$relationship[0].id`"
-                            : "$relationship[0]_other.id as `$relationship[0]_other.id`",
+                    $relationship['table'],
+                    $tableName.'.'.$relationship['local_column'], [
+                        $relationship['table'] != $tableName
+                            ? "{$relationship['table']}.id as `{$relationship['table']}.id`"
+                            : "{$relationship['table']}_other.id as `{$relationship['table']}_other.id`",
                         
-                        $relationship[0] != $tableName
-                            ? "$relationship[0].$relationship[1] as `$relationship[0].$relationship[1]`"
-                            : "$relationship[0]_other.$relationship[1] as `$relationship[0]_other.$relationship[1]`"
+                        $relationship['table'] != $tableName
+                            ? "{$relationship['table']}.{$relationship['column']} as `{$relationship['table']}.{$relationship['column']}`"
+                            : "{$relationship['table']}_other.{$relationship['column']} as `{$relationship['table']}_other.{$relationship['column']}`"
                     ],
-                    $relationship[0] != $tableName ? null : $tableName.'_other'
+                    $relationship['table'] != $tableName ? null : $tableName.'_other'
                 );
                 
                 // dd($queryBuilder->toRawSql(), $queryBuilder->get());
