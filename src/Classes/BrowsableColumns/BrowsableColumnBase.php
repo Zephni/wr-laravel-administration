@@ -32,7 +32,9 @@ class BrowsableColumnBase
      *
      * @var array
      */
-    public array $options = [];
+    public array $options = [
+        'allowOrdering' => true,
+    ];
 
     /**
      * Callback to override the render value of the column, receives the value and the model as arguments
@@ -53,6 +55,10 @@ class BrowsableColumnBase
         $this->label = $label;
         $this->type = $type;
         $this->width = $width;
+
+        if($type == 'image') {
+            $this->allowOrdering(false);
+        }
     }
 
     /**
@@ -102,6 +108,17 @@ class BrowsableColumnBase
     }
 
     /**
+     * Allow ordering by this column (true by default)
+     *
+     * @param bool $allowOrdering
+     * @return static
+     */
+    public function allowOrdering(bool $allowOrdering = true): static
+    {
+        return $this->setOption('allowOrdering', $allowOrdering);
+    }
+
+    /**
      * Render the label of the column
      *
      * @return string
@@ -124,6 +141,16 @@ class BrowsableColumnBase
     }
 
     /**
+     * Render display name of the column
+     *
+     * @return string
+     */
+    public function renderDisplayName(): string
+    {
+        return $this->label;
+    }
+
+    /**
      * Render the value of the column
      *
      * @param mixed $model
@@ -143,9 +170,9 @@ class BrowsableColumnBase
                 $useColumn = "$useColumnTemp[0]_other.$useColumnTemp[1]";
             }
         }
-        
+
         $value = $this->getOption('value') ?? $model->{$useColumn};
-        
+
         // dd($model, $column, $this->getOption('value'), $useColumn, $model->{$useColumn});
 
         if($this->overrideRenderValue)

@@ -43,9 +43,25 @@
         <table class="table w-full text-sm bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-300">
             <thead class="border-b bg-slate-700 dark:bg-slate-400 text-slate-100 dark:text-slate-800 border-slate-400 dark:border-slate-600">
                 <tr>
-                    @foreach($columns as $column => $label)
-                        @continue($label === null)
-                        <th class="text-left px-3 py-2">{{ $label }}</th>
+                    @foreach($manageableModelClass::make()->getFinalBrowsableColumns() as $column => $browsableColumn)
+                        @continue($browsableColumn === null)
+                        <th class="text-left px-3 py-2">
+                            <div class="flex items-center gap-3">
+                                {{ $browsableColumn->renderDisplayName() }}
+                                @if($browsableColumn->getOption('allowOrdering'))
+                                    {{-- If current $orderBy, Show order icon up or down depending on current order $orderBy (column) $orderDirection (asc or desc) --}}
+                                    @if($orderBy == $column)
+                                        <i class="relative fas fa-sort-{{ $orderDirection == 'asc' ? 'up' : 'down' }} cursor-pointer text-primary-500"
+                                            style="{{ $orderDirection == 'asc' ? 'top: 3px;' : 'top: -3px;' }}"
+                                            title="Order {{ $orderDirection == 'asc' ? 'descending' : 'ascending' }}"
+                                            wire:click="reOrderAction('{{ $column }}', '{{ $orderDirection == 'asc' ? 'desc' : 'asc' }}')"></i>
+                                    {{-- If not the $orderBy column, show the order icon --}}
+                                    @else
+                                        <i class="fas fa-sort text-slate-400 cursor-pointer hover:text-primary-500" wire:click="reOrderAction('{{ $column }}', 'asc')" title="Order ascending"></i>
+                                    @endif
+                                @endif
+                            </div>
+                        </th>
                     @endforeach
                     <th></th>
                 </tr>

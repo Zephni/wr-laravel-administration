@@ -50,6 +50,20 @@ class ManageableModelBrowse extends Component
     ];
 
     /**
+     * Order by.
+     * 
+     * @var string
+     */
+    public $orderBy = 'id';
+
+    /**
+     * Order direction.
+     * 
+     * @var string
+     */
+    public $orderDirection = 'desc';
+
+    /**
      * Success message.
      * 
      * @var ?string
@@ -151,6 +165,20 @@ class ManageableModelBrowse extends Component
         }
 
         $this->validate($validateArray);
+    }
+
+    /**
+     * Order by
+     * 
+     * @param string $column
+     * @param string $direction
+     * @return void
+     */
+    public function reOrderAction(string $column, string $direction)
+    {
+        $this->orderBy = $column;
+        $this->orderDirection = $direction;
+        $this->debugMessage = "Order by $column $direction";
     }
 
     /**
@@ -284,7 +312,7 @@ class ManageableModelBrowse extends Component
         }
 
         // For now just order by id DESC, but need to add post query and optional ordering etc to manageable models
-        $queryBuilder = $queryBuilder->orderBy($tableName . '.id', 'DESC');
+        $queryBuilder = $queryBuilder->orderBy("$tableName.$this->orderBy", $this->orderDirection);
 
         $final = $queryBuilder->paginate(10);
 
