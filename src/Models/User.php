@@ -43,7 +43,7 @@ class User extends Authenticatable implements CanResetPassword
     /**
      * Send the password reset notification.
      *
-     * @param  string  $token
+     * @param string $token
      * @return void
      */
     public function sendPasswordResetNotification($token)
@@ -84,19 +84,27 @@ class User extends Authenticatable implements CanResetPassword
      */
     public static function current($allowCache = true): ?User
     {
-        $user = auth()->user();
-
-        if ($user == null) {
-            return null;
-        }
-
         if ($allowCache) {
-            return once(function() use ($user) {
+            return once(function() {
+                $user = auth()->user();
+
+                if ($user == null) {
+                    return null;
+                }
+
                 return User::find($user->id);
             });
         }
+        else
+        {
+            $user = auth()->user();
 
-        return User::find($user->id);
+            if ($user == null) {
+                return null;
+            }
+
+            return User::find($user->id);
+        }
     }
 
     /**
@@ -140,7 +148,7 @@ class User extends Authenticatable implements CanResetPassword
 
     /**
      * Get role
-     * 
+     *
      * @return string
      */
     public function getRole(): string

@@ -53,19 +53,11 @@ abstract class ManageableModel
      * @var array
      */
     public array $instanceOptions = [
-        'browse' => [
-            'columns' => null,
-            'actions' => null,
-            'filters' => null,
-        ],
         'upsert' => [
             'manageableFields' => null,
         ],
         'item' => [
             'actions' => null,
-        ],
-        'navigation' => [
-            'children' => null,
         ],
     ];
 
@@ -117,23 +109,29 @@ abstract class ManageableModel
             $this->setModelInstance($modelInstanceOrId);
         }
 
-        // Instance setup
-        $this->instanceSetup();
-
         // Apply permissions
         static::$permissions = new WRLAPermissions($this);
     }
 
     /**
-     * Make, a static version of the constructor
+     * Make a static version of the constructor and load the instance setup.
      *
      * @param mixed|int|null $modelInstance
      * @return static
      */
     public static function make($modelInstanceOrId = null): static
     {
-        return new static($modelInstanceOrId);
+        $instance = new static($modelInstanceOrId);
+        $instance->instanceSetup();
+        return $instance;
     }
+
+    /**
+     * Main setup.
+     *
+     * @return void
+     */
+    public abstract static function mainSetup(): void;
 
     /**
      * Static setup.

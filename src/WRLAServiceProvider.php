@@ -276,11 +276,10 @@ class WRLAServiceProvider extends ServiceProvider
     protected function postBootCalls(): void
     {
         $this->app->booted(function () {
-            // Run static setup on all global manageable models
-            // NOTE: The second pass is critical (although we must find a solution to this) as some MMs may depend
-            //       on each other, within their own staticSetup methods
+            // Run mainSetup on all manageable models. and then run all staticSetup methods, this is so that
+            // the base MM class data is set before the staticSetup method is called in case of dependencies
             foreach(WRLAHelper::$globalManageableModelData as $className => $value) {
-                $className::staticSetup();
+                $className::mainSetup();
             }
 
             foreach(WRLAHelper::$globalManageableModelData as $className => $value) {
