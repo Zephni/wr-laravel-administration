@@ -232,7 +232,7 @@ class ManageableModelBrowse extends Component
     protected function browseModels()
     {
         // Get table name
-        $tableName = (new $this->manageableModelClass::$baseModelClass)->getTable();
+        $tableName = (new ($this->manageableModelClass::getStaticOption('baseModelClass')))->getTable();
         
         // If table does not exist in database, redirect to dashboard with error
         if(!WRLAHelper::tableExists($tableName)) {
@@ -345,12 +345,12 @@ class ManageableModelBrowse extends Component
 
         // If permanent, force delete
         if($permanent == 1) {
-            $model = $this->manageableModelClass::$baseModelClass::withTrashed()->find($id);
+            ($model = $this->manageableModelClass::getStaticOption('baseModelClass'))::withTrashed()->find($id);
             $model->forceDelete();
 
         // Else, soft delete
         } else {
-            $model = $this->manageableModelClass::$baseModelClass::find($id);
+            ($model = $this->manageableModelClass::getStaticOption('baseModelClass'))::find($id);
             $model->delete();
         }
 
@@ -372,7 +372,7 @@ class ManageableModelBrowse extends Component
         //     return;
         // }
 
-        $model = $this->manageableModelClass::$baseModelClass::withTrashed()->find($id);
+        ($model = $this->manageableModelClass::getStaticOption('baseModelClass'))::withTrashed()->find($id);
         $model->restore();
     }
 

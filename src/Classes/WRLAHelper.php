@@ -55,7 +55,7 @@ class WRLAHelper
         }
 
         // Return either the entire array or the specific key dot notation value of the current theme.
-        return self::getThemeData($currentTheme, $keyDotNotation);
+        return static::getThemeData($currentTheme, $keyDotNotation);
     }
 
     /**
@@ -148,7 +148,7 @@ class WRLAHelper
      */
     public static function isBrowsableColumnRelationship(string $relationshipKeyString): bool
     {
-        return self::parseBrowsableColumnRelationship($relationshipKeyString) !== false;
+        return static::parseBrowsableColumnRelationship($relationshipKeyString) !== false;
     }
 
     /**
@@ -192,7 +192,7 @@ class WRLAHelper
         $navigationItems = NavigationItem::$navigationItems;
 
         // Flatten navigation items, this is so that you can "inject" a group of navigation items within the array or child array
-        $navigationItems = self::flattenNavigationItems($navigationItems);
+        $navigationItems = static::flattenNavigationItems($navigationItems);
 
         return $navigationItems;
     }
@@ -214,13 +214,13 @@ class WRLAHelper
             }
             // If the navigation item is an array then loop through it and add the items to the flattened array
             else if(is_array($navigationItem)) {
-                $flattenedNavigationItems = array_merge($flattenedNavigationItems, self::flattenNavigationItems($navigationItem));
+                $flattenedNavigationItems = array_merge($flattenedNavigationItems, static::flattenNavigationItems($navigationItem));
             }
         }
 
         // Then search through the children of the navigation items flattern those arrays as well
         foreach($flattenedNavigationItems as $navigationItem) {
-            $navigationItem->children = self::flattenNavigationItems($navigationItem->children);
+            $navigationItem->children = static::flattenNavigationItems($navigationItem->children);
         }
 
         return $flattenedNavigationItems;
@@ -234,7 +234,7 @@ class WRLAHelper
     public static function buildRateLimiter(Request $request, string $throttleAlias, array $rateLimitConfigItem): void
     {
         // Get the rate limiting configuration
-        $rateLimitBy = self::rateLimiterStringByEvaluator($request, $rateLimitConfigItem['rule']);
+        $rateLimitBy = static::rateLimiterStringByEvaluator($request, $rateLimitConfigItem['rule']);
         $rateLimitMaxAttempts = $rateLimitConfigItem['max_attempts'];
         $rateLimitDecayMinutes = $rateLimitConfigItem['decay_minutes'];
         $rateLimitMessage = str_replace(':decay_minutes', $rateLimitDecayMinutes, $rateLimitConfigItem['message']);
@@ -280,9 +280,6 @@ class WRLAHelper
      */
     public static function registerManageableModels(): void
     {
-        // Get all classes that extend ManageableModel
-        // $manageableModels = array_filter(get_declared_classes(), fn($class) => is_subclass_of($class, 'WebRegulate\LaravelAdministration\Classes\ManageableModel'));
-
         // If app_path('WRLA') does not exist, return
         if(!File::isDirectory(app_path('WRLA'))) {
             return;
@@ -301,6 +298,7 @@ class WRLAHelper
         // Loop through each class and register it
         foreach($manageableModels as $manageableModel) {
             $manageableModel::register();
+            $manageableModel::staticSetup();
         }
     }
 
@@ -338,7 +336,7 @@ class WRLAHelper
      */
     public static function isNavItemCurrentRoute(NavigationItem $navigationItem): bool
     {
-        return self::isCurrentRouteWithParameters($navigationItem->route, $navigationItem->routeData);
+        return static::isCurrentRouteWithParameters($navigationItem->route, $navigationItem->routeData);
     }
 
     /**
@@ -410,7 +408,7 @@ class WRLAHelper
         $arrayKeys = [];
         foreach( $array as $key=>$value ){
             if( is_array($value) ){
-                $rekusiveKeys = self::arrayKeysRecursive($value, $divider);
+                $rekusiveKeys = static::arrayKeysRecursive($value, $divider);
                 foreach( $rekusiveKeys as $rekursiveKey ){
                     $arrayKeys[] = $key.$divider.$rekursiveKey;
                 }

@@ -63,7 +63,7 @@ class CreateManageableModelCommand extends Command
         // Now we use WRLAHelper to generate the file from the stub
         WRLAHelper::generateFileFromStub(
             'ManageableModel.stub',
-            self::getStubVariables($model, $icon),
+            static::getStubVariables($model, $icon),
             app_path('WRLA/' . $filePath . '.php'),
             $forceOverwrite
         );

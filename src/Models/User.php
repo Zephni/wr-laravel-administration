@@ -106,7 +106,7 @@ class User extends Authenticatable implements CanResetPassword
      */
     public static function getByEmail(string $email): ?User
     {
-        return self::where('email', $email)->first();
+        return static::where('email', $email)->first();
     }
 
     /* Public methods

@@ -11,21 +11,22 @@ use Illuminate\Support\Collection;
 
 class {{ $MODEL }} extends ManageableModel
 {
-    public static ?string $baseModelClass = \App\Models\{{ $MODEL_WITH_PATH }}::class;
-
-    public static function getUrlAlias(): string
+    public final static function staticSetup(): void
     {
-        return '{{ $URL_ALIAS }}';
+        static::setBaseModelClass(\WebRegulate\LaravelAdministration\Models\User::class);
+        static::setDisplayName();
+        static::setUrlAlias('user');
+        static::setIcon('fa fa-user');
     }
 
-    public static function getIcon(): string
+    public final function browseSetup(): void
     {
-        return '{{ $ICON }}';
+
     }
 
-    public static function getDisplayName(bool $plural = false): string
+    public final function upsertSetup(): void
     {
-        return parent::getDisplayName($plural);
+
     }
 
     public static function getChildNavigationItems(): Collection {

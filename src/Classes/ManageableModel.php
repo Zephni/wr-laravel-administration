@@ -15,15 +15,8 @@ use WebRegulate\LaravelAdministration\Classes\ManageableFields\ManageableField;
 use WebRegulate\LaravelAdministration\Classes\BrowsableColumns\BrowsableColumnBase;
 use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItemManageableModel;
 
-class ManageableModel
+abstract class ManageableModel
 {
-    /**
-     * Model that this manageable model is based on, eg. \App\Models\User::class.
-     *
-     * @var ?string
-     */
-    private static ?string $baseModelClass = null;
-
     /**
      * Base model instance
      *
@@ -53,7 +46,38 @@ class ManageableModel
     private static ?WRLAPermissions $permissions = null;
 
     /**
-     * Cache
+     * Static options
+     *
+     * @var array
+     */
+    private static array $staticOptions = [
+        'baseModelClass' => '\\App\\Models\\Model',
+        'urlAlias' => 'model',
+        'displayName' => [
+            'singular' => 'Model',
+            'plural' => 'Models',
+        ],
+        'icon' => 'fa fa-cube',
+        'hideFromNavigation' => false,
+    ];
+
+    /**
+     * Options
+     *
+     * @var array
+     */
+    private array $instanceOptions = [
+        'browse' => [
+            'actions' => null,
+            'filters' => null,
+        ],
+        'upsert' => [
+            'manageableFields' => null,
+        ],
+    ];
+
+    /**
+     * Cache.
      *
      * @var array
      */
@@ -86,19 +110,21 @@ class ManageableModel
      */
     public function __construct($modelInstanceOrId = null)
     {
+        static::staticSetup();
+        
         // If model instance or id is null, set the model instance to a new instance of the base model
         if($modelInstanceOrId == null) {
-            $this->setModelInstance(new static::$baseModelClass);
+            $this->setModelInstance(new (static::getBaseModelClass()));
         // If model ID is passed, get the model instance by ID
         } elseif (is_numeric($modelInstanceOrId)) {
-            $this->setModelInstance(static::$baseModelClass::find($modelInstanceOrId));
+            $this->setModelInstance(static::getBaseModelClass()::find($modelInstanceOrId));
         // If model instance (extends base model) is passed, set it as the model instance
-        } else if ($modelInstanceOrId instanceof static::$baseModelClass) {
+        } else if ($modelInstanceOrId instanceof (static::getBaseModelClass())) {
             $this->setModelInstance($modelInstanceOrId);
         }
 
         // Apply permissions
-        self::$permissions = new WRLAPermissions($this);
+        static::$permissions = new WRLAPermissions($this);
     }
 
     /**
@@ -110,6 +136,74 @@ class ManageableModel
     public static function make($modelInstanceOrId = null): static
     {
         return new static($modelInstanceOrId);
+    }
+
+    /**
+     * Static setup.
+     * 
+     * @return void
+     */
+    public abstract static function staticSetup(): void;
+
+    /**
+     * Browse setup.
+     * 
+     * @return void
+     */
+    public abstract function browseSetup(): void;
+    /**
+     * Upsert setup.
+     * 
+     * @return void
+     */
+    public abstract function upsertSetup(): void;
+
+    /**
+     * Get static option.
+     * 
+     * @param string $staticOptionKey The option key using dot notation.
+     * @return mixed
+     */
+    public static function getStaticOption(string $staticOptionKey): mixed
+    {
+        return data_get(static::$staticOptions, $staticOptionKey);
+    }
+
+
+    /**
+     * Get instance option.
+     * 
+     * @param string $instanceOptionKey The option key using dot notation.
+     * @return mixed
+     */
+    public function getInstanceOption(string $instanceOptionKey): mixed
+    {
+        return data_get($this->instanceOptions, $instanceOptionKey);
+    }
+
+    /**
+     * Set static option.
+     * 
+     * @param string $staticOptionKey The option key using dot notation.
+     * @param mixed $value The value to set.
+     * @return void
+     */
+    public static function setStaticOption(string $staticOptionKey, mixed $value)
+    {
+        data_set(static::$staticOptions, $staticOptionKey, $value);
+    }
+
+    /**
+     * Set instance option.
+     * 
+     * @param string $instanceOptionKey The option key using dot notation.
+     * @param mixed $value The value to set.
+     * @return static
+     */
+    public function setInstanceOption(string $instanceOptionKey, mixed $value): static
+    {
+        data_set($this->instanceOptions, $instanceOptionKey, $value);
+        return $this;
     }
 
     /**
@@ -143,7 +237,7 @@ class ManageableModel
     public static function getByModelClass(string $modelClass): mixed
     {
         return static::$manageableModels->first(function ($manageableModel) use ($modelClass) {
-            return $manageableModel::$baseModelClass === $modelClass;
+            return $manageableModel::getStaticOption('baseModelClass') === $modelClass;
         });
     }
 
@@ -156,6 +250,7 @@ class ManageableModel
     public static function getByUrlAlias(string $urlAlias): mixed
     {
         $manageableModel = static::$manageableModels->first(function ($manageableModel) use ($urlAlias) {
+            $manageableModel::staticSetup();
             return $manageableModel::getUrlAlias() === $urlAlias;
         });
 
@@ -169,7 +264,7 @@ class ManageableModel
      */
     public static function getBaseModelClass(): string
     {
-        return static::$baseModelClass;
+        return static::getStaticOption('baseModelClass');
     }
 
     /**
@@ -179,7 +274,7 @@ class ManageableModel
      */
     public static function initialiseQueryBuilder(): Builder
     {
-        return static::$baseModelClass::query();
+        return static::getBaseModelClass()::query();
     }
 
     /**
@@ -193,13 +288,56 @@ class ManageableModel
     }
 
     /**
-     * Get the URL alias for the manageable model.
+     * Set base model class.
      *
      * @return string
      */
-    public static function getUrlAlias(): string
+    public static function setBaseModelClass(string $baseModelClass): string
     {
-        return 'manageable-model';
+        static::setStaticOption('baseModelClass', $baseModelClass);
+        return static::class;
+    }
+
+    /**
+     * Set URL alias.
+     *
+     * @return string
+     */
+    public static function setUrlAlias(string $urlAlias): string
+    {
+        static::setStaticOption('urlAlias', $urlAlias);
+        return static::class;
+    }
+
+    /**
+     * Set display name. If either singular or plural version is left null, a human readable version of the class name will be generated.
+     *
+     * @return string
+     */
+    public static function setDisplayName(?string $displayNamesingular = null, ?string $displayNamePlural = null): string
+    {
+        if($displayNamesingular == null) {
+            $displayNamesingular = str(class_basename(static::class))->kebab()->replace('-', ' ')->title()->singular();
+        }
+
+        if($displayNamePlural == null) {
+            $displayNamePlural = str($displayNamesingular)->plural();
+        }
+
+        static::setStaticOption('displayName.singular', $displayNamesingular);
+        static::setStaticOption('displayName.plural', $displayNamePlural);
+        return static::class;
+    }
+
+    /**
+     * Set URL alias.
+     *
+     * @return string
+     */
+    public static function setIcon(string $icon): string
+    {
+        static::setStaticOption('icon', $icon);
+        return static::class;
     }
 
     /**
@@ -210,10 +348,7 @@ class ManageableModel
      */
     public static function getDisplayName(bool $plural = false): string
     {
-        // Class base name needs to be converted from pascal case to human readable
-        $humanName = str(class_basename(static::class))->kebab()->replace('-', ' ')->title();
-
-        return !$plural ? $humanName->singular() : $humanName->plural();
+        return static::getStaticOption('displayName.' . (!$plural ? 'singular' : 'plural'));
     }
 
     /**
@@ -223,7 +358,17 @@ class ManageableModel
      */
     public static function getIcon(): string
     {
-        return 'fa fa-question';
+        return static::getStaticOption('icon');
+    }
+
+    /**
+     * Get URL alias.
+     *
+     * @return string
+     */
+    public static function getUrlAlias(): string
+    {
+        return static::getStaticOption('urlAlias');
     }
 
     /**
@@ -251,13 +396,13 @@ class ManageableModel
         return collect([
             new NavigationItem(
                 'wrla.manageable-models.browse',
-                ['modelUrlAlias' => static::getUrlAlias()],
+                ['modelUrlAlias' => static::getStaticOption('urlAlias')],
                 'Browse',
                 'fa fa-list'
             ),
             new NavigationItem(
                 'wrla.manageable-models.create',
-                ['modelUrlAlias' => static::getUrlAlias()],
+                ['modelUrlAlias' => static::getStaticOption('urlAlias')],
                 'Create',
                 'fa fa-plus'
             )
@@ -278,7 +423,7 @@ class ManageableModel
             $browseActions->put('create', view(WRLAHelper::getViewPath('components.forms.button'), [
                 'text' => 'Create ' . static::getDisplayName(),
                 'icon' => 'fa fa-plus text-sm',
-                'href' => route('wrla.manageable-models.create', ['modelUrlAlias' => static::getUrlAlias()])
+                'href' => route('wrla.manageable-models.create', ['modelUrlAlias' => static::getStaticOption('urlAlias')])
             ]));
         }
 
@@ -660,7 +805,7 @@ class ManageableModel
     {
         if(static::$cache['isSoftDeletable'] == null) {
             // Get whether base model has SoftDeletes trait
-            static::$cache['isSoftDeletable'] = in_array('Illuminate\Database\Eloquent\SoftDeletes', class_uses(static::$baseModelClass));
+            static::$cache['isSoftDeletable'] = in_array('Illuminate\Database\Eloquent\SoftDeletes', class_uses(static::getBaseModelClass()));
         }
 
         return static::$cache['isSoftDeletable'] ?? false;
@@ -694,10 +839,10 @@ class ManageableModel
     public final static function permissions(): WRLAPermissions
     {
         // If permissions not set, create a new instance
-        if(!isset(self::$permissions) || self::$permissions == null) {
-            self::$permissions = new WRLAPermissions(new self());
+        if(!isset(static::$permissions) || static::$permissions == null) {
+            static::$permissions = new WRLAPermissions(new static());
         }
 
-        return self::$permissions;
+        return static::$permissions;
     }
 }

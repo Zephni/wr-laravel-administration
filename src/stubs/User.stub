@@ -18,45 +18,28 @@ use \WebRegulate\LaravelAdministration\Classes\ManageableFields\Password;
 class User extends ManageableModel
 {
     /**
-     * The base model class for the User.
-     *
-     * @var ?string
-     */
-    public static ?string $baseModelClass = \WebRegulate\LaravelAdministration\Models\User::class;
-
-    /**
      * Impersonate permission constant
      *
      * @var string
      */
     const IMPERSONATE = 'impersonate';
 
-    /**
-     * Get the URL alias for the User.
-     *
-     * @return string
-     */
-    public static function getUrlAlias(): string {
-        return 'user';
+    public final static function staticSetup(): void
+    {
+        static::setBaseModelClass(\WebRegulate\LaravelAdministration\Models\User::class);
+        static::setDisplayName();
+        static::setUrlAlias('user');
+        static::setIcon('fa fa-user');
     }
 
-    /**
-     * Get the display name for the User.
-     *
-     * @param bool $plural
-     * @return string
-     */
-    public static function getDisplayName(bool $plural = false): string {
-        return !$plural ? 'User' : 'Users';
+    public final function browseSetup(): void
+    {
+
     }
 
-    /**
-     * Get the icon for the User.
-     *
-     * @return string
-     */
-    public static function getIcon(): string {
-        return 'fa fa-user';
+    public final function upsertSetup(): void
+    {
+
     }
 
     /**
@@ -158,6 +141,7 @@ class User extends ManageableModel
                 ->setAttribute('placeholder', 'John Doe'),
 
             Text::make($this, 'email')
+                ->setLabel('Email Address')
                 ->required()
                 ->validation('email|max:255|unique:users,email,'.$modelInstance->id)
                 ->setAttributes(['type' => 'email', 'placeholder' => 'email@domain.com'])
@@ -175,7 +159,7 @@ class User extends ManageableModel
                     $image->toJpeg(100);
                     return $image;
                 })
-                ->validation('image|mimes:jpeg,png,jpg,gif,vg|max:10240')
+                ->validation('image|mimes:jpeg,png,jpg,gif,svg|max:10240')
                 ->notes('<b>Required</b> - Image should be a valid JPG, PNG or GIF, no larger than 10mb.'),
 
             Json::make($this, 'permissions')

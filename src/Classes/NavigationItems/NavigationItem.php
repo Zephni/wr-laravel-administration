@@ -37,10 +37,10 @@ class NavigationItem
         public array $children = [],
     ) {
         // Increment index
-        self::$indexTotal++;
+        static::$indexTotal++;
 
         // Set index
-        $this->index = self::$indexTotal;
+        $this->index = static::$indexTotal;
     }
 
     /**

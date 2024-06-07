@@ -24,6 +24,9 @@ class NavigationItemManageableModel extends NavigationItem
             throw new \Exception("Model class `$this->manageableModelClass` must extend ManageableModel when passing to navigation item.");
         }
 
+        // Static setup
+        $this->manageableModelClass::staticSetup();
+
         // Get child navigation from model
         $childNavigationItems = $this->manageableModelClass::getChildNavigationItems();
 

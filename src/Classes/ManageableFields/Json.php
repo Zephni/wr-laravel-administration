@@ -40,7 +40,7 @@ class Json extends ManageableField
      */
     public function preValidation(?string $value): bool
     {
-        if(!$this->getOption(self::OPTION_HIDE_CONTAINING_BRACES)) {
+        if(!$this->getOption(static::OPTION_HIDE_CONTAINING_BRACES)) {
             return false;
         }
 
@@ -97,7 +97,7 @@ class Json extends ManageableField
      */
     public function hideContainingBraces(bool $hide = true): static
     {
-        $this->setOption(self::OPTION_HIDE_CONTAINING_BRACES, $hide);
+        $this->setOption(static::OPTION_HIDE_CONTAINING_BRACES, $hide);
         return $this;
     }
 
@@ -153,7 +153,7 @@ class Json extends ManageableField
         $value = trim($value);
 
         // If hide braces option set, we need to do a final check to remove any outer braces
-        if($this->getOption(self::OPTION_HIDE_CONTAINING_BRACES)) {
+        if($this->getOption(static::OPTION_HIDE_CONTAINING_BRACES)) {
             // If value has outer braces, remove them
             if(
                 (str_starts_with($value, '{') && str_ends_with($value, '}')) ||
