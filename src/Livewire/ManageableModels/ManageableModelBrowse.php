@@ -104,7 +104,7 @@ class ManageableModelBrowse extends Component
 
         // Get the manageable model and base model class
         $this->manageableModelClass = $manageableModelClass;
-        $baseModelInstance = $this->getModelInstance();
+        $baseModelInstance = $this->getModelInstance()->withInstanceSetup();
         $modelClass = $baseModelInstance::getBaseModelClass();
 
         // If the model class does not exist, redirect to the dashboard
