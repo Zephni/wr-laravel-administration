@@ -74,30 +74,6 @@ return [
         ]
     ],
 
-    // Navigation items
-    'navigation' => [
-        // Dashboard
-        new NavigationItem('wrla.dashboard', [], 'Dashboard', 'fa fa-tachometer-alt'),
-
-        // Divider - classes can be appened using the appendClass() method or overriden in the constructor or setClass method
-        new NavigationItemDivider(),
-
-        // Import all manageable models as nav items - Optionally use example below to add individually
-        NavigationItemsAllManageableModels::import(),
-
-        // Example manageable model
-        // App\WRLA\YourModel::getNavigationItem(),
-
-        // Divider
-        new NavigationItemDivider(),
-
-        // Manage account
-        new NavigationItem('wrla.manage-account', [], 'Manage Account', 'fa fa-user-circle'),
-
-        // Logout
-        new NavigationItem('wrla.logout', [], 'Logout', 'fa fa-sign-out-alt'),
-    ],
-
     // Rate limiting for wrla. routes
     // Note: each key is bound to middleware 'throttle:route_name' in routes automatically (Within WRLAServicesProvider.php)
     'rate_limiting' => [

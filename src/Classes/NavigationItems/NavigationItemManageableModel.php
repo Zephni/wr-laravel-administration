@@ -11,31 +11,21 @@ class NavigationItemManageableModel extends NavigationItem
     public function __construct(
         public string $manageableModelClass,
     ) {
-        try {
-            if(!class_exists($manageableModelClass)) {
-
-            }
-        } catch (\Exception $e) {
-            return;
-        }
-
-        // Check that $modelClass extends ManageableModel
-        if(!is_subclass_of($this->manageableModelClass, 'WebRegulate\LaravelAdministration\Classes\ManageableModel')) {
-            throw new \Exception("Model class `$this->manageableModelClass` must extend ManageableModel when passing to navigation item.");
-        }
-
-        // Static setup
-        $this->manageableModelClass::staticSetup();
+        // Error handling
+        throw_if(!class_exists($manageableModelClass), new \Exception("Model class `$manageableModelClass` does not exist when passing to navigation item."));
+        throw_if(!is_subclass_of($this->manageableModelClass, 'WebRegulate\LaravelAdministration\Classes\ManageableModel'), new \Exception("Model class `$this->manageableModelClass` must extend ManageableModel when passing to navigation item."));
 
         // Get child navigation from model
-        $childNavigationItems = $this->manageableModelClass::getChildNavigationItems();
+        // $childNavigationItems = $this->manageableModelClass::getChildNavigationItems();
+
+        $manageableModelClass::staticSetup();
 
         parent::__construct(
             'wrla.manageable-models.browse',
             ['modelUrlAlias' => $this->manageableModelClass::getUrlAlias()],
             $this->manageableModelClass::getDisplayName(true),
             $this->manageableModelClass::getIcon(),
-            $childNavigationItems->toArray()
+            $this->manageableModelClass::getChildNavigationItems()->toArray()
         );
     }
 
@@ -52,7 +42,7 @@ class NavigationItemManageableModel extends NavigationItem
                 return true;
             }
         }
-        
+
         return parent::isChildActive();
     }
 }

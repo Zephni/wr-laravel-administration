@@ -19,12 +19,7 @@ class {{ $MODEL }} extends ManageableModel
         static::setIcon('fa fa-user');
     }
 
-    public final function browseSetup(): void
-    {
-
-    }
-
-    public final function upsertSetup(): void
+    public final function instanceSetup(): void
     {
 
     }

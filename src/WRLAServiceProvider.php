@@ -2,6 +2,7 @@
 
 namespace WebRegulate\LaravelAdministration;
 
+use App\WRLA\WRLASetup;
 use Livewire\Livewire;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -230,7 +231,7 @@ class WRLAServiceProvider extends ServiceProvider
             $view->with('WRLAPermissions', WRLAPermissions::class);
 
             // Navigation
-            $view->with('navigation', config('wr-laravel-administration.navigation'));
+            $view->with('navigation', NavigationItem::$navigationItems);
         });
     }
 
@@ -274,18 +275,8 @@ class WRLAServiceProvider extends ServiceProvider
     protected function postBootCalls(): void
     {
         // Set navigation items
-        NavigationItem::$navigationItems = config('wr-laravel-administration.navigation');
+        NavigationItem::$navigationItems = WRLASetup::buildNavigation() ?? [];
 
-        // Check the navigation config and set up the navigation items
-        foreach(NavigationItem::$navigationItems as $navItemKey => $navItem) {
-            // If nav item is string, then it's a class method to call
-            if(is_string($navItem)) {
-                // Call the method
-                $value = call_user_func($navItem);
-
-                // Inject / Replace the value into the navigation items array
-                NavigationItem::$navigationItems[$navItemKey] = $value;
-            }
-        }
+        // 
     }
 }

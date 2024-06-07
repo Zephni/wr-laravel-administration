@@ -25,13 +25,6 @@ abstract class ManageableModel
     private mixed $modelInstance = null;
 
     /**
-     * Hide from navigation
-     *
-     * @var bool
-     */
-    public static bool $hideFromNavigation = false;
-
-    /**
      * Collection of manageable models, pushed to in the register method which is called within the serice provider.
      *
      * @var ?Collection
@@ -51,7 +44,7 @@ abstract class ManageableModel
      * @var array
      */
     private static array $staticOptions = [
-        'baseModelClass' => '\\App\\Models\\Model',
+        'baseModelClass' => null,
         'urlAlias' => 'model',
         'displayName' => [
             'singular' => 'Model',
@@ -68,6 +61,7 @@ abstract class ManageableModel
      */
     private array $instanceOptions = [
         'browse' => [
+            'columns' => null,
             'actions' => null,
             'filters' => null,
         ],
@@ -110,8 +104,9 @@ abstract class ManageableModel
      */
     public function __construct($modelInstanceOrId = null)
     {
+        // Static setup
         static::staticSetup();
-        
+
         // If model instance or id is null, set the model instance to a new instance of the base model
         if($modelInstanceOrId == null) {
             $this->setModelInstance(new (static::getBaseModelClass()));
@@ -122,6 +117,9 @@ abstract class ManageableModel
         } else if ($modelInstanceOrId instanceof (static::getBaseModelClass())) {
             $this->setModelInstance($modelInstanceOrId);
         }
+
+        // Instance setup
+        $this->instanceSetup();
 
         // Apply permissions
         static::$permissions = new WRLAPermissions($this);
@@ -140,39 +138,37 @@ abstract class ManageableModel
 
     /**
      * Static setup.
-     * 
+     *
      * @return void
      */
     public abstract static function staticSetup(): void;
 
     /**
-     * Browse setup.
-     * 
+     * Instance setup.
+     *
      * @return void
      */
-    public abstract function browseSetup(): void;
-    /**
-     * Upsert setup.
-     * 
-     * @return void
-     */
-    public abstract function upsertSetup(): void;
+    public abstract function instanceSetup(): void;
 
     /**
      * Get static option.
-     * 
+     *
      * @param string $staticOptionKey The option key using dot notation.
      * @return mixed
      */
     public static function getStaticOption(string $staticOptionKey): mixed
     {
+        if(static::$staticOptions['baseModelClass'] == null) {
+            static::staticSetup();
+        }
+
         return data_get(static::$staticOptions, $staticOptionKey);
     }
 
 
     /**
      * Get instance option.
-     * 
+     *
      * @param string $instanceOptionKey The option key using dot notation.
      * @return mixed
      */
@@ -183,7 +179,7 @@ abstract class ManageableModel
 
     /**
      * Set static option.
-     * 
+     *
      * @param string $staticOptionKey The option key using dot notation.
      * @param mixed $value The value to set.
      * @return void
@@ -195,7 +191,7 @@ abstract class ManageableModel
 
     /**
      * Set instance option.
-     * 
+     *
      * @param string $instanceOptionKey The option key using dot notation.
      * @param mixed $value The value to set.
      * @return static
@@ -258,6 +254,16 @@ abstract class ManageableModel
     }
 
     /**
+     * Get manageable model class.
+     *
+     * @return string
+     */
+    public static function getManageableModelClass(): string
+    {
+        return static::class;
+    }
+
+    /**
      * Get the base model for the manageable model.
      *
      * @return string
@@ -279,7 +285,7 @@ abstract class ManageableModel
 
     /**
      * Get navigation item for this manageable model
-     * 
+     *
      * @return NavigationItemManageableModel
      */
     public static function getNavigationItem(): NavigationItemManageableModel
@@ -393,6 +399,8 @@ abstract class ManageableModel
      * @var Collection
      */
     public static function getChildNavigationItems(): Collection {
+        static::staticSetup();
+
         return collect([
             new NavigationItem(
                 'wrla.manageable-models.browse',
@@ -407,6 +415,18 @@ abstract class ManageableModel
                 'fa fa-plus'
             )
         ]);
+    }
+
+    /**
+     * Set browsable columns.
+     *
+     * @param array $columns
+     * @return $this
+     */
+    public function setBrowsableColumns(array $columns): static
+    {
+        $this->setInstanceOption('browse.columns', $columns);
+        return $this;
     }
 
     /**
@@ -431,24 +451,17 @@ abstract class ManageableModel
     }
 
     /**
-     * Get browsable columns.
-     * To add a relationship column, use the format 'local_column::other_table.display_column'.
-     * To add a json value column, use the format 'json_column->key1->key2'.
+     * Get the browsable columns from options.
      *
      * @return Collection
      */
-    public function getBrowsableColumns(): Collection
-    {
-        return collect([
-            'id' => 'ID',
-            // 'column_name' => 'Column Name',
-            // ...
-        ]);
+    public function getBrowsableColumns(): Collection {
+        return collect($this->getInstanceOption('browse.columns'));
     }
 
     /**
      * Get final browsable columns
-     * 
+     *
      * @return Collection
      */
     public function getFinalBrowsableColumns(): Collection

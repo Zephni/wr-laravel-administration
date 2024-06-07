@@ -8,13 +8,13 @@ use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 class NavigationItemsAllManageableModels extends NavigationItem
 {
     /**
-     * Static method to be called in config, sets up call on boot for importing manageable models into navigation
+     * Import all manageable models as array of nav items
      *
-     * @return string
+     * @return array
      */
-    public static function import(): string
+    public static function import(): array
     {
-        return 'WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItemsAllManageableModels::getAllManageableModelsNavigationItems';
+        return self::getAllManageableModelsNavigationItems();
     }
 
     /**
@@ -34,7 +34,7 @@ class NavigationItemsAllManageableModels extends NavigationItem
         foreach ($manageableModels as $manageableModel) {
             $nimm = $manageableModel::getNavigationItem();
 
-            if($nimm->manageableModelClass::$hideFromNavigation) {
+            if($nimm->manageableModelClass::getStaticOption('hideFromNavigation')) {
                 continue;
             }
 
