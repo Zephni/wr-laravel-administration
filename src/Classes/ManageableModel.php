@@ -158,13 +158,9 @@ abstract class ManageableModel
      */
     public static function getStaticOption(string $staticOptionKey): mixed
     {
-        if(static::$staticOptions['baseModelClass'] == null) {
-            static::staticSetup();
-        }
-
+        static::staticSetup();
         return data_get(static::$staticOptions, $staticOptionKey);
     }
-
 
     /**
      * Get instance option.
