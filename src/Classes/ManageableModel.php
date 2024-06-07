@@ -10,9 +10,9 @@ use WebRegulate\LaravelAdministration\Enums\PageType;
 use WebRegulate\LaravelAdministration\Classes\ManageableFields\Text;
 use WebRegulate\LaravelAdministration\Classes\ManageableFields\Select;
 use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItem;
-use WebRegulate\LaravelAdministration\Classes\BrowsableColumns\BrowsableColumn;
+use WebRegulate\LaravelAdministration\Classes\BrowseColumns\BrowseColumn;
 use WebRegulate\LaravelAdministration\Classes\ManageableFields\ManageableField;
-use WebRegulate\LaravelAdministration\Classes\BrowsableColumns\BrowsableColumnBase;
+use WebRegulate\LaravelAdministration\Classes\BrowseColumns\BrowseColumnBase;
 use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItemManageableModel;
 
 abstract class ManageableModel
@@ -52,7 +52,16 @@ abstract class ManageableModel
      *
      * @var array
      */
-    public array $instanceOptions = [];
+    public array $instanceOptions = [
+        'browse' => [
+            'columns' => null,
+            'actions' => null,
+            'filters' => null,
+        ],
+        'upsert' => [
+            'manageableFields' => null,
+        ],
+    ];
 
     /**
      * Register the manageable model.
@@ -116,25 +125,6 @@ abstract class ManageableModel
     public abstract static function staticSetup(): void;
 
     /**
-     * Instance setup.
-     *
-     * @return void
-     */
-    public abstract function instanceSetup(): void;
-    /* TODO: DEFAULTS
-        [
-        'browse' => [
-            'columns' => null,
-            'actions' => null,
-            'filters' => null,
-        ],
-        'upsert' => [
-            'manageableFields' => null,
-        ],
-    ]
-    */
-
-    /**
      * Static setup final.
      *
      * @return void
@@ -156,6 +146,13 @@ abstract class ManageableModel
         // Call static setup
         static::staticSetup();
     }
+
+    /**
+     * Instance setup.
+     *
+     * @return void
+     */
+    public abstract function instanceSetup(): void;    
 
     /**
      * Get static option.
@@ -433,7 +430,7 @@ abstract class ManageableModel
      * @param array $columns
      * @return $this
      */
-    public function setBrowsableColumns(array $columns): static
+    public function setBrowseColumns(array $columns): static
     {
         $this->setInstanceOption('browse.columns', $columns);
         return $this;
@@ -465,7 +462,7 @@ abstract class ManageableModel
      *
      * @return Collection
      */
-    public function getBrowsableColumns(): Collection {
+    public function getBrowseColumns(): Collection {
         return collect($this->getInstanceOption('browse.columns'));
     }
 
@@ -474,35 +471,35 @@ abstract class ManageableModel
      *
      * @return Collection
      */
-    public function getFinalBrowsableColumns(): Collection
+    public function getFinalBrowseColumns(): Collection
     {
-        // If any of the values are strings, we convert into BrowsableColumn instances
-        return $this->getBrowsableColumns()->map(function($value, $key) {
+        // If any of the values are strings, we convert into BrowseColumn instances
+        return $this->getBrowseColumns()->map(function($value, $key) {
             if($value == null) {
                 return null;
             }
 
-            $iseBrowsableColumnRelationship = WRLAHelper::isBrowsableColumnRelationship($key);
-            $valueIsBrowsableColumn = $value instanceof BrowsableColumnBase;
+            $iseBrowseColumnRelationship = WRLAHelper::isBrowseColumnRelationship($key);
+            $valueIsBrowseColumn = $value instanceof BrowseColumnBase;
 
-            // If $value is already a BrowsableColumn instance, return it
-            if($valueIsBrowsableColumn) {
+            // If $value is already a BrowseColumn instance, return it
+            if($valueIsBrowseColumn) {
                 return $value;
             }
 
             // If $key doesn't have :: then return browsable column instance version of the value
-            if(!$iseBrowsableColumnRelationship) {
-                $returnBrowsableColumn = $valueIsBrowsableColumn ? $value : BrowsableColumn::make($value, 'string');
+            if(!$iseBrowseColumnRelationship) {
+                $returnBrowseColumn = $valueIsBrowseColumn ? $value : BrowseColumn::make($value, 'string');
             // otherwise we are using auto relationship naming
             } else {
-                $relationshipParts = WRLAHelper::parseBrowsableColumnRelationship($key);
+                $relationshipParts = WRLAHelper::parseBrowseColumnRelationship($key);
 
-                $returnBrowsableColumn = BrowsableColumn::make($value, 'string')->overrideRenderValue(function($value, $model) use($relationshipParts) {
+                $returnBrowseColumn = BrowseColumn::make($value, 'string')->overrideRenderValue(function($value, $model) use($relationshipParts) {
                     return $model->{"{$relationshipParts['table']}.{$relationshipParts['column']}"};
                 });
             }
 
-            return $returnBrowsableColumn;
+            return $returnBrowseColumn;
         });
     }
 
@@ -580,8 +577,8 @@ abstract class ManageableModel
                     return $query->where(function($query) use($table, $columns, $value) {
                         foreach($columns as $column => $label) {
                             // If column is relationship, then modify the column to be the related column
-                            if((WRLAHelper::isBrowsableColumnRelationship($column))) {
-                                $relationshipParts = WRLAHelper::parseBrowsableColumnRelationship($column);
+                            if((WRLAHelper::isBrowseColumnRelationship($column))) {
+                                $relationshipParts = WRLAHelper::parseBrowseColumnRelationship($column);
                                 $column = "{$relationshipParts['table']}.{$relationshipParts['column']}";
                             // Otherwise just use the table and column
                             } else {

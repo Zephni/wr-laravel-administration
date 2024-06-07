@@ -10,7 +10,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 use WebRegulate\LaravelAdministration\Classes\ManageableModel;
 use WebRegulate\LaravelAdministration\Classes\WRLAPermissions;
-use WebRegulate\LaravelAdministration\Classes\BrowsableColumns\BrowsableColumnBase;
+use WebRegulate\LaravelAdministration\Classes\BrowseColumns\BrowseColumnBase;
 
 /**
  * Class ManageableModelBrowse
@@ -113,9 +113,9 @@ class ManageableModelBrowse extends Component
         }
 
         // Build parent columns from manageable model
-        $columns = $baseModelInstance->getBrowsableColumns();
+        $columns = $baseModelInstance->getBrowseColumns();
         $this->columns = collect($columns)->map(function($column) {
-            return $column instanceof BrowsableColumnBase ? $column->label : $column;
+            return $column instanceof BrowseColumnBase ? $column->label : $column;
         });
 
         // Get manageable model filter keys from collection
@@ -220,7 +220,7 @@ class ManageableModelBrowse extends Component
     {
         // Get any keys from columns that have a relationship
         return collect($this->columns)->filter(function($label, $column) {
-            return WRLAHelper::isBrowsableColumnRelationship($column);
+            return WRLAHelper::isBrowseColumnRelationship($column);
         });
     }
 
@@ -257,8 +257,8 @@ class ManageableModelBrowse extends Component
             $tablesAlreadyJoined = [];
 
             // Add left joins and selects
-            foreach($relationshipColumns as $column => $browsableColumn) {
-                $relationship = WRLAHelper::parseBrowsableColumnRelationship($column);
+            foreach($relationshipColumns as $column => $browseColumn) {
+                $relationship = WRLAHelper::parseBrowseColumnRelationship($column);
                 
                 // If already joined just do the select part
                 if(in_array($relationship['table'], $tablesAlreadyJoined)) {

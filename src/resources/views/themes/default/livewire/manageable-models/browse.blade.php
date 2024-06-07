@@ -43,12 +43,12 @@
         <table class="table w-full text-sm bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-300">
             <thead class="border-b bg-slate-700 dark:bg-slate-400 text-slate-100 dark:text-slate-800 border-slate-400 dark:border-slate-600">
                 <tr>
-                    @foreach($manageableModelClass::make()->getFinalBrowsableColumns() as $column => $browsableColumn)
-                        @continue($browsableColumn === null)
+                    @foreach($manageableModelClass::make()->getFinalBrowseColumns() as $column => $browseColumn)
+                        @continue($browseColumn === null)
                         <th class="text-left px-3 py-2">
                             <div class="flex items-center gap-3">
-                                {{ $browsableColumn->renderDisplayName() }}
-                                @if($browsableColumn->getOption('allowOrdering'))
+                                {{ $browseColumn->renderDisplayName() }}
+                                @if($browseColumn->getOption('allowOrdering'))
                                     {{-- If current $orderBy, Show order icon up or down depending on current order $orderBy (column) $orderDirection (asc or desc) --}}
                                     @if($orderBy == $column)
                                         <i class="relative fas fa-sort-{{ $orderDirection == 'asc' ? 'up' : 'down' }} cursor-pointer text-primary-500"
@@ -72,10 +72,10 @@
                         $manageableModel = $manageableModelClass::make($model);
                     @endphp
                     <tr class="odd:bg-slate-100 dark:odd:bg-slate-700 even:bg-slate-200 dark:even:bg-slate-800">
-                        @foreach($manageableModel->getFinalBrowsableColumns() as $column => $browsableColumn)
-                            @continue($browsableColumn === null)
-                            <td class="px-3 py-2 whitespace-nowrap" @if($browsableColumn->width != null) style="width: {{ is_numeric($browsableColumn->width) ? $browsableColumn->width.'px' : $browsableColumn->width }}" @endif>
-                                {!! $browsableColumn->renderValue($model, $column) !!}
+                        @foreach($manageableModel->getFinalBrowseColumns() as $column => $browseColumn)
+                            @continue($browseColumn === null)
+                            <td class="px-3 py-2 whitespace-nowrap" @if($browseColumn->width != null) style="width: {{ is_numeric($browseColumn->width) ? $browseColumn->width.'px' : $browseColumn->width }}" @endif>
+                                {!! $browseColumn->renderValue($model, $column) !!}
                             </td>
                         @endforeach
                         <td class="px-3 py-2">

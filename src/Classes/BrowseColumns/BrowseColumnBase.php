@@ -1,10 +1,10 @@
 <?php
 
-namespace WebRegulate\LaravelAdministration\Classes\BrowsableColumns;
+namespace WebRegulate\LaravelAdministration\Classes\BrowseColumns;
 
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 
-class BrowsableColumnBase
+class BrowseColumnBase
 {
     /**
      * Label of the column, defaults to title version of the column name
@@ -160,8 +160,8 @@ class BrowsableColumnBase
     public function renderValue(mixed $model, string $column): string
     {
         // If column is a relationship, modify the column to include the relationship
-        if(WRLAHelper::isBrowsableColumnRelationship($column)) {
-            $relationshipData = WRLAHelper::parseBrowsableColumnRelationship($column);
+        if(WRLAHelper::isBrowseColumnRelationship($column)) {
+            $relationshipData = WRLAHelper::parseBrowseColumnRelationship($column);
             if($relationshipData['table'] == $model->getTable()) {
                 $column = "{$relationshipData['table']}_other.{$relationshipData['column']}";
             } else {

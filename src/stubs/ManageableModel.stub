@@ -3,7 +3,7 @@
 namespace {{ $NAMESPACE }};
 
 use WebRegulate\LaravelAdministration\Classes\ManageableModel;
-use WebRegulate\LaravelAdministration\Classes\BrowsableColumns\BrowsableColumn;
+use WebRegulate\LaravelAdministration\Classes\BrowseColumns\BrowseColumn;
 use WebRegulate\LaravelAdministration\Classes\ManageableFields\Text;
 use WebRegulate\LaravelAdministration\Classes\ManageableFields\Image;
 use WebRegulate\LaravelAdministration\Classes\ManageableFields\TextArea;
@@ -21,7 +21,9 @@ class {{ $MODEL }} extends ManageableModel
 
     public final function instanceSetup(): void
     {
-
+        $this->setBrowseColumns([
+            'id' => 'Id',
+        ]);
     }
 
     public static function getChildNavigationItems(): Collection {
@@ -38,16 +40,6 @@ class {{ $MODEL }} extends ManageableModel
 
     public function getItemActions(): Collection {
         return parent::getItemActions();
-    }
-
-    public function getBrowsableColumns(): Collection
-    {
-        return collect([
-            'id' => 'ID', // It's not standard to include id in browsable columns, but it's included for demonstration purposes
-            // 'column_name' => 'Display Name',
-            // 'user_id::users.name' => 'User', // eg. 'local_column::relationship_table.remote_column' => 'Display Name'
-            // ...
-        ]);
     }
 
     public function getManageableFields(): Collection {

@@ -154,9 +154,9 @@ class WRLAHelper
      * @string $relationshipKeyString The relationship string to check against.
      * @return bool
      */
-    public static function isBrowsableColumnRelationship(string $relationshipKeyString): bool
+    public static function isBrowseColumnRelationship(string $relationshipKeyString): bool
     {
-        return static::parseBrowsableColumnRelationship($relationshipKeyString) !== false;
+        return static::parseBrowseColumnRelationship($relationshipKeyString) !== false;
     }
 
     /**
@@ -165,7 +165,7 @@ class WRLAHelper
      * @param string $relationshipKeyString The relationship string to interpret.
      * @return array|false The interpreted relationship array.
      */
-    public static function parseBrowsableColumnRelationship(string $relationshipKeyString): array|false
+    public static function parseBrowseColumnRelationship(string $relationshipKeyString): array|false
     {
         // If does not contain :: then return false
         if(strpos($relationshipKeyString, '::') === false) {

@@ -1,11 +1,11 @@
 <?php
 
-namespace WebRegulate\LaravelAdministration\Classes\BrowsableColumns;
+namespace WebRegulate\LaravelAdministration\Classes\BrowseColumns;
 
 use Illuminate\View\ComponentAttributeBag;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 
-class BrowsableColumnLink extends BrowsableColumnBase
+class BrowseColumnLink extends BrowseColumnBase
 {
     /**
      * Link builder callable, must take $value, $model as arguments and return an array of
@@ -32,14 +32,14 @@ class BrowsableColumnLink extends BrowsableColumnBase
     public static function make(?string $label, callable $linkBuilderCallback, null|int|string $width = null): static
     {
         // Create new instance
-        $browsableColumnLink = new static($label, 'link', $width);
+        $browseColumnLink = new static($label, 'link', $width);
 
         // Set the link builder callback
-        $browsableColumnLink->linkBuilderCallback = $linkBuilderCallback;
+        $browseColumnLink->linkBuilderCallback = $linkBuilderCallback;
 
         // Set the override render value callback which internally calls the link builder callback
-        $browsableColumnLink->overrideRenderValue = function ($value, $model) use ($browsableColumnLink) {
-            $linkData = call_user_func($browsableColumnLink->linkBuilderCallback, $value, $model);
+        $browseColumnLink->overrideRenderValue = function ($value, $model) use ($browseColumnLink) {
+            $linkData = call_user_func($browseColumnLink->linkBuilderCallback, $value, $model);
 
             if($linkData === null) {
                 return '';
@@ -55,6 +55,6 @@ class BrowsableColumnLink extends BrowsableColumnBase
             ]);
         };
 
-        return $browsableColumnLink;
+        return $browseColumnLink;
     }
 }

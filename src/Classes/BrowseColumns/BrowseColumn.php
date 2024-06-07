@@ -1,10 +1,10 @@
 <?php
 
-namespace WebRegulate\LaravelAdministration\Classes\BrowsableColumns;
+namespace WebRegulate\LaravelAdministration\Classes\BrowseColumns;
 
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 
-class BrowsableColumn extends BrowsableColumnBase
+class BrowseColumn extends BrowseColumnBase
 {
     /**
      * Create a new instance of the class
