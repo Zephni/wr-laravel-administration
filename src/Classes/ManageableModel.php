@@ -147,7 +147,7 @@ abstract class ManageableModel
      *
      * @return void
      */
-    public abstract function instanceSetup(): void;    
+    public abstract function instanceSetup(): void;
 
     /**
      * Get static option.
@@ -155,9 +155,9 @@ abstract class ManageableModel
      * @param string $staticOptionKey The option key using dot notation.
      * @return mixed
      */
-    public static function getStaticOption(string $staticOptionKey): mixed
+    public static function getStaticOption(string $class, string $staticOptionKey): mixed
     {
-        return data_get(WRLAHelper::$globalManageableModelData[static::class], $staticOptionKey);
+        return data_get(WRLAHelper::$globalManageableModelData[$class], $staticOptionKey);
     }
 
     /**
@@ -165,9 +165,9 @@ abstract class ManageableModel
      *
      * @return array
      */
-    public static function getStaticOptions(): array
+    public static function getStaticOptions(string $class): array
     {
-        return WRLAHelper::$globalManageableModelData[static::class];
+        return WRLAHelper::$globalManageableModelData[$class];
     }
 
     /**
@@ -274,7 +274,7 @@ abstract class ManageableModel
      */
     public static function getBaseModelClass(): string
     {
-        return static::getStaticOption('baseModelClass');
+        return static::getStaticOption(static::class, 'baseModelClass');
     }
 
     /**
@@ -352,7 +352,7 @@ abstract class ManageableModel
 
     /**
      * Set child navigation items.
-     * 
+     *
      * @param Collection|array $childNavigationItems
      */
     public static function setChildNavigationItems(Collection|array $childNavigationItems): void
@@ -367,7 +367,7 @@ abstract class ManageableModel
 
     /**
      * Set browse filters.
-     * 
+     *
      * @param Collection|array $filters
      */
     public static function setBrowseFilters(Collection|array $filters)
@@ -382,7 +382,7 @@ abstract class ManageableModel
 
     /**
      * Set browse actions.
-     * 
+     *
      * @param Collection|array $actions
      */
     public static function setBrowseActions(Collection|array $actions)
@@ -414,7 +414,7 @@ abstract class ManageableModel
 
     /**
      * Set item actions.
-     * 
+     *
      * @param Collection|array $actions
      * @return $this
      */
@@ -431,7 +431,7 @@ abstract class ManageableModel
 
     /**
      * Set manageable fields.
-     * 
+     *
      * @param Collection|array $manageableFields
      * @return $this
      */
@@ -454,7 +454,7 @@ abstract class ManageableModel
      */
     public static function getDisplayName(bool $plural = false): string
     {
-        return static::getStaticOption('displayName.' . (!$plural ? 'singular' : 'plural'));
+        return static::getStaticOption(static::class, 'displayName.' . (!$plural ? 'singular' : 'plural'));
     }
 
     /**
@@ -464,7 +464,7 @@ abstract class ManageableModel
      */
     public static function getIcon(): string
     {
-        return static::getStaticOption('icon');
+        return static::getStaticOption(static::class, 'icon');
     }
 
     /**
@@ -474,7 +474,7 @@ abstract class ManageableModel
      */
     public static function getUrlAlias(): string
     {
-        return static::getStaticOption('urlAlias');
+        return static::getStaticOption(static::class, 'urlAlias');
     }
 
     /**
@@ -500,7 +500,7 @@ abstract class ManageableModel
      */
     public static function getChildNavigationItems(): Collection
     {
-        return collect(static::getStaticOption('navigation.children'));
+        return collect(static::getStaticOption(static::class, 'navigation.children'));
     }
 
     /**
@@ -512,13 +512,13 @@ abstract class ManageableModel
         return collect([
             new NavigationItem(
                 'wrla.manageable-models.browse',
-                ['modelUrlAlias' => static::getStaticOption('urlAlias')],
+                ['modelUrlAlias' => static::getStaticOption(static::class, 'urlAlias')],
                 'Browse',
                 'fa fa-list'
             ),
             new NavigationItem(
                 'wrla.manageable-models.create',
-                ['modelUrlAlias' => static::getStaticOption('urlAlias')],
+                ['modelUrlAlias' => static::getStaticOption(static::class, 'urlAlias')],
                 'Create',
                 'fa fa-plus'
             )
@@ -539,7 +539,7 @@ abstract class ManageableModel
             $browseActions->put('create', view(WRLAHelper::getViewPath('components.forms.button'), [
                 'text' => 'Create ' . static::getDisplayName(),
                 'icon' => 'fa fa-plus text-sm',
-                'href' => route('wrla.manageable-models.create', ['modelUrlAlias' => static::getStaticOption('urlAlias')])
+                'href' => route('wrla.manageable-models.create', ['modelUrlAlias' => static::getStaticOption(static::class, 'urlAlias')])
             ]));
         // }
 
@@ -557,25 +557,25 @@ abstract class ManageableModel
 
     /**
      * Get browse filters.
-     * 
+     *
      * @return Collection
      */
     public static function getBrowseFilters(): Collection {
-        return collect(static::getStaticOption('browse.filters'));
+        return collect(static::getStaticOption(static::class, 'browse.filters'));
     }
 
     /**
      * Get browse actions.
-     * 
+     *
      * @return Collection
      */
     public static function getBrowseActions(): Collection {
-        return collect(static::getStaticOption('browse.actions'));
+        return collect(static::getStaticOption(static::class, 'browse.actions'));
     }
 
     /**
      * Get item actions.
-     * 
+     *
      * @return Collection
      */
     public function getItemActions(): Collection {
@@ -640,32 +640,32 @@ abstract class ManageableModel
 
         // If model doesn't have soft deletes and not trashed
         if(!static::isSoftDeletable() || $model->deleted_at == null) {
-            if($this->permissions()->hasPermission(WRLAPermissions::EDIT)) {
+            // if($this->permissions()->hasPermission(WRLAPermissions::EDIT)) {
                 $browseActions->put('edit', view(WRLAHelper::getViewPath('components.browse-actions.edit-button'), [
                     'manageableModel' => $this
                 ]));
-            }
+            // }
 
-            if($this->permissions()->hasPermission(WRLAPermissions::DELETE)) {
+            // if($this->permissions()->hasPermission(WRLAPermissions::DELETE)) {
                 $browseActions->put('delete', view(WRLAHelper::getViewPath('components.browse-actions.delete-button'), [
                     'manageableModel' => $this
                 ]));
-            }
+            // }
         // If trashed
         } else {
-            if($this->permissions()->hasPermission(WRLAPermissions::RESTORE)) {
+            // if($this->permissions()->hasPermission(WRLAPermissions::RESTORE)) {
                 $browseActions->put('restore', view(WRLAHelper::getViewPath('components.browse-actions.restore-button'), [
                     'manageableModel' => $this
                 ]));
-            }
+            // }
 
-            if($this->permissions()->hasPermission(WRLAPermissions::DELETE)) {
+            // if($this->permissions()->hasPermission(WRLAPermissions::DELETE)) {
                 $browseActions->put('delete', view(WRLAHelper::getViewPath('components.browse-actions.delete-button'), [
                     'manageableModel' => $this,
                     'text' => 'Permanent Delete',
                     'permanent' => true
                 ]));
-            }
+            // }
         }
 
         return $browseActions;

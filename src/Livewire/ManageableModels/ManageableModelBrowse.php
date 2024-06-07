@@ -232,7 +232,7 @@ class ManageableModelBrowse extends Component
     protected function browseModels()
     {        
         // Get table name
-        $tableName = (new ($this->manageableModelClass::getStaticOption('baseModelClass')))->getTable();
+        $tableName = (new ($this->manageableModelClass::getStaticOption($this->manageableModelClass, 'baseModelClass')))->getTable();
         
         // If table does not exist in database, redirect to dashboard with error
         if(!WRLAHelper::tableExists($tableName)) {
