@@ -13,41 +13,38 @@ class {{ $MODEL }} extends ManageableModel
 {
     public final static function staticSetup(): void
     {
+        // Main
         static::setBaseModelClass(\App\Models\{{ $MODEL_WITH_PATH }}::class);
         static::setDisplayName();
         static::setUrlAlias('{{ $URL_ALIAS }}');
         static::setIcon('{{ $ICON }}');
+
+        // Navigation
+        static::setChildNavigationItems(parent::getDefaultChildNavigationItems());
+
+        // Browse filters
+        static::setBrowseFilters(static::getDefaultBrowseFilters());
+
+        // Browse actions
+        static::setBrowseActions(static::getDefaultBrowseActions());
     }
 
     public final function instanceSetup(): void
     {
+        // Browse columns
         $this->setBrowseColumns([
             'id' => 'Id',
         ]);
-    }
 
-    public static function getChildNavigationItems(): Collection {
-        return parent::getChildNavigationItems();
-    }
+        // Item actions
+        $this->setItemActions(parent::getDefaultItemActions());
 
-    public static function getBrowseActions(): Collection {
-        return parent::getBrowseActions();
-    }
-
-    public static function getBrowseFilters(): Collection {
-        return parent::getBrowseFilters();
-    }
-
-    public function getItemActions(): Collection {
-        return parent::getItemActions();
-    }
-
-    public function getManageableFields(): Collection {
-        return collect([
+        // Manageable fields
+        $this->setManageableFields([
             // Text::make($this, 'name')
             //     ->required()
             //     ->validation('string|max:255')
-            //     ->setAttribute('placeholder', 'John Doe'),
+            //     ->setAttribute('placeholder', 'John Doe'), 
         ]);
     }
 }

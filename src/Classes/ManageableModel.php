@@ -61,6 +61,12 @@ abstract class ManageableModel
         'upsert' => [
             'manageableFields' => null,
         ],
+        'item' => [
+            'actions' => null,
+        ],
+        'navigation' => [
+            'children' => null,
+        ],
     ];
 
     /**
@@ -77,6 +83,18 @@ abstract class ManageableModel
 
         // Register the model
         static::$manageableModels->push(static::class);
+
+        // Set static options in global
+        WRLAHelper::$globalManageableModelData[static::class] = [
+            'baseModelClass' => null,
+            'urlAlias' => 'model',
+            'displayName' => [
+                'singular' => 'Model',
+                'plural' => 'Models',
+            ],
+            'icon' => 'fa fa-cube',
+            'hideFromNavigation' => false,
+        ];
     }
 
     /**
@@ -123,29 +141,6 @@ abstract class ManageableModel
      * @return void
      */
     public abstract static function staticSetup(): void;
-
-    /**
-     * Static setup final.
-     *
-     * @return void
-     */
-    public static function staticSetupFinal(): void
-    {
-        // Set static options
-        WRLAHelper::$globalManageableModelData[static::class] = [
-            'baseModelClass' => null,
-            'urlAlias' => 'model',
-            'displayName' => [
-                'singular' => 'Model',
-                'plural' => 'Models',
-            ],
-            'icon' => 'fa fa-cube',
-            'hideFromNavigation' => false,
-        ];
-
-        // Call static setup
-        static::staticSetup();
-    }
 
     /**
      * Instance setup.
@@ -332,11 +327,11 @@ abstract class ManageableModel
     public static function setDisplayName(?string $displayNamesingular = null, ?string $displayNamePlural = null): string
     {
         if($displayNamesingular == null) {
-            $displayNamesingular = str(class_basename(static::class))->kebab()->replace('-', ' ')->title()->singular();
+            $displayNamesingular = str(class_basename(static::class))->kebab()->replace('-', ' ')->title()->singular()->toString();
         }
 
         if($displayNamePlural == null) {
-            $displayNamePlural = str($displayNamesingular)->plural();
+            $displayNamePlural = str($displayNamesingular)->plural()->toString();
         }
 
         static::setStaticOption('displayName.singular', $displayNamesingular);
@@ -353,6 +348,102 @@ abstract class ManageableModel
     {
         static::setStaticOption('icon', $icon);
         return static::class;
+    }
+
+    /**
+     * Set child navigation items.
+     * 
+     * @param Collection|array $childNavigationItems
+     */
+    public static function setChildNavigationItems(Collection|array $childNavigationItems): void
+    {
+        // If collection turn into array
+        if($childNavigationItems instanceof Collection) {
+            $childNavigationItems = $childNavigationItems->toArray();
+        }
+
+        static::setStaticOption('navigation.children', $childNavigationItems);
+    }
+
+    /**
+     * Set browse filters.
+     * 
+     * @param Collection|array $filters
+     */
+    public static function setBrowseFilters(Collection|array $filters)
+    {
+        // If collection turn into array
+        if($filters instanceof Collection) {
+            $filters = $filters->toArray();
+        }
+
+        static::setStaticOption('browse.filters', $filters);
+    }
+
+    /**
+     * Set browse actions.
+     * 
+     * @param Collection|array $actions
+     */
+    public static function setBrowseActions(Collection|array $actions)
+    {
+        // If collection turn into array
+        if($actions instanceof Collection) {
+            $actions = $actions->toArray();
+        }
+
+        static::setStaticOption('browse.actions', $actions);
+    }
+
+    /**
+     * Set browse columns.
+     *
+     * @param array $columns
+     * @return $this
+     */
+    public function setBrowseColumns(array $columns): static
+    {
+        // If collection turn into array
+        if($columns instanceof Collection) {
+            $columns = $columns->toArray();
+        }
+
+        $this->setInstanceOption('browse.columns', $columns);
+        return $this;
+    }
+
+    /**
+     * Set item actions.
+     * 
+     * @param Collection|array $actions
+     * @return $this
+     */
+    public function setItemActions(Collection|array $actions): static
+    {
+        // If collection turn into array
+        if($actions instanceof Collection) {
+            $actions = $actions->toArray();
+        }
+
+        $this->setInstanceOption('item.actions', $actions);
+        return $this;
+    }
+
+    /**
+     * Set manageable fields.
+     * 
+     * @param Collection|array $manageableFields
+     * @return $this
+     */
+    public function setManageableFields(Collection|array $manageableFields): static
+    {
+        // If collection turn into array
+        if($manageableFields instanceof Collection) {
+            $manageableFields = $manageableFields->toArray();
+        }
+
+        $this->setInstanceOption('upsert.manageableFields', $manageableFields);
+        return $this;
     }
 
     /**
@@ -403,11 +494,21 @@ abstract class ManageableModel
     }
 
     /**
-     * Get child navigation items
+     * Get child navigation items.
+     *
+     * @return Collection
+     */
+    public static function getChildNavigationItems(): Collection
+    {
+        return collect(static::getStaticOption('navigation.children'));
+    }
+
+    /**
+     * Get default child navigation items
      *
      * @var Collection
      */
-    public static function getChildNavigationItems(): Collection {
+    public static function getDefaultChildNavigationItems(): Collection {
         return collect([
             new NavigationItem(
                 'wrla.manageable-models.browse',
@@ -425,34 +526,22 @@ abstract class ManageableModel
     }
 
     /**
-     * Set browsable columns.
-     *
-     * @param array $columns
-     * @return $this
-     */
-    public function setBrowseColumns(array $columns): static
-    {
-        $this->setInstanceOption('browse.columns', $columns);
-        return $this;
-    }
-
-    /**
      * Get browse actions
      *
      * @return Collection
      */
-    public static function getBrowseActions(): Collection {
+    public static function getDefaultBrowseActions(): Collection {
         $browseActions = collect();
 
-        $manageableModel = static::make();
+        // $manageableModel = static::make(); // This makes everything crash with bytes exhausted error
 
-        if($manageableModel::permissions()->hasPermission(WRLAPermissions::CREATE)) {
+        // if($manageableModel::permissions()->hasPermission(WRLAPermissions::CREATE)) {
             $browseActions->put('create', view(WRLAHelper::getViewPath('components.forms.button'), [
                 'text' => 'Create ' . static::getDisplayName(),
                 'icon' => 'fa fa-plus text-sm',
                 'href' => route('wrla.manageable-models.create', ['modelUrlAlias' => static::getStaticOption('urlAlias')])
             ]));
-        }
+        // }
 
         return $browseActions;
     }
@@ -464,6 +553,33 @@ abstract class ManageableModel
      */
     public function getBrowseColumns(): Collection {
         return collect($this->getInstanceOption('browse.columns'));
+    }
+
+    /**
+     * Get browse filters.
+     * 
+     * @return Collection
+     */
+    public static function getBrowseFilters(): Collection {
+        return collect(static::getStaticOption('browse.filters'));
+    }
+
+    /**
+     * Get browse actions.
+     * 
+     * @return Collection
+     */
+    public static function getBrowseActions(): Collection {
+        return collect(static::getStaticOption('browse.actions'));
+    }
+
+    /**
+     * Get item actions.
+     * 
+     * @return Collection
+     */
+    public function getItemActions(): Collection {
+        return collect($this->getInstanceOption('item.actions'));
     }
 
     /**
@@ -509,7 +625,7 @@ abstract class ManageableModel
      * @param mixed $model
      * @return Collection
      */
-    public function getItemActions(): Collection {
+    public function getDefaultItemActions(): Collection {
         // Get current page type and set browse actions to empty collection
         $currentPageType = WRLAHelper::getCurrentPageType();
         $browseActions = collect();
@@ -560,7 +676,7 @@ abstract class ManageableModel
      *
      * @return Collection
      */
-    public static function getBrowseFilters(): Collection {
+    public static function getDefaultBrowseFilters(): Collection {
         return collect([
             'searchFilter' => new BrowseFilter(
                 // Field
@@ -618,13 +734,13 @@ abstract class ManageableModel
     }
 
     /**
-     * Virtual get manageable fields method.
+     * Get manageable fields method.
      *
      * @return Collection
      */
     public function getManageableFields(): Collection
     {
-        return collect();
+        return collect($this->getInstanceOption('upsert.manageableFields'));
     }
 
     /**

@@ -306,8 +306,9 @@ class WRLAHelper
         // Loop through each class and register it
         foreach($manageableModels as $manageableModelClass) {
             $manageableModelClass::register();
-            $manageableModelClass::staticSetupFinal();
         }
+
+        // dd(self::$globalManageableModelData);
     }
 
     /**

@@ -101,9 +101,6 @@ class WRLAServiceProvider extends ServiceProvider
      */
     protected function mainSetup(): void
     {
-        // Find all classes that extend ManageableModel and register them
-        WRLAHelper::registerManageableModels();
-
         // Commands
         $this->commands([
             InstallCommand::class,
@@ -122,6 +119,9 @@ class WRLAServiceProvider extends ServiceProvider
         Route::middleware('web')->group(function () {
             $this->loadRoutesFrom(__DIR__ . '/routes/wr-laravel-administration-routes.php');
         });
+
+        // Find all classes that extend ManageableModel and register them
+        WRLAHelper::registerManageableModels();
 
         // Register validation rules
         $this->registerValidationRules();
@@ -275,7 +275,13 @@ class WRLAServiceProvider extends ServiceProvider
      */
     protected function postBootCalls(): void
     {
-        // Set navigation items
-        NavigationItem::$navigationItems = WRLASetup::buildNavigation() ?? [];
+        $this->app->booted(function () {
+            foreach(WRLAHelper::$globalManageableModelData as $className => $value) {
+                $className::staticSetup();
+            }
+
+            // Set navigation items
+            NavigationItem::$navigationItems = WRLASetup::buildNavigation() ?? [];
+        });
     }
 }
