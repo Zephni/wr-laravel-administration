@@ -121,9 +121,18 @@ abstract class ManageableModel
      */
     public static function make($modelInstanceOrId = null): static
     {
-        $instance = new static($modelInstanceOrId);
-        $instance->instanceSetup();
-        return $instance;
+        return new static($modelInstanceOrId);
+    }
+
+    /**
+     * With instance setup.
+     *
+     * @return $this
+     */
+    public function withInstanceSetup(): static
+    {
+        $this->instanceSetup();
+        return $this;
     }
 
     /**

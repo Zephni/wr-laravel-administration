@@ -69,7 +69,7 @@
             <tbody>
                 @foreach($models as $model)
                     @php
-                        $manageableModel = $manageableModelClass::make($model);
+                        $manageableModel = $manageableModelClass::make($model)->withInstanceSetup();
                     @endphp
                     <tr class="odd:bg-slate-100 dark:odd:bg-slate-700 even:bg-slate-200 dark:even:bg-slate-800">
                         @foreach($manageableModel->getFinalBrowseColumns() as $column => $browseColumn)
