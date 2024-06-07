@@ -39,38 +39,6 @@ abstract class ManageableModel
     private static ?WRLAPermissions $permissions = null;
 
     /**
-     * Static options
-     *
-     * @var array
-     */
-    public static array $staticOptions = [
-        'baseModelClass' => null,
-        'urlAlias' => 'model',
-        'displayName' => [
-            'singular' => 'Model',
-            'plural' => 'Models',
-        ],
-        'icon' => 'fa fa-cube',
-        'hideFromNavigation' => false,
-    ];
-
-    /**
-     * Options
-     *
-     * @var array
-     */
-    public array $instanceOptions = [
-        'browse' => [
-            'columns' => null,
-            'actions' => null,
-            'filters' => null,
-        ],
-        'upsert' => [
-            'manageableFields' => null,
-        ],
-    ];
-
-    /**
      * Cache.
      *
      * @var array
@@ -78,6 +46,13 @@ abstract class ManageableModel
     public static array $cache = [
         'isSoftDeletable' => null
     ];
+
+    /**
+     * Instance options.
+     *
+     * @var array
+     */
+    public array $instanceOptions = [];
 
     /**
      * Register the manageable model.
@@ -146,6 +121,41 @@ abstract class ManageableModel
      * @return void
      */
     public abstract function instanceSetup(): void;
+    /* TODO: DEFAULTS
+        [
+        'browse' => [
+            'columns' => null,
+            'actions' => null,
+            'filters' => null,
+        ],
+        'upsert' => [
+            'manageableFields' => null,
+        ],
+    ]
+    */
+
+    /**
+     * Static setup final.
+     *
+     * @return void
+     */
+    public static function staticSetupFinal(): void
+    {
+        // Set static options
+        WRLAHelper::$globalManageableModelData[static::class] = [
+            'baseModelClass' => null,
+            'urlAlias' => 'model',
+            'displayName' => [
+                'singular' => 'Model',
+                'plural' => 'Models',
+            ],
+            'icon' => 'fa fa-cube',
+            'hideFromNavigation' => false,
+        ];
+
+        // Call static setup
+        static::staticSetup();
+    }
 
     /**
      * Get static option.
@@ -155,7 +165,17 @@ abstract class ManageableModel
      */
     public static function getStaticOption(string $staticOptionKey): mixed
     {
-        return data_get(WRLAHelper::$globalManageableModelData, static::class.'.'.$staticOptionKey);
+        return data_get(WRLAHelper::$globalManageableModelData[static::class], $staticOptionKey);
+    }
+
+    /**
+     * Get static options.
+     *
+     * @return array
+     */
+    public static function getStaticOptions(): array
+    {
+        return WRLAHelper::$globalManageableModelData[static::class];
     }
 
     /**
@@ -178,7 +198,8 @@ abstract class ManageableModel
      */
     public static function setStaticOption(string $staticOptionKey, mixed $value)
     {
-        data_set(static::$staticOptions, $staticOptionKey, $value);
+        // data_set(static::$staticOptions, $staticOptionKey, $value);
+        data_set(WRLAHelper::$globalManageableModelData, static::class.'.'.$staticOptionKey, $value);
     }
 
     /**

@@ -31,10 +31,10 @@ class NavigationItemsAllManageableModels extends NavigationItem
             return $navItems;
         }
 
-        foreach ($manageableModels as $manageableModel) {
-            $nimm = $manageableModel::getNavigationItem();
-
-            if($nimm->manageableModelClass::getStaticOption('hideFromNavigation')) {
+        foreach ($manageableModels as $manageableModelClass) {
+            $nimm = $manageableModelClass::getNavigationItem();
+            
+            if(WRLAHelper::$globalManageableModelData[$manageableModelClass]['hideFromNavigation']) {
                 continue;
             }
 
