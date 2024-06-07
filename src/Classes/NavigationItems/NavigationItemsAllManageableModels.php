@@ -14,7 +14,7 @@ class NavigationItemsAllManageableModels extends NavigationItem
      */
     public static function import(): array
     {
-        return self::getAllManageableModelsNavigationItems();
+        return static::getAllManageableModelsNavigationItems();
     }
 
     /**

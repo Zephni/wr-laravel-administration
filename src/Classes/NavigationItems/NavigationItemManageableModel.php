@@ -18,8 +18,6 @@ class NavigationItemManageableModel extends NavigationItem
         // Get child navigation from model
         // $childNavigationItems = $this->manageableModelClass::getChildNavigationItems();
 
-        $manageableModelClass::staticSetup();
-
         parent::__construct(
             'wrla.manageable-models.browse',
             ['modelUrlAlias' => $this->manageableModelClass::getUrlAlias()],

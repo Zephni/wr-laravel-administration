@@ -1,0 +1,33 @@
+<?php
+
+namespace App\WRLA;
+
+use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItem;
+use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItemDivider;
+use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItemsAllManageableModels;
+
+class WRLASetup
+{
+    public static function buildNavigation(): array
+    {
+        return [
+            // Dashboard
+            new NavigationItem('wrla.dashboard', [], 'Dashboard', 'fa fa-tachometer-alt'),
+
+            // Divider - classes can be appened using the appendClass() method or overriden in the constructor or setClass method
+            new NavigationItemDivider(),
+
+            // Import all manageable models as nav items - Optionally use example below to add individually
+            NavigationItemsAllManageableModels::import(),
+
+            // Divider
+            new NavigationItemDivider(),
+
+            // Manage account
+            new NavigationItem('wrla.manage-account', [], 'Manage Account', 'fa fa-user-circle'),
+
+            // Logout
+            new NavigationItem('wrla.logout', [], 'Logout', 'fa fa-sign-out-alt'),
+        ];
+    }
+}

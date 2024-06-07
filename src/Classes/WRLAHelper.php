@@ -21,6 +21,14 @@ use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItem;
 class WRLAHelper
 {
     /**
+     * Manageable model setup global data, uses format
+     * '\App\WRLA\ManageableModelClass' => $staticOptions
+     * 
+     * @return array
+     */
+    public static array $globalManageableModelData = [];
+
+    /**
      * Get current page type
      * 
      * @return ?PageType $pageType
@@ -296,9 +304,10 @@ class WRLAHelper
         }
 
         // Loop through each class and register it
-        foreach($manageableModels as $manageableModel) {
-            $manageableModel::register();
-            $manageableModel::staticSetup();
+        foreach($manageableModels as $manageableModelClass) {
+            $manageableModelClass::register();
+            $manageableModelClass::staticSetup();
+            self::$globalManageableModelData[$manageableModelClass] = $manageableModelClass::$staticOptions;
         }
     }
 

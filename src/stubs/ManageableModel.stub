@@ -13,10 +13,10 @@ class {{ $MODEL }} extends ManageableModel
 {
     public final static function staticSetup(): void
     {
-        static::setBaseModelClass(\WebRegulate\LaravelAdministration\Models\User::class);
+        static::setBaseModelClass(\App\Models\{{ $MODEL_WITH_PATH }}::class);
         static::setDisplayName();
-        static::setUrlAlias('user');
-        static::setIcon('fa fa-user');
+        static::setUrlAlias('{{ $URL_ALIAS }}');
+        static::setIcon('{{ $ICON }}');
     }
 
     public final function instanceSetup(): void

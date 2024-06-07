@@ -230,9 +230,7 @@ class ManageableModelBrowse extends Component
      * @return LengthAwarePaginator | Collection
      */
     protected function browseModels()
-    {
-        $this->manageableModelClass::staticSetup();
-        
+    {        
         // Get table name
         $tableName = (new ($this->manageableModelClass::getStaticOption('baseModelClass')))->getTable();
         

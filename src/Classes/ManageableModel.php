@@ -43,7 +43,7 @@ abstract class ManageableModel
      *
      * @var array
      */
-    private static array $staticOptions = [
+    public static array $staticOptions = [
         'baseModelClass' => null,
         'urlAlias' => 'model',
         'displayName' => [
@@ -59,7 +59,7 @@ abstract class ManageableModel
      *
      * @var array
      */
-    private array $instanceOptions = [
+    public array $instanceOptions = [
         'browse' => [
             'columns' => null,
             'actions' => null,
@@ -104,9 +104,6 @@ abstract class ManageableModel
      */
     public function __construct($modelInstanceOrId = null)
     {
-        // Static setup
-        static::staticSetup();
-
         // If model instance or id is null, set the model instance to a new instance of the base model
         if($modelInstanceOrId == null) {
             $this->setModelInstance(new (static::getBaseModelClass()));
@@ -158,8 +155,7 @@ abstract class ManageableModel
      */
     public static function getStaticOption(string $staticOptionKey): mixed
     {
-        static::staticSetup();
-        return data_get(static::$staticOptions, $staticOptionKey);
+        return data_get(WRLAHelper::$globalManageableModelData, static::class.'.'.$staticOptionKey);
     }
 
     /**
@@ -242,7 +238,6 @@ abstract class ManageableModel
     public static function getByUrlAlias(string $urlAlias): mixed
     {
         $manageableModel = static::$manageableModels->first(function ($manageableModel) use ($urlAlias) {
-            $manageableModel::staticSetup();
             return $manageableModel::getUrlAlias() === $urlAlias;
         });
 
@@ -395,8 +390,6 @@ abstract class ManageableModel
      * @var Collection
      */
     public static function getChildNavigationItems(): Collection {
-        static::staticSetup();
-
         return collect([
             new NavigationItem(
                 'wrla.manageable-models.browse',
