@@ -1,6 +1,6 @@
 @foreach($WRLAHelper::getNavigationItems() as $navigationItem)
     {{-- If $navigationItem is null then continue --}}
-    @continue($navigationItem == null)
+    @continue($navigationItem == null || !$navigationItem->testCondition())
 
     {{-- If navigation item does not have children --}}
     @if(!$navigationItem->hasChildren())

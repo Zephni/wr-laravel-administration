@@ -52,6 +52,13 @@ class InstallCommand extends Command
             app_path('WRLA/User.php')
         );
 
+        // Create WRLASetup class
+        $createdWRLASetupAt = WRLAHelper::generateFileFromStub(
+            'WRLASetup.stub',
+            [],
+            app_path('WRLA/WRLASetup.php')
+        );
+
         // Success message
         $this->info('WRLA installed successfully.');
 

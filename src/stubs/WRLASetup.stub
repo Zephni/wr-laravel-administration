@@ -17,7 +17,7 @@ class WRLASetup
             // Divider - classes can be appened using the appendClass() method or overriden in the constructor or setClass method
             new NavigationItemDivider(),
 
-            // Import all manageable models as nav items - Optionally use example below to add individually
+            // Import all manageable models as nav items - Optionally use individual with ManageableModel::getNavigationItem()
             NavigationItemsAllManageableModels::import(),
 
             // Divider

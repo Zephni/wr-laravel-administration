@@ -61,14 +61,16 @@ class WRLAServiceProvider extends ServiceProvider
         // Main setup - Loading migrations, routes, views, etc.
         $this->mainSetup();
 
-        // Post boot calls
-        $this->postBootCalls();
-
         // Pass variables to all routes within this package
         $this->passVariablesToViews();
 
         // Provide blade directives
         $this->provideBladeDirectives();
+
+        // Post boot calls
+        $this->app->booted(function () {
+            $this->postBootCalls();
+        });
     }
 
     /**
@@ -275,19 +277,17 @@ class WRLAServiceProvider extends ServiceProvider
      */
     protected function postBootCalls(): void
     {
-        $this->app->booted(function () {
-            // Run mainSetup on all manageable models. and then run all staticSetup methods, this is so that
-            // the base MM class data is set before the staticSetup method is called in case of dependencies
-            foreach(WRLAHelper::$globalManageableModelData as $className => $value) {
-                $className::mainSetup();
-            }
+        // Run mainSetup on all manageable models. and then run all staticSetup methods, this is so that
+        // the base MM class data is set before the staticSetup method is called in case of dependencies
+        foreach(WRLAHelper::$globalManageableModelData as $className => $value) {
+            $className::mainSetup();
+        }
 
-            foreach(WRLAHelper::$globalManageableModelData as $className => $value) {
-                $className::staticSetup();
-            }
+        foreach(WRLAHelper::$globalManageableModelData as $className => $value) {
+            $className::staticSetup();
+        }
 
-            // Set navigation items
-            NavigationItem::$navigationItems = WRLASetup::buildNavigation() ?? [];
-        });
+        // Set navigation items
+        NavigationItem::$navigationItems = WRLASetup::buildNavigation() ?? [];
     }
 }

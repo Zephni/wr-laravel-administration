@@ -20,6 +20,9 @@ class NavigationItem
     // Index
     public int $index = 0;
 
+    // Show on condition callback
+    private $showOnConditionCallback = null;
+
     /**
      * Constructor
      *
@@ -83,7 +86,32 @@ class NavigationItem
         }
 
         return false;
-    
+    }
+
+    /**
+     * Show on condition
+     * 
+     * @param callable $callback
+     * @return $this
+     */
+    public function showOnCondition(callable $callback): static
+    {
+        $this->showOnConditionCallback = $callback;
+        return $this;
+    }
+
+    /**
+     * Test condition
+     * 
+     * @return bool
+     */
+    public function testCondition(): bool
+    {
+        if($this->showOnConditionCallback) {
+            return call_user_func($this->showOnConditionCallback);
+        }
+
+        return true;
     }
 
     /**
