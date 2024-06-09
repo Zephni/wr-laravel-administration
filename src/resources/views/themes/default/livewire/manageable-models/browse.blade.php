@@ -45,26 +45,27 @@
                 <tr>
                     @foreach($manageableModelClass::make()->withInstanceSetup()->getFinalBrowseColumns() as $column => $browseColumn)
                         @continue($browseColumn === null)
-                        <th class="text-left px-3 py-2">
-                            <div class="flex items-center gap-3">
-                                {{ $browseColumn->renderDisplayName() }}
-                                @if($browseColumn->getOption('allowOrdering'))
-                                    {{-- If current $orderBy, Show order icon up or down depending on current order $orderBy (column) $orderDirection (asc or desc) --}}
+                        <th class="text-left px-3 py-2 @if($orderBy == $column) text-primary-500 @endif" @if($browseColumn->width != null) style="width: {{ is_numeric($browseColumn->width) ? $browseColumn->width.'px' : $browseColumn->width }}" @endif>
+                            @if($browseColumn->getOption('allowOrdering'))
+                                <button class="flex items-center gap-3 w-full text-left" wire:click="reOrderAction('{{ $column }}', '{{ $orderDirection == 'asc' ? 'desc' : 'asc' }}')">
+                                    {{ $browseColumn->renderDisplayName() }}
                                     @if($orderBy == $column)
-                                        <i class="relative fas fa-sort-{{ $orderDirection == 'asc' ? 'up' : 'down' }} cursor-pointer text-primary-500"
+                                        <i class="relative fas fa-sort-{{ $orderDirection == 'asc' ? 'up' : 'down' }} text-primary-500"
                                             style="{{ $orderDirection == 'asc' ? 'top: 3px;' : 'top: -3px;' }}"
-                                            title="Order {{ $orderDirection == 'asc' ? 'descending' : 'ascending' }}"
-                                            wire:click="reOrderAction('{{ $column }}', '{{ $orderDirection == 'asc' ? 'desc' : 'asc' }}')"></i>
-                                    {{-- If not the $orderBy column, show the order icon --}}
+                                            title="Order {{ $orderDirection == 'asc' ? 'descending' : 'ascending' }}"></i>
                                     @else
-                                        <i class="fas fa-sort text-slate-400 cursor-pointer hover:text-primary-500" wire:click="reOrderAction('{{ $column }}', 'asc')" title="Order ascending"></i>
+                                        <i class="fas fa-sort text-slate-400 hover:text-primary-500" title="Order ascending"></i>
                                     @endif
-                                @endif
-                            </div>
+                                </button>
+                            @else
+                                <div class="flex items-center gap-3">
+                                    {{ $browseColumn->renderDisplayName() }}
+                                </div>
+                            @endif
                         </th>
                     @endforeach
                     <th></th>
-                </tr>
+                </tr>                
             </thead>
             <tbody>
                 @foreach($models as $model)
