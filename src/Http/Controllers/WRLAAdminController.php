@@ -216,7 +216,7 @@ class WRLAAdminController extends Controller
     public function manageAccount(Request $request): View
     {
         // Get manageable model instance
-        $manageableModel = User::current();
+        $manageableModel = User::current()->withInstanceSetup();
 
         return view(WRLAHelper::getViewPath('manage-account'), [
             'upsertType' => PageType::EDIT,
