@@ -11,14 +11,26 @@ use Illuminate\Support\Collection;
 
 class {{ $MODEL }} extends ManageableModel
 {
-    public final static function staticSetup(): void
+    /**
+     * Setup the main properties of the model.
+     * 
+     * @return void
+     */
+    public final static function mainSetup(): void
     {
-        // Main
         static::setBaseModelClass(\App\Models\{{ $MODEL_WITH_PATH }}::class);
         static::setDisplayName();
         static::setUrlAlias('{{ $URL_ALIAS }}');
         static::setIcon('{{ $ICON }}');
+    }
 
+    /**
+     * Setup the static (global) properties of the model.
+     * 
+     * @return void
+     */
+    public final static function globalSetup(): void
+    {
         // Navigation
         static::setChildNavigationItems(parent::getDefaultChildNavigationItems());
 
@@ -29,6 +41,11 @@ class {{ $MODEL }} extends ManageableModel
         static::setBrowseActions(static::getDefaultBrowseActions());
     }
 
+    /**
+     * Setup the instance properties of the model.
+     * 
+     * @return void
+     */
     public final function instanceSetup(): void
     {
         // Browse columns
@@ -37,7 +54,7 @@ class {{ $MODEL }} extends ManageableModel
         ]);
 
         // Item actions
-        $this->setItemActions(parent::getDefaultItemActions());
+        $this->setInstanceActions(parent::getDefaultItemActions());
 
         // Manageable fields
         $this->setManageableFields([

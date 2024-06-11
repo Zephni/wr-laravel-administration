@@ -24,7 +24,7 @@ class User extends ManageableModel
      */
     const IMPERSONATE = 'impersonate';
 
-    public final static function staticSetup(): void
+    public final static function globalSetup(): void
     {
         static::setBaseModelClass(\WebRegulate\LaravelAdministration\Models\User::class);
         static::setDisplayName();

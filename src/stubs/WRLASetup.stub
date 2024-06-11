@@ -8,6 +8,11 @@ use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItemsAll
 
 class WRLASetup
 {
+    /**
+     * Build the navigation items for the WRLA application.
+     *
+     * @return array
+     */
     public static function buildNavigation(): array
     {
         return [

@@ -147,7 +147,7 @@ abstract class ManageableModel
      *
      * @return void
      */
-    public abstract static function staticSetup(): void;
+    public abstract static function globalSetup(): void;
 
     /**
      * Instance setup.
@@ -425,7 +425,7 @@ abstract class ManageableModel
      * @param Collection|array $actions
      * @return $this
      */
-    public function setItemActions(Collection|array $actions): static
+    public function setInstanceActions(Collection|array $actions): static
     {
         // If collection turn into array
         if($actions instanceof Collection) {
