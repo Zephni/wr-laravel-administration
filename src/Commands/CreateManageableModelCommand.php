@@ -58,7 +58,7 @@ class CreateManageableModelCommand extends Command
         }
 
         // Question 1: Icon for the model (default: fa fa-question-circle)
-        $icon = $this->ask('Icon for the model', 'fa fa-question-circle');
+        $icon = $this->ask('Icon for the model (https://fontawesome.com/v5/search)', 'fa fa-question-circle');
 
         // Now we use WRLAHelper to generate the file from the stub
         WRLAHelper::generateFileFromStub(
@@ -75,7 +75,7 @@ class CreateManageableModelCommand extends Command
         $this->line('');
 
         // Question 2: Ask if user wants to create the model
-        $createModel = $this->confirm('Create the '.$model.' model?');
+        $createModel = $this->confirm('Create the '.$model.' model?', true);
         
         // If create model, use the make:model command to create the model
         if ($createModel) {
@@ -86,7 +86,7 @@ class CreateManageableModelCommand extends Command
         $this->line('');
 
         // Question 3: Ask if user wants to create the migration, either no, or the migration name
-        $createMigration = $this->confirm('Create the '.$model.' migration?');
+        $createMigration = $this->confirm('Create the '.$model.' migration?', true);
 
         // If create migration, use the make:migration command to create the migration
         if ($createMigration) {

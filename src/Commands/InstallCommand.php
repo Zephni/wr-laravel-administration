@@ -81,8 +81,8 @@ class InstallCommand extends Command
             $databaseConnectionExists = false;
         }
 
-        // Would you like to run the migrations, default to false if a database connection already exists
-        $runMigrations = $this->confirm('Would you like to run the migrations'.($databaseConnectionExists ? " (Connected to $databaseName)" : "").'?', !$databaseConnectionExists);
+        // Would you like to run the migrations, default to true
+        $runMigrations = $this->confirm('Would you like to run the migrations'.($databaseConnectionExists ? " (Connected to $databaseName)" : "").'?', true);
         if ($runMigrations) {
             $this->call('migrate');
         }
