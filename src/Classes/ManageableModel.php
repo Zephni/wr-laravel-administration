@@ -632,7 +632,7 @@ abstract class ManageableModel
      * @param mixed $model
      * @return Collection
      */
-    public function getDefaultItemActions(): Collection {
+    public function getDefaultInstanceActions(): Collection {
         // Get current page type and set browse actions to empty collection
         $currentPageType = WRLAHelper::getCurrentPageType();
         $browseActions = collect();

@@ -56,7 +56,7 @@ class {{ $MODEL }} extends ManageableModel
         ]);
 
         // Item actions
-        $this->setInstanceActions(parent::getDefaultItemActions());
+        $this->setInstanceActions(parent::getDefaultInstanceActions());
 
         // Manageable fields
         $this->setManageableFields([

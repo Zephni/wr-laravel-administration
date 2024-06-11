@@ -91,7 +91,7 @@ class User extends ManageableModel
         ]);
 
         // Item actions
-        $browseActions = static::getDefaultItemActions();
+        $browseActions = static::getDefaultInstanceActions();
         $model = $this->getModelInstance();
         // If not current user
         if($model->id !== auth()->id()) {
