@@ -3,7 +3,6 @@
 namespace WebRegulate\LaravelAdministration;
 
 use Livewire\Livewire;
-use App\WRLA\WRLASetup;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Blade;
@@ -13,7 +12,6 @@ use Illuminate\Support\Facades\Validator;
 use WebRegulate\LaravelAdministration\Models\User;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 use WebRegulate\LaravelAdministration\Livewire\LivewireModal;
-use WebRegulate\LaravelAdministration\Classes\ManageableModel;
 use WebRegulate\LaravelAdministration\Classes\WRLAPermissions;
 use WebRegulate\LaravelAdministration\Commands\InstallCommand;
 use WebRegulate\LaravelAdministration\Http\Middleware\IsAdmin;
@@ -287,7 +285,9 @@ class WRLAServiceProvider extends ServiceProvider
             $className::globalSetup();
         }
 
-        // Set navigation items
-        NavigationItem::$navigationItems = WRLASetup::buildNavigation() ?? [];
+        // Set navigation items (if App\WRLA\WRLASetup exists)
+        if(class_exists('\App\WRLA\WRLASetup')) {
+            NavigationItem::$navigationItems = \App\WRLA\WRLASetup::buildNavigation() ?? [];
+        }
     }
 }
