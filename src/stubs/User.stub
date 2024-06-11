@@ -24,7 +24,12 @@ class User extends ManageableModel
      */
     const IMPERSONATE = 'impersonate';
 
-    public final static function globalSetup(): void
+    /**
+     * Setup the main properties of the model.
+     *
+     * @return void
+     */
+    public final static function mainSetup(): void
     {
         static::setBaseModelClass(\WebRegulate\LaravelAdministration\Models\User::class);
         static::setDisplayName();
@@ -32,29 +37,48 @@ class User extends ManageableModel
         static::setIcon('fa fa-user');
     }
 
+    /**
+     * Setup the static (global) properties of the model.
+     *
+     * @return void
+     */
+    public final static function globalSetup(): void
+    {
+        // Navigation
+        static::setChildNavigationItems(static::getDefaultChildNavigationItems());
+
+        // Browse filters
+        static::setBrowseFilters(static::getDefaultBrowseFilters()->merge([
+            'userTypeFilter' => new BrowseFilter(
+                Select::makeBrowseFilter('userTypeFilter')
+                    ->setLabel('User Type', 'fas fa-user-cog text-slate-400')
+                    ->setItems([
+                        'all' => 'All users',
+                        'admins_only' => 'Admins only',
+                        'non_admins_only' => 'Non admins only',
+                    ]),
+                function(Builder $query, $table, $columns, $value) {
+                    if($value !== 'all') {
+                        return $query->where('permissions->admin', $value === 'admins_only' ? true : false);
+                    }
+                    return $query;
+                }
+            )
+        ]));
+
+        // Browse actions
+        static::setBrowseActions(static::getDefaultBrowseActions());
+    }
+
+    /**
+     * Setup the instance properties of the model.
+     *
+     * @return void
+     */
     public final function instanceSetup(): void
     {
-
-    }
-
-    /**
-     * Get current user manageable model
-     *
-     * @return User
-     */
-    public static function current(): User {
-        return new User(
-            \WebRegulate\LaravelAdministration\Models\User::current()
-        );
-    }
-
-    /**
-     * Get the browsable columns for the User.
-     *
-     * @return Collection
-     */
-    public function getBrowseColumns(): Collection {
-        return collect([
+        // Browse columns
+        $this->setBrowseColumns([
             'data->profile->avatar' => BrowseColumn::make('Avatar', 'image', 80)->setOptions([
                 'aspect' => '1:1',
                 'rounded' => true,
@@ -65,71 +89,30 @@ class User extends ManageableModel
             'email' => 'Email',
             'created_at' => 'Created'
         ]);
-    }
 
-    /**
-     * Get browse actions
-     *
-     * @param mixed $model
-     * @return Collection
-     */
-    public function getItemActions(): Collection {
-        $browseActions = parent::getItemActions();
+        // Item actions
+        $browseActions = static::getDefaultItemActions();
         $model = $this->getModelInstance();
-
         // If not current user
         if($model->id !== auth()->id()) {
             // If not soft deleted and has impersonate permission, add login as browse action
-            if(!$model->trashed() && (new self())->permissions()->hasPermission(User::IMPERSONATE)) {
+            // if(!$model->trashed() && (new self())->permissions()->hasPermission(User::IMPERSONATE)) {
                 $browseActions->prepend(view(WRLAHelper::getViewPath('components.browse-actions.login-as'), [
                     'modelInstance' => $model
                 ]), 'login_as');
-            }
+            // }
         // Remove delete browse action if current user
         } else {
             $browseActions->forget('delete');
         }
 
-        return $browseActions;
-    }
+        $this->setInstanceActions($browseActions);
 
-    /**
-     * Get browse filters (Applies to browse page)
-     *
-     * @return Collection
-     */
-    public static function getBrowseFilters(): Collection {
-        return parent::getBrowseFilters()->merge([
-            'userTypeFilter' => new BrowseFilter(
-                Select::makeBrowseFilter('userTypeFilter')
-                    ->setLabel('User Type', 'fas fa-user-cog text-slate-400')
-                    ->setItems([
-                        'all' => 'All users',
-                        'admins_only' => 'Admins only',
-                        'non_admins_only' => 'Non admins only',
-                    ]),
-
-                function(Builder $query, $table, $columns, $value) {
-                    if($value !== 'all') {
-                        return $query->where('permissions->admin', $value === 'admins_only' ? true : false);
-                    }
-
-                    return $query;
-                }
-            )
-        ]);
-    }
-
-    /**
-     * Get the manageable fields for the User.
-     *
-     * @return Collection
-     */
-    public function getManageableFields(): Collection {
+        // Manageable fields
         $currentUser = User::current()->getModelInstance();
         $modelInstance = $this->getModelInstance();
 
-        return collect([
+        $this->setManageableFields([
             Text::make($this, 'name')
                 ->required()
                 ->validation('string|max:255')
@@ -183,6 +166,17 @@ class User extends ManageableModel
                 ->hideContainingBraces()
                 ->setAttributes(['placeholder' => 'JSON Data', 'rows' => 4]),
         ]);
+    }
+
+    /**
+     * Get current user manageable model
+     *
+     * @return User
+     */
+    public static function current(): User {
+        return new User(
+            \WebRegulate\LaravelAdministration\Models\User::current()
+        );
     }
 
     /**
