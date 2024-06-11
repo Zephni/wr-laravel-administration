@@ -51,6 +51,8 @@ class {{ $MODEL }} extends ManageableModel
         // Browse columns
         $this->setBrowseColumns([
             'id' => 'Id',
+            // 'name' => 'Name',
+            // 'something_else' => BrowseColumn::make($this, 'something_else')
         ]);
 
         // Item actions
