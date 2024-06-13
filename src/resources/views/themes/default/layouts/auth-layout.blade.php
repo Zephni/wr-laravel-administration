@@ -10,7 +10,7 @@
     {{-- Partial head --}}
     @include('wr-laravel-administration::themes.default.layouts.partials.partial-head')
 </head>
-<body x-cloak x-data="{ darkMode: $persist({{ $themeData->default_mode == 'dark' ? 'true' : 'false' }}) }" :class="{'dark': darkMode === true }" class="h-full antialiased">
+<body x-cloak x-data="{ darkMode: $persist({{ $WRLAThemeData->default_mode == 'dark' ? 'true' : 'false' }}) }" :class="{'dark': darkMode === true }" class="h-full antialiased">
 
     <div class="transition-all relative flex flex-col gap-8 w-full h-full items-center py-20 bg-slate-200 text-slate-800 dark:bg-slate-900 dark:text-slate-400">
         {{-- Top right fixed corner show dark mode toggle using font awesome icons --}}

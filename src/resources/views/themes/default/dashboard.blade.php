@@ -12,5 +12,5 @@
         <hr class="border-b border-slate-300 w-80 mt-1 mb-3">
         <h2 class="text-xl font-thin">The dashboard is currently under development</h2>
     </div>
-    <p>Using theme: <b>{{ data_get($themeData, 'name') }}</b></p>
+    <p>Using theme: <b>{{ data_get($WRLAThemeData, 'name') }}</b></p>
 @endsection

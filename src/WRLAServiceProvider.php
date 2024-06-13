@@ -220,19 +220,16 @@ class WRLAServiceProvider extends ServiceProvider
         // Share variables with all views within this package
         view()->composer('wr-laravel-administration::*', function ($view) {
             // Current user
-            $view->with('user', User::current());
+            $view->with('WRLAUser', User::current());
 
             // Theme data
-            $view->with('themeData', (object)WRLAHelper::getCurrentThemeData());
+            $view->with('WRLAThemeData', (object)WRLAHelper::getCurrentThemeData());
 
             // Share WRLAHelper class
             $view->with('WRLAHelper', WRLAHelper::class);
 
             // Share WRLAPermissions class
             $view->with('WRLAPermissions', WRLAPermissions::class);
-
-            // Navigation
-            $view->with('navigation', NavigationItem::$navigationItems);
         });
     }
 

@@ -3,7 +3,7 @@
     lang="en"
     class="h-full"
     x-cloak
-    x-data="{ darkMode: $persist({{ $themeData->default_mode == 'dark' ? 'true' : 'false' }}) }"
+    x-data="{ darkMode: $persist({{ $WRLAThemeData->default_mode == 'dark' ? 'true' : 'false' }}) }"
     :class="{'dark': darkMode === true }">
 <head>
     {{-- Meta data --}}

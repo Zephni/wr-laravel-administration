@@ -31,6 +31,17 @@ class User extends Authenticatable implements CanResetPassword
     ];
 
     /**
+     * From User model
+     *
+     * @param User $user
+     * @return static
+     */
+    public static function fromUser(mixed $user): static
+    {
+        return static::find($user->id);
+    }
+
+    /**
      * Implement method 'getEmailForPasswordReset' from 'CanResetPassword' interface
      *
      * @return string
