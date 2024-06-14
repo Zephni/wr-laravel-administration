@@ -45,6 +45,7 @@ class Image extends ManageableField
             'allowRemove' => true,
             'aspect' => null,
             'rounded' => false,
+            'storeFilenameOnly' => true,
             'class' => 'border-2 border-primary-600',
             'imageClass' => 'object-cover',
         ]);
@@ -76,8 +77,15 @@ class Image extends ManageableField
             if ($this->getOption('unlinkOld') == true && !empty($currentImage)) {
                 $this->deleteImageByPath($currentImage);
             }
-
-            return $value;
+            
+            // If storeFilenameOnly is false, store the entire filepath/filename.ext
+            if ($this->getOption('storeFilenameOnly') == false) {
+                return $value;
+            }
+            
+            // Otherwise, we store only the filename.ext
+            $parts = explode('/', $value);
+            return end($parts);
         }
 
         return null;
@@ -262,6 +270,17 @@ class Image extends ManageableField
     }
 
     /**
+     * Store filepath only
+     * 
+     * @param bool $storeFilenameOnly
+     */
+    public function storeFilenameOnly(bool $storeFilenameOnly = true): static
+    {
+        $this->setOption('storeFilenameOnly', $storeFilenameOnly);
+        return $this;
+    }
+
+    /**
      * Set rounded image, with false, null, or 'none' for none, true for 'full', or any tailwind string rounded available value
      *
      * @param null|bool|string $rounded
@@ -271,6 +290,8 @@ class Image extends ManageableField
         $this->setOption('rounded', $rounded);
         return $this;
     }
+
+
 
     /**
      * Render the input field.
