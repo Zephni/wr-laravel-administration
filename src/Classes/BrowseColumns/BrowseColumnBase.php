@@ -34,6 +34,7 @@ class BrowseColumnBase
      */
     public array $options = [
         'allowOrdering' => true,
+        'maxChars' => 50
     ];
 
     /**
@@ -181,6 +182,11 @@ class BrowseColumnBase
 
         if($this->type == 'string')
         {
+            // Use maxChars option to truncate text
+            if($this->options['maxChars'] != null && strlen($value) > $this->options['maxChars']) {
+                $value = substr($value, 0, $this->options['maxChars']).'...';
+            }
+
             return $value ?? '';
         }
         elseif($this->type == 'image')
