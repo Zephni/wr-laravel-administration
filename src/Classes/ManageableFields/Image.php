@@ -303,12 +303,14 @@ class Image extends ManageableField
     {
         $HTML = '';
 
+        $path = ($this->getOption('storeFilenameOnly') == true) ? '/'.ltrim(rtrim($this->getPath(), '/'), '/').'/' : '';
+
         $HTML .= view(WRLAHelper::getViewPath('components.forms.input-image'), [
             'label' => $this->getLabel(),
             'options' => $this->options,
             'attributes' => new ComponentAttributeBag(array_merge($this->attributes, [
                 'name' => $this->attributes['name'],
-                'value' => $this->getValue(),
+                'value' => $path.$this->getValue(),
                 'type' => 'file'
             ])),
         ])->render();
