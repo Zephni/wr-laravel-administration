@@ -5,9 +5,6 @@ namespace WebRegulate\LaravelAdministration\Commands;
 use App\Models\User;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Pluralizer;
-use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Hash;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 
 class InstallCommand extends Command
@@ -99,8 +96,8 @@ class InstallCommand extends Command
             }
         }
 
-        // Show link to https://beta.slimwiki.com/webregulate-laravel-administration
-        $this->alert('Please visit https://beta.slimwiki.com/webregulate-laravel-administration for documentation.');
+        // Show link to documentation
+        $this->alert('Please visit ' . WRLAHelper::getDocumentationUrl() . ' for documentation.');
 
         // New line for separation
         $this->line('');

@@ -27,6 +27,16 @@ class WRLAHelper
     public static array $globalManageableModelData = [];
 
     /**
+     * Get documenation URL
+     * 
+     * @return string
+     */
+    public static function getDocumentationUrl(): string
+    {
+        return 'https://github.com/Zephni/wr-laravel-administration/wiki';
+    }
+
+    /**
      * Get current page type
      * 
      * @return ?PageType $pageType
