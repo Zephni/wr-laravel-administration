@@ -201,7 +201,7 @@ class BrowseColumnBase
             ])->render();
 
             return <<<BLADE
-                <a href="{{ $value }}" target="_blank">$renderedView</a>
+                <a href="$value" target="_blank">$renderedView</a>
             BLADE;
         }
 
