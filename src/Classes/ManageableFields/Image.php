@@ -148,20 +148,16 @@ class Image extends ManageableField
      */
     public function deleteImageByPath(string $pathRelativeToPublic)
     {
-        // First we check that there is atleast one path item in the value, and that the last item is a filename
+        // Check is a filename
         $parts = explode('/', ltrim($pathRelativeToPublic, '/'));
-        $hasAteastOnePath = count($parts) > 1;
-        $isAFileName = count($parts) > 1 && strpos(end($parts), '.') !== false;
+        $isAFileName = count($parts) > 0 && strpos(end($parts), '.') !== false;
 
-        if($hasAteastOnePath && $isAFileName) {
-            $oldValue = WRLAHelper::forwardSlashPath(public_path($pathRelativeToPublic));
-            $testPath = WRLAHelper::forwardSlashPath($this->getPath());
+        if($isAFileName) {
+            $oldValue = WRLAHelper::forwardSlashPath(public_path().'/'.$this->getPath().'/'.$pathRelativeToPublic);
 
-            // Check whether the value includes the option: path, if it doesn't then we do not delete the file for safety
-            $includesPath = strpos($oldValue, $testPath) !== false;
-
-            // If the new value includes the path and the old file exists, we delete it
-            if ($includesPath && file_exists($oldValue)) {
+            // If is file and exists, delete it
+            // dd($oldValue);
+            if (file_exists($oldValue)) {
                 unlink($oldValue);
             }
         }
