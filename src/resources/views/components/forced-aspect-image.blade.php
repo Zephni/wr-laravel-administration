@@ -21,7 +21,7 @@
 
     if(empty($rounded) || $rounded == false) {
         $rounded = 'none';
-    } else if ($rounded == true) {
+    } else if ($rounded === true) {
         $rounded = 'full';
     }
 
