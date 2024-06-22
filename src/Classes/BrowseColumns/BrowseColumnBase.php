@@ -191,10 +191,6 @@ class BrowseColumnBase
         }
         elseif($this->type == 'image')
         {
-            $value = str_starts_with($value, 'http') || file_exists($value)
-                ? $value
-                : WRLAHelper::getCurrentThemeData('no_image_src');
-
             $renderedView = view(
                 WRLAHelper::getViewPath('components.forced-aspect-image', false), [
                 "src" => $value,

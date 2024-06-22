@@ -25,14 +25,14 @@
         $rounded = 'full';
     }
 
-    if(!str_starts_with($src, 'http') && !file_exists($src)) {
+    if(!str_starts_with($src, 'http') && !file_exists(public_path($WRLAHelper::forwardSlashPath($src)))) {
         $originalSrc = $src;
-        $src = $WRLAHelper::getCurrentThemeData('no_image_src');
+        $src = $WRLAHelper::forwardSlashPath($WRLAHelper::getCurrentThemeData('no_image_src'));
     }
 @endphp
 
 <div
     class="relative overflow-hidden {{ $width }} {{ $height }} rounded-{{ $rounded }} {{ $class }}"
     style="padding-bottom: {{ $paddingBottom }}%;">
-    <img src="{{ $src }}" {{ $originalSrc ?? '' }} alt="Image" class="w-full h-full absolute top-0 left-0 {{ $imageClass ?? 'object-cover' }}" />
+    <img src="{{ $src }}" @if(isset($originalSrc)) ogimage="{{ $originalSrc }}" @endif alt="Image" class="w-full h-full absolute top-0 left-0 {{ $imageClass ?? 'object-cover' }}" />
 </div>
