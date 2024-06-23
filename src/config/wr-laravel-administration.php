@@ -1,10 +1,5 @@
 <?php
 
-use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItem;
-use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItemDivider;
-use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItemManageableModel;
-use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItemsAllManageableModels;
-
 return [
 
     // Base URL for the administration panel, e.g. 'wr-admin' will result in 'http://example.com/wr-admin'
