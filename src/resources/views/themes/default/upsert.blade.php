@@ -79,13 +79,23 @@
 @if(isset($hasWysiwyg) && $hasWysiwyg === true)
     @push('appendBody')
         {{-- Wysiwyg --}}
-        <script src="https://cdn.ckeditor.com/ckeditor5/41.4.2/classic/ckeditor.js"></script>
+        {{-- <script src="https://cdn.ckeditor.com/ckeditor5/41.4.2/classic/ckeditor.js"></script>
         <script>
             ClassicEditor
                 .create(document.querySelector( '.wrla_wysiwyg' ))
                 .catch(error => {
                     console.error( error );
                 });
+        </script> --}}
+
+        <script src="https://cdn.tiny.cloud/1/126uh4v0nur2ag6fpa5vb60rduwp1skzx02vsmdww39mpva2/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
+        <script>
+            tinymce.init({
+                selector: '.wrla_wysiwyg',
+                plugins: 'anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount code paste fullscreen',
+                toolbar: 'undo redo | blocks | bold italic underline | link media table | align | numlist bullist indent | code',
+                paste_data_images: true
+            });
         </script>
     @endpush
 @endif
