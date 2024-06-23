@@ -104,8 +104,8 @@ class ManageableModelBrowse extends Component
 
         // Get the manageable model and base model class
         $this->manageableModelClass = $manageableModelClass;
-        $baseModelInstance = $this->getModelInstance()->withInstanceSetup();
-        $modelClass = $baseModelInstance::getBaseModelClass();
+        $manageableModelInstance = $this->getModelInstance()->withInstanceSetup();
+        $modelClass = $manageableModelInstance::getBaseModelClass();
 
         // If the model class does not exist, redirect to the dashboard
         if(!class_exists($modelClass)) {
@@ -113,7 +113,7 @@ class ManageableModelBrowse extends Component
         }
 
         // Build parent columns from manageable model
-        $columns = $baseModelInstance->getBrowseColumns();
+        $columns = $manageableModelInstance->getBrowseColumns();
         $this->columns = collect($columns)->map(function($column) {
             return $column instanceof BrowseColumnBase ? $column->label : $column;
         });
