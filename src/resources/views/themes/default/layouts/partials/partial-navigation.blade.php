@@ -8,7 +8,7 @@
             <div class="{{ $navigationItem->name }}"></div>
         @else
             <div class="relative w-full overflow-hidden">
-                <a href="{{ $navigationItem->getUrl() }}" class="@if($WRLAHelper::isNavItemCurrentRoute($navigationItem)) !text-primary-500 bg-slate-800 !border-t-2 !border-b-2 border-slate-600 @endif grid grid-cols-[36px,1fr] justify-start items-center whitespace-nowrap w-full select-none pl-2 pt-2 pb-1 font-bold text-slate-200 hover:text-primary-500 bg-slate-700 hover:bg-slate-800">
+                <a href="{{ $navigationItem->getUrl() }}" @if($navigationItem->openInNewTab === true) target="_blank" @endif class="@if($WRLAHelper::isNavItemCurrentRoute($navigationItem)) !text-primary-500 bg-slate-800 !border-t-2 !border-b-2 border-slate-600 @endif grid grid-cols-[36px,1fr] justify-start items-center whitespace-nowrap w-full select-none pl-2 pt-2 pb-1 font-bold text-slate-200 hover:text-primary-500 bg-slate-700 hover:bg-slate-800">
                     <div class="text-center w-8 h-8 overflow-hidden">
                         <i class="{{ $navigationItem->icon }} text-lg mr-1 @if($navigationItem->isActive()) text-primary-500 @endif"></i>
                     </div>
@@ -31,6 +31,7 @@
                 {{-- If navigation item has a route --}}
                 @if(!empty($navigationItem->route))
                     <a href="{{ $navigationItem->getUrl() }}"
+                        @if($navigationItem->openInNewTab === true) target="_blank" @endif
                         :class="{ '!text-primary-500 !bg-slate-800': !dropdownOpen && thisActive, '!text-primary-500 bg-slate-750': childIsActive, '!border-t-2 !border-b-2 border-slate-600': !dropdownOpen && (thisActive || childIsActive), '!border-t-2 !border-b border-slate-600': dropdownOpen && (thisActive || childIsActive) }"
                         class="grid grid-cols-[36px,1fr] justify-start items-center whitespace-nowrap w-full select-none pl-2 pt-2 pb-1 font-bold text-slate-200 hover:text-primary-500 bg-slate-700 hover:bg-slate-800">
                         <div class="text-center w-8 h-8 overflow-hidden">

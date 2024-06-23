@@ -23,6 +23,9 @@ class NavigationItem
     // Show on condition callback
     private $showOnConditionCallback = null;
 
+    // Open in new tab
+    public bool $openInNewTab = false;
+
     /**
      * Constructor
      *
@@ -90,7 +93,7 @@ class NavigationItem
 
     /**
      * Show on condition
-     * 
+     *
      * @param callable $callback
      * @return $this
      */
@@ -101,8 +104,20 @@ class NavigationItem
     }
 
     /**
+     * Open in new tab
+     *
+     * @param bool $openInNewTab
+     * @return $this
+     */
+    public function openInNewTab(bool $openInNewTab = true): static
+    {
+        $this->openInNewTab = $openInNewTab;
+        return $this;
+    }
+
+    /**
      * Test condition
-     * 
+     *
      * @return bool
      */
     public function testCondition(): bool
