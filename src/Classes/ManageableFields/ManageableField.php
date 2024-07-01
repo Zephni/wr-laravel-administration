@@ -142,7 +142,7 @@ class ManageableField
             return $this->attributes['value'];
         }
 
-        return old($this->attributes['name'], $this->attributes['value']);
+        return old($this->attributes['name'], $this->attributes['value']) ?? '';
     }
 
     /**
