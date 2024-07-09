@@ -6,6 +6,7 @@ use Livewire\Livewire;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Validator;
@@ -13,7 +14,6 @@ use WebRegulate\LaravelAdministration\Models\User;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 use WebRegulate\LaravelAdministration\Commands\WikiCommand;
 use WebRegulate\LaravelAdministration\Livewire\LivewireModal;
-use WebRegulate\LaravelAdministration\Classes\WRLAPermissions;
 use WebRegulate\LaravelAdministration\Commands\InstallCommand;
 use WebRegulate\LaravelAdministration\Http\Middleware\IsAdmin;
 use WebRegulate\LaravelAdministration\Commands\CreateUserCommand;
@@ -117,6 +117,9 @@ class WRLAServiceProvider extends ServiceProvider
         $this->app['router']->aliasMiddleware('is_admin', IsAdmin::class);
         $this->app['router']->aliasMiddleware('is_not_admin', IsNotAdmin::class);
 
+        // Define gates
+        $this->defineGates();
+
         // Load routes
         Route::middleware('web')->group(function () {
             $this->loadRoutesFrom(__DIR__ . '/routes/wr-laravel-administration-routes.php');
@@ -169,6 +172,18 @@ class WRLAServiceProvider extends ServiceProvider
                 $route->middleware("throttle:{$routeName}");
             }
         }
+    }
+
+    /**
+     * Define gates
+     * 
+     * @return void
+     */
+    protected function defineGates(): void
+    {
+        Gate::define('wrla-admin', function (User $user) {
+            return $user->isAdmin();
+        });
     }
 
     /**
@@ -229,9 +244,6 @@ class WRLAServiceProvider extends ServiceProvider
 
             // Share WRLAHelper class
             $view->with('WRLAHelper', WRLAHelper::class);
-
-            // Share WRLAPermissions class
-            $view->with('WRLAPermissions', WRLAPermissions::class);
         });
     }
 

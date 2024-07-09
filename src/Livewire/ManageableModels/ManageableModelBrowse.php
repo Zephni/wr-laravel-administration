@@ -9,7 +9,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Pagination\LengthAwarePaginator;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 use WebRegulate\LaravelAdministration\Classes\ManageableModel;
-use WebRegulate\LaravelAdministration\Classes\WRLAPermissions;
 use WebRegulate\LaravelAdministration\Classes\BrowseColumns\BrowseColumnBase;
 
 /**
@@ -332,8 +331,9 @@ class ManageableModelBrowse extends Component
         // Get manageable model instance
         $manageableModel = new $this->manageableModelClass($id);
 
+        // TODO: Check permissions here
         // Check manage model has permission to delete
-        if(!($manageableModel->permissions())->hasPermission(WRLAPermissions::DELETE)) {
+        if(false) {
             $this->errorMessage = 'You do not have permission to delete this model.';
             return;
         }

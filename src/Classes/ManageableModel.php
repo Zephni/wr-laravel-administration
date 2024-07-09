@@ -32,13 +32,6 @@ abstract class ManageableModel
     public static ?Collection $manageableModels = null;
 
     /**
-     * WRLAPermissions instance
-     *
-     * @var WRLAPermissions
-     */
-    private static ?WRLAPermissions $permissions = null;
-
-    /**
      * Cache.
      *
      * @var array
@@ -108,9 +101,6 @@ abstract class ManageableModel
         } else if ($modelInstanceOrId instanceof (static::getBaseModelClass())) {
             $this->setModelInstance($modelInstanceOrId);
         }
-
-        // Apply permissions
-        static::$permissions = new WRLAPermissions($this);
     }
 
     /**
@@ -485,22 +475,6 @@ abstract class ManageableModel
     }
 
     /**
-     * Default permissions
-     *
-     * @return Collection
-     */
-    public function getDefaultPermissions(): Collection
-    {
-        return collect([
-            WRLAPermissions::CREATE => true,
-            WRLAPermissions::BROWSE => true,
-            WRLAPermissions::EDIT => true,
-            WRLAPermissions::DELETE => false,
-            WRLAPermissions::RESTORE => false,
-        ]);
-    }
-
-    /**
      * Get child navigation items.
      *
      * @return Collection
@@ -542,6 +516,7 @@ abstract class ManageableModel
 
         // $manageableModel = static::make(); // This makes everything crash with bytes exhausted error
 
+        // TODO: Check permissions here
         // if($manageableModel::permissions()->hasPermission(WRLAPermissions::CREATE)) {
             $browseActions->put('create', view(WRLAHelper::getViewPath('components.forms.button'), [
                 'text' => 'Create ' . static::getDisplayName(),
@@ -647,12 +622,14 @@ abstract class ManageableModel
 
         // If model doesn't have soft deletes and not trashed
         if(!static::isSoftDeletable() || $model->deleted_at == null) {
+            // TODO: Check permissions here
             // if($this->permissions()->hasPermission(WRLAPermissions::EDIT)) {
                 $browseActions->put('edit', view(WRLAHelper::getViewPath('components.browse-actions.edit-button'), [
                     'manageableModel' => $this
                 ]));
             // }
 
+            // TODO: Check permissions here
             // if($this->permissions()->hasPermission(WRLAPermissions::DELETE)) {
                 $browseActions->put('delete', view(WRLAHelper::getViewPath('components.browse-actions.delete-button'), [
                     'manageableModel' => $this
@@ -660,12 +637,14 @@ abstract class ManageableModel
             // }
         // If trashed
         } else {
+            // TODO: Check permissions here
             // if($this->permissions()->hasPermission(WRLAPermissions::RESTORE)) {
                 $browseActions->put('restore', view(WRLAHelper::getViewPath('components.browse-actions.restore-button'), [
                     'manageableModel' => $this
                 ]));
             // }
 
+            // TODO: Check permissions here
             // if($this->permissions()->hasPermission(WRLAPermissions::DELETE)) {
                 $browseActions->put('delete', view(WRLAHelper::getViewPath('components.browse-actions.delete-button'), [
                     'manageableModel' => $this,
@@ -972,20 +951,5 @@ abstract class ManageableModel
     public function getValidationRule($column): string
     {
         return $this->getValidationRules()->get($column);
-    }
-
-    /**
-     * Permissions
-     *
-     * @return WRLAPermissions
-     */
-    public final static function permissions(): WRLAPermissions
-    {
-        // If permissions not set, create a new instance
-        if(!isset(static::$permissions) || static::$permissions == null) {
-            static::$permissions = new WRLAPermissions(new static());
-        }
-
-        return static::$permissions;
     }
 }

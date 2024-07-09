@@ -107,7 +107,9 @@
                 <span>No records found with the current filters</span>
             @endif
 
-            @if($manageableModelClass::permissions()->hasPermission($WRLAPermissions::CREATE))
+            {{-- TODO: Check permissions here --}}
+            @if(true)
+            {{-- @if($manageableModelClass::permissions()->hasPermission($WRLAPermissions::CREATE)) --}}
                 @themeComponent('forms.button', [
                     'href' => route('wrla.manageable-models.create', ['modelUrlAlias' => $manageableModelClass::getUrlAlias()]),
                     'size' => 'small',

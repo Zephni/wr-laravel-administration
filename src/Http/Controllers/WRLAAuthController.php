@@ -67,8 +67,9 @@ class WRLAAuthController extends Controller
         // Get user by id
         $user = User::find($userId);
 
+        // TODO: Check permissions here
         // Check if user has permission to "user_login_as"
-        if(!\App\WRLA\User::current()->permissions()->hasPermission(\App\WRLA\User::IMPERSONATE)) {
+        if(false) {
             return redirect()->route('wrla.dashboard')->with('error', "You do not have permission to login as another user.");
         }
 
