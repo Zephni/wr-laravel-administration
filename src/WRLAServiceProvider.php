@@ -5,13 +5,14 @@ namespace WebRegulate\LaravelAdministration;
 use Livewire\Livewire;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Validator;
 use WebRegulate\LaravelAdministration\Models\User;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
+use WebRegulate\LaravelAdministration\Commands\RebuildUser;
 use WebRegulate\LaravelAdministration\Commands\WikiCommand;
 use WebRegulate\LaravelAdministration\Livewire\LivewireModal;
 use WebRegulate\LaravelAdministration\Commands\InstallCommand;
@@ -108,6 +109,7 @@ class WRLAServiceProvider extends ServiceProvider
             CreateManageableModelCommand::class,
             CreateUserCommand::class,
             WikiCommand::class,
+            RebuildUser::class,
         ]);
 
         // Load migrations
