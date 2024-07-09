@@ -13,6 +13,7 @@ use \WebRegulate\LaravelAdministration\Classes\ManageableFields\Text;
 use WebRegulate\LaravelAdministration\Classes\ManageableFields\Image;
 use WebRegulate\LaravelAdministration\Classes\ManageableFields\Select;
 use \WebRegulate\LaravelAdministration\Classes\ManageableFields\Password;
+use \WebRegulate\LaravelAdministration\Models\User as WRLAUser;
 
 class User extends ManageableModel
 {
@@ -21,7 +22,7 @@ class User extends ManageableModel
      *
      * @var string
      */
-    const IMPERSONATE = 'impersonate';
+    public const IMPERSONATE = 'IMPERSONATE';
 
     /**
      * Setup the main properties of the model.
@@ -30,10 +31,11 @@ class User extends ManageableModel
      */
     public final static function mainSetup(): void
     {
-        static::setBaseModelClass(\WebRegulate\LaravelAdministration\Models\User::class);
+        static::setBaseModelClass(WRLAUser::class);
         static::setDisplayName();
         static::setUrlAlias('user');
         static::setIcon('fa fa-user');
+        static::setPermission(self::IMPERSONATE, function() { return WRLAUser::current()->isMaster(); });
     }
 
     /**
@@ -95,11 +97,11 @@ class User extends ManageableModel
         // If not current user
         if($model->id !== auth()->id()) {
             // If not soft deleted and has impersonate permission, add login as browse action
-            // if(!$model->trashed() && (new self())->permissions()->hasPermission(User::IMPERSONATE)) {
+            if(!$model->trashed() && static::getPermission(self::IMPERSONATE)) {
                 $browseActions->prepend(view(WRLAHelper::getViewPath('components.browse-actions.login-as'), [
                     'modelInstance' => $model
                 ]), 'login_as');
-            // }
+            }
         // Remove delete browse action if current user
         } else {
             $browseActions->forget('delete');
@@ -174,7 +176,7 @@ class User extends ManageableModel
      */
     public static function current(): User {
         return new User(
-            \WebRegulate\LaravelAdministration\Models\User::current()
+            WRLAUser::current()
         );
     }
 

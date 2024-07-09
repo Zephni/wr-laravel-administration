@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Validator;
 use WebRegulate\LaravelAdministration\Enums\PageType;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 use WebRegulate\LaravelAdministration\Classes\ManageableModel;
+use WebRegulate\LaravelAdministration\Enums\ManageableModelPermissions;
 
 /**
  * Class WRLAAdminController
@@ -51,10 +52,9 @@ class WRLAAdminController extends Controller
             return redirect()->route('wrla.dashboard')->with('error', "Manageable model with url alias `$modelUrlAlias` not found.");
         }
 
-        // TODO: Check permissions here
-        $manageableModel = new $manageableModelClass();
-        if(false) {
-            return redirect()->route('wrla.dashboard')->with('error', "You do not have permission to browse ".$manageableModel->getDisplayName().".");
+        // Check has browse permission
+        if(!$manageableModelClass::getPermission(ManageableModelPermissions::BROWSE->getString())) {
+            return redirect()->route('wrla.dashboard')->with('error', "You do not have permission to browse ".$manageableModelClass::getDisplayName().".");
         }
 
         return view(WRLAHelper::getViewPath('livewire-content'), [

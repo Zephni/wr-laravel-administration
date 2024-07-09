@@ -107,9 +107,8 @@
                 <span>No records found with the current filters</span>
             @endif
 
-            {{-- TODO: Check permissions here --}}
-            @if(true)
-            {{-- @if($manageableModelClass::permissions()->hasPermission($WRLAPermissions::CREATE)) --}}
+            {{-- Check has create permissions --}}
+            @if($manageableModelClass::getPermission(\WebRegulate\LaravelAdministration\Enums::CREATE->getString()))
                 @themeComponent('forms.button', [
                     'href' => route('wrla.manageable-models.create', ['modelUrlAlias' => $manageableModelClass::getUrlAlias()]),
                     'size' => 'small',

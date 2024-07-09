@@ -9,4 +9,15 @@ enum ManageableModelPermissions: string
     case EDIT = 'EDIT';
     case DELETE = 'DELETE';
     case RESTORE = 'RESTORE';
+
+    public function getString(): string
+    {
+        return match ($this) {
+            self::CREATE => 'CREATE',
+            self::BROWSE => 'BROWSE',
+            self::EDIT => 'EDIT',
+            self::DELETE => 'DELETE',
+            self::RESTORE => 'RESTORE',
+        };
+    }
 }

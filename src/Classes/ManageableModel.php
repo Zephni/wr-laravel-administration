@@ -14,6 +14,7 @@ use WebRegulate\LaravelAdministration\Classes\BrowseColumns\BrowseColumn;
 use WebRegulate\LaravelAdministration\Classes\ManageableFields\ManageableField;
 use WebRegulate\LaravelAdministration\Classes\BrowseColumns\BrowseColumnBase;
 use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItemManageableModel;
+use WebRegulate\LaravelAdministration\Enums\ManageableModelPermissions;
 
 abstract class ManageableModel
 {
@@ -72,6 +73,13 @@ abstract class ManageableModel
         // Set static options in global
         WRLAHelper::$globalManageableModelData[static::class] = [
             'baseModelClass' => null,
+            'permissions' => [
+                ManageableModelPermissions::CREATE->getString() => true,
+                ManageableModelPermissions::BROWSE->getString() => true,
+                ManageableModelPermissions::EDIT->getString() => true,
+                ManageableModelPermissions::DELETE->getString() => true,
+                ManageableModelPermissions::RESTORE->getString() => true,
+            ],
             'urlAlias' => 'model',
             'displayName' => [
                 'singular' => 'Model',
@@ -113,6 +121,12 @@ abstract class ManageableModel
     {
         return new static($modelInstanceOrId);
     }
+
+    /**
+     * Get default permissions.
+     * 
+     * @return void
+     */
 
     /**
      * With instance setup.
@@ -224,6 +238,35 @@ abstract class ManageableModel
     public function getModelInstance(): mixed
     {
         return $this->modelInstance;
+    }
+
+    /**
+     * Set permission.
+     * 
+     * @param string $permission
+     * @param bool|callable $value
+     * @return void
+     */
+    public static function setPermission(string $permission, bool|callable $value): void
+    {
+        static::setStaticOption('permissions.'.$permission, $value);
+    }
+
+    /**
+     * Get permission.
+     * 
+     * @param string $permission
+     * @return bool
+     */
+    public static function getPermission(string $permission): bool
+    {
+        $value = static::getStaticOption(static::class, 'permissions.'.$permission);
+
+        if(is_callable($value)) {
+            return $value();
+        }
+
+        return $value;
     }
 
     /**
@@ -516,14 +559,14 @@ abstract class ManageableModel
 
         // $manageableModel = static::make(); // This makes everything crash with bytes exhausted error
 
-        // TODO: Check permissions here
-        // if($manageableModel::permissions()->hasPermission(WRLAPermissions::CREATE)) {
+        // Check has create permission
+        if(static::getPermission(ManageableModelPermissions::CREATE->getString())) {
             $browseActions->put('create', view(WRLAHelper::getViewPath('components.forms.button'), [
                 'text' => 'Create ' . static::getDisplayName(),
                 'icon' => 'fa fa-plus text-sm',
                 'href' => route('wrla.manageable-models.create', ['modelUrlAlias' => static::getStaticOption(static::class, 'urlAlias')])
             ]));
-        // }
+        }
 
         return $browseActions;
     }
@@ -622,36 +665,36 @@ abstract class ManageableModel
 
         // If model doesn't have soft deletes and not trashed
         if(!static::isSoftDeletable() || $model->deleted_at == null) {
-            // TODO: Check permissions here
-            // if($this->permissions()->hasPermission(WRLAPermissions::EDIT)) {
+            // Check has edit permission
+            if(static::getPermission(ManageableModelPermissions::EDIT->getString())) {
                 $browseActions->put('edit', view(WRLAHelper::getViewPath('components.browse-actions.edit-button'), [
                     'manageableModel' => $this
                 ]));
-            // }
+            }
 
-            // TODO: Check permissions here
-            // if($this->permissions()->hasPermission(WRLAPermissions::DELETE)) {
+            // Check has delete permission
+            if(static::getPermission(ManageableModelPermissions::DELETE->getString())) {
                 $browseActions->put('delete', view(WRLAHelper::getViewPath('components.browse-actions.delete-button'), [
                     'manageableModel' => $this
                 ]));
-            // }
+            }
         // If trashed
         } else {
-            // TODO: Check permissions here
-            // if($this->permissions()->hasPermission(WRLAPermissions::RESTORE)) {
+            // Check has restore permission
+            if(static::getPermission(ManageableModelPermissions::RESTORE->getString())) {
                 $browseActions->put('restore', view(WRLAHelper::getViewPath('components.browse-actions.restore-button'), [
                     'manageableModel' => $this
                 ]));
-            // }
+            }
 
-            // TODO: Check permissions here
-            // if($this->permissions()->hasPermission(WRLAPermissions::DELETE)) {
+            // Check has delete permission
+            if(static::getPermission(ManageableModelPermissions::DELETE->getString())) {
                 $browseActions->put('delete', view(WRLAHelper::getViewPath('components.browse-actions.delete-button'), [
                     'manageableModel' => $this,
                     'text' => 'Permanent Delete',
                     'permanent' => true
                 ]));
-            // }
+            }
         }
 
         return $browseActions;
