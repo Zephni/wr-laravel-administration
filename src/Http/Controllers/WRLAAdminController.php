@@ -86,13 +86,16 @@ class WRLAAdminController extends Controller
 
         // Get manageable model instance
         $manageableModel = $modelId == null
-            ? $manageableModelClass::make()->withInstanceSetup()
-            : $manageableModelClass::make($modelId)->withInstanceSetup();
+            ? $manageableModelClass::make()
+            : $manageableModelClass::make($modelId);
 
-        // If $modelId not null and model instance is null, redirect to the dashboard with error
-        if ($modelId != null && $manageableModel->getmodelInstance() == null) {
+        // If model id doesn't exist then return to dashboard with error
+        if($modelId != null && $manageableModelClass::getBaseModelClass()::find($modelId) == null) {
             return redirect()->route('wrla.dashboard')->with('error', "Model ".$manageableModelClass." with ID `$modelId` not found.");
         }
+
+        // Get instance
+        $manageableModel = $manageableModel->getmodelInstance();
 
         return view(WRLAHelper::getViewPath('upsert'), [
             'upsertType' => $modelId ? PageType::EDIT : PageType::CREATE,
