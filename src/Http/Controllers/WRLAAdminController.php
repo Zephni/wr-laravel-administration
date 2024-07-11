@@ -94,8 +94,8 @@ class WRLAAdminController extends Controller
             return redirect()->route('wrla.dashboard')->with('error', "Model ".$manageableModelClass." with ID `$modelId` not found.");
         }
 
-        // Get instance
-        $manageableModel = $manageableModel->getmodelInstance();
+        // Run instance setup
+        $manageableModel = $manageableModel->withInstanceSetup();
 
         return view(WRLAHelper::getViewPath('upsert'), [
             'upsertType' => $modelId ? PageType::EDIT : PageType::CREATE,
