@@ -325,9 +325,8 @@ class ManageableModelBrowse extends Component
      *
      * @param string $modelUrlAlias The URL alias of the model to delete.
      * @param int $id The ID of the model to delete.
-     * @param int $permanent Whether to force delete the model.
      */
-    public function deleteModel(int $id, int $permanent = 0)
+    public function deleteModel(int $id)
     {
         // Get manageable model instance
         $manageableModel = new $this->manageableModelClass($id);
@@ -343,15 +342,24 @@ class ManageableModelBrowse extends Component
         //     return;
         // }
 
-        // If permanent, force delete
-        if($permanent == 1) {
-            ($model = $this->manageableModelClass::getStaticOption('baseModelClass'))::withTrashed()->find($id);
-            $model->forceDelete();
+        // Get base model class
+        $baseModelClass = $this->manageableModelClass::getStaticOption($this->manageableModelClass, 'baseModelClass');
 
-        // Else, soft delete
-        } else {
-            ($model = $this->manageableModelClass::getStaticOption('baseModelClass'))::find($id);
+        // If model is not trashed already, find
+        $model = $baseModelClass::find($id);
+
+        // Set permanent check to false
+        $permanent = 0;
+
+        // If model found, soft delete
+        if($model !== null) {
+            $model = $baseModelClass::find($id);
             $model->delete();
+        // Otherwise try finding with trashed and permanently delete
+        } else {
+            $model = $baseModelClass::withTrashed()->find($id);
+            $model->forceDelete();
+            $permanent = 1;
         }
 
         $this->successMessage = $this->manageableModelClass::getDisplayName()
@@ -372,7 +380,8 @@ class ManageableModelBrowse extends Component
         //     return;
         // }
 
-        ($model = $this->manageableModelClass::getStaticOption('baseModelClass'))::withTrashed()->find($id);
+        $baseModelClass = $this->manageableModelClass::getStaticOption($this->manageableModelClass, 'baseModelClass');
+        $model = $baseModelClass::withTrashed()->find($id);
         $model->restore();
     }
 
