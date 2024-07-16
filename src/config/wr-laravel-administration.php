@@ -5,6 +5,9 @@ return [
     // Base URL for the administration panel, e.g. 'wr-admin' will result in 'http://example.com/wr-admin'
     'base_url' => 'wr-admin',
 
+    // How the page title should be displayed
+    'title_template' => '{page_title} - WebRegulate Admin',
+
     // Company logo
     'logo' => [
         'light' => 'vendor/wr-laravel-administration/images/logo-light.svg',

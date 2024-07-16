@@ -37,6 +37,26 @@ class WRLAHelper
     }
 
     /**
+     * Builds page title from 'title_template' config which uses the format '{page_title} - WebRegulate Admin'.
+     * 
+     * @param string $pageTitle The page title to build.
+     * @return string The built page title.
+     */
+    public static function buildPageTitle(string $pageTitle): string
+    {
+        // Setup final title as empty string
+        $returnTitle = '';
+
+        // Get the title template from the config
+        $titleTemplate = config('wr-laravel-administration.title_template');
+
+        // Replace the page title in the title format
+        $returnTitle = str_replace('{page_title}', $pageTitle, $titleTemplate);
+
+        return $returnTitle;
+    }
+
+    /**
      * Get current page type
      * 
      * @return ?PageType $pageType
