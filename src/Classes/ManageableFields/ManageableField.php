@@ -30,6 +30,7 @@ class ManageableField
     public array $options = [
         'containerClass' => null,
         'label' => 'wrla::from_field_name',
+        'ifNullThenString' => false,
     ];
 
     /**
@@ -103,7 +104,7 @@ class ManageableField
 
     /**
      * Get manageable field type (eg. the class name: Text, Select, etc.)
-     * 
+     *
      * @return string
      */
     public function getType(): string
@@ -113,7 +114,7 @@ class ManageableField
 
     /**
      * Make browse.filter version of the form component.
-     * 
+     *
      * @param string $filterAlias Must be the same as the BrowseFilter key
      * @return static
      */
@@ -163,6 +164,13 @@ class ManageableField
      */
     public function preValidation(?string $value): bool
     {
+        // If null then string check
+        $ifNullThenString = $this->getOption('ifNullThenString');
+        if($ifNullThenString !== false && $value === null) {
+            return gettype($ifNullThenString) === 'string' ? $ifNullThenString : '';
+        }
+        
+        // Return false by default so no adjustments are made to the request input
         return false;
     }
 
@@ -251,7 +259,7 @@ class ManageableField
 
     /**
      * Get options.
-     * 
+     *
      * @return array
      */
     public function getOptions(): array
@@ -274,7 +282,7 @@ class ManageableField
 
     /**
      * Get attribute.
-     * 
+     *
      * @param string $key
      * @return mixed
      */
@@ -297,7 +305,7 @@ class ManageableField
 
     /**
      * Get attributes.
-     * 
+     *
      * @return array
      */
     public function getAttributes(): array
@@ -307,7 +315,7 @@ class ManageableField
 
     /**
      * Set default value.
-     * 
+     *
      * @param mixed $value
      * @return $this
      */
@@ -317,7 +325,7 @@ class ManageableField
         if($this->manageableModel?->isBeingCreated() === false) {
             return $this;
         }
-        
+
         $this->attributes['value'] = $value;
 
         return $this;
@@ -347,7 +355,7 @@ class ManageableField
      * @return ?string
      */
     public function getLabel(): ?string
-    {        
+    {
         // Get label option
         $label = $this->getOption('label');
 
@@ -413,6 +421,12 @@ class ManageableField
      */
     public function applySubmittedValue(Request $request, mixed $value): mixed
     {
+        $ifNullThenString = $this->getOption('ifNullThenString');
+
+        if($ifNullThenString !== false && $value === null) {
+            return typeOf($ifNullThenString) === 'string' ? $ifNullThenString : '';
+        }
+
         return $value;
     }
 
@@ -456,7 +470,7 @@ class ManageableField
 
     /**
      * If condition is true, run callback.
-     * 
+     *
      * @param bool $isTrue
      * @param callable $callback (Must take $this as a parameter and return $this)
      * @return $this
