@@ -94,7 +94,8 @@
                 selector: '.wrla_wysiwyg',
                 plugins: 'anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount code paste fullscreen',
                 toolbar: 'undo redo | blocks | bold italic underline | link media table | align | numlist bullist indent | code',
-                paste_data_images: true
+                paste_data_images: true,
+                relative_urls : false
             });
         </script>
     @endpush
