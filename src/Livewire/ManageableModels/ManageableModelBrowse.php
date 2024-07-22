@@ -39,15 +39,12 @@ class ManageableModelBrowse extends Component
     public $columns = null;
 
     /**
-     * Filters.
+     * Filters (array of BrowseFilter's). The manageable model's filters key => value pairs. key being the
+     * filter key and value being the current value of the filter.
      *
      * @var array
      */
-    public array $filters = [
-        // 'search' => '',
-        // 'showSoftDeleted' => false,
-        // 'showAdminOnly' => false,
-    ];
+    public array $filters = [];
 
     /**
      * Order by.
@@ -146,25 +143,6 @@ class ManageableModelBrowse extends Component
      */
     public function getModelInstance(): ManageableModel {
         return new $this->manageableModelClass;
-    }
-
-    /**
-     * On search filter change.
-     *
-     * @return void
-     */
-    public function updatedSearch()
-    {
-        $manageableModelFilters = $this->getModelInstance()->getBrowseFilters();
-
-        $validateArray = [];
-        foreach($manageableModelFilters as $key => $browseFilter) {
-            if(!empty($browseFilter->field->validationRules)) {
-                $validateArray[$key] = $browseFilter->field->validationRules;
-            }
-        }
-
-        $this->validate($validateArray);
     }
 
     /**

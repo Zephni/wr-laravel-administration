@@ -124,7 +124,7 @@ abstract class ManageableModel
 
     /**
      * Get default permissions.
-     * 
+     *
      * @return void
      */
 
@@ -242,7 +242,7 @@ abstract class ManageableModel
 
     /**
      * Set permission.
-     * 
+     *
      * @param string $permission
      * @param bool|callable $value
      * @return void
@@ -254,7 +254,7 @@ abstract class ManageableModel
 
     /**
      * Get permission.
-     * 
+     *
      * @param string $permission
      * @return bool
      */
