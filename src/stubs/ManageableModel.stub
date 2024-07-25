@@ -39,6 +39,9 @@ class {{ $MODEL }} extends ManageableModel
 
         // Browse actions
         static::setBrowseActions(static::getDefaultBrowseActions());
+
+        // Order by
+        static::setOrderBy();
     }
 
     /**

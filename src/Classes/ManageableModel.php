@@ -406,6 +406,18 @@ abstract class ManageableModel
     }
 
     /**
+     * Set order by for browse page.
+     *
+     * @param string $column
+     * @param string $direction
+     */
+    public static function setOrderBy(string $column = 'id', string $direction = 'desc'): void
+    {
+        static::setStaticOption('defaultOrderBy.column', $column);
+        static::setStaticOption('defaultOrderBy.direction', $direction);
+    }
+
+    /**
      * Set browse filters.
      *
      * @param Collection|array $filters
@@ -596,6 +608,19 @@ abstract class ManageableModel
      */
     public static function getBrowseActions(): Collection {
         return collect(static::getStaticOption(static::class, 'browse.actions'));
+    }
+
+    /**
+     * Get default order by.
+     *
+     * @return array
+     */
+    public static function getDefaultOrderBy(): Collection
+    {
+        return collect([
+            'column' => static::getStaticOption(static::class, 'defaultOrderBy.column'),
+            'direction' => static::getStaticOption(static::class, 'defaultOrderBy.direction'),
+        ]);
     }
 
     /**

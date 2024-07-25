@@ -130,6 +130,11 @@ class ManageableModelBrowse extends Component
             }
         }
 
+        // Apply default order by and order direction
+        $orderByData = $manageableModelClass::getDefaultOrderBy();
+        $this->orderBy = $orderByData->get('column');
+        $this->orderDirection = $orderByData->get('direction');
+
         // If ?delete is passed to the URL, delete the model
         if(request()->has('delete')) {
             $this->deleteModel(request()->input('delete'));
