@@ -2,6 +2,7 @@
 
 namespace WebRegulate\LaravelAdministration\Livewire\ManageableModels;
 
+use App\Models\TrainingCourse;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Illuminate\Support\Collection;
@@ -224,53 +225,30 @@ class ManageableModelBrowse extends Component
             return collect([]); // We have to return a collection so that the view does not error
         }
 
+        // get base model class
+        $baseModelClass = $this->manageableModelClass::getBaseModelClass();
+
         // Get Relationship and Json reference columns
         $relationshipColumns = $this->getRelationshipColumns();
         $jsonReferenceColumns = $this->getJsonReferenceColumns();
 
-        // Start query builder
-        $queryBuilder = $this->getModelInstance()::initialiseQueryBuilder();
+        // Start eloquent query
+        $eloquent = $baseModelClass::query();
 
         // We now just select all fields
-        $queryBuilder = $queryBuilder->addSelect($tableName.'.*');
+        $eloquent = $eloquent->addSelect($tableName.'.*');
 
-        // Relationship named columns look like this local_column::relationship_table.remote_column, so we need to split them
+        // Relationship named columns look like this relationship->remote_column, so we need to split them
         // and add left joins and selects to the query
         if($relationshipColumns->count() > 0) {
-            $tablesAlreadyJoined = [];
+            // We used to use localcolumn::relationship_table.remote_column, but now we use relationship_method->remote_column
+            // So we can just use the relationship method to get the relationship
+            foreach($relationshipColumns as $relationshipKey => $label) {
+                // Get the relationship method and remote column
+                [$relationshipMethod, $remoteColumn] = WRLAHelper::parseBrowseColumnRelationship($relationshipKey);
 
-            // Add left joins and selects
-            foreach($relationshipColumns as $column => $browseColumn) {
-                $relationship = WRLAHelper::parseBrowseColumnRelationship($column);
-                
-                // If already joined just do the select part
-                if(in_array($relationship['table'], $tablesAlreadyJoined)) {
-                    $queryBuilder = $queryBuilder->addSelect("{$relationship['table']}.{$relationship['column']} as `{$relationship['table']}.{$relationship['column']}`");
-                    continue;
-                }
-
-                $tablesAlreadyJoined[] = $relationship['table'];
-
-                // If relationship is not the same table
-                $queryBuilder = WRLAHelper::queryBuilderJoin(
-                    $queryBuilder,
-                    $relationship['table'],
-                    $tableName.'.'.$relationship['local_column'], [
-                        $relationship['table'] != $tableName
-                            ? "{$relationship['table']}.id as `{$relationship['table']}.id`"
-                            : "{$relationship['table']}_other.id as `{$relationship['table']}_other.id`",
-                        
-                        $relationship['table'] != $tableName
-                            ? "{$relationship['table']}.{$relationship['column']} as `{$relationship['table']}.{$relationship['column']}`"
-                            : "{$relationship['table']}_other.{$relationship['column']} as `{$relationship['table']}_other.{$relationship['column']}`"
-                    ],
-                    $relationship['table'] != $tableName ? null : $tableName.'_other'
-                );
-                
-                // dd($queryBuilder->toRawSql(), $queryBuilder->get());
-
-                // $queryBuilder = $queryBuilder->leftJoin($relationship[0], $relationship[0] . '.id', '=', $parts[0]);
-                // $queryBuilder = $queryBuilder->addSelect($relationship[0] . '.' . $relationship[1] . ' as '.$relationship[0].'.' . $relationship[1]);
+                // With relationship
+                $eloquent = $eloquent->with($relationshipMethod);
             }
         }
 
@@ -279,26 +257,26 @@ class ManageableModelBrowse extends Component
             foreach($jsonReferenceColumns as $column => $label) {
                 // Note that the column can be nested any number of levels deep, for example: data->profile->avatar
                 // With query builder, json_extract is already automatically added, so we just make a nice alias for the value
-                $queryBuilder = $queryBuilder->addSelect($column . ' as ' . $column);
+                $eloquent = $eloquent->addSelect($column . ' as ' . $column);
             }
         }
 
         // DD with current query string for debugging
-        // dd($queryBuilder->toSql());
+        // dd($eloquent->toSql());
 
         // Now we loop through the filterable fields and apply them to the query
         $manageableModelFilters = $this->manageableModelClass::getBrowseFilters();
 
         foreach($manageableModelFilters as $key => $browseFilter) {
-            $queryBuilder = $browseFilter->apply($queryBuilder, $tableName, $this->columns, $this->filters[$key]);
+            $eloquent = $browseFilter->apply($eloquent, $tableName, $this->columns, $this->filters[$key]);
         }
 
         // For now just order by id DESC, but need to add post query and optional ordering etc to manageable models
-        $queryBuilder = $queryBuilder->orderBy("$tableName.$this->orderBy", $this->orderDirection);
+        $eloquent = $eloquent->orderBy("$tableName.$this->orderBy", $this->orderDirection);
 
-        $final = $queryBuilder->paginate(10);
+        $final = $eloquent->paginate(10);
 
-        $this->debugMessage = $queryBuilder->toRawSql();
+        $this->debugMessage = $eloquent->toRawSql();
 
         return $final;
     }

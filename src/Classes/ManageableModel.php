@@ -661,7 +661,7 @@ abstract class ManageableModel
                 $relationshipParts = WRLAHelper::parseBrowseColumnRelationship($key);
 
                 $returnBrowseColumn = BrowseColumn::make($value, 'string')->overrideRenderValue(function($value, $model) use($relationshipParts) {
-                    return $model->{"{$relationshipParts['table']}.{$relationshipParts['column']}"};
+                    return $model->{$relationshipParts[0]}->{$relationshipParts[1]};
                 });
             }
 
@@ -749,13 +749,12 @@ abstract class ManageableModel
                             // If column is relationship, then modify the column to be the related column
                             if((WRLAHelper::isBrowseColumnRelationship($column))) {
                                 $relationshipParts = WRLAHelper::parseBrowseColumnRelationship($column);
-                                $column = "{$relationshipParts['table']}.{$relationshipParts['column']}";
+                                $query->orWhereRelation($relationshipParts[0], $relationshipParts[1], 'like', '%'.$value.'%');
                             // Otherwise just use the table and column
                             } else {
                                 $column = "$table.$column";
+                                $query->orWhere($column, 'like', '%'.$value.'%');
                             }
-
-                            $query->orWhere($column, 'like', '%'.$value.'%');
                         }
                     });
                 }

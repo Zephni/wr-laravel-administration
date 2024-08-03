@@ -151,6 +151,7 @@ class BrowseColumnBase
         return $this->label;
     }
 
+    static $test = 0;
     /**
      * Render the value of the column
      *
@@ -163,15 +164,13 @@ class BrowseColumnBase
         // If column is a relationship, modify the column to include the relationship
         if(WRLAHelper::isBrowseColumnRelationship($column)) {
             $relationshipData = WRLAHelper::parseBrowseColumnRelationship($column);
-            if($relationshipData['table'] == $model->getTable()) {
-                $column = "{$relationshipData['table']}_other.{$relationshipData['column']}";
-            } else {
-                $column = "{$relationshipData['table']}.{$relationshipData['column']}";
-            }
+            $value = $model->{$relationshipData[0]}?->{$relationshipData[1]} ?? '';
         }
-
-        // Get value if set in option, if not the use the value from the models column
-        $value = $this->getOption('value') ?? $model->{$column};
+        else
+        {
+            // Get value if set in option, if not the use the value from the models column
+            $value = $this->getOption('value') ?? $model->$column;
+        }
 
         // dd($model, $column, $this->getOption('value'), $useColumn, $model->{$column});
 

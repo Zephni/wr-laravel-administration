@@ -177,7 +177,7 @@ class WRLAHelper
     }
 
     /**
-     * Uses browsable column relationship syntax. Relationship key strings use the format: 'local_column::table.column'.
+     * Uses browsable column relationship syntax. Relationship key strings use the format: 'relationship.remote_column'.
      * 
      * @string $relationshipKeyString The relationship string to check against.
      * @return bool
@@ -196,26 +196,12 @@ class WRLAHelper
     public static function parseBrowseColumnRelationship(string $relationshipKeyString): array|false
     {
         // If does not contain :: then return false
-        if(strpos($relationshipKeyString, '::') === false) {
+        if(strpos($relationshipKeyString, '.') === false) {
             return false;
         }
 
-        // Split by ::
-        $parts = explode('::', $relationshipKeyString);
-
-        // If does not contain . then return false
-        if(strpos($parts[1], '.') === false) {
-            return false;
-        }
-
-        // Split relationship by .
-        $relationship = explode('.', $parts[1]);
-
-        return [
-            'local_column' => $parts[0],
-            'table' => $relationship[0],
-            'column' => $relationship[1],
-        ];
+        // Explode the relationship key string
+        return (array)explode('.', $relationshipKeyString);
     }
 
     /**
