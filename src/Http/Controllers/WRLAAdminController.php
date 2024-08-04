@@ -84,10 +84,8 @@ class WRLAAdminController extends Controller
             return redirect()->route('wrla.dashboard')->with('error', "Manageable model with url alias `$modelUrlAlias` not found.");
         }
 
-        // Get manageable model instance
-        $manageableModel = $modelId == null
-            ? $manageableModelClass::make()
-            : $manageableModelClass::make($modelId);
+        // Get manageable model instance, note that modelId can be null
+        $manageableModel = $manageableModelClass::make($modelId);
 
         // If model id doesn't exist then return to dashboard with error
         if($modelId != null && $manageableModelClass::getBaseModelClass()::find($modelId) == null) {
