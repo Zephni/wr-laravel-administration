@@ -29,7 +29,7 @@ class BrowseColumnManageableModel extends BrowseColumnBase
                     'id' => $model->{$relatedIdColumn},
                 ]),
                 'text' => $value,
-                'icon' => 'fas fa-graduation-cap text-xs'
+                'icon' => $manageableModel::getIcon().' text-xs'
             ];
         }, $width);
     }
