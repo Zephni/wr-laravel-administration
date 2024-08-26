@@ -1,6 +1,6 @@
 <?php
 
-namespace WebRegulate\LaravelAdministration\Notifications;
+namespace WebRegulate\LaravelAdministration\Classes;
 
 use Illuminate\Notifications\Notification;
 

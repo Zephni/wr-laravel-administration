@@ -1,0 +1,23 @@
+<?php
+
+namespace App\NotificationDefinitions;
+
+use WebRegulate\LaravelAdministration\Classes\NotificationBase;
+
+class NotificationExample extends NotificationBase
+{
+    public function getTitle(): string
+    {
+        return 'Notification Example';
+    }
+
+    public function getMessage(): string
+    {
+        return "This is an example of notification, viewed by user: {$this->viewingUser->name}, with passed data: {$this->data['example']}";
+    }
+
+    public function getLink(): string
+    {
+        return '/';
+    }
+}

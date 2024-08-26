@@ -398,6 +398,32 @@ class WRLAHelper
     }
 
     /**
+     * Copy file from location to destination.
+     * 
+     * @param string $location The location of the file to copy.
+     * @param string $destination The destination path to save the final file.
+     * @return string|false The path of the file created (minus the base path) or false if the file already exists and $forceOverwrite is false.
+     */
+    public static function copyFile(string $location, string $destination, bool $forceOverwrite = false): string|false
+    {
+        // If $forceOverwrite is false and the file already exists, return false
+        if(!$forceOverwrite && File::exists($destination)) {
+            return false;
+        }
+
+        // If directory does not exist, create it
+        $directory = dirname($destination);
+        if (!File::isDirectory($directory)) {
+            File::makeDirectory($directory, 0755, true, true);
+        }
+
+        // Copy the file
+        File::copy($location, $destination);
+
+        return WRLAHelper::removeBasePath($destination);
+    }
+
+    /**
      * Replace backslashes with forward slashes.
      *
      * @param string $string The string to replace backslashes with forward slashes.

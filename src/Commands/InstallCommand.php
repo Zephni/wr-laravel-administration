@@ -49,6 +49,13 @@ class InstallCommand extends Command
             app_path('WRLA/User.php')
         );
 
+        // If the user model was created, show a message
+        if ($createdUserAt !== false) {
+            $this->info(' - User model created successfully here: ' . $createdUserAt);
+        } else {
+            $this->warn(' - User model already exists at ' . WRLAHelper::removeBasePath(app_path('WRLA/User.php')) . '. To replace it delete the file and run again.');
+        }
+
         // Create WRLASetup class
         $createdWRLASetupAt = WRLAHelper::generateFileFromStub(
             'WRLASetup.stub',
@@ -56,15 +63,30 @@ class InstallCommand extends Command
             app_path('WRLA/WRLASetup.php')
         );
 
-        // Success message
-        $this->info('WRLA installed successfully.');
-
-        // If the user model was created, show a message
-        if ($createdUserAt !== false) {
-            $this->info('User model created successfully here: ' . $createdUserAt);
+        // If the WRLASetup class was created
+        if ($createdWRLASetupAt !== false) {
+            $this->info(' - WRLASetup class created successfully here: ' . $createdWRLASetupAt);
         } else {
-            $this->warn('User model already exists at ' . WRLAHelper::removeBasePath(app_path('WRLA/User.php')) . '. If you want to recreate it, delete the file and run the command again.');
+            $this->warn(' - WRLASetup class already exists at ' . WRLAHelper::removeBasePath(app_path('WRLA/WRLASetup.php')) . '. To replace it delete the file and run again.');
         }
+
+        // Create NotificationBase class
+        $notificationBaseFile = WRLAHelper::generateFileFromStub(
+            'NotificationExample.stub',
+            [],
+            app_path('NotificationDefinitions/NotificationExample.php')
+        );
+
+        // If the NotificationExample class was created
+        if ($notificationBaseFile !== false) {
+            $this->info(' - NotificationExample class created successfully here: ' . $notificationBaseFile);
+        } else {
+            $this->warn(' - NotificationExample class already exists at ' . WRLAHelper::removeBasePath(app_path('NotificationDefinitions/NotificationExample.php')) . '. To replace it delete the file and run again.');
+        }
+
+        // Success message
+        $this->line('');
+        $this->info('WRLA installed successfully.');
 
         // get database name and check if database connection already exists
         $databaseConnectionExists = false;
