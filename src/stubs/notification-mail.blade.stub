@@ -1,0 +1,9 @@
+<x-mail::message>
+# {!! $notificationDefinition->getTitle() !!}
+
+{!! $notificationDefinition->getMessage() !!}
+
+<br>
+Thanks,<br>
+{{ config('app.name') }}
+</x-mail::message>

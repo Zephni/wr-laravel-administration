@@ -21,14 +21,14 @@ class WRLAHelper
     /**
      * Manageable model setup global data, uses format
      * '\App\WRLA\ManageableModelClass' => $staticOptions
-     * 
+     *
      * @return array
      */
     public static array $globalManageableModelData = [];
 
     /**
      * Get documenation URL
-     * 
+     *
      * @return string
      */
     public static function getDocumentationUrl(): string
@@ -38,7 +38,7 @@ class WRLAHelper
 
     /**
      * Builds page title from 'title_template' config which uses the format '{page_title} - WebRegulate Admin'.
-     * 
+     *
      * @param string $pageTitle The page title to build.
      * @return string The built page title.
      */
@@ -58,7 +58,7 @@ class WRLAHelper
 
     /**
      * Get current page type
-     * 
+     *
      * @return ?PageType $pageType
      */
     public static function getCurrentPageType(): ?PageType
@@ -178,7 +178,7 @@ class WRLAHelper
 
     /**
      * Uses browsable column relationship syntax. Relationship key strings use the format: 'relationship.remote_column'.
-     * 
+     *
      * @string $relationshipKeyString The relationship string to check against.
      * @return bool
      */
@@ -189,7 +189,7 @@ class WRLAHelper
 
     /**
      * Interpret browsable column relationship string
-     * 
+     *
      * @param string $relationshipKeyString The relationship string to interpret.
      * @return array|false The interpreted relationship array.
      */
@@ -327,7 +327,7 @@ class WRLAHelper
 
     /**
      * Is the current route the given route name, and has the given parameters.
-     * 
+     *
      * @param string $routeName The route name to check.
      * @param array $parameters The parameters to check.
      * @return bool
@@ -353,7 +353,7 @@ class WRLAHelper
 
     /**
      * Is the current route the given NavigationItem.
-     * 
+     *
      * @param NavigationItem $navigationItem The navigation item to check.
      * @return bool
      */
@@ -399,7 +399,7 @@ class WRLAHelper
 
     /**
      * Copy file from location to destination.
-     * 
+     *
      * @param string $location The location of the file to copy.
      * @param string $destination The destination path to save the final file.
      * @return string|false The path of the file created (minus the base path) or false if the file already exists and $forceOverwrite is false.
@@ -448,7 +448,7 @@ class WRLAHelper
 
     /**
      * Get all array keys from a multidimentional array recursively with a divider, dot notation by default.
-     * 
+     *
      * @param array $array
      * @param string $divider
      * @return array
@@ -470,7 +470,7 @@ class WRLAHelper
 
     /**
      * Json pretty print
-     * 
+     *
      * @param string $json The json string to pretty print.
      * @return string The pretty printed json string.
      */
@@ -482,7 +482,7 @@ class WRLAHelper
 
     /**
      * Json format validation
-     * 
+     *
      * @param string $json The json string to validate.
      * @param array $valueDefinitions The value definitions to validate against, use dot notation for nested arrays.
      * @param bool $allRequired Whether all keys are required.
@@ -514,7 +514,7 @@ class WRLAHelper
                     $mergeErrorMessages[$key] = "The $key field must be set to `<b>{$inValues[0]}</b>.`";
                 } else {
                     $mergeErrorMessages[$key] = "The $key field must set to one of the following: `<b>".implode('</b>`, `<b>', $inValues)."</b>`.";
-                }       
+                }
             }
         }
 
@@ -540,7 +540,7 @@ class WRLAHelper
 
     /**
      * Get wrla column json notation parts from a key.
-     * 
+     *
      * @param string $key The key to get the json notation parts from.
      */
     public static function parseJsonNotation(string $key): array
@@ -554,7 +554,7 @@ class WRLAHelper
 
     /**
      * Query builder join callback function
-     * 
+     *
      * @param Builder $query The query builder.
      * @param string $joinTable The table to join.
      * @param string $tableAndColumn Local table and join column, eg. 'base_table.relationship_column_id'
@@ -591,7 +591,7 @@ class WRLAHelper
 
     /**
      * Is impersonating user
-     * 
+     *
      * @return bool
      */
     public static function isImpersonatingUser(): bool
@@ -601,7 +601,7 @@ class WRLAHelper
 
     /**
      * Get original user while impersonating
-     * 
+     *
      * @return User|null
      */
     public static function getImpersonatingOriginalUser(): ?User
@@ -611,7 +611,7 @@ class WRLAHelper
 
     /**
      * Remove a rule from a validation string
-     * 
+     *
      * @param string|array $rule The rule/s to remove.
      * @param string $validation The validation string to remove the rule from.
      * @param bool $useRegex Whether to use regex to remove the rule.
@@ -639,7 +639,7 @@ class WRLAHelper
 
     /**
      * Check if table exists in database
-     * 
+     *
      * @param string $table The table to check if exists.
      * @return bool
      */
@@ -650,7 +650,7 @@ class WRLAHelper
 
     /**
      * Log to WRLA error channel, automatically adds 'user' => user->id if available, shows as 'x' if no user.
-     * 
+     *
      * @param string $message The message to log.
      * @param array $context The context to log.
      */
@@ -665,7 +665,7 @@ class WRLAHelper
 
     /**
      * Log to WRLA info channel, automatically adds 'user' => user->id if available, shows as 'x' if no user.
-     * 
+     *
      * @param string $message The message to log.
      * @param array $context The context to log.
      */

@@ -6,7 +6,7 @@ use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItem;
 use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItemDivider;
 use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItemsAllManageableModels;
 
-class WRLASetup
+class WRLASettings
 {
     /**
      * Build the navigation items for the WRLA application.

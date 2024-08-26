@@ -300,9 +300,9 @@ class WRLAServiceProvider extends ServiceProvider
             $className::globalSetup();
         }
 
-        // Set navigation items (if App\WRLA\WRLASetup exists)
-        if(class_exists('\App\WRLA\WRLASetup')) {
-            NavigationItem::$navigationItems = \App\WRLA\WRLASetup::buildNavigation() ?? [];
+        // Set navigation items (if App\WRLA\WRLASettings exists)
+        if(class_exists('\App\WRLA\WRLASettings')) {
+            NavigationItem::$navigationItems = \App\WRLA\WRLASettings::buildNavigation() ?? [];
         }
     }
 }

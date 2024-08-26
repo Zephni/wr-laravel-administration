@@ -3,21 +3,31 @@
 namespace App\NotificationDefinitions;
 
 use WebRegulate\LaravelAdministration\Classes\NotificationBase;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\NotificationMail;
 
 class NotificationExample extends NotificationBase
 {
     public function getTitle(): string
     {
-        return 'Notification Example';
+        return 'Test Notification';
     }
 
     public function getMessage(): string
     {
-        return "This is an example of notification, viewed by user: {$this->viewingUser->name}, with passed data: {$this->data['example']}";
+        return "This is an example of notification, target user: {$this->user->name}, with passed data: {$this->data['example']}";
     }
 
     public function getLink(): string
     {
         return '/';
+    }
+
+    public function postCreated(): void
+    {
+        Mail::send(new NotificationMail(
+            $this,
+            $this->getUserGroup()->pluck('email')->toArray()
+        ));
     }
 }

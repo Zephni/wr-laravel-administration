@@ -25,12 +25,16 @@ class Notification extends Model
      */
     public static function make(string $notificationDefinitionClass, string $userId, array $data): Notification
     {
-        return Notification::create([
+        $notification = Notification::create([
             'type' => $notificationDefinitionClass,
             'user_id' => $userId,
             'read_at' => null,
             'data' => json_encode($data),
         ]);
+
+        $notification->getDefinition()->postCreated();
+
+        return $notification;
     }
 
     /**
@@ -40,7 +44,7 @@ class Notification extends Model
      */
     public function getDefinition(): NotificationBase
     {
-        return new $this->type(User::current(), json_decode($this->data, true));
+        return new $this->type($this->user_id, json_decode($this->data, true));
     }
 
     /**
@@ -56,5 +60,11 @@ class Notification extends Model
 
         $this->read_at = now();
         $this->save();
+    }
+
+    // Relationships
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 }
