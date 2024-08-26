@@ -16,10 +16,6 @@
 
     {{-- Notifications widget --}}
     <div>
-        <h3 class="text-lg font-light text-slate-600 mb-3">
-            <i class="fas fa-bell text-slate-500 mr-1"></i>
-            Notifications / Tasks
-        </h3>
         @livewire('wrla.notifications-widget')
     </div>
 @endsection
