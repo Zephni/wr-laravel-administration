@@ -35,4 +35,18 @@ class WRLASettings
             new NavigationItem('wrla.logout', [], 'Logout', 'fa fa-sign-out-alt'),
         ];
     }
+
+    /**
+    * Define user group tags
+    *
+    * @return ?Collection
+    */
+    public static function getUserGroup(string $key): ?Collection
+    {
+        if($key == 'admin') {
+            return User::whereJsonContains('permissions', ['admin' => true])->get();
+        }
+
+        return collect([User::find($key)]);
+    }
 }

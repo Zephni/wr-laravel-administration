@@ -30,17 +30,17 @@ class NotificationBase
         return is_int($this->userId) ? collect([$this->user]) : WRLASettings::getUserGroup($this->userId);
     }
 
-    public function getTitle(): string
+    public function getTitle(?array $options = null): string
     {
         return 'Notification Example';
     }
 
-    public function getMessage(): string
+    public function getMessage(?array $options = null): string
     {
         return "This is an example of notification, target user: {$this->user->name}, with passed data: {$this->data['example']}";
     }
 
-    public function getLink(): string
+    public function getLink(?array $options = null): string
     {
         return '/';
     }
