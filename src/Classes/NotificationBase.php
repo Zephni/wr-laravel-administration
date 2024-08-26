@@ -30,6 +30,11 @@ class NotificationBase
         return is_int($this->userId) ? collect([$this->user]) : WRLASettings::getUserGroup($this->userId);
     }
 
+    public function optionEqualTo(?array $options, string $key, mixed $value): bool
+    {
+        return $options !== null && isset($options[$key]) && $options[$key] === $value;
+    }
+
     public function getTitle(?array $options = null): string
     {
         return 'Notification Example';
