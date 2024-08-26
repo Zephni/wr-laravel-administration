@@ -9,26 +9,26 @@ use WebRegulate\LaravelAdministration\Classes\NotificationBase;
 class Notification extends Model
 {
     protected $fillable = [
-        'user_ids',
-        'unread_user_ids',
-        'data',
         'type',
+        'user_id',
+        'data',
+        'read_at',
     ];
 
     /**
      * Make a new notification.
      * 
      * @param string $notificationDefinitionClass
-     * @param array $userIds
+     * @param string $userId
      * @param array $data
      * @return Notification
      */
-    public static function make(string $notificationDefinitionClass, array $userIds, array $data): Notification
+    public static function make(string $notificationDefinitionClass, string $userId, array $data): Notification
     {
         return Notification::create([
             'type' => $notificationDefinitionClass,
-            'user_ids' => implode(',', $userIds),
-            'unread_user_ids' => implode(',', $userIds),
+            'user_id' => $userId,
+            'read_at' => null,
             'data' => json_encode($data),
         ]);
     }
@@ -44,23 +44,17 @@ class Notification extends Model
     }
 
     /**
-     * Mark notification as read for a user.
+     * Mark notification as read.
      *
-     * @param int $userId
      * @return void
      */
-    public function markAsRead(?int $userId)
+    public function markAsRead()
     {
-        if (!$userId) {
-            $userId = auth()->id();
+        if (User::current() === null) {
+            return;
         }
 
-        $unreadUserIds = json_decode($this->unread_user_ids);
-        $key = array_search($userId, $unreadUserIds);
-        if ($key !== false) {
-            unset($unreadUserIds[$key]);
-            $this->unread_user_ids = json_encode($unreadUserIds);
-            $this->save();
-        }
+        $this->read_at = now();
+        $this->save();
     }
 }

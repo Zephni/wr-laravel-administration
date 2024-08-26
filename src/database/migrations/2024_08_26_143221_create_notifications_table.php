@@ -14,9 +14,9 @@ return new class extends Migration
         Schema::create('notifications', function (Blueprint $table) {
             $table->id();
             $table->string('type');
-            $table->string('user_ids');
-            $table->string('unread_user_ids');
+            $table->string('user_id');
             $table->json('data');
+            $table->timestamp('read_at')->nullable();
             $table->timestamps();
         });
     }
