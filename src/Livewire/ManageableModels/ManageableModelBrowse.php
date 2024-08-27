@@ -2,14 +2,14 @@
 
 namespace WebRegulate\LaravelAdministration\Livewire\ManageableModels;
 
-use App\Models\TrainingCourse;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 use WebRegulate\LaravelAdministration\Classes\ManageableModel;
+use WebRegulate\LaravelAdministration\Classes\CSVHelper;
 use WebRegulate\LaravelAdministration\Enums\ManageableModelPermissions;
 use WebRegulate\LaravelAdministration\Classes\BrowseColumns\BrowseColumnBase;
 
@@ -163,6 +163,30 @@ class ManageableModelBrowse extends Component
         $this->orderBy = $column;
         $this->orderDirection = $direction;
         $this->debugMessage = "Order by $column $direction";
+    }
+
+    /**
+     * Export as CSV action
+     * 
+     * @return StreamedResponse
+     */
+    public function exportAsCSVAction(): StreamedResponse
+    {
+        // Get current data set
+        $models = $this->browseModels();
+
+        // Get all headings (array of all column names)
+        $headings = array_keys($models->first()->toArray());
+
+        // Get all row data
+        $rowData = $models->sortBy('id')->values()->toArray();
+
+        // Use CSVHelper to build CSV
+        return CSVHelper::build(
+            $this->manageableModelClass::getDisplayName(true) . '-' . date('Y-m-d H:i') . '.csv',
+            $headings,
+            $rowData
+        );
     }
 
     /**

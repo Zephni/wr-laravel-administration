@@ -6,15 +6,16 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\MessageBag;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\View\ComponentAttributeBag;
 use WebRegulate\LaravelAdministration\Enums\PageType;
 use WebRegulate\LaravelAdministration\Classes\ManageableFields\Text;
 use WebRegulate\LaravelAdministration\Classes\ManageableFields\Select;
-use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItem;
-use WebRegulate\LaravelAdministration\Classes\BrowseColumns\BrowseColumn;
-use WebRegulate\LaravelAdministration\Classes\ManageableFields\ManageableField;
-use WebRegulate\LaravelAdministration\Classes\BrowseColumns\BrowseColumnBase;
-use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItemManageableModel;
 use WebRegulate\LaravelAdministration\Enums\ManageableModelPermissions;
+use WebRegulate\LaravelAdministration\Classes\BrowseColumns\BrowseColumn;
+use WebRegulate\LaravelAdministration\Classes\BrowseColumns\BrowseColumnBase;
+use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItem;
+use WebRegulate\LaravelAdministration\Classes\ManageableFields\ManageableField;
+use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItemManageableModel;
 
 abstract class ManageableModel
 {
@@ -576,9 +577,21 @@ abstract class ManageableModel
             $browseActions->put('create', view(WRLAHelper::getViewPath('components.forms.button'), [
                 'text' => 'Create ' . static::getDisplayName(),
                 'icon' => 'fa fa-plus text-sm',
+                'color' => 'teal',
                 'href' => route('wrla.manageable-models.create', ['modelUrlAlias' => static::getStaticOption(static::class, 'urlAlias')])
             ]));
         }
+
+        // Export as CSV
+        $browseActions->put('export', view(WRLAHelper::getViewPath('components.forms.button'), [
+            'text' => 'Export as CSV',
+            'icon' => 'fa fa-file-csv text-sm',
+            'color' => 'teal',
+            'attributes' => new ComponentAttributeBag([
+                'wire:click' => 'exportAsCSVAction',
+                'class' => 'ml-auto'
+            ])
+        ]));
 
         return $browseActions;
     }

@@ -25,9 +25,9 @@
             <!-- Header Row -->
             <div class="flex border-b bg-slate-700 dark:bg-slate-400 text-slate-100 dark:text-slate-800 border-slate-400 dark:border-slate-600 py-2">
                 <div style="width: 18%;" class="px-2 text-white font-medium">Type</div>
-                <div style="width: 58%;" class="px-2 text-white font-medium">Message</div>
+                <div style="width: 59%;" class="px-2 text-white font-medium">Message</div>
                 <div style="width: 9%;" class="px-2 text-white font-medium">Date</div>
-                <div style="width: 15%;" class="px-2 text-white font-medium"></div>
+                <div style="width: 14%;" class="px-2 text-white font-medium"></div>
             </div>
             <!-- Content Rows -->
             @forelse($notifications as $notification)
@@ -40,9 +40,9 @@
                     title="Follow notification link"
                     class="flex items-center bg-slate-100 dark:bg-slate-700 odd:bg-slate-200 dark:odd:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-600 py-1">
                     <div style="width: 18%; font-size: 13px; line-height: 13px;" class=" px-2 py-2 truncate">{!! $definition->getTitle() !!}</div>
-                    <div style="width: 58%; font-size: 13px; line-height: 13px;" class=" px-2 py-2 truncate">{!! $definition->getMessage() !!}</div>
+                    <div style="width: 59%; font-size: 13px; line-height: 13px;" class=" px-2 py-2 truncate">{!! $definition->getMessage() !!}</div>
                     <div style="width: 9%; font-size: 13px; line-height: 13px;" class=" px-2 py-2 truncate">{{ $notification->created_at->format('d/m/Y') }}</div>
-                    <div style="width: 15%;" class="px-2 py-2 gap-3 truncate flex justify-end items-center">
+                    <div style="width: 14%;" class="px-2 py-2 gap-3 truncate flex justify-end items-center">
                         @if($notification->read_at === null)
                             @themeComponent('forms.button', [
                                 'attributes' => new \Illuminate\View\ComponentAttributeBag([
