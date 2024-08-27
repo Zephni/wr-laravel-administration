@@ -576,8 +576,9 @@ abstract class ManageableModel
         if(static::getPermission(ManageableModelPermissions::CREATE->getString())) {
             $browseActions->put('create', view(WRLAHelper::getViewPath('components.forms.button'), [
                 'text' => 'Create ' . static::getDisplayName(),
-                'icon' => 'fa fa-plus text-sm',
+                'icon' => 'fa fa-plus',
                 'color' => 'teal',
+                'size' => 'small',
                 'href' => route('wrla.manageable-models.create', ['modelUrlAlias' => static::getStaticOption(static::class, 'urlAlias')])
             ]));
         }
@@ -585,8 +586,9 @@ abstract class ManageableModel
         // Export as CSV
         $browseActions->put('export', view(WRLAHelper::getViewPath('components.forms.button'), [
             'text' => 'Export as CSV',
-            'icon' => 'fa fa-file-csv text-sm',
+            'icon' => 'fa fa-file-csv',
             'color' => 'teal',
+            'size' => 'small',
             'attributes' => new ComponentAttributeBag([
                 'wire:click' => 'exportAsCSVAction',
                 'class' => 'ml-auto'

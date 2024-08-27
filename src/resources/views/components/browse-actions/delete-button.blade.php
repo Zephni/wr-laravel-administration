@@ -47,7 +47,7 @@
     'type' => 'button',
     'color' => 'danger',
     'text' => $text ?? 'Delete',
-    'icon' => 'fa fa-trash relative mt-[1px] !mr-[3px] text-[10px]',
+    'icon' => 'fa fa-trash relative !mr-[3px] text-[10px]',
     'class' => 'bg-red-500 hover:bg-red-600 text-white',
     'attributes' => $attributeBag
 ])
