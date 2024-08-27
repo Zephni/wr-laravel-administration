@@ -21,10 +21,10 @@ class NotificationBase
         $this->userId = $userId;
         $this->user = is_int($this->userId) ? User::find($userId) : null;
         $this->data = $data;
+        $this->mount($data, $options);
         $this->title = $this->getTitle();
         $this->message = $this->getMessage();
         $this->link = $this->getLink();
-        $this->mount($data, $options);
     }
 
     public function getUserGroup(): ?Collection
