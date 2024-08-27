@@ -29,9 +29,7 @@ class NotificationMail extends Mailable
         public string $passedSubject,
         public ?array $passedAttachments = null,
     ) {
-        $notificationDefinition->mount([
-            'displayMode' => 'email'
-        ]);
+        $this->notificationDefinition->setDisplayMode('email');
     }
 
     /**

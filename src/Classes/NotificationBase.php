@@ -10,21 +10,20 @@ class NotificationBase
 {
     public mixed $userId;
     public array $data;
-    public string $title;
-    public string $message;
-    public string $link;
     public ?User $user;
     public $displayMode = '';
 
-    public function __construct(mixed $userId, array $data, array $options = [])
+    public function __construct(mixed $userId, array $data)
     {
         $this->userId = $userId;
         $this->user = is_int($this->userId) ? User::find($userId) : null;
         $this->data = $data;
-        $this->mount($data, $options);
-        $this->title = $this->getTitle();
-        $this->message = $this->getMessage();
-        $this->link = $this->getLink();
+        $this->mount($data);
+    }
+
+    public function setDisplayMode(string $mode): void
+    {
+        $this->displayMode = $mode;
     }
 
     public function getUserGroup(): ?Collection
@@ -37,7 +36,7 @@ class NotificationBase
         return $options !== null && isset($options[$key]) && $options[$key] === $value;
     }
 
-    public function mount(array $data, array $options = []): void
+    public function mount(array $data): void
     {
         // Set custom properties here
     }

@@ -35,12 +35,12 @@
                     $definition = $notification->getDefinition();
                 @endphp
                 <a
-                    href="{{ $definition->link }}"
+                    href="{{ $definition->getLink() }}"
                     target="_blank"
                     title="Follow notification link"
                     class="flex items-center bg-slate-100 dark:bg-slate-700 odd:bg-slate-200 dark:odd:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-600 py-1">
-                    <div style="width: 18%; font-size: 13px; line-height: 13px;" class=" px-2 py-2 truncate">{!! $definition->title !!}</div>
-                    <div style="width: 58%; font-size: 13px; line-height: 13px;" class=" px-2 py-2 truncate">{!! $definition->message !!}</div>
+                    <div style="width: 18%; font-size: 13px; line-height: 13px;" class=" px-2 py-2 truncate">{!! $definition->getTitle() !!}</div>
+                    <div style="width: 58%; font-size: 13px; line-height: 13px;" class=" px-2 py-2 truncate">{!! $definition->getMessage() !!}</div>
                     <div style="width: 9%; font-size: 13px; line-height: 13px;" class=" px-2 py-2 truncate">{{ $notification->created_at->format('d/m/Y') }}</div>
                     <div style="width: 15%;" class="px-2 py-2 gap-3 truncate flex justify-end items-center">
                         @if($notification->read_at === null)
