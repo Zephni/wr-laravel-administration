@@ -17,12 +17,21 @@ class NotificationMail extends Mailable
 
     /**
      * Create a new message instance.
+     *
+     * @param \WebRegulate\LaravelAdministration\Classes\NotificationBase $notificationDefinition
+     * @param array $toAddresses ['email@domain.com', ...]
+     * @param string $passedSubject
+     * @param ?array<int, \Illuminate\Mail\Mailables\Attachment> $passedAttachments
      */
     public function __construct(
         public NotificationBase $notificationDefinition,
-        public array $toAddresses
+        public array $toAddresses,
+        public string $passedSubject,
+        public ?array $passedAttachments = null,
     ) {
-        //
+        $notificationDefinition->mount([
+            'displayMode' => 'email'
+        ]);
     }
 
     /**
@@ -33,10 +42,7 @@ class NotificationMail extends Mailable
         return new Envelope(
             from: new Address(env('MAIL_FROM_ADDRESS'), env('MAIL_FROM_NAME')),
             to: $this->toAddresses,
-            cc: [],
-            bcc: [],
-            replyTo: [],
-            subject: $this->notificationDefinition->getTitle(),
+            subject: $this->passedSubject,
         );
     }
 
@@ -57,6 +63,6 @@ class NotificationMail extends Mailable
      */
     public function attachments(): array
     {
-        return [];
+        return $this->passedAttachments ?? [];
     }
 }
