@@ -8,6 +8,11 @@ use App\Mail\NotificationMail;
 
 class NotificationExample extends NotificationBase
 {
+    public function mount(array $data, array $options = []): void
+    {
+        // Set custom properties here
+    }
+
     public function getTitle(): string
     {
         return 'Test Notification';
@@ -27,7 +32,9 @@ class NotificationExample extends NotificationBase
     {
         Mail::send(new NotificationMail(
             $this,
-            $this->getUserGroup()->pluck('email')->toArray()
+            $this->getUserGroup()->pluck('email')->toArray(),
+            "Notification Subject",
+            null,
         ));
     }
 }

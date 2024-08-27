@@ -14,8 +14,9 @@ class NotificationBase
     public string $message;
     public string $link;
     public ?User $user;
+    public $displayMode = '';
 
-    public function __construct(mixed $userId, array $data)
+    public function __construct(mixed $userId, array $data, array $options = [])
     {
         $this->userId = $userId;
         $this->user = is_int($this->userId) ? User::find($userId) : null;
@@ -23,6 +24,7 @@ class NotificationBase
         $this->title = $this->getTitle();
         $this->message = $this->getMessage();
         $this->link = $this->getLink();
+        $this->mount($data, $options);
     }
 
     public function getUserGroup(): ?Collection
@@ -35,17 +37,22 @@ class NotificationBase
         return $options !== null && isset($options[$key]) && $options[$key] === $value;
     }
 
-    public function getTitle(?array $options = null): string
+    public function mount(array $data, array $options = []): void
+    {
+        // Set custom properties here
+    }
+
+    public function getTitle(): string
     {
         return 'Notification Example';
     }
 
-    public function getMessage(?array $options = null): string
+    public function getMessage(): string
     {
         return "This is an example of notification, target user: {$this->user->name}, with passed data: {$this->data['example']}";
     }
 
-    public function getLink(?array $options = null): string
+    public function getLink(): string
     {
         return '/';
     }
