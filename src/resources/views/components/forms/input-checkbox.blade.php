@@ -5,9 +5,7 @@
     $id = empty($id) ? 'wrinput-'.$name : $id;
 @endphp
 
-@if(isset($options['containerClass']) && $options['containerClass'] !== null)
-    <div class="{{ $options['containerClass'] }}">
-@endif
+<div class="{{ $options['containerClass'] ?? 'w-full' }}">
 
 <div class="flex gap-2 items-center">
     <input
@@ -40,6 +38,4 @@
     <p class="text-sm text-red-500 mt-2">{{ $error }}</p>
 @endif
 
-@if(isset($options['containerClass']) && $options['containerClass'] !== null)
-    </div>
-@endif
+</div>

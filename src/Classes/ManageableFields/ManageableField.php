@@ -31,6 +31,8 @@ class ManageableField
         'containerClass' => null,
         'label' => 'wrla::from_field_name',
         'ifNullThenString' => false,
+        'beginGroup' => false,
+        'endGroup' => false,
     ];
 
     /**
@@ -246,7 +248,7 @@ class ManageableField
     }
 
     /**
-     * Merge or get options.
+     * Merge or set options.
      *
      * @param ?array $options
      * @return $this
@@ -498,7 +500,9 @@ class ManageableField
             return '';
         }
 
-        $HTML = $this->render($upsertType);
+        $HTML = $this->getOption('beginGroup') == true ? '<div class="w-full flex justify-stretch items-center gap-6">' : '';
+        $HTML .= $this->render($upsertType);
+        $HTML .= $this->getOption('endGroup') == true ? '</div>' : '';
 
         if(empty($HTML))
         {
@@ -513,9 +517,7 @@ class ManageableField
         else
         {
             return <<<HTML
-                <div>
-                    $HTML
-                </div>
+                $HTML
             HTML;
         }
     }

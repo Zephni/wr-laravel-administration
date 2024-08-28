@@ -42,7 +42,7 @@
 
         @php $hasWysiwyg = false; @endphp
         
-        <div class="flex flex-col gap-6 mt-4 p-4 bg-slate-100 dark:bg-slate-700 shadow-slate-300 dark:shadow-slate-850 rounded-lg shadow-lg">
+        <div class="flex flex-wrap gap-6 mt-4 p-4 bg-slate-100 dark:bg-slate-700 shadow-slate-300 dark:shadow-slate-850 rounded-lg shadow-lg">
             @foreach($manageableModel->getManageableFields() as $manageableField)
                 @php
                     // If any field is Wysiwyg, set $hasWysiwyg to true so we can run the JS script at the end of this file
@@ -50,6 +50,7 @@
                         $hasWysiwyg = true;
                     }
                 @endphp
+
                 {!! $manageableField->renderParent($upsertType) !!}
             @endforeach
         </div>

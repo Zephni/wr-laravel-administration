@@ -5,9 +5,7 @@
     $id = empty($attributes->get('id')) ? 'wrinput-'.$attributes->get('name') : $attributes->get('id');
 @endphp
 
-@if(isset($options['containerClass']) && $options['containerClass'] !== null)
-    <div class="{{ $options['containerClass'] }}">
-@endif
+<div class="{{ $options['containerClass'] ?? 'w-full' }}">
 
 @if(!empty($label))
     {!! view($WRLAHelper::getViewPath('components.forms.label'), [
@@ -40,6 +38,4 @@ focus:outline-none focus:ring-1 focus:ring-primary-500 dark:focus:ring-primary-5
     @themeComponent('alert', ['type' => 'error', 'message' => $message, 'class' => 'mt-2'])
 @enderror
 
-@if(isset($options['containerClass']) && $options['containerClass'] !== null)
-    </div>
-@endif
+</div>
