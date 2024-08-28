@@ -5,7 +5,7 @@
     $id = empty($id) ? 'wrinput-'.$name : $id;
 @endphp
 
-<div class="{{ $options['containerClass'] ?? 'w-full' }}">
+<div class="{{ $options['containerClass'] ?? 'w-full flex-1 md:flex-auto' }}">
 
 <div class="flex gap-2 items-center">
     <input
