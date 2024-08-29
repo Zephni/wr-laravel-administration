@@ -39,7 +39,9 @@ class User extends Authenticatable implements CanResetPassword
     public static function fromUser(\App\Models\User $user): static
     {
         return once(function() use ($user) {
-            return static::find($user->id);
+            // Set all properties in one go
+            $wrlaUser = new static($user->toArray());
+            return $wrlaUser;
         });
     }
 
