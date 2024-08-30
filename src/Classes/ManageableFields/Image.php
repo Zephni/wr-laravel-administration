@@ -77,12 +77,12 @@ class Image extends ManageableField
             if ($this->getOption('unlinkOld') == true && !empty($currentImage)) {
                 $this->deleteImageByPath($currentImage);
             }
-            
+
             // If storeFilenameOnly is false, store the entire filepath/filename.ext
             if ($this->getOption('storeFilenameOnly') == false) {
                 return $value;
             }
-            
+
             // Otherwise, we store only the filename.ext
             $parts = explode('/', $value);
             return end($parts);
@@ -128,6 +128,31 @@ class Image extends ManageableField
     {
         $this->manipulateImageFunction = $callback;
         return $this;
+    }
+
+    /**
+     * Cover fit aspect ratio
+     *
+     * @param int $width
+     * @param string $aspect (4:3, 16:9, etc)
+     * @param string $position (center, top, bottom, left, right, top-left, top-right, bottom-left, bottom-right)
+     * @param int $quality
+     * @return $this
+     */
+    public function coverFitAspect(int $width, string $aspect = '4:3', string $position = 'center', int $quality = 100): static
+    {
+        // Set aspect display for image
+        $this->aspect($aspect);
+
+        // Get aspect parts
+        $aspectParts = explode(':', $aspect);
+
+        return $this->manipulateImage(function($image) use ($width, $aspectParts, $position, $quality) {
+            $height = $width / $aspectParts[0] * $aspectParts[1];
+            $image->cover($width, $height, $position);
+            $image->toJpeg($quality);
+            return $image;
+        });
     }
 
 
@@ -267,7 +292,7 @@ class Image extends ManageableField
 
     /**
      * Store filepath only
-     * 
+     *
      * @param bool $storeFilenameOnly
      */
     public function storeFilenameOnly(bool $storeFilenameOnly = true): static
