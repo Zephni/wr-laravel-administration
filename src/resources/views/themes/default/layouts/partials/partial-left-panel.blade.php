@@ -69,7 +69,7 @@
         <div class="w-18 min-w-14">
             @themeComponent('forced-aspect-image', [
                 'src' => $WRLAUser->getProfileAvatar(),
-                'class' => 'border-2 border-primary-600',
+                'class' => 'border border-slate-600',
                 'imageClass' => 'object-cover',
                 'aspect' => '1:1',
                 'rounded' => 'full'

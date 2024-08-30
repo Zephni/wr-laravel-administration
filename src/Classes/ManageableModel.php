@@ -591,7 +591,7 @@ abstract class ManageableModel
             'size' => 'small',
             'attributes' => new ComponentAttributeBag([
                 'wire:click' => 'exportAsCSVAction',
-                'class' => 'ml-auto'
+                'class' => 'mr-auto'
             ])
         ]));
 

@@ -193,7 +193,7 @@ class BrowseColumnBase
             $renderedView = view(
                 WRLAHelper::getViewPath('components.forced-aspect-image', false), [
                 "src" => $value,
-                "class" => $this->getOption('containerClass') ?? 'border-2 border-primary-600',
+                "class" => $this->getOption('containerClass') ?? 'border border-slate-600',
                 "imageClass" => 'wrla_image_preview '.$this->getOption('imageClass') ?? '',
                 "aspect" => $this->getOption('aspect'),
                 "rounded" => $this->getOption('rounded') ?? false,

@@ -46,7 +46,7 @@ class Image extends ManageableField
             'aspect' => null,
             'rounded' => false,
             'storeFilenameOnly' => true,
-            'class' => 'border-2 border-primary-600',
+            'class' => 'border border-primary-500',
             'imageClass' => 'object-cover',
         ]);
         return $imageInstance;

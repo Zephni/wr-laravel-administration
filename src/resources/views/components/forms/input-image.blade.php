@@ -41,7 +41,7 @@
             'imageClass' => $options['imageClass'].' wrla_image_preview '.($imageExists ? '' : 'wrla_no_image'),
             'attributes' => new \Illuminate\View\ComponentAttributeBag([
                 'src' => $src,
-                'class' => 'border-2 border-primary-600'
+                'class' => 'border- border-slate-600'
             ])
         ])
     </div>

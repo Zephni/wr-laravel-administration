@@ -22,7 +22,7 @@
     @endif
 
     {{-- Browse actions --}}
-    <div class="flex justify-start gap-3">
+    <div class="flex flex-row-reverse gap-3">
         @foreach($manageableModelClass::getBrowseActions() as $browseAction)
             {!! $browseAction->render() !!}
         @endforeach
