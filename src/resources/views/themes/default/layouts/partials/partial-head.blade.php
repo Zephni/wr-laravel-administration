@@ -45,6 +45,8 @@
     body { font-feature-settings: normal; font-family: "Nunito Sans", sans-serif; -webkit-font-smoothing: antialiased; }
     [x-cloak] { display: none !important; }
     .wrla_no_image { object-fit: fill !important; }
+
+    /* {{ config('wr-laravel-administration.common_css') }} */
 </style>
 
 @stack('styles')

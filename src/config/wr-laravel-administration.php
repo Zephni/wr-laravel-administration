@@ -58,6 +58,16 @@ return [
         ],
     ],
 
+    // Common CSS - Be careful that this does not break the layout as this is injected into the head of the layout
+    'common_css' => <<<CSS
+        /* Add your custom / override CSS here */
+    CSS,
+
+    // Wysiwyg CSS - Be careful that this does not break the layout as this is injected into the wysiwyg editor
+    'wysiwyg_css' => <<<CSS
+        /* Add your custom / override CSS here */
+    CSS,
+
     // Default theme (key from the 'themes' array below)
     'default_theme' => 'default',
 
