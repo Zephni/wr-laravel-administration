@@ -574,7 +574,7 @@ abstract class ManageableModel
 
         // Check has create permission
         if(static::getPermission(ManageableModelPermissions::CREATE->getString())) {
-            $browseActions->put('create', view(WRLAHelper::getViewPath('components.forms.button'), [
+            $browseActions->put(-10, view(WRLAHelper::getViewPath('components.forms.button'), [
                 'text' => 'Create ' . static::getDisplayName(),
                 'icon' => 'fa fa-plus',
                 'color' => 'teal',
@@ -584,14 +584,14 @@ abstract class ManageableModel
         }
 
         // Export as CSV
-        $browseActions->put('export', view(WRLAHelper::getViewPath('components.forms.button'), [
+        $browseActions->put(10, view(WRLAHelper::getViewPath('components.forms.button'), [
             'text' => 'Export as CSV',
             'icon' => 'fa fa-file-csv',
             'color' => 'teal',
             'size' => 'small',
             'attributes' => new ComponentAttributeBag([
                 'wire:click' => 'exportAsCSVAction',
-                'class' => 'mr-auto'
+                'class' => 'ml-auto'
             ])
         ]));
 
@@ -622,7 +622,7 @@ abstract class ManageableModel
      * @return Collection
      */
     public static function getBrowseActions(): Collection {
-        return collect(static::getStaticOption(static::class, 'browse.actions'));
+        return collect(static::getStaticOption(static::class, 'browse.actions'))->sortKeys();
     }
 
     /**
