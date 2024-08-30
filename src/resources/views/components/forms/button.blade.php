@@ -11,13 +11,13 @@
     else if($size == 'small') $sizeClasses = 'w-fit px-2 text-[14px]';
 
     // Set colour classes
-    if($color == 'primary') $colorClasses = 'bg-primary-500 hover:bg-primary-600 border-primary-500 shadow-lg shadow-slate-400';
-    else if($color == 'secondary') $colorClasses = 'bg-slate-600 dark:bg-slate-500 hover:bg-slate-700 dark:hover:bg-slate-600 border-slate-700 shadow-lg shadow-slate-400';
-    else if($color == 'cyan') $colorClasses = 'bg-cyan-500 hover:bg-cyan-600 border-cyan-500 shadow-lg shadow-slate-400';
-    else if($color == 'indigo') $colorClasses = 'bg-indigo-500 hover:bg-indigo-600 border-indigo-500 shadow-lg shadow-slate-400';
-    else if($color == 'teal') $colorClasses = 'bg-teal-600 hover:bg-teal-700 border-teal-600 shadow-lg shadow-slate-400';
-    else if($color == 'danger') $colorClasses = 'bg-rose-500 hover:bg-rose-600 border-rose-500 shadow-lg shadow-slate-400';
-    else if($color == 'grey') $colorClasses = 'bg-gray-500 hover:bg-gray-600 border-gray-500 text-gray-300 shadow-lg shadow-slate-400';
+    if($color == 'primary') $colorClasses = 'bg-teal-600 hover:bg-teal-700 border-teal-500 shadow-lg shadow-slate-400 dark:shadow-slate-700 text-white dark:text-gray-800';
+    else if($color == 'secondary') $colorClasses = 'bg-slate-600 dark:bg-slate-500 hover:bg-slate-700 dark:hover:bg-slate-600 border-slate-700 shadow-lg shadow-slate-400 dark:shadow-slate-700 text-white dark:text-gray-800';
+    else if($color == 'cyan') $colorClasses = 'bg-cyan-500 hover:bg-cyan-600 border-cyan-500 shadow-lg shadow-slate-400 dark:shadow-slate-700 text-white dark:text-gray-800';
+    else if($color == 'indigo') $colorClasses = 'bg-indigo-500 hover:bg-indigo-600 border-indigo-500 shadow-lg shadow-slate-400 dark:shadow-slate-700 text-white dark:text-gray-800';
+    else if($color == 'teal') $colorClasses = 'bg-teal-600 hover:bg-teal-700 border-teal-600 shadow-lg shadow-slate-400 dark:shadow-slate-700 text-white dark:text-gray-800';
+    else if($color == 'danger') $colorClasses = 'bg-rose-500 hover:bg-rose-600 border-rose-500 shadow-lg shadow-slate-400 dark:shadow-slate-700 text-white dark:text-gray-800';
+    else if($color == 'grey') $colorClasses = 'bg-gray-500 hover:bg-gray-600 border-gray-500 text-gray-300 shadow-lg shadow-slate-400 dark:shadow-slate-700 text-white dark:text-gray-800';
 @endphp
 
 @if(empty($href))
@@ -26,10 +26,10 @@
 <a href="{{ $href }}"
 @endif
     {{ $attributes->merge([
-        'class' => "flex justify-center items-center gap-1 whitespace-nowrap $sizeClasses font-semibold text-white dark:text-slate-900 border $colorClasses rounded-md shadow-sm whitespace-nowrap"
+        'class' => "flex justify-center items-center gap-1 whitespace-nowrap $sizeClasses font-semibold border $colorClasses rounded-md shadow-sm whitespace-nowrap"
     ]) }}>
     @if(!empty($icon))
-        <i class="{{ $icon }} text-[13px] text-white dark:text-slate-900 mr-1"></i>
+        <i class="{{ $icon }} text-[13px] mr-1"></i>
     @endif
     <div class="inline">{!! $text !!}</div>
 @if(empty($href))

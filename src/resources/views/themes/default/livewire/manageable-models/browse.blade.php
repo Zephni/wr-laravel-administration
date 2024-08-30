@@ -22,7 +22,7 @@
     @endif
 
     {{-- Browse actions --}}
-    <div class="flex flex-row-reverse gap-3">
+    <div class="flex flex-row gap-3">
         @foreach($manageableModelClass::getBrowseActions() as $browseAction)
             {!! $browseAction->render() !!}
         @endforeach
@@ -49,16 +49,16 @@
                             @if($browseColumn->getOption('allowOrdering'))
                                 title="Order by {{ $column }} {{ $orderDirection == 'asc' ? 'descending' : 'ascending' }}"
                             @endif
-                            class="text-left px-3 py-2 @if($browseColumn->getOption('allowOrdering')) group hover:text-primary-500 @endif @if($orderBy == $column) text-primary-500 @endif" @if($browseColumn->width != null) style="width: {{ is_numeric($browseColumn->width) ? $browseColumn->width.'px' : $browseColumn->width }}" @endif>
+                            class="text-left px-3 py-2 @if($browseColumn->getOption('allowOrdering')) group hover:text-primary-500 dark:hover:text-slate-700 @endif @if($orderBy == $column) text-primary-500 dark:text-slate-800 @endif" @if($browseColumn->width != null) style="width: {{ is_numeric($browseColumn->width) ? $browseColumn->width.'px' : $browseColumn->width }}" @endif>
                             @if($browseColumn->getOption('allowOrdering'))
                                 <button class="flex items-center gap-3 w-full text-left" wire:click="reOrderAction('{{ $column }}', '{{ $orderDirection == 'asc' ? 'desc' : 'asc' }}')">
                                     {{ $browseColumn->renderDisplayName() }}
                                     @if($orderBy == $column)
-                                        <i class="relative fas fa-sort-{{ $orderDirection == 'asc' ? 'up' : 'down' }} text-primary-500"
+                                        <i class="relative fas fa-sort-{{ $orderDirection == 'asc' ? 'up' : 'down' }} text-primary-500 dark:text-slate-800"
                                             style="{{ $orderDirection == 'asc' ? 'top: 3px;' : 'top: -3px;' }}"
                                             ></i>
                                     @else
-                                        <i class="fas fa-sort text-slate-400 group-hover:text-primary-500" title="Order ascending"></i>
+                                        <i class="fas fa-sort text-slate-400 group-hover:text-primary-500 dark:group-hover:text-slate-700" title="Order ascending"></i>
                                     @endif
                                 </button>
                             @else
