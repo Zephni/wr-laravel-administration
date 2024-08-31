@@ -5,6 +5,8 @@
     $id = empty($attributes->get('id')) ? 'wrinput-'.$attributes->get('name') : $attributes->get('id');
 @endphp
 
+<div class="{{ $options['containerClass'] ?? 'w-full flex-1 md:flex-auto' }}">
+
 @if(!empty($label))
     {!! view($WRLAHelper::getViewPath('components.forms.label'), [
         'label' => $label,
@@ -32,3 +34,5 @@
 @error($attributes->get('name'))
     @themeComponent('alert', ['type' => 'error', 'message' => $message, 'class' => 'mt-2'])
 @enderror
+
+</div>
