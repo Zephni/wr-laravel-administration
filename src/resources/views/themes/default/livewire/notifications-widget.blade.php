@@ -5,17 +5,19 @@
             Notifications / Tasks
         </h3>
         <div class="">
-            <div class="relative flex items-center gap-2" style="top: -6px;">
-                <div class="text-sm">Show: </div>
-                {{-- Status filter --}}
-                @themeComponent('forms.input-select', [
-                    'attributes' => new \Illuminate\View\ComponentAttributeBag([
-                        'wire:model.live' => 'statusFilter',
-                        'class' => '!mt-0'
-                    ]),
-                    'items' => $statusFilterOptions,
-                    'options' => []
-                ])
+            <div class="relative flex items-center gap-5" style="top: -9px;">
+                <div class="flex items-center gap-2">
+                    <div class="text-sm">Show: </div>
+                    {{-- Status filter --}}
+                    @themeComponent('forms.input-select', [
+                        'attributes' => new \Illuminate\View\ComponentAttributeBag([
+                            'wire:model.live' => 'statusFilter',
+                            'class' => '!bg-slate-100 !mt-0'
+                        ]),
+                        'items' => $statusFilterOptions,
+                        'options' => []
+                    ])
+                </div>
             </div>
         </div>
     </div>
