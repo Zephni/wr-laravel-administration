@@ -56,7 +56,7 @@
                     ])
                 ])
 
-                <a href="{{ route('wrla.forgot-password') }}" class="text-sm text-primary-500 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-200">
+                <a href="{{ route('wrla.forgot-password') }}" class="whitespace-nowrap text-sm text-primary-500 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-200">
                     Forgot your password?
                 </a>
             </div>
