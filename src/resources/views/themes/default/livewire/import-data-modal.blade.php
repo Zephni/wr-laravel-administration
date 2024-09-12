@@ -1,3 +1,3 @@
-<div>
-    Import data modal
-</div>
+<x-wrla-modal-layout>
+    Work in progress...
+</x-wrla-modal-layout>

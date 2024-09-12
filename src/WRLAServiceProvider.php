@@ -146,6 +146,9 @@ class WRLAServiceProvider extends ServiceProvider
         Livewire::component('wrla.import-data-modal', ImportDataModal::class);
         Livewire::component('wrla.wire-elements-modal', \LivewireUI\Modal\Modal::class);
         Livewire::forceAssetInjection();
+
+        // Load custom blade directives
+        Blade::component('wr-laravel-administration::components.modals.modal-layout', 'wrla-modal-layout');
     }
 
     /**
