@@ -51,9 +51,10 @@
 
                 {{-- Dropdown arrow --}}
                 <div
+                    style="z-index: 6;"
                     @click="dropdownOpen = !dropdownOpen;"
                     :class="{ '!text-primary-500': dropdownOpen, '!border-t-2 !border-b-2 border-slate-600': !dropdownOpen && (thisActive || childIsActive), '!border-t-2 !border-b border-slate-600': dropdownOpen && (thisActive || childIsActive) }"
-                    class="border-l border-slate-550 bg-slate-725 absolute right-0 bg-slate-700 z-10 flex justify-center items-center w-10 min-w-10 min-h-full hover:bg-slate-800 text-slate-300 dark:text-slate-300 cursor-pointer hover:text-primary-500">
+                    class="border-l border-slate-550 bg-slate-725 absolute right-0 bg-slate-700 flex justify-center items-center w-10 min-w-10 min-h-full hover:bg-slate-800 text-slate-300 dark:text-slate-300 cursor-pointer hover:text-primary-500">
                     <i :class="{'fas fa-chevron-right': !dropdownOpen, 'fas fa-chevron-down': dropdownOpen}" class="text-xs mt-1"></i>
                 </div>
             </div>
