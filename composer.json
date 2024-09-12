@@ -23,6 +23,7 @@
     "minimum-stability": "stable",
     "require": {
         "livewire/livewire": "^3.4",
-        "intervention/image": "^3.6"
+        "intervention/image": "^3.6",
+        "wire-elements/modal": "^2.0"
     }
 }

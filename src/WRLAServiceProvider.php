@@ -21,6 +21,7 @@ use WebRegulate\LaravelAdministration\Http\Middleware\IsNotAdmin;
 use WebRegulate\LaravelAdministration\Livewire\NotificationsWidget;
 use WebRegulate\LaravelAdministration\Commands\CreateManageableModelCommand;
 use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItem;
+use WebRegulate\LaravelAdministration\Livewire\ImportDataModal;
 use WebRegulate\LaravelAdministration\Livewire\ManageableModels\ManageableModelBrowse;
 
 class WRLAServiceProvider extends ServiceProvider
@@ -142,6 +143,8 @@ class WRLAServiceProvider extends ServiceProvider
         // Livewire component registering and asset injection
         Livewire::component('wrla.manageable-models.browse', ManageableModelBrowse::class);
         Livewire::component('wrla.notifications-widget', NotificationsWidget::class);
+        Livewire::component('wrla.import-data-modal', ImportDataModal::class);
+        Livewire::component('wire-elements-modal', \LivewireUI\Modal\Modal::class);
         Livewire::forceAssetInjection();
     }
 
@@ -178,7 +181,7 @@ class WRLAServiceProvider extends ServiceProvider
 
     /**
      * Define gates
-     * 
+     *
      * @return void
      */
     protected function defineGates(): void
@@ -190,7 +193,7 @@ class WRLAServiceProvider extends ServiceProvider
 
     /**
      * Register custom validation rules
-     * 
+     *
      * @return void
      */
     protected function registerValidationRules(): void
@@ -221,7 +224,7 @@ class WRLAServiceProvider extends ServiceProvider
                 if(is_bool($originalValue)) {
                     $originalValue = $originalValue ? 'true' : 'false';
                 }
-                
+
                 return str_replace(':origional_value', $originalValue, $message);
             });
 

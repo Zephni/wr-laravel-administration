@@ -595,6 +595,17 @@ abstract class ManageableModel
             ])
         ]));
 
+        // Import Data
+        $browseActions->put(11, view(WRLAHelper::getViewPath('components.forms.button'), [
+            'text' => 'Import Data',
+            'icon' => 'fa fa-file-import',
+            'color' => 'teal',
+            'size' => 'small',
+            'attributes' => new ComponentAttributeBag([
+                'onclick' => "Livewire.dispatch('openModal', { component: 'wrla.import-data-modal' })"
+            ])
+        ]));
+
         return $browseActions;
     }
 
