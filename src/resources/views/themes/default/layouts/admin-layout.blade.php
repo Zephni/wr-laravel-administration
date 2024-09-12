@@ -45,7 +45,7 @@
     @stack('scripts')
 
     {{-- Wire elements modal --}}
-    @livewire('wire-elements-modal')
+    @livewire('wrla.wire-elements-modal')
 
     {{-- Append body stack --}}
     @stack('appendBody')

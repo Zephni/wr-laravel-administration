@@ -583,26 +583,26 @@ abstract class ManageableModel
             ]));
         }
 
-        // Export as CSV
-        $browseActions->put(10, view(WRLAHelper::getViewPath('components.forms.button'), [
-            'text' => 'Export as CSV',
-            'icon' => 'fa fa-file-csv',
-            'color' => 'teal',
-            'size' => 'small',
-            'attributes' => new ComponentAttributeBag([
-                'wire:click' => 'exportAsCSVAction',
-                'class' => 'ml-auto'
-            ])
-        ]));
-
         // Import Data
-        $browseActions->put(11, view(WRLAHelper::getViewPath('components.forms.button'), [
+        $browseActions->put(50, view(WRLAHelper::getViewPath('components.forms.button'), [
             'text' => 'Import Data',
             'icon' => 'fa fa-file-import',
             'color' => 'teal',
             'size' => 'small',
             'attributes' => new ComponentAttributeBag([
-                'onclick' => "Livewire.dispatch('openModal', { component: 'wrla.import-data-modal' })"
+                'onclick' => "Livewire.dispatch('openModal', { component: 'wrla.import-data-modal' })",
+                'class' => 'ml-auto'
+            ])
+        ]));
+
+        // Export as CSV
+        $browseActions->put(51, view(WRLAHelper::getViewPath('components.forms.button'), [
+            'text' => 'Export as CSV',
+            'icon' => 'fa fa-file-csv',
+            'color' => 'teal',
+            'size' => 'small',
+            'attributes' => new ComponentAttributeBag([
+                'wire:click' => 'exportAsCSVAction'
             ])
         ]));
 
