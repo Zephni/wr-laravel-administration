@@ -14,7 +14,6 @@ use WebRegulate\LaravelAdministration\Models\User;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 use WebRegulate\LaravelAdministration\Commands\RebuildUser;
 use WebRegulate\LaravelAdministration\Commands\WikiCommand;
-use WebRegulate\LaravelAdministration\Livewire\LivewireModal;
 use WebRegulate\LaravelAdministration\Commands\InstallCommand;
 use WebRegulate\LaravelAdministration\Http\Middleware\IsAdmin;
 use WebRegulate\LaravelAdministration\Commands\CreateUserCommand;
@@ -142,7 +141,6 @@ class WRLAServiceProvider extends ServiceProvider
 
         // Livewire component registering and asset injection
         Livewire::component('wrla.manageable-models.browse', ManageableModelBrowse::class);
-        Livewire::component('wrla.livewire-modal', LivewireModal::class);
         Livewire::component('wrla.notifications-widget', NotificationsWidget::class);
         Livewire::forceAssetInjection();
     }
