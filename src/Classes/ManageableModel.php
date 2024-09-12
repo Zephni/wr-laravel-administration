@@ -590,14 +590,22 @@ abstract class ManageableModel
             'color' => 'teal',
             'size' => 'small',
             'attributes' => new ComponentAttributeBag([
-                'onclick' => "Livewire.dispatch('openModal', { component: 'wrla.import-data-modal' })",
+                'onclick' => "
+                    window.buttonSignifyLoading(this, () => new Promise((resolve) => {
+                        // Open the Livewire modal
+                        Livewire.dispatch('openModal', { component: 'wrla.import-data-modal' });
+
+                        // Listen for the Livewire 'modalOpened' event
+                        Livewire.on('importDataModalOpened', () => { resolve(); });
+                    }));
+                ",
                 'class' => 'ml-auto'
             ])
         ]));
 
         // Export as CSV
         $browseActions->put(51, view(WRLAHelper::getViewPath('components.forms.button'), [
-            'text' => 'Export as CSV',
+            'text' => 'Export CSV',
             'icon' => 'fa fa-file-csv',
             'color' => 'teal',
             'size' => 'small',

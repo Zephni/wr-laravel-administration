@@ -34,6 +34,31 @@
             }
         }, 100);
     });
+
+    /**
+     * Set button to loading state
+     *
+     * @param {element} element
+     * @param {callback} waitUntil
+     */
+    window.buttonSignifyLoading = async function(element, waitUntil) {
+        // Find the <i> icon element and change to spinner
+        let iconElement = element.querySelector('i');
+
+        // Get current icon class
+        let currentIconClass = iconElement.classList[1];
+
+        // Remove the current icon class and replace with spinner
+        iconElement.classList.remove(currentIconClass);
+        iconElement.classList.add('fa-spinner', 'fa-spin');
+
+        // Await the waitUntil promise to be resolved
+        await waitUntil();
+
+        // Revert to the original icon
+        iconElement.classList.remove('fa-spinner', 'fa-spin');
+        iconElement.classList.add(currentIconClass);
+    }
 </script>
 
 {{-- Font Awesome cdn --}}
