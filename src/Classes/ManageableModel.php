@@ -583,8 +583,13 @@ abstract class ManageableModel
             ]));
         }
 
+        // At index 50 we put a forced gap to display any item after this on the right side
+        $browseActions->put(50, <<<HTML
+            <div class="ml-auto"></div>
+        HTML);
+
         // Import Data
-        $browseActions->put(50, view(WRLAHelper::getViewPath('components.forms.button'), [
+        $browseActions->put(51, view(WRLAHelper::getViewPath('components.forms.button'), [
             'text' => 'Import Data',
             'icon' => 'fa fa-file-import',
             'color' => 'teal',
@@ -603,13 +608,12 @@ abstract class ManageableModel
                         // Listen for the Livewire 'modalOpened' event
                         Livewire.on('importDataModalOpened', () => { resolve(); });
                     }));
-                ",
-                'class' => 'ml-auto'
+                "
             ])
         ]));
 
         // Export as CSV
-        $browseActions->put(51, view(WRLAHelper::getViewPath('components.forms.button'), [
+        $browseActions->put(52, view(WRLAHelper::getViewPath('components.forms.button'), [
             'text' => 'Export CSV',
             'icon' => 'fa fa-file-csv',
             'color' => 'teal',

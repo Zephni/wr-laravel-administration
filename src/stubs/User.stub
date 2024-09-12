@@ -18,7 +18,7 @@ use \WebRegulate\LaravelAdministration\Models\User as WRLAUser;
 class User extends ManageableModel
 {
     /**
-     * Impersonate permission constant
+     * Impersonate permission constant //
      *
      * @var string
      */
@@ -67,10 +67,10 @@ class User extends ManageableModel
             )
         ]));
 
-        // Browse actions
-        static::setBrowseActions(static::getDefaultBrowseActions());
+        // Browse actions (Remove import action #51)
+        static::setBrowseActions(static::getDefaultBrowseActions()->forget(51));
 
-        // Order by
+        // Set order by
         static::setOrderBy();
     }
 

@@ -24,7 +24,7 @@
     {{-- Browse actions --}}
     <div class="flex flex-row gap-3">
         @foreach($manageableModelClass::getBrowseActions() as $browseAction)
-            {!! $browseAction->render() !!}
+            {!! !is_string($browseAction) ? $browseAction->render() : $browseAction !!}
         @endforeach
     </div>
 
