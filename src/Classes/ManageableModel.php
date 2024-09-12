@@ -593,7 +593,12 @@ abstract class ManageableModel
                 'onclick' => "
                     window.buttonSignifyLoading(this, () => new Promise((resolve) => {
                         // Open the Livewire modal
-                        Livewire.dispatch('openModal', { component: 'wrla.import-data-modal' });
+                        Livewire.dispatch('openModal', {
+                            component: 'wrla.import-data-modal',
+                            arguments: {
+                                manageableModelClass: '".str(static::class)->replace('\\', '\\\\')."'
+                            }
+                        });
 
                         // Listen for the Livewire 'modalOpened' event
                         Livewire.on('importDataModalOpened', () => { resolve(); });
