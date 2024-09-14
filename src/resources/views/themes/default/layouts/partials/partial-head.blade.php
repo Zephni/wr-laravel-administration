@@ -59,6 +59,27 @@
         iconElement.classList.remove('fa-spinner', 'fa-spin');
         iconElement.classList.add(currentIconClass);
     }
+
+    /**
+     * Load livewire modal
+     * 
+     * @param {element} buttonElement
+     * @param {string} modalComponent (without wrla. prefix)
+     * @param {object} mountData
+     */
+    window.loadLivewireModal = function(buttonElement, modalComponent, mountData) {
+        window.buttonSignifyLoading(buttonElement, () => new Promise((resolve) => {
+            // Open the Livewire modal
+            Livewire.dispatch('openModal', {
+                component: `wrla.${modalComponent}`,
+                arguments: mountData
+            });
+
+            // Listen for the Livewire 'modalOpened' event
+            Livewire.on(`${modalComponent}.opened`, () => { resolve(); });
+        }));
+    };
+    
 </script>
 
 {{-- Font Awesome cdn --}}

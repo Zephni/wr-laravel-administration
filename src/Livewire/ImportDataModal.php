@@ -12,8 +12,8 @@ class ImportDataModal extends ModalComponent
 
     public function mount(string $manageableModelClass)
     {
-        // Emit a Livewire event when the modal has opened
-        $this->dispatch('importDataModalOpened');
+        // Broadcast that modal has opened successfully
+        $this->dispatch('import-data-modal.opened');
 
         // Set manageable model
         $this->manageableModelClass = $manageableModelClass;

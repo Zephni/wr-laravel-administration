@@ -595,20 +595,9 @@ abstract class ManageableModel
             'color' => 'teal',
             'size' => 'small',
             'attributes' => new ComponentAttributeBag([
-                'onclick' => "
-                    window.buttonSignifyLoading(this, () => new Promise((resolve) => {
-                        // Open the Livewire modal
-                        Livewire.dispatch('openModal', {
-                            component: 'wrla.import-data-modal',
-                            arguments: {
-                                manageableModelClass: '".str(static::class)->replace('\\', '\\\\')."'
-                            }
-                        });
-
-                        // Listen for the Livewire 'modalOpened' event
-                        Livewire.on('importDataModalOpened', () => { resolve(); });
-                    }));
-                "
+                'onclick' => "window.loadLivewireModal(this, 'import-data-modal', {
+                    manageableModelClass: '".str(static::class)->replace('\\', '\\\\')."'
+                });"
             ])
         ]));
 
@@ -779,7 +768,7 @@ abstract class ManageableModel
                 // Field
                 Text::makeBrowseFilter('searchFilter')
                     ->setLabel('Search', 'fas fa-search text-slate-400')
-                    ->setOption('containerClass', 'w-1/2')
+                    ->setOption('containerClass', 'w-1/3')
                     ->setAttributes([
                         'autofocus' => true,
                         'placeholder' => 'Search filter...'
