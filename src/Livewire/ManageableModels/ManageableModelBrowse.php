@@ -295,12 +295,30 @@ class ManageableModelBrowse extends Component
             $eloquent = $browseFilter->apply($eloquent, $tableName, $this->columns, $this->filters[$key]);
         }
 
-        // For now just order by id DESC, but need to add post query and optional ordering etc to manageable models
-        $eloquent = $eloquent->orderBy("$tableName.$this->orderBy", $this->orderDirection);
+        // Order by
+        // If orderBy is standard column, order by that column
+        if(!$relationshipColumns->has($this->orderBy)) {
+            $eloquent = $eloquent->orderBy("$tableName.$this->orderBy", $this->orderDirection);
+        // If orderBy is a relationship column, order by the relationship column
+        } else {
+            // Get relationship method and remote column
+            [$relationshipMethod, $remoteColumn] = WRLAHelper::parseBrowseColumnRelationship($this->orderBy);
 
-        $final = $eloquent->paginate(10);
+            // Get relation information
+            $relation = $eloquent->getRelation($relationshipMethod);
+            $relationModel = $relation->getRelated();
+            $relationTable = $relationModel->getTable();
+            $foreignKey = $relation->getForeignKeyName();
+            
+            // Apply with for relationship and order by relationship column
+            $eloquent = $eloquent->with([$relationshipMethod])->orderBy(
+                $relationModel::select($remoteColumn)->whereColumn("$relationTable.id", "$tableName.$foreignKey")
+            , $this->orderDirection);
+        }
 
         $this->debugMessage = $eloquent->toRawSql();
+
+        $final = $eloquent->paginate(12);
 
         return $final;
     }
