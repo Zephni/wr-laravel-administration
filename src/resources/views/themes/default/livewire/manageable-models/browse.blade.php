@@ -33,7 +33,7 @@
         <div class="flex justify-start items-stretch gap-4">
             
             @foreach($manageableModelClass::getBrowseFilters() as $filter)
-                {!! $filter->render() !!}
+                {!! $filter->render($filters) !!}
             @endforeach
 
         </div>

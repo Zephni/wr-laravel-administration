@@ -119,7 +119,7 @@ class ManageableModelBrowse extends Component
         // Get manageable model filter keys from collection
         $manageableModelFilters = $manageableModelClass::getBrowseFilters();
         foreach($manageableModelFilters as $key => $browseFilter) {
-            $this->filters[$key] = $browseFilter->field->getAttribute('value');
+            $this->filters[$key] = $browseFilter->getField($this->filters)->getValue();
         }
 
         // Check the pre filters and override default browse filters if so

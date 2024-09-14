@@ -12,9 +12,9 @@ class BrowseFilter
     /**
      * The field to filter by.
      *
-     * @var ManageableField
+     * @var ManageableField|callable
      */
-    public ManageableField $field;
+    public mixed $field;
     
     /**
      * The applicable filter. Must take parameters:
@@ -31,23 +31,37 @@ class BrowseFilter
     /**
      * Create a new BrowseFilter instance.
      *
-     * @param ManageableField $field
+     * @param ManageableField|callable $field
      * @param callable $applicableFilter
      */
-    public function __construct(ManageableField $field, callable $applicableFilter)
+    public function __construct(ManageableField|callable $field, callable $applicableFilter)
     {
         $this->field = $field;
         $this->applicableFilter = $applicableFilter;
     }
 
     /**
+     * Get field.
+     * 
+     * @param array $filterKeyValues
+     * @return ManageableField
+     */
+    public function getField($filterKeyValues): ManageableField
+    {
+        return !is_callable($this->field)
+            ? $this->field
+            : call_user_func($this->field, $filterKeyValues);
+    }
+
+    /**
      * Render the filter.
      * 
+     * @param array $filterKeyValues
      * @return string
      */
-    public function render(): string
+    public function render(array $filterKeyValues): string
     {
-        return $this->field->render(PageType::BROWSE);
+        return $this->getField($filterKeyValues)->render(PageType::BROWSE);
     }
 
     /**
