@@ -306,14 +306,12 @@ class ManageableModelBrowse extends Component
 
             // Get relation information
             $relation = $eloquent->getRelation($relationshipMethod);
-            $relationModel = $relation->getRelated();
-            $relationTable = $relationModel->getTable();
+            $relationTable = $relation->getRelated()->getTable();
             $foreignKey = $relation->getForeignKeyName();
             
-            // Apply with for relationship and order by relationship column
-            $eloquent = $eloquent->with([$relationshipMethod])->orderBy(
-                $relationModel::select($remoteColumn)->whereColumn("$relationTable.id", "$tableName.$foreignKey")
-            , $this->orderDirection);
+            // Apply join for relationship and order by relationship column
+            $eloquent = $eloquent->join($relationTable, "$relationTable.id", "$tableName.$foreignKey")
+                ->orderBy("$relationTable.$remoteColumn", $this->orderDirection);
         }
 
         $this->debugMessage = $eloquent->toRawSql();
