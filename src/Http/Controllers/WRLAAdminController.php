@@ -97,7 +97,8 @@ class WRLAAdminController extends Controller
 
         return view(WRLAHelper::getViewPath('upsert'), [
             'upsertType' => $modelId ? PageType::EDIT : PageType::CREATE,
-            'manageableModel' => $manageableModel
+            'manageableModel' => $manageableModel,
+            'usesWysiwyg' => $manageableModel->usesWysiwyg(),
         ]);
     }
 

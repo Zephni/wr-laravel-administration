@@ -39,18 +39,9 @@
         method="POST"
         class="w-full">
         @csrf
-
-        @php $hasWysiwyg = false; @endphp
         
         <div class="flex flex-wrap gap-6 mt-4 p-4 bg-slate-100 dark:bg-slate-700 shadow-slate-300 dark:shadow-slate-850 rounded-lg shadow-lg">
             @foreach($manageableModel->getManageableFields() as $manageableField)
-                @php
-                    // If any field is Wysiwyg, set $hasWysiwyg to true so we can run the JS script at the end of this file
-                    if($manageableField->getType() == 'Wysiwyg') {
-                        $hasWysiwyg = true;
-                    }
-                @endphp
-
                 {!! $manageableField->renderParent($upsertType) !!}
             @endforeach
         </div>
@@ -77,7 +68,7 @@
 
 @endsection
 
-@if(isset($hasWysiwyg) && $hasWysiwyg === true)
+@if($usesWysiwyg === true)
     @push('appendBody')
         {{-- Wysiwyg --}}
         {{-- <script src="https://cdn.ckeditor.com/ckeditor5/41.4.2/classic/ckeditor.js"></script>

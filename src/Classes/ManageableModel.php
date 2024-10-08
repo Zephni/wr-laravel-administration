@@ -1051,4 +1051,20 @@ abstract class ManageableModel
     {
         return $this->getValidationRules()->get($column);
     }
+
+    /**
+     * Does one of the manageable fields have use a wysiwyg editor
+     * 
+     * @return bool
+     */
+    public function usesWysiwyg(): bool
+    {
+        foreach($this->getManageableFields() as $manageableField) {
+            if($manageableField->getType() == 'Wysiwyg') {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }
