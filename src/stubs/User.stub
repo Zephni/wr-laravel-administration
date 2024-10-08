@@ -150,8 +150,8 @@ class User extends ManageableModel
                     'admin' => false
                 ])
                 ->jsonFormatValidation([
-                    'master' => 'boolean'.(($currentUser->id == $modelInstance->id) ? "|wrla_no_change:users,{$modelInstance->id},permissions->master" : ''),
-                    'admin' => 'boolean'.(($currentUser->id == $modelInstance->id) ? "|wrla_no_change:users,{$modelInstance->id},permissions->admin" : '')
+                    'master' => 'boolean'.(($currentUser->id == $modelInstance->id) && "|wrla_no_change:users,{$modelInstance->id},permissions->master"),
+                    'admin' => 'boolean'.(($currentUser->id == $modelInstance->id) && "|wrla_no_change:users,{$modelInstance->id},permissions->admin")
                 ])
                 ->hideContainingBraces()
                 ->setAttributes(['placeholder' => 'JSON Data', 'rows' => 4]),

@@ -188,7 +188,8 @@ class WRLAAdminController extends Controller
         $manageableModel->getmodelInstance()->save();
 
         // Default success message
-        $defaultSuccessMessage = 'Saved '.$manageableModel->getDisplayName().' #'.$manageableModel->getmodelInstance()->id.' successfully.'.(($modelId == null) ? ' <a href="'.route('wrla.manageable-models.create', ['modelUrlAlias' => $manageableModel->getUrlAlias()]).'" class="font-bold underline">Click here</a> to create another '.$manageableModel->getDisplayName(false).' record.' : '');
+        $defaultSuccessMessage = 'Saved '.$manageableModel->getDisplayName().' #'.$manageableModel->getmodelInstance()->id.' successfully.'
+            .($modelId == null && ' <a href="'.route('wrla.manageable-models.create', ['modelUrlAlias' => $manageableModel->getUrlAlias()]).'" class="font-bold underline">Click here</a> to create another '.$manageableModel->getDisplayName(false).' record.');
 
         // If wrla_override_redirect_route passed as GET parameter, redirect to that route
         if($request->has('wrla_override_redirect_route')) {
