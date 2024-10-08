@@ -7,7 +7,7 @@
         maxW: 0
     }"
     x-bind:style="'width: ' + leftPanelAttemptedWidth + 'px;'"
-    :class="(leftPanelOpen ? 'min-w-44 max-w-[33%] ' : 'min-w-0 max-w-0 border-none ') + (!dragging && 'transition-all')"
+    :class="(leftPanelOpen ? 'min-w-44 max-w-[33%] ' : 'min-w-0 max-w-0 border-none ') + (!dragging ? 'transition-all' : '')"
     id="left-panel"
     style="z-index: 6;"
     class="relative sticky hidden whitespace-nowrap md:flex top-0 flex flex-col justify-start items-start h-full border-r-2 border-slate-300 dark:border-slate-950 bg-slate-700 dark:bg-slate-700 shadow-lg shadow-slate-500 dark:shadow-slate-950 z-10">

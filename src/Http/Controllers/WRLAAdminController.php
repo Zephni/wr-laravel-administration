@@ -84,21 +84,22 @@ class WRLAAdminController extends Controller
             return redirect()->route('wrla.dashboard')->with('error', "Manageable model with url alias `$modelUrlAlias` not found.");
         }
 
-        // Get manageable model instance, note that modelId can be null
-        $manageableModel = $manageableModelClass::make($modelId);
-
         // If model id doesn't exist then return to dashboard with error
         if($modelId != null && $manageableModelClass::getBaseModelClass()::find($modelId) == null) {
             return redirect()->route('wrla.dashboard')->with('error', "Model ".$manageableModelClass." with ID `$modelId` not found.");
         }
 
-        // Run instance setup
-        $manageableModel = $manageableModel->withInstanceSetup();
+        // Get upsert type
+        $upsertType = $modelId == null ? PageType::CREATE : PageType::EDIT;
 
-        return view(WRLAHelper::getViewPath('upsert'), [
-            'upsertType' => $modelId ? PageType::EDIT : PageType::CREATE,
-            'manageableModel' => $manageableModel,
-            'usesWysiwyg' => $manageableModel->usesWysiwyg(),
+        return view(WRLAHelper::getViewPath('livewire-content'), [
+            'title' => $upsertType->getString() . ' ' . $manageableModelClass::getDisplayName(),
+            'livewireComponentAlias' => 'wrla.manageable-models.upsert',
+            'livewireComponentData' => [
+                'manageableModelClass' => $manageableModelClass,
+                'upsertType' => $modelId == null ? PageType::CREATE : PageType::EDIT,
+                'modelId' => $modelId,
+            ]
         ]);
     }
 
@@ -190,7 +191,7 @@ class WRLAAdminController extends Controller
 
         // Default success message
         $defaultSuccessMessage = 'Saved '.$manageableModel->getDisplayName().' #'.$manageableModel->getmodelInstance()->id.' successfully.'
-            .($modelId == null && ' <a href="'.route('wrla.manageable-models.create', ['modelUrlAlias' => $manageableModel->getUrlAlias()]).'" class="font-bold underline">Click here</a> to create another '.$manageableModel->getDisplayName(false).' record.');
+            .($modelId == null ? ' <a href="'.route('wrla.manageable-models.create', ['modelUrlAlias' => $manageableModel->getUrlAlias()]).'" class="font-bold underline">Click here</a> to create another '.$manageableModel->getDisplayName(false).' record.' : '');
 
         // If wrla_override_redirect_route passed as GET parameter, redirect to that route
         if($request->has('wrla_override_redirect_route')) {

@@ -16,13 +16,14 @@ use WebRegulate\LaravelAdministration\Commands\RebuildUser;
 use WebRegulate\LaravelAdministration\Commands\WikiCommand;
 use WebRegulate\LaravelAdministration\Commands\InstallCommand;
 use WebRegulate\LaravelAdministration\Http\Middleware\IsAdmin;
+use WebRegulate\LaravelAdministration\Livewire\ImportDataModal;
 use WebRegulate\LaravelAdministration\Commands\CreateUserCommand;
 use WebRegulate\LaravelAdministration\Http\Middleware\IsNotAdmin;
 use WebRegulate\LaravelAdministration\Livewire\NotificationsWidget;
 use WebRegulate\LaravelAdministration\Commands\CreateManageableModelCommand;
 use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItem;
-use WebRegulate\LaravelAdministration\Livewire\ImportDataModal;
 use WebRegulate\LaravelAdministration\Livewire\ManageableModels\ManageableModelBrowse;
+use WebRegulate\LaravelAdministration\Livewire\ManageableModels\ManageableModelUpsert;
 
 class WRLAServiceProvider extends ServiceProvider
 {
@@ -142,6 +143,7 @@ class WRLAServiceProvider extends ServiceProvider
 
         // Livewire component registering and asset injection
         Livewire::component('wrla.manageable-models.browse', ManageableModelBrowse::class);
+        Livewire::component('wrla.manageable-models.upsert', ManageableModelUpsert::class);
         Livewire::component('wrla.notifications-widget', NotificationsWidget::class);
         Livewire::component('wrla.import-data-modal', ImportDataModal::class);
         Livewire::component('wrla.wire-elements-modal', \LivewireUI\Modal\Modal::class);

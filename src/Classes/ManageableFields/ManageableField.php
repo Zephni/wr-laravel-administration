@@ -500,9 +500,9 @@ class ManageableField
             return '';
         }
 
-        $HTML = $this->getOption('beginGroup') == true && '<div class="w-full flex flex-col md:flex-row items-center gap-6">';
+        $HTML = $this->getOption('beginGroup') == true ? '<div class="w-full flex flex-col md:flex-row items-center gap-6">' : '';
         $HTML .= $this->render($upsertType);
-        $HTML .= $this->getOption('endGroup') == true && '</div>';
+        $HTML .= $this->getOption('endGroup') == true ? '</div>' : '';
 
         if(empty($HTML))
         {

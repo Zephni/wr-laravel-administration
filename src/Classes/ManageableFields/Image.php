@@ -324,7 +324,7 @@ class Image extends ManageableField
     {
         $HTML = '';
 
-        $path = ($this->getOption('storeFilenameOnly') == true) && '/'.ltrim(rtrim($this->getPath(), '/'), '/').'/';
+        $path = ($this->getOption('storeFilenameOnly') == true) ? '/'.ltrim(rtrim($this->getPath(), '/'), '/').'/' : '';
 
         $HTML .= view(WRLAHelper::getViewPath('components.forms.input-image'), [
             'label' => $this->getLabel(),

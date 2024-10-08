@@ -1,12 +1,7 @@
-@extends($WRLAHelper::getViewPath("layouts.admin-layout"))
-
-@section('title', $upsertType->getString() . ' ' . $manageableModel->getDisplayName())
-
-@section('content')
-
+<div>
     @themeComponent('forms.button', [
-        'href' => route('wrla.manageable-models.browse', ['modelUrlAlias' => $manageableModel->getUrlAlias()]),
-        'text' => $manageableModel->getDisplayName(true),
+        'href' => route('wrla.manageable-models.browse', ['modelUrlAlias' => $manageableModelClass::getUrlAlias()]),
+        'text' => $manageableModelClass::getDisplayName(true),
         'size' => 'small',
         'color' => 'primary',
         'icon' => 'fa fa-arrow-left',
@@ -14,6 +9,7 @@
 
     <br />
 
+    {{-- Heading --}}
     <div class="flex justify-between">
         <div class="text-xl font-semibold">
             @if($manageableModel->getmodelInstance()->id == null)
@@ -30,6 +26,7 @@
         </div>
     </div>
 
+    {{-- Form --}}
     <form
         action="{{ route('wrla.manageable-models.upsert.post', [
             'modelUrlAlias' => $manageableModel->getUrlAlias(),
@@ -65,21 +62,10 @@
         </div>
 
     </form>
-
-@endsection
+</div>
 
 @if($usesWysiwyg === true)
     @push('appendBody')
-        {{-- Wysiwyg --}}
-        {{-- <script src="https://cdn.ckeditor.com/ckeditor5/41.4.2/classic/ckeditor.js"></script>
-        <script>
-            ClassicEditor
-                .create(document.querySelector( '.wrla_wysiwyg' ))
-                .catch(error => {
-                    console.error( error );
-                });
-        </script> --}}
-
         <script src="https://cdn.tiny.cloud/1/126uh4v0nur2ag6fpa5vb60rduwp1skzx02vsmdww39mpva2/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
         <script>
             tinymce.init({
