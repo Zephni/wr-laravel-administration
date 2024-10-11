@@ -1018,6 +1018,16 @@ abstract class ManageableModel
     }
 
     /**
+     * Post delete model instance hook
+     *
+     * @return void
+     */
+    public function postDeleteModelInstance(Request $request, int $oldId, bool $soft): void
+    {
+        // Override this method in your model to add custom logic after deleting the model instance
+    }
+
+    /**
      * Is model soft deletable
      *
      * @return bool
@@ -1054,7 +1064,7 @@ abstract class ManageableModel
 
     /**
      * Does one of the manageable fields have use a wysiwyg editor
-     * 
+     *
      * @return bool
      */
     public function usesWysiwyg(): bool

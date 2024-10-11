@@ -356,11 +356,13 @@ class ManageableModelBrowse extends Component
         if($model !== null) {
             $model = $baseModelClass::find($id);
             $model->delete();
+            $manageableModel->postDeleteModelInstance(request(), $id, true);
         // Otherwise try finding with trashed and permanently delete
         } else {
             $model = $baseModelClass::withTrashed()->find($id);
             $model->forceDelete();
             $permanent = 1;
+            $manageableModel->postDeleteModelInstance(request(), $id, false);
         }
 
         $this->successMessage = $this->manageableModelClass::getDisplayName()

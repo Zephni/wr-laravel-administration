@@ -1,19 +1,20 @@
 <?php
-
 namespace App\WRLA;
 
 use \Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Builder;
+use WebRegulate\LaravelAdministration\Models\UserData;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 use WebRegulate\LaravelAdministration\Classes\BrowseFilter;
-use WebRegulate\LaravelAdministration\Classes\BrowseColumns\BrowseColumn;
 use \WebRegulate\LaravelAdministration\Classes\ManageableModel;
+use \WebRegulate\LaravelAdministration\Models\User as WRLAUser;
 use WebRegulate\LaravelAdministration\Classes\ManageableFields\Json;
 use \WebRegulate\LaravelAdministration\Classes\ManageableFields\Text;
 use WebRegulate\LaravelAdministration\Classes\ManageableFields\Image;
 use WebRegulate\LaravelAdministration\Classes\ManageableFields\Select;
 use \WebRegulate\LaravelAdministration\Classes\ManageableFields\Password;
-use \WebRegulate\LaravelAdministration\Models\User as WRLAUser;
+use WebRegulate\LaravelAdministration\Classes\BrowseColumns\BrowseColumn;
 
 class User extends ManageableModel
 {
@@ -98,7 +99,7 @@ class User extends ManageableModel
         $browseActions = static::getDefaultInstanceActions();
         $model = $this->getModelInstance();
         // If not current user
-        if($model->id !== auth()->id()) {
+        if($model->id !== Auth::id()) {
             // If not soft deleted and has impersonate permission, add login as browse action
             if(!$model->trashed() && static::getPermission(self::IMPERSONATE)) {
                 $browseActions->prepend(view(WRLAHelper::getViewPath('components.browse-actions.login-as'), [
@@ -191,8 +192,21 @@ class User extends ManageableModel
      */
     public function postUpdateModelInstance(Request $request): void {
         // Relogin as the user if the id is the same as the current user, and email or password has been changed
-        if ($this->getModelInstance()->id === auth()->id() && ($request->email !== $this->getModelInstance()->email || $request->password)) {
-            auth()->login($this->getModelInstance());
+        if ($this->getModelInstance()->id === Auth::id() && ($request->email !== $this->getModelInstance()->email || $request->password)) {
+            Auth::login($this->getModelInstance());
+        }
+    }
+
+    /**
+     * Post delete model instance hook
+     *
+     * @return void
+     */
+    public function postDeleteModelInstance(Request $request, int $oldId, bool $soft): void
+    {
+        // If not soft delete then delete user data record
+        if(!$soft) {
+            UserData::where('user_id', $oldId)->delete();
         }
     }
 
