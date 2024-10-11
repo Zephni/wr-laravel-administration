@@ -693,7 +693,14 @@ abstract class ManageableModel
                 $relationshipParts = WRLAHelper::parseBrowseColumnRelationship($key);
 
                 $returnBrowseColumn = BrowseColumn::make($value, 'string')->overrideRenderValue(function($value, $model) use($relationshipParts) {
-                    return $model->{$relationshipParts[0]}->{$relationshipParts[1]};
+                    // If relationship parts [1] has -> then it's a json column so we dig for the value
+                    if(str($relationshipParts[1])->contains('->')) {
+                        $dotNotationParts = explode('->', $relationshipParts[1]);
+                        $jsonField = $model->{$relationshipParts[0]}->{$dotNotationParts[0]};                        
+                        return data_get(json_decode($jsonField), implode('.', array_slice($dotNotationParts, 1)));
+                    }
+
+                    return $model->{$relationshipParts[0]}?->{$relationshipParts[1]} ?? '';
                 });
             }
 

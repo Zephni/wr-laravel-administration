@@ -273,20 +273,33 @@ class ManageableModelBrowse extends Component
 
                 // With relationship
                 $eloquent = $eloquent->with($relationshipMethod);
+
+                // Get relation information
+                $relation = $eloquent->getRelation($relationshipMethod);
+                $relationTable = $relation->getRelated()->getTable();
+                
+                // Apply join for relationship
+                $eloquent = $eloquent->join($relationTable, "$relationTable.id", "$tableName.id");
             }
         }
 
         // If Json reference columns exist, add them to the query
         if($jsonReferenceColumns->count() > 0) {
             foreach($jsonReferenceColumns as $column => $label) {
+                // If in relationship columns
+                if($relationshipColumns->has($column)) {
+                    [$relationshipMethod, $remoteColumn] = WRLAHelper::parseBrowseColumnRelationship($column);
+                    $relation = $eloquent->getRelation($relationshipMethod);
+                    $relationTable = $relation->getRelated()->getTable();
+                    $eloquent->addSelect("$relationTable.$remoteColumn as $column");
+                    continue;
+                }
+
                 // Note that the column can be nested any number of levels deep, for example: data->profile->avatar
                 // With query builder, json_extract is already automatically added, so we just make a nice alias for the value
-                $eloquent = $eloquent->addSelect($column . ' as ' . $column);
+                $eloquent = $eloquent->addSelect("$column as $column");
             }
         }
-
-        // DD with current query string for debugging
-        // dd($eloquent->toSql());
 
         // Now we loop through the filterable fields and apply them to the query
         $manageableModelFilters = $this->manageableModelClass::getBrowseFilters();
