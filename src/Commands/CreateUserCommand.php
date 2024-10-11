@@ -2,10 +2,11 @@
 
 namespace WebRegulate\LaravelAdministration\Commands;
 
+use Faker;
 use App\Models\User;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Hash;
-use Faker;
+use WebRegulate\LaravelAdministration\Models\UserData;
 
 class CreateUserCommand extends Command
 {
@@ -79,18 +80,24 @@ class CreateUserCommand extends Command
         $defaultPassword = $defaults['password'];
         $password = $this->ask('Enter the password for the '.$userText->lower(), $defaultPassword);
 
-        // Create a dummy user
+        // Create a standard user
         $user = new User();
         $user->name = $name;
         $user->email = $email;
         $user->password = Hash::make($password);
-        $user->permissions = json_encode([
-            "master" => $master,
-            "admin" => $admin
-        ]);
-        $user->settings = json_encode([]);
-        $user->data = json_encode([]);
         $user->save();
+
+        // Create WRLA user data record
+        $wrlaUserData = new UserData();
+        $wrlaUserData->user_id = $user->id;
+        $wrlaUserData->permissions = json_encode([
+            "master" => $master,
+            "admin" => $admin,
+
+        ]);
+        $wrlaUserData->settings = json_encode([]);
+        $wrlaUserData->data = json_encode([]);
+        $wrlaUserData->save();
 
         // Success message, display email and password on seperate lines, the text should be white, but the email and password should be in green
         $this->line('');

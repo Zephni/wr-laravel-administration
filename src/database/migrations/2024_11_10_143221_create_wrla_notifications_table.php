@@ -11,12 +11,23 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('notifications', function (Blueprint $table) {
+        Schema::create('wrla_notifications', function (Blueprint $table) {
+            // Id
             $table->id();
+
+            // Type
             $table->string('type');
+
+            // User ID (foreign key to users table)
             $table->string('user_id');
+
+            // Data
             $table->json('data');
+
+            // Read at
             $table->timestamp('read_at')->nullable();
+
+            // Created at and updated at
             $table->timestamps();
         });
     }
@@ -26,6 +37,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('notifications');
+        Schema::dropIfExists('wrla_notifications');
     }
 };

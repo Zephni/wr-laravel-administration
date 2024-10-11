@@ -8,6 +8,8 @@ use WebRegulate\LaravelAdministration\Classes\NotificationBase;
 
 class Notification extends Model
 {
+    protected $table = 'wrla_notifications';
+
     protected $fillable = [
         'type',
         'user_id',

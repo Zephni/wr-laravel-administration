@@ -2,12 +2,14 @@
 
 namespace WebRegulate\LaravelAdministration\Models;
 
-use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Contracts\Auth\CanResetPassword;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Notifications\Notifiable;
 use \Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Contracts\Auth\CanResetPassword;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 
 class User extends Authenticatable implements CanResetPassword
 {
@@ -29,6 +31,8 @@ class User extends Authenticatable implements CanResetPassword
         'password',
         'remember_token',
     ];
+
+    protected $with = ['wrlaUserData'];
 
     /**
      * From User model
@@ -101,7 +105,7 @@ class User extends Authenticatable implements CanResetPassword
     {
         if ($allowCache) {
             return once(function() {
-                $user = auth()->user();
+                $user = Auth::user();
 
                 if ($user == null) {
                     return null;
@@ -112,7 +116,7 @@ class User extends Authenticatable implements CanResetPassword
         }
         else
         {
-            $user = auth()->user();
+            $user = Auth::user();
 
             if ($user == null) {
                 return null;
@@ -140,7 +144,9 @@ class User extends Authenticatable implements CanResetPassword
      */
     public function getPermission(string $dottedKey): mixed
     {
-        return Arr::get(json_decode($this->permissions, true), $dottedKey);
+        $wrlaUserData = $this->wrlaUserData;
+        if ($wrlaUserData == null) return null;
+        return Arr::get(json_decode($wrlaUserData->permissions, true), $dottedKey);
     }
 
     /**
@@ -149,7 +155,9 @@ class User extends Authenticatable implements CanResetPassword
      */
     public function getSetting(string $dottedKey): mixed
     {
-        return Arr::get(json_decode($this->settings, true), $dottedKey);
+        $wrlaUserData = $this->wrlaUserData;
+        if ($wrlaUserData == null) return null;
+        return Arr::get(json_decode($wrlaUserData->settings, true), $dottedKey);
     }
 
     /**
@@ -158,7 +166,9 @@ class User extends Authenticatable implements CanResetPassword
      */
     public function getData(string $dottedKey): mixed
     {
-        return Arr::get(json_decode($this->data, true), $dottedKey);
+        $wrlaUserData = $this->wrlaUserData;
+        if ($wrlaUserData == null) return null;
+        return Arr::get(json_decode($wrlaUserData->data, true), $dottedKey);
     }
 
     /**
@@ -202,5 +212,15 @@ class User extends Authenticatable implements CanResetPassword
     public function isAdmin(): bool
     {
         return $this->getPermission('admin') == true;
+    }
+
+    /**
+     * WRLA User data relationship
+     * 
+     * @return HasOne
+     */
+    public function wrlaUserData(): HasOne
+    {
+        return $this->hasOne(UserData::class, 'user_id');
     }
 }
