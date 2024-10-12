@@ -279,7 +279,7 @@ class ManageableModelBrowse extends Component
                 $relationTable = $relation->getRelated()->getTable();
                 
                 // Apply join for relationship
-                $eloquent = $eloquent->join($relationTable, "$relationTable.id", "$tableName.id");
+                $eloquent = $eloquent->leftJoin($relationTable, "$relationTable.id", "$tableName.id");
             }
         }
 

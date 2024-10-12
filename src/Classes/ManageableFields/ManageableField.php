@@ -540,17 +540,20 @@ class ManageableField
      */
     public function getRelationshipInstance(): mixed
     {
+        // Get model instance, field name and relationship parts
+        $modelInstance = $this->manageableModel->getModelInstance();
         $fieldName = str($this->attributes['name'])->replace(self::WRLA_REL_DOT, '.');
         $relationshipParts = WRLAHelper::parseBrowseColumnRelationship($fieldName);
 
-        $relationshipInstance = $this->manageableModel->getModelInstance()->{$relationshipParts[0]};
-
-        if($relationshipInstance != null) {
-            return $relationshipInstance;
-        }
+        // Reload and get relationship instance
+        $modelInstance->load($relationshipParts[0]);
+        $relationshipInstance = $modelInstance->{$relationshipParts[0]};
+        
+        // If relationship instance is not null, return it
+        if($relationshipInstance != null) return $relationshipInstance;
 
         // Get model class from relationship and return new instance
-        $relationship = $this->manageableModel->getModelInstance()->{$relationshipParts[0]}();
+        $relationship = $modelInstance->{$relationshipParts[0]}();
         $relationshipClass = get_class($relationship->getRelated());
         return new $relationshipClass;
     }

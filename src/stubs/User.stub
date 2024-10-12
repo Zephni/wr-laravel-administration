@@ -133,7 +133,7 @@ class User extends ManageableModel
 
             Password::make($this, 'password'),
 
-            Image::make($this, 'data->profile->avatar', 'storage/images/avatars', '{id}-avatar-{time}.jpg')
+            Image::make($this, 'wrlaUserData.data->profile->avatar', 'storage/images/avatars', '{id}-avatar-{time}.jpg')
                 ->defaultImage($modelInstance->getProfileAvatar())
                 ->aspect('1:1')
                 ->setOption('imageClass', 'object-cover')
@@ -146,19 +146,20 @@ class User extends ManageableModel
                 ->validation('image|mimes:jpeg,png,jpg,gif,svg|max:10240')
                 ->notes('<b>Required</b> - Image should be a valid JPG, PNG or GIF, no larger than 10mb.'),
 
-            Json::make($this, 'permissions')
+            Json::make($this, 'wrlaUserData.permissions')
+                ->setLabel('Permissions')
                 ->mergeDefaultKeyValues([
                     'master' => false,
                     'admin' => false
                 ])
                 ->jsonFormatValidation([
-                    'master' => 'boolean'.(($currentUser->id == $modelInstance->id) && "|wrla_no_change:users,{$modelInstance->id},permissions->master"),
-                    'admin' => 'boolean'.(($currentUser->id == $modelInstance->id) && "|wrla_no_change:users,{$modelInstance->id},permissions->admin")
+                    'master' => 'boolean'.(($currentUser->id == $modelInstance->id) ? "|wrla_no_change:wrla_user_data,{$modelInstance->wrlaUserData?->id},permissions->master" : ''),
+                    'admin' => 'boolean'.(($currentUser->id == $modelInstance->id) ? "|wrla_no_change:wrla_user_data,{$modelInstance->wrlaUserData?->id},permissions->admin" : ''),
                 ])
                 ->hideContainingBraces()
                 ->setAttributes(['placeholder' => 'JSON Data', 'rows' => 4]),
 
-            Json::make($this, 'settings')
+            Json::make($this, 'wrlaUserData.settings')
                 ->mergeDefaultKeyValues([
                     'theme' => 'default'
                 ])
@@ -168,7 +169,7 @@ class User extends ManageableModel
                 ->hideContainingBraces()
                 ->setAttributes(['placeholder' => 'JSON Data', 'rows' => 4]),
 
-            Json::make($this, 'data')
+            Json::make($this, 'wrlaUserData.data')
                 ->hideContainingBraces()
                 ->setAttributes(['placeholder' => 'JSON Data', 'rows' => 4]),
         ]);
@@ -192,6 +193,14 @@ class User extends ManageableModel
      * @return void
      */
     public function postUpdateModelInstance(Request $request): void {
+        // If UserData exists with this user id, update it, otherwise create it
+        $userData = UserData::where('user_id', $this->getModelInstance()->id)->first();
+        if($userData == null) {
+            $userData = new UserData();
+            $userData->user_id = $this->getModelInstance()->id;
+            $userData->save();
+        }
+
         // Relogin as the user if the id is the same as the current user, and email or password has been changed
         if ($this->getModelInstance()->id === Auth::id() && ($request->email !== $this->getModelInstance()->email || $request->password)) {
             Auth::login($this->getModelInstance());
