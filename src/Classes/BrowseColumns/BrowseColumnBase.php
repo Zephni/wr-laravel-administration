@@ -54,13 +54,26 @@ class BrowseColumnBase
      */
     public function __construct(?string $label, string $type, null|int|string $width = null)
     {
-        $this->label = $label;
+        $this->label = $this->buildLabel($label);
         $this->type = $type;
         $this->width = $width;
 
         if($type == 'image') {
             $this->allowOrdering(false);
         }
+    }
+
+    /**
+     * Build label (removes first part of relation.label or relation.something->label)
+     * 
+     * @param string $label
+     * @return string
+     */
+    private function buildLabel(string $label): string
+    {
+        $newLabel = str($label)->after('.');
+        $newLabel = $newLabel->afterLast('->');
+        return $newLabel;
     }
 
     /**

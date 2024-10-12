@@ -5,6 +5,7 @@ namespace WebRegulate\LaravelAdministration\Classes;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\MessageBag;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\View\ComponentAttributeBag;
 use WebRegulate\LaravelAdministration\Enums\PageType;
@@ -818,10 +819,10 @@ abstract class ManageableModel
      * @param string $key The key in the json value.
      * @return mixed The value retrieved from the json.
      */
-    public function getInstanceJsonValue(string $key): mixed
+    public function getInstanceJsonValue(string $key, ?Model $overrideInstance = null): mixed
     {
         // Get the model instance
-        $modelInstance = $this->getModelInstance();
+        $modelInstance = $overrideInstance ?? $this->getModelInstance();
 
         $parts = explode('->', $key); // Split the key into parts using '->' as the delimiter.
         $column = $parts[0]; // The first part is the column name.
@@ -829,6 +830,33 @@ abstract class ManageableModel
 
         // Return the value from the json.
         return data_get(json_decode($modelInstance->{$column}, true), $dotNotation);
+    }
+
+    /**
+     * Get value from model relationship, note this must also check whether uses -> notation for nested json
+     *
+     * @param string $key The key, eg. relationship.column or relationship.column->key
+     * @return mixed The value retrieved from the relationship
+     */
+    public function getInstanceRelationValue(string $key): mixed
+    {
+        // Get the model instance
+        $modelInstance = $this->getModelInstance();
+
+        // Get relationship parts
+        $relationshipParts = WRLAHelper::parseBrowseColumnRelationship($key);
+        $relationshipName = $relationshipParts[0];
+        $key = $relationshipParts[1];
+        $relatedModel = $modelInstance->{$relationshipName};
+
+        // If null, return
+        if($relatedModel == null) return null;
+
+        // If doesn't have -> notation then we can just return the relationship value
+        if(strpos($key, '->') === false) return $relatedModel->{$key};
+
+        // If has -> notation then we need to get the json value from the relationship
+        return $this->getInstanceJsonValue($key, $relatedModel);
     }
 
     /**

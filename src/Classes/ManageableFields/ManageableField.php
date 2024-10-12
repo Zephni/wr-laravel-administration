@@ -76,8 +76,11 @@ class ManageableField
      */
     public function __construct(?string $name, ?string $value, ?ManageableModel $manageableModel = null)
     {
-        // Check if name has any -> in it, if so we need to get the value useing wrla json notation
-        if(strpos($name, '->') !== false) {
+        // Check if name has . (relationship) or -> (json seperator) in it we need to get the appropriate value
+        if(strpos($name, '.') !== false) {
+            $value = $manageableModel->getInstanceRelationValue($name);
+        }
+        elseif(strpos($name, '->') !== false) {
             $value = $manageableModel->getInstanceJsonValue($name);
         }
 
@@ -171,7 +174,7 @@ class ManageableField
         if($ifNullThenString !== false && $value === null) {
             return gettype($ifNullThenString) === 'string' && $ifNullThenString;
         }
-        
+
         // Return false by default so no adjustments are made to the request input
         return false;
     }
@@ -363,16 +366,12 @@ class ManageableField
 
         // If wrla::from_field_name then get the name and convert to label
         if($label === 'wrla::from_field_name') {
-            // If name is based on a json column (eg has a -> in it) then we need to get the string after the ->
-            // and then explode the . dots and get the last element.
-            if(strpos($this->attributes['name'], '->') !== false) {
-                $label = explode('->', $this->attributes['name']);
-                $label = end($label);
-            } else {
-                $label = $this->attributes['name'];
-            }
-
-            return ucfirst(str_replace('_', ' ', $label));
+            // If name is based on a relation on json column (eg has a . or -> in it) we get the last part of the name
+            $label = str($this->attributes['name'])->afterLast('.');
+            $label = $label->afterLast('->');
+            $label = $label->replace('_', ' ');
+            $label = ucfirst($label);
+            return $label;
         }
         // If null then return null
         elseif($label === null) {
