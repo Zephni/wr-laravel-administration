@@ -913,8 +913,14 @@ abstract class ManageableModel
                 continue;
             }
 
+            // Get field name. If contains WRLA_REL_DOT then convert to . notation
+            $fieldName = $manageableField->getAttribute('name');
+
+            // Get input value
+            $inputValue = $request->input($fieldName);
+
             // Run inline validation on the manageable field. If true then skip, if string message then fail
-            $ifMessageThenFail = $manageableField->runInlineValidation($request->input($manageableField->getAttribute('name')));
+            $ifMessageThenFail = $manageableField->runInlineValidation($inputValue);
 
             // Now we pass back the attribute.name and message
             if($ifMessageThenFail !== true) {
@@ -967,6 +973,12 @@ abstract class ManageableModel
         // Iterate over each manageable field
         foreach ($manageableFields as $manageableField) {
             $fieldName = $manageableField->getAttribute('name');
+            $relationshipInstance = null;
+
+            // If manageable field is relationship, we need to temporarily deal with the relationship instance instead
+            if($manageableField->isRelationshipField()) {
+                $relationshipInstance = $manageableField->getRelationshipInstance();
+            }
 
             // Get the form component by name
             $formComponent = $formComponents->first(function ($_formComponent) use ($fieldName) {
@@ -1010,8 +1022,14 @@ abstract class ManageableModel
                 if ($fieldValue instanceof MessageBag) {
                     return $fieldValue;
                 } else {
-                    // Update the field value of the model instance
-                    $this->modelInstance->$fieldName = $fieldValue;
+                    // If relationship instance is set, we need to update and save now
+                    if($relationshipInstance != null) {
+                        $relationshipInstance->{$manageableField->getRelationshipFieldName()} = $fieldValue;
+                        $relationshipInstance->save();
+                    } else {
+                        // Update the field value of the model instance
+                        $this->modelInstance->{$fieldName} = $fieldValue;
+                    }
                 }
             }
         }

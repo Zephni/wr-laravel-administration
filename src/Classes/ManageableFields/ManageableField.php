@@ -5,6 +5,7 @@ namespace WebRegulate\LaravelAdministration\Classes\ManageableFields;
 use Illuminate\Http\Request;
 use WebRegulate\LaravelAdministration\Enums\PageType;
 use WebRegulate\LaravelAdministration\Classes\ManageableModel;
+use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 
 class ManageableField
 {
@@ -14,6 +15,13 @@ class ManageableField
      * @var string
      */
     const WRLA_KEY_REMOVE = '__WRLA::KEY::REMOVE__';
+
+    /**
+     * Key remove constant
+     *
+     * @var string
+     */
+    const WRLA_REL_DOT = '__WRLA::REL::DOT__';
 
     /**
      * Attributes of the form component.
@@ -86,13 +94,25 @@ class ManageableField
 
         // Set base attributes
         $this->attributes = [
-            'name' => $name ?? '',
+            'name' => $this->buildNameAttribute($name ?? ''),
             'value' => $value ?? '',
         ];
 
         $this->manageableModel = $manageableModel;
 
         $this->postConstructed();
+    }
+
+    /**
+     * Build name attribute. We need this because PHP converts dots to underscores in request input, so we need to
+     * convert the . to a special reversable key.
+     * 
+     * @param string $name
+     * @return string
+     */
+    private static function buildNameAttribute(string $name): string
+    {
+        return str_replace('.', self::WRLA_REL_DOT, $name);
     }
 
     /**
@@ -281,6 +301,10 @@ class ManageableField
      */
     public function setAttribute(string $key, ?string $value): static
     {
+        if($key == 'name') {
+            $value = $this->buildNameAttribute($value);
+        }
+
         $this->attributes[$key] = $value;
         return $this;
     }
@@ -304,6 +328,11 @@ class ManageableField
      */
     public function setAttributes(array $attributes = []): static
     {
+        // If name is set then convert to special key
+        if(isset($attributes['name'])) {
+            $attributes['name'] = $this->buildNameAttribute($attributes['name']);
+        }
+        
         $this->attributes = array_merge($this->attributes, $attributes);
         return $this;
     }
@@ -367,10 +396,9 @@ class ManageableField
         // If wrla::from_field_name then get the name and convert to label
         if($label === 'wrla::from_field_name') {
             // If name is based on a relation on json column (eg has a . or -> in it) we get the last part of the name
-            $label = str($this->attributes['name'])->afterLast('.');
-            $label = $label->afterLast('->');
-            $label = $label->replace('_', ' ');
-            $label = ucfirst($label);
+            $label = str_replace(self::WRLA_REL_DOT, '.', $this->attributes['name']);
+            $label = str($label)->afterLast('.')->afterLast('->');
+            $label = $label->replace('_', ' ')->ucfirst();
             return $label;
         }
         // If null then return null
@@ -483,6 +511,48 @@ class ManageableField
         }
 
         return $callback($this);
+    }
+
+    /**
+     * Is relationship field.
+     * 
+     * @return bool
+     */
+    public function isRelationshipField(): bool
+    {
+        return str($this->attributes['name'])->contains('.') || str($this->attributes['name'])->contains(self::WRLA_REL_DOT);
+    }
+
+    /**
+     * Get relationship field name.
+     * 
+     * @return string
+     */
+    public function getRelationshipFieldName(): string
+    {
+        return str($this->attributes['name'])->after(self::WRLA_REL_DOT);
+    }
+
+    /**
+     * Get relationship instance.
+     * 
+     * @return mixed
+     */
+    public function getRelationshipInstance(): mixed
+    {
+        $fieldName = str($this->attributes['name'])->replace(self::WRLA_REL_DOT, '.');
+        $relationshipParts = WRLAHelper::parseBrowseColumnRelationship($fieldName);
+
+        $relationshipInstance = $this->manageableModel->getModelInstance()->{$relationshipParts[0]};
+
+        if($relationshipInstance != null) {
+            return $relationshipInstance;
+        }
+
+        // Get model class from relationship and return new instance
+        $relationship = $this->manageableModel->getModelInstance()->{$relationshipParts[0]}();
+        $relationshipClass = get_class($relationship->getRelated());
+        return new $relationshipClass;
     }
 
     /**

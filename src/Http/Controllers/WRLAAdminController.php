@@ -178,7 +178,7 @@ class WRLAAdminController extends Controller
             return redirect()->back()->withInput()->withErrors($validationErrors)->withFragment('#first-message');
         }
 
-        // Update only changed values on the model instance
+        // Update only changed values on the model instance (Note that this also updates special relationship fields)
         $result = $manageableModel->updateModelInstanceProperties($request, $manageableFields, $request->all());
         
         // If the result is not true, redirect back with input and errors
