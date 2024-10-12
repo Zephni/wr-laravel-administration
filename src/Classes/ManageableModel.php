@@ -677,16 +677,14 @@ abstract class ManageableModel
                 return null;
             }
 
-            $iseBrowseColumnRelationship = WRLAHelper::isBrowseColumnRelationship($key);
-            $valueIsBrowseColumn = $value instanceof BrowseColumnBase;
-
             // If $value is already a BrowseColumn instance, return it
+            $valueIsBrowseColumn = $value instanceof BrowseColumnBase;
             if($valueIsBrowseColumn) {
                 return $value;
             }
 
             // If $key doesn't have :: then return browsable column instance version of the value
-            if(!$iseBrowseColumnRelationship) {
+            if(!WRLAHelper::isBrowseColumnRelationship($key)) {
                 $returnBrowseColumn = $valueIsBrowseColumn ? $value : BrowseColumn::make($value, 'string');
             // otherwise we are using auto relationship naming
             } else {
