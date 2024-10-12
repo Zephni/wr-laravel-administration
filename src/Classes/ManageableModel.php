@@ -978,6 +978,7 @@ abstract class ManageableModel
             // If manageable field is relationship, we need to temporarily deal with the relationship instance instead
             if($manageableField->isRelationshipField()) {
                 $relationshipInstance = $manageableField->getRelationshipInstance();
+                // dump($fieldName, $manageableField->getRelationshipFieldName(), $relationshipInstance->{$manageableField->getRelationshipFieldName()});
             }
 
             // Get the form component by name
@@ -1000,39 +1001,43 @@ abstract class ManageableModel
 
             $fieldValue = '';
 
-            // Check if the field name exists in the form key-value pairs
-            if (array_key_exists($fieldName, $formKeyValues)) {
-                if (!$isUsingNestedJson) {
+            if (!$isUsingNestedJson) {
+                if (array_key_exists($fieldName, $formKeyValues)) {
                     // Apply the value to the form component and get the field value
                     $fieldValue = $formComponent->applySubmittedValue($request, $formKeyValues[$fieldName]);
-                } else {
-                    // Apply the value to the form component and get the new value
-                    $newValue = $formComponent->applySubmittedValue($request, $newValue);
-
-                    // Set the new value using dot notation on the field value
-                    data_set($fieldValue, $dotNotation, $newValue);
-
-                    // Convert the field value to JSON
-                    if($newValue instanceof MessageBag) {
-                        return $newValue;
-                    } else {
-                        $fieldValue = json_encode($fieldValue, JSON_UNESCAPED_SLASHES);
-                    }
+                }
+            } else {
+                // If is relation, get current field value from relationship instance
+                if($relationshipInstance != null) {
+                    $fieldValue = json_decode($relationshipInstance->{$manageableField->getRelationshipFieldName()});
                 }
 
-                // If field value an error bag something has failed, so return it instead of updating the model instance
-                if ($fieldValue instanceof MessageBag) {
-                    return $fieldValue;
+                // Apply the value to the form component and get the new value
+                $newValue = $formComponent->applySubmittedValue($request, $newValue);
+
+                // Set the new value using dot notation on the field value
+                data_set($fieldValue, $dotNotation, $newValue);
+
+                // Convert the field value to JSON
+                if($newValue instanceof MessageBag) {
+                    return $newValue;
                 } else {
-                    // If relationship instance is set, we need to update and save now
-                    if($relationshipInstance != null) {
-                        $relationshipInstance->{$manageableField->getRelationshipFieldName()} = $fieldValue;
-                        // dump($fieldName, $manageableField->getRelationshipFieldName(), $fieldValue);
-                        $relationshipInstance->save();
-                    } else {
-                        // Update the field value of the model instance
-                        $this->modelInstance->{$fieldName} = $fieldValue;
-                    }
+                    $fieldValue = json_encode($fieldValue, JSON_UNESCAPED_SLASHES);
+                }
+            }
+
+            // If field value an error bag something has failed, so return it instead of updating the model instance
+            if ($fieldValue instanceof MessageBag) {
+                return $fieldValue;
+            } else {
+                // If relationship instance is set, we need to update and save now
+                if($relationshipInstance != null) {
+                    $relationshipInstance->{$manageableField->getRelationshipFieldName()} = $fieldValue;
+                    // dump($fieldName, $manageableField->getRelationshipFieldName(), $fieldValue);
+                    $relationshipInstance->save();
+                } else {
+                    // Update the field value of the model instance
+                    $this->modelInstance->{$fieldName} = $fieldValue;
                 }
             }
         }
