@@ -2,6 +2,7 @@
 
 namespace WebRegulate\LaravelAdministration\Classes\BrowseColumns;
 
+use Illuminate\Database\Eloquent\Model;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 
 class BrowseColumnBase
@@ -161,16 +162,7 @@ class BrowseColumnBase
      */
     public function renderValue(mixed $model, string $column): string
     {
-        // If column is a relationship, modify the column to include the relationship
-        if(WRLAHelper::isBrowseColumnRelationship($column)) {
-            $relationshipData = WRLAHelper::parseBrowseColumnRelationship($column);
-            $value = $model->{$relationshipData[0]}?->{$relationshipData[1]} ?? '';
-        }
-        else
-        {
-            // Get value if set in option, if not the use the value from the models column
-            $value = $this->getOption('value') ?? $model->$column;
-        }
+        $value = $this->interpretValueFromColumn($model, $column);
 
         // dd($model, $column, $this->getOption('value'), $useColumn, $model->{$column});
 
@@ -205,5 +197,37 @@ class BrowseColumnBase
         }
 
         return $value;
+    }
+
+    /**
+     * Interpret value from column on the given model
+     * 
+     * @param Model $model
+     * @param string $column
+     */
+    public function interpretValueFromColumn(Model $model, string $column): mixed
+    {
+        // If value set, use that
+        if($this->getOption('value')) {
+            return $this->getOption('value');
+        }
+
+        // Otherwise, check if relationship and interpret
+        if(WRLAHelper::isBrowseColumnRelationship($column)) {
+            $relationshipParts = WRLAHelper::parseBrowseColumnRelationship($column);
+
+            // If relationship parts [1] has -> then it's a json column so we dig for the value
+            if(str($relationshipParts[1])->contains('->')) {
+                $dotNotationParts = explode('->', $relationshipParts[1]);
+                $jsonField = $model->{$relationshipParts[0]}->{$dotNotationParts[0]};                        
+                return data_get(json_decode($jsonField), implode('.', array_slice($dotNotationParts, 1)));
+            }
+    
+            // Otherwise, just return the relationship value
+            return $model->{$relationshipParts[0]}?->{$relationshipParts[1]} ?? '';
+        }
+
+        // Otherwise, just return the column value
+        return $model->$column;
     }
 }

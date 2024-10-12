@@ -677,32 +677,11 @@ abstract class ManageableModel
                 return null;
             }
 
-            // If $value is already a BrowseColumn instance, return it
+            // Determine whether $value is already a BrowseColumn instance
             $valueIsBrowseColumn = $value instanceof BrowseColumnBase;
-            if($valueIsBrowseColumn) {
-                return $value;
-            }
 
-            // If $key doesn't have :: then return browsable column instance version of the value
-            if(!WRLAHelper::isBrowseColumnRelationship($key)) {
-                $returnBrowseColumn = $valueIsBrowseColumn ? $value : BrowseColumn::make($value, 'string');
-            // otherwise we are using auto relationship naming
-            } else {
-                $relationshipParts = WRLAHelper::parseBrowseColumnRelationship($key);
-
-                $returnBrowseColumn = BrowseColumn::make($value, 'string')->overrideRenderValue(function($value, $model) use($relationshipParts) {
-                    // If relationship parts [1] has -> then it's a json column so we dig for the value
-                    if(str($relationshipParts[1])->contains('->')) {
-                        $dotNotationParts = explode('->', $relationshipParts[1]);
-                        $jsonField = $model->{$relationshipParts[0]}->{$dotNotationParts[0]};                        
-                        return data_get(json_decode($jsonField), implode('.', array_slice($dotNotationParts, 1)));
-                    }
-
-                    return $model->{$relationshipParts[0]}?->{$relationshipParts[1]} ?? '';
-                });
-            }
-
-            return $returnBrowseColumn;
+            // If value is not a BrowseColumn instance, then we convert it into a basic string BrowseColumn
+            return $valueIsBrowseColumn ? $value : BrowseColumn::make($value, 'string');
         });
     }
 
