@@ -966,9 +966,9 @@ abstract class ManageableModel
 
         // First do a loop through to check for any field names that use -> notation for nested json, if
         // we find any we put these last in the loop so that their values can be applied after everything else
-        $manageableFields = $manageableFields->sortBy(function ($manageableField) {
-            return strpos($manageableField->getAttribute('name'), '->') !== false;
-        })->values()->toArray();
+        // $manageableFields = $manageableFields->sortBy(function ($manageableField) {
+        //     return strpos($manageableField->getAttribute('name'), '->') !== false;
+        // })->values()->toArray();
 
         // Iterate over each manageable field
         foreach ($manageableFields as $manageableField) {
@@ -998,6 +998,8 @@ abstract class ManageableModel
                 $newValue = $formKeyValues[$formComponent->getAttribute('name')];
             }
 
+            $fieldValue = '';
+
             // Check if the field name exists in the form key-value pairs
             if (array_key_exists($fieldName, $formKeyValues)) {
                 if (!$isUsingNestedJson) {
@@ -1025,6 +1027,7 @@ abstract class ManageableModel
                     // If relationship instance is set, we need to update and save now
                     if($relationshipInstance != null) {
                         $relationshipInstance->{$manageableField->getRelationshipFieldName()} = $fieldValue;
+                        // dump($fieldName, $manageableField->getRelationshipFieldName(), $fieldValue);
                         $relationshipInstance->save();
                     } else {
                         // Update the field value of the model instance

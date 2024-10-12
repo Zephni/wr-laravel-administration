@@ -530,7 +530,14 @@ class ManageableField
      */
     public function getRelationshipFieldName(): string
     {
-        return str($this->attributes['name'])->after(self::WRLA_REL_DOT);
+        $fieldName = str($this->attributes['name'])->after(self::WRLA_REL_DOT);
+
+        // If contains ->, get the first part
+        if($fieldName->contains('->')) {
+            $fieldName = $fieldName->before('->');
+        }
+
+        return $fieldName;
     }
 
     /**

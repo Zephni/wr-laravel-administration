@@ -85,7 +85,8 @@ class Image extends ManageableField
 
             // Otherwise, we store only the filename.ext
             $parts = explode('/', $value);
-            return end($parts);
+            $value = end($parts);
+            return $value;
         }
 
         return null;

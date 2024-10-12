@@ -168,10 +168,6 @@ class User extends ManageableModel
                 ])
                 ->hideContainingBraces()
                 ->setAttributes(['placeholder' => 'JSON Data', 'rows' => 4]),
-
-            Json::make($this, 'wrlaUserData.data')
-                ->hideContainingBraces()
-                ->setAttributes(['placeholder' => 'JSON Data', 'rows' => 4]),
         ]);
     }
 
