@@ -590,6 +590,36 @@ class WRLAHelper
     }
 
     /**
+     * Query builder multi join callback function
+     *
+     * @param Builder $query The query builder.
+     * @param array $joinTables The tables to join.
+     * @param array $tableAndColumns Local table and join columns, eg. ['base_table.relationship_column_id', ...]
+     * @param ?array $selectColumns Specify extra relationship columns to select, 'id' will always be selected on the relationship table.
+     * @param ?string $useAlias
+     * @return Builder The query builder with the added join.
+     */
+    public static function queryBuilderMultiJoin(Builder $query, array $joinTables, array $tableAndColumns, ?array $selectColumns = null, ?string $useAlias = null): mixed
+    {
+        // Note that select columns must happen after all joins
+
+        // Loop through each join table and column
+        foreach($joinTables as $key => $joinTable) {
+            $tableAndColumn = $tableAndColumns[$key];
+
+            // Run join
+            $query = static::queryBuilderJoin($query, $joinTable, $tableAndColumn, [], $useAlias);
+        }
+
+        // Plug the select columns in as selectRaw's, this way we can be more specific with the columns we want to select
+        if($selectColumns != null && count($selectColumns) > 0) {
+            $query->selectRaw(implode(', ', $selectColumns));
+        }
+
+        return $query;
+    }
+
+    /**
      * Is impersonating user
      *
      * @return bool
