@@ -77,7 +77,7 @@ return [
         'default' => [
             'name' => 'Default',        // Name of the theme displayed to user (if multiple themes are available)
             'path' => 'default',        // Path to the theme folder in the 'resources/views/themes/?' directory
-            'default_mode' => 'dark',   // Default mode for the theme (dark or light)
+            'default_mode' => 'light',  // Default mode for the theme (dark or light)
             'no_image_src' => '/vendor/wr-laravel-administration/images/no-image-transparent.svg',
         ]
     ],
