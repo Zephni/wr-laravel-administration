@@ -245,7 +245,7 @@ class WRLAServiceProvider extends ServiceProvider
     protected function passVariablesToViews(): void
     {
         // Share variables with all views within this package
-        view()->composer('wr-laravel-administration::*', function ($view) {
+        view()->composer(['wr-laravel-administration::*', 'vendor.wrla.*'], function ($view) {
             // Current user
             $view->with('WRLAUser', User::current());
 
@@ -263,6 +263,29 @@ class WRLAServiceProvider extends ServiceProvider
      */
     protected function provideBladeDirectives(): void
     {
+        // Theme view directive
+        Blade::directive('themeView', function ($expression) {
+            // Remove string quotes from the expression
+            $viewPath = trim($expression, " \t\n\r\0\x0B'\"");
+
+            // First check whether a theme specific view exists
+            $fullViewPath = WRLAHelper::getViewPath($viewPath, true);
+
+            // If not then fall back to the default view
+            if($fullViewPath === false) {
+                $fullViewPath = WRLAHelper::getViewPath($viewPath, false);
+            }
+
+            // If still false, throw error
+            throw_if(
+                $fullViewPath === false,
+                new \Exception("@themeView error, args passed: $expression, The view '$viewPath' does not exist within the current theme or the default theme. Full view path: $fullViewPath")
+            );
+
+            // Display the view
+            return "<?php echo view('{$fullViewPath}')->render(); ?>";
+        });
+
         // Theme component attempts to load a theme specific component first, then falls back to the default component if doesn't exist
         Blade::directive('themeComponent', function ($expression) {
             // Split first argument from the rest (component path)

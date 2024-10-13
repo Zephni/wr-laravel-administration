@@ -34,10 +34,10 @@
         class="relative flex flex-row w-full min-h-full overflow-x-auto text-slate-900 dark:text-slate-100">
 
         {{-- Left panel --}}
-        @include('wr-laravel-administration::themes.default.layouts.partials.partial-left-panel')
+        @themeView('layouts.partials.partial-left-panel')
 
         {{-- Right container --}}
-        @include('wr-laravel-administration::themes.default.layouts.partials.partial-main-container')
+        @themeView('layouts.partials.partial-main-container')
 
     </div>
 

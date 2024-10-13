@@ -140,9 +140,9 @@ class WRLAHelper
         {
             $currentTheme = WRLAHelper::getCurrentThemeData('path');
 
-            // First check if the user has added their own theme within their project's /resources/views/wrla/themes folder
-            if(view()->exists('wrla.themes.' . $currentTheme . '.' . $view)) {
-                return 'wrla.themes.' . $currentTheme . '.' . $view;
+            // First check if the user has added their own theme within their project's /resources/vendor/views/wrla/themes folder
+            if(view()->exists('vendor.wrla.themes.' . $currentTheme . '.' . $view)) {
+                return 'vendor.wrla.themes.' . $currentTheme . '.' . $view;
             }
             // If not then check if theme exists within the package
             else if(view()->exists('wr-laravel-administration::themes.' . $currentTheme . '.' . $view)) {
@@ -161,8 +161,8 @@ class WRLAHelper
         else
         {
             // First check if the user has added their own view within their project's /resources/views/wrla folder
-            if(view()->exists('wrla.' . $view)) {
-                return 'wrla.' . $view;
+            if(view()->exists('vendor.wrla.' . $view)) {
+                return 'vendor.wrla.' . $view;
             }
             // If not then check if view exists within the package
             else if(view()->exists('wr-laravel-administration::' . $view)) {
