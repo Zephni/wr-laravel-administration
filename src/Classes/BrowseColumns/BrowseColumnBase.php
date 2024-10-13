@@ -35,7 +35,8 @@ class BrowseColumnBase
      */
     public array $options = [
         'allowOrdering' => true,
-        'maxChars' => 50
+        'maxChars' => 50,
+        'renderHtml' => false,
     ];
 
     /**
@@ -60,6 +61,7 @@ class BrowseColumnBase
 
         if($type == 'image') {
             $this->allowOrdering(false);
+            $this->renderHtml(true);
         }
     }
 
@@ -134,6 +136,17 @@ class BrowseColumnBase
     }
 
     /**
+     * Render html in the column (false by default)
+     * 
+     * @param bool $renderHtml
+     * @return static
+     */
+    public function renderHtml(bool $renderHtml = true): static
+    {
+        return $this->setOption('renderHtml', $renderHtml);
+    }
+
+    /**
      * Render the label of the column
      *
      * @return string
@@ -182,7 +195,7 @@ class BrowseColumnBase
 
         if($this->overrideRenderValue)
         {
-            return call_user_func($this->overrideRenderValue, $value, $model);
+            return $this->renderFinalStringValue(call_user_func($this->overrideRenderValue, $value, $model));
         }
 
         if($this->type == 'string')
@@ -192,7 +205,7 @@ class BrowseColumnBase
                 $value = substr($value, 0, $this->options['maxChars']).'...';
             }
 
-            return $value ?? '';
+            return $this->renderFinalStringValue($value);
         }
         elseif($this->type == 'image')
         {
@@ -205,12 +218,14 @@ class BrowseColumnBase
                 "rounded" => $this->getOption('rounded') ?? false,
             ])->render();
 
-            return <<<BLADE
+            $value = <<<BLADE
                 <a href="$value" target="_blank">$renderedView</a>
             BLADE;
+
+            return $this->renderFinalStringValue($value);
         }
 
-        return $value;
+        return $this->renderFinalStringValue($value);
     }
 
     /**
@@ -248,5 +263,22 @@ class BrowseColumnBase
 
         // Otherwise, just return the column value
         return $model->$column;
+    }
+
+    /**
+     * Render string value
+     * 
+     * @param string $value
+     * @return string
+     */
+    public function renderFinalStringValue(string $value): string
+    {
+        $value ??= '';
+
+        if($this->options['renderHtml']) {
+            return $value;
+        }
+
+        return htmlentities($value);
     }
 }
