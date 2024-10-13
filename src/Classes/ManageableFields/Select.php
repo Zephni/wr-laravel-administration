@@ -18,6 +18,13 @@ class Select extends ManageableField
     protected array $items = [];
 
     /**
+     * Remembered items, eg. '\App\Models\SomeModel' => ['id' => 'name', ...]
+     *
+     * @var array
+     */
+    private static $rememberedItems = [];
+
+    /**
      * Set items for the options list. $items must use the following format:
      * key => display_value,...
      *
@@ -57,9 +64,17 @@ class Select extends ManageableField
      * @param string $displayColumn
      * @param ?callable $queryBuilderFunction Takes query builder as argument and returns query builder
      * @param ?callable $postModifyFunction Takes items array as argument and returns items array
+     * @return $this
      */
     public function setItemsFromModel(string $modelClass, string $displayColumn, ?callable $queryBuilderFunction = null, ?callable $postModifyFunction = null): static
     {
+        // If already in remebered items, use that. This is to prevent multiple queries to the same table (Notably on manageable model browse)
+        if (isset(self::$rememberedItems[$modelClass])) {
+            $this->items = self::$rememberedItems[$modelClass];
+            $this->setToFirstValueIfNotSet();
+            return $this;
+        }
+
         // Get model instance, if it's a manageable model then get the model instance
         $model = new $modelClass;
 
@@ -92,6 +107,9 @@ class Select extends ManageableField
         {
             throw new \Exception("Error in Select->setItemsFromModel on table '$table': ". $e->getMessage());
         }
+
+        // Remember items
+        self::$rememberedItems[$modelClass] = $this->items;
 
         return $this;
     }
