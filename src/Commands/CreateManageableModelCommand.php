@@ -75,14 +75,14 @@ class CreateManageableModelCommand extends Command
         $this->line('');
 
         // Check whether model exists
-        $baseModelExists = File::exists(app_path('Models/' . $model . '.php'));
+        $baseModelExists = File::exists(app_path('Models/' . $filePath . '.php'));
 
         // Question 2: Ask if user wants to create the model
         $createModel = $this->confirm(!$baseModelExists
             ? 'Create the '.$model.' model?'
             : 'The base model already exists. Override '.$model.' model?'
         , !$baseModelExists);
-        
+
         // If create model, use the make:model command to create the model
         if ($createModel) {
             $this->call('make:model', ['name' => $model]);
@@ -94,7 +94,7 @@ class CreateManageableModelCommand extends Command
         // Check whether file containing create_snaked_plural_table.php exists in the migrations folder
         $migrationExists = false;
         foreach (File::files(database_path('migrations')) as $file) {
-            if (str($file->getFilename())->contains('create_'.str($model)->plural()->snake()->lower()->__toString().'_table')) {
+            if (str($file->getFilename())->contains('create_'.str($filePath)->plural()->snake()->lower()->__toString().'_table')) {
                 $migrationExists = true;
                 break;
             }
@@ -104,7 +104,7 @@ class CreateManageableModelCommand extends Command
         $createMigration = $this->confirm(!$migrationExists
             ? 'Create the create_'.str($model)->plural()->snake()->lower()->__toString().'_table migration?'
             : 'The migration already exists. Override create_'.str($model)->plural()->snake()->lower()->__toString().'_table migration?'
-        , $migrationExists);
+        , !$migrationExists);
 
         // If create migration, use the make:migration command to create the migration
         if ($createMigration) {
