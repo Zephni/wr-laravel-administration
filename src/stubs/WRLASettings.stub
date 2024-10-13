@@ -2,6 +2,9 @@
 
 namespace App\WRLA;
 
+use App\Models\Config;
+use Illuminate\Support\Collection;
+use WebRegulate\LaravelAdministration\Models\User;
 use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItem;
 use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItemDivider;
 use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItemsAllManageableModels;
@@ -9,21 +12,41 @@ use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItemsAll
 class WRLASettings
 {
     /**
-     * Build the navigation items for the WRLA application.
+     * Build navigation for the WRLA application
      *
      * @return array
      */
     public static function buildNavigation(): array
     {
         return [
+            // Frontend
+            (new NavigationItem('home', [], 'Frontend', 'fa fa-globe'))
+                ->openInNewTab(true)
+                ->showOnCondition(function(){
+                    return true;
+                    // return User::current()->email == 'craig.dennis@webregulate.co.uk';
+                }),
+
             // Dashboard
             new NavigationItem('wrla.dashboard', [], 'Dashboard', 'fa fa-tachometer-alt'),
 
             // Divider - classes can be appened using the appendClass() method or overriden in the constructor or setClass method
             new NavigationItemDivider(),
 
-            // Import all manageable models as nav items - Optionally use individual with ManageableModel::getNavigationItem()
-            NavigationItemsAllManageableModels::import(),
+            // Import all manageable models as nav items - Optionally use example below to add individually
+            // NavigationItemsAllManageableModels::import(),
+
+            // Manageable models
+            \App\WRLA\Config::getNavigationItem(),
+            \App\WRLA\TrainingCourseDate::getNavigationItem(),
+            \App\WRLA\Contact::getNavigationItem(),
+            \App\WRLA\Manual::getNavigationItem(),
+            new NavigationItem('wrla.manageable-models.edit', ['modelUrlAlias' => 'e-learning-product', 'id' => 1], 'E-Learning', 'fas fas fa-chalkboard-teacher'),
+            \App\WRLA\Page::getNavigationItem(),
+            \App\WRLA\ShoppingCart::getNavigationItem(),
+            \App\WRLA\Invoice::getNavigationItem(),
+            \App\WRLA\Blog::getNavigationItem(),
+            \App\WRLA\User::getNavigationItem(),
 
             // Divider
             new NavigationItemDivider(),
