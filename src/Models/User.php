@@ -146,7 +146,7 @@ class User extends Authenticatable implements CanResetPassword
     {
         $wrlaUserData = $this->wrlaUserData;
         if ($wrlaUserData == null) return null;
-        return Arr::get(json_decode($wrlaUserData->permissions, true), $dottedKey);
+        return Arr::get(json_decode($wrlaUserData->permissions ?? '', true), $dottedKey);
     }
 
     /**
@@ -157,7 +157,7 @@ class User extends Authenticatable implements CanResetPassword
     {
         $wrlaUserData = $this->wrlaUserData;
         if ($wrlaUserData == null) return null;
-        return Arr::get(json_decode($wrlaUserData->settings, true), $dottedKey);
+        return Arr::get(json_decode($wrlaUserData->settings ?? '', true), $dottedKey);
     }
 
     /**
@@ -168,7 +168,7 @@ class User extends Authenticatable implements CanResetPassword
     {
         $wrlaUserData = $this->wrlaUserData;
         if ($wrlaUserData == null) return null;
-        return Arr::get(json_decode($wrlaUserData->data, true), $dottedKey);
+        return Arr::get(json_decode($wrlaUserData->data ?? '', true), $dottedKey);
     }
 
     /**
