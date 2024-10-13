@@ -93,7 +93,10 @@ class User extends ManageableModel
             ]),
             'name' => 'Name',
             'email' => 'Email',
-            'created_at' => 'Created'
+            'created_at' => 'Created',
+            'wrlaUserData.permissions->admin' => BrowseColumn::make('Admin')->overrideRenderValue(function($value, $model) {
+                return $value ? 'Yes' : 'No';
+            }),
         ]);
 
         // Item actions

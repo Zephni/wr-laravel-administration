@@ -264,6 +264,7 @@ class ManageableModelBrowse extends Component
 
         // Relationship named columns look like this relationship->remote_column, so we need to split them
         // and add left joins and selects to the query
+        $joinsMade = [];
         if($relationshipColumns->count() > 0) {
             // We used to use localcolumn::relationship_table.remote_column, but now we use relationship_method->remote_column
             // So we can just use the relationship method to get the relationship
@@ -278,8 +279,16 @@ class ManageableModelBrowse extends Component
                 $relation = $eloquent->getRelation($relationshipMethod);
                 $relationTable = $relation->getRelated()->getTable();
                 
+                // If join already made, skip
+                if(in_array($relationTable, $joinsMade)) {
+                    continue;
+                }
+
                 // Apply join for relationship
                 $eloquent = $eloquent->leftJoin($relationTable, "$relationTable.id", "$tableName.id");
+
+                // Add to joins made
+                $joinsMade[] = $relationTable;
             }
         }
 
@@ -322,9 +331,14 @@ class ManageableModelBrowse extends Component
             $relationTable = $relation->getRelated()->getTable();
             $foreignKey = $relation->getForeignKeyName();
             
-            // Apply join for relationship and order by relationship column
-            $eloquent = $eloquent->join($relationTable, "$relationTable.id", "$tableName.$foreignKey")
-                ->orderBy("$relationTable.$remoteColumn", $this->orderDirection);
+            // Apply join for relationship and order by relationship column (if not already joined)
+            if(!in_array($relationTable, $joinsMade)) {
+                $eloquent = $eloquent->leftJoin($relationTable, "$relationTable.id", "$tableName.$foreignKey");
+                $joinsMade[] = $relationTable;
+            }
+
+            // Order by relationship column
+            $eloquent = $eloquent->orderBy("$relationTable.$remoteColumn", $this->orderDirection);
         }
 
         $this->debugMessage = $eloquent->toRawSql();

@@ -144,7 +144,8 @@ class BrowseColumnBase
     }
 
     /**
-     * Override the render value method for this column, receives the value and the model as arguments
+     * Override the render value method for this column, receives the value and the model as arguments.
+     * Callback takes $value, $model as arguments and returns the rendered value as a string.
      *
      * @param callable $callback
      * @return static
@@ -228,6 +229,11 @@ class BrowseColumnBase
         // Otherwise, check if relationship and interpret
         if(WRLAHelper::isBrowseColumnRelationship($column)) {
             $relationshipParts = WRLAHelper::parseBrowseColumnRelationship($column);
+
+            // If relationship row doesn't exist, return empty string
+            if(!$model->{$relationshipParts[0]}) {
+                return '';
+            }
 
             // If relationship parts [1] has -> then it's a json column so we dig for the value
             if(str($relationshipParts[1])->contains('->')) {

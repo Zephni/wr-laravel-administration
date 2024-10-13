@@ -14,7 +14,7 @@ class BrowseColumn extends BrowseColumnBase
      * @param null|integer|string|null $width
      * @return static
      */
-    public static function make(?string $label, string $type, null|int|string $width = null): static
+    public static function make(?string $label, string $type = 'string', null|int|string $width = null): static
     {
         return new self($label, $type, $width);
     }
