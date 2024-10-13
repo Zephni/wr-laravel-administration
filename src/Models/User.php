@@ -50,6 +50,20 @@ class User extends Authenticatable implements CanResetPassword
     }
 
     /**
+     * To User model
+     *
+     * @return \App\Models\User
+     */
+    public function toFrontendUser(): \App\Models\User
+    {
+        $user = new \App\Models\User();
+        foreach ($this->getAttributes() as $key => $value) {
+            $user->$key = $value;
+        }
+        return $user;
+    }
+
+    /**
      * Implement method 'getEmailForPasswordReset' from 'CanResetPassword' interface
      *
      * @return string
