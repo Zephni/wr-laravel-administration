@@ -31,6 +31,6 @@ class BrowseColumnManageableModel extends BrowseColumnBase
                 'text' => $value,
                 'icon' => $manageableModel::getIcon().' text-xs'
             ];
-        }, $width);
+        }, $width)->renderHtml(true);
     }
 }
