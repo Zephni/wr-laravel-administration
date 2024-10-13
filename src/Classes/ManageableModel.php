@@ -766,11 +766,15 @@ abstract class ManageableModel
                             // If column is relationship, then modify the column to be the related column
                             if((WRLAHelper::isBrowseColumnRelationship($column))) {
                                 $relationshipParts = WRLAHelper::parseBrowseColumnRelationship($column);
-                                $query->orWhereRelation($relationshipParts[0], $relationshipParts[1], 'like', '%'.$value.'%');
+
+                                $baseModelClass = self::getBaseModelClass();
+                                $relationshipTableName = (new $baseModelClass)->{$relationshipParts[0]}()->getRelated()->getTable();
+
+                                $query->orWhereRelation($relationshipParts[0], "{$relationshipTableName}.{$relationshipParts[1]}", 'like', "%{$value}%");
                             // Otherwise just use the table and column
                             } else {
                                 $column = "$table.$column";
-                                $query->orWhere($column, 'like', '%'.$value.'%');
+                                $query->orWhere($column, 'like', "%{$value}%");
                             }
                         }
                     });

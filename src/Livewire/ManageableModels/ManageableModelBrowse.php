@@ -49,35 +49,35 @@ class ManageableModelBrowse extends Component
 
     /**
      * Order by.
-     * 
+     *
      * @var string
      */
     public $orderBy = 'id';
 
     /**
      * Order direction.
-     * 
+     *
      * @var string
      */
     public $orderDirection = 'desc';
 
     /**
      * Success message.
-     * 
+     *
      * @var ?string
      */
     public $successMessage = null;
 
     /**
      * Error message.
-     * 
+     *
      * @var ?string
      */
     public $errorMessage = null;
 
     /**
      * Debug message
-     * 
+     *
      * @var ?string
      */
     public ?string $debugMessage = null;
@@ -144,7 +144,7 @@ class ManageableModelBrowse extends Component
 
     /**
      * Get manageable model instance
-     * 
+     *
      * @return ManageableModel
      */
     public function getModelInstance(): ManageableModel {
@@ -153,7 +153,7 @@ class ManageableModelBrowse extends Component
 
     /**
      * Order by
-     * 
+     *
      * @param string $column
      * @param string $direction
      * @return void
@@ -167,7 +167,7 @@ class ManageableModelBrowse extends Component
 
     /**
      * Export as CSV action
-     * 
+     *
      * @return StreamedResponse
      */
     public function exportAsCSVAction(): StreamedResponse
@@ -209,7 +209,7 @@ class ManageableModelBrowse extends Component
 
     /**
      * Get JSON reference columns
-     * 
+     *
      * @return Collection
      */
     public function getJsonReferenceColumns()
@@ -221,7 +221,7 @@ class ManageableModelBrowse extends Component
 
     /**
      * Get relationship columns
-     * 
+     *
      * @return Collection
      */
     public function getRelationshipColumns()
@@ -238,10 +238,10 @@ class ManageableModelBrowse extends Component
      * @return LengthAwarePaginator | Collection
      */
     protected function browseModels()
-    {        
+    {
         // Get table name
         $tableName = (new ($this->manageableModelClass::getStaticOption($this->manageableModelClass, 'baseModelClass')))->getTable();
-        
+
         // If table does not exist in database, redirect to dashboard with error
         if(!WRLAHelper::tableExists($tableName)) {
             session()->flash('error', 'Table `' . $tableName . '` does not exist in the database.');
@@ -278,7 +278,7 @@ class ManageableModelBrowse extends Component
                 // Get relation information
                 $relation = $eloquent->getRelation($relationshipMethod);
                 $relationTable = $relation->getRelated()->getTable();
-                
+
                 // If join already made, skip
                 if(in_array($relationTable, $joinsMade)) {
                     continue;
@@ -330,7 +330,7 @@ class ManageableModelBrowse extends Component
             $relation = $eloquent->getRelation($relationshipMethod);
             $relationTable = $relation->getRelated()->getTable();
             $foreignKey = $relation->getForeignKeyName();
-            
+
             // Apply join for relationship and order by relationship column (if not already joined)
             if(!in_array($relationTable, $joinsMade)) {
                 $eloquent = $eloquent->leftJoin($relationTable, "$relationTable.id", "$tableName.$foreignKey");
