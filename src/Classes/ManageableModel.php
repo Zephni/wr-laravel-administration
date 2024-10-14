@@ -44,20 +44,6 @@ abstract class ManageableModel
     ];
 
     /**
-     * Instance options.
-     *
-     * @var array
-     */
-    public array $instanceOptions = [
-        'upsert' => [
-            'manageableFields' => null,
-        ],
-        'item' => [
-            'actions' => null,
-        ],
-    ];
-
-    /**
      * Register the manageable model.
      *
      * @return void
@@ -125,23 +111,6 @@ abstract class ManageableModel
     }
 
     /**
-     * Get default permissions.
-     *
-     * @return void
-     */
-
-    /**
-     * With instance setup.
-     *
-     * @return $this
-     */
-    public function withInstanceSetup(): static
-    {
-        $this->instanceSetup();
-        return $this;
-    }
-
-    /**
      * Main setup.
      *
      * @return void
@@ -154,13 +123,6 @@ abstract class ManageableModel
      * @return void
      */
     public abstract static function globalSetup(): void;
-
-    /**
-     * Instance setup.
-     *
-     * @return void
-     */
-    public abstract function instanceSetup(): void;
 
     /**
      * Get static option.
@@ -184,17 +146,6 @@ abstract class ManageableModel
     }
 
     /**
-     * Get instance option.
-     *
-     * @param string $instanceOptionKey The option key using dot notation.
-     * @return mixed
-     */
-    public function getInstanceOption(string $instanceOptionKey): mixed
-    {
-        return data_get($this->instanceOptions, $instanceOptionKey);
-    }
-
-    /**
      * Set static option.
      *
      * @param string $staticOptionKey The option key using dot notation.
@@ -205,19 +156,6 @@ abstract class ManageableModel
     {
         // data_set(static::$staticOptions, $staticOptionKey, $value);
         data_set(WRLAHelper::$globalManageableModelData, static::class.'.'.$staticOptionKey, $value);
-    }
-
-    /**
-     * Set instance option.
-     *
-     * @param string $instanceOptionKey The option key using dot notation.
-     * @param mixed $value The value to set.
-     * @return static
-     */
-    public function setInstanceOption(string $instanceOptionKey, mixed $value): static
-    {
-        data_set($this->instanceOptions, $instanceOptionKey, $value);
-        return $this;
     }
 
     /**
@@ -450,57 +388,6 @@ abstract class ManageableModel
     }
 
     /**
-     * Set browse columns.
-     *
-     * @param array $columns
-     * @return $this
-     */
-    public function setBrowseColumns(array $columns): static
-    {
-        // If collection turn into array
-        if($columns instanceof Collection) {
-            $columns = $columns->toArray();
-        }
-
-        $this->setInstanceOption('browse.columns', $columns);
-        return $this;
-    }
-
-    /**
-     * Set item actions.
-     *
-     * @param Collection|array $actions
-     * @return $this
-     */
-    public function setInstanceActions(Collection|array $actions): static
-    {
-        // If collection turn into array
-        if($actions instanceof Collection) {
-            $actions = $actions->toArray();
-        }
-
-        $this->setInstanceOption('item.actions', $actions);
-        return $this;
-    }
-
-    /**
-     * Set manageable fields.
-     *
-     * @param Collection|array $manageableFields
-     * @return $this
-     */
-    public function setManageableFields(Collection|array $manageableFields): static
-    {
-        // If collection turn into array
-        if($manageableFields instanceof Collection) {
-            $manageableFields = $manageableFields->toArray();
-        }
-
-        $this->setInstanceOption('upsert.manageableFields', $manageableFields);
-        return $this;
-    }
-
-    /**
      * Get the display name for the manageable model.
      *
      * @param bool $plural
@@ -617,15 +504,6 @@ abstract class ManageableModel
     }
 
     /**
-     * Get the browsable columns from options.
-     *
-     * @return Collection
-     */
-    public function getBrowseColumns(): Collection {
-        return collect($this->getInstanceOption('browse.columns'));
-    }
-
-    /**
      * Get browse filters.
      *
      * @return Collection
@@ -654,36 +532,6 @@ abstract class ManageableModel
             'column' => static::getStaticOption(static::class, 'defaultOrderBy.column'),
             'direction' => static::getStaticOption(static::class, 'defaultOrderBy.direction'),
         ]);
-    }
-
-    /**
-     * Get item actions.
-     *
-     * @return Collection
-     */
-    public function getItemActions(): Collection {
-        return collect($this->getInstanceOption('item.actions'));
-    }
-
-    /**
-     * Get final browsable columns
-     *
-     * @return Collection
-     */
-    public function getFinalBrowseColumns(): Collection
-    {
-        // If any of the values are strings, we convert into BrowseColumn instances
-        return $this->getBrowseColumns()->map(function($value, $key) {
-            if($value == null) {
-                return null;
-            }
-
-            // Determine whether $value is already a BrowseColumn instance
-            $valueIsBrowseColumn = $value instanceof BrowseColumnBase;
-
-            // If value is not a BrowseColumn instance, then we convert it into a basic string BrowseColumn
-            return $valueIsBrowseColumn ? $value : BrowseColumn::make($value, 'string');
-        });
     }
 
     /**
@@ -810,11 +658,52 @@ abstract class ManageableModel
     /**
      * Get manageable fields method.
      *
+     * @return array
+     */
+    public function getManageableFields(): array
+    {
+        throw new \Exception('getManageableFields() method needs to be overriden within: '.static::class);
+    }
+
+    /**
+     * Get the browsable columns from options.
+     *
+     * @return array
+     */
+    public function getBrowseColumns(): array
+    {
+        throw new \Exception('getBrowseColumns() method needs to be overriden within: '.static::class);
+    }
+
+    public function getBrowseColumnsFinal(): Collection
+    {
+        // If any of the values are strings, we convert into BrowseColumn instances
+        return collect($this->getBrowseColumns())->map(function($value, $key) {
+            if($value == null) {
+                return null;
+            }
+
+            // Determine whether $value is already a BrowseColumn instance
+            $valueIsBrowseColumn = $value instanceof BrowseColumnBase;
+
+            // If value is not a BrowseColumn instance, then we convert it into a basic string BrowseColumn
+            return $valueIsBrowseColumn ? $value : BrowseColumn::make($value, 'string');
+        });
+    }
+
+    /**
+     * Get instance actions.
+     * 
      * @return Collection
      */
-    public function getManageableFields(): Collection
+    public function getInstanceActions(Collection $instanceActions): Collection
     {
-        return collect($this->getInstanceOption('upsert.manageableFields'));
+        throw new \Exception('getInstanceActions($instanceActions) method needs to be overriden within: '.static::class);
+    }
+
+    public final function getInstanceActionsFinal(): Collection
+    {
+        return $this->getInstanceActions($this->getDefaultInstanceActions());
     }
 
     /**
@@ -939,11 +828,11 @@ abstract class ManageableModel
      * Update the properties of the model instance based on the request and form data.
      *
      * @param Request $request The HTTP request object.
-     * @param Collection $formComponents The collection of form components.
+     * @param array $formComponents The array of form components.
      * @param array $formKeyValues The array of form key-value pairs.
      * @return bool|MessageBag Returns result of success, or a MessageBag of errors
      */
-    public function updateModelInstanceProperties(Request $request, Collection $formComponents, array $formKeyValues): bool|MessageBag
+    public function updateModelInstanceProperties(Request $request, array $formComponents, array $formKeyValues): bool|MessageBag
     {
         // Perform any necessary actions before updating the model instance
         $this->postUpdateModelInstance($request);
@@ -965,8 +854,9 @@ abstract class ManageableModel
             }
         }
 
-        // Get the manageable fields for the model
+        // Get the manageable fields for the model, and get form components as a collection
         $manageableFields = $this->getManageableFields();
+        $formComponents = collect($formComponents);
 
         // First do a loop through to check for any field names that use -> notation for nested json, if
         // we find any we put these last in the loop so that their values can be applied after everything else

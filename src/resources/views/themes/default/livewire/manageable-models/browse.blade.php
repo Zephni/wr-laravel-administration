@@ -7,7 +7,7 @@
             {{ $manageableModelClass::getDisplayName(true) }}
         </div>
         <div class="text-sm text-slate-500">
-            Total: {{ 
+            Total: {{
                 $models instanceof \Illuminate\Pagination\LengthAwarePaginator
                     ? $models?->total()
                     : $models->count()
@@ -31,7 +31,7 @@
     {{-- Filters --}}
     <div class="w-full rounded-lg px-3 pt-2 pb-3 mb-1 bg-slate-100 shadow-md dark:bg-slate-800">
         <div class="flex justify-start items-stretch gap-4">
-            
+
             @foreach($manageableModelClass::getBrowseFilters() as $filter)
                 {!! $filter->render($filters) !!}
             @endforeach
@@ -43,7 +43,7 @@
         <table class="table w-full text-sm bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-300">
             <thead class="border-b bg-slate-700 dark:bg-slate-400 text-slate-100 dark:text-slate-800 border-slate-400 dark:border-slate-600">
                 <tr>
-                    @foreach($manageableModelClass::make()->withInstanceSetup()->getFinalBrowseColumns() as $column => $browseColumn)
+                    @foreach($manageableModelClass::make()->getBrowseColumnsFinal() as $column => $browseColumn)
                         @continue($browseColumn === null)
                         <th
                             @if($browseColumn->getOption('allowOrdering'))
@@ -69,15 +69,15 @@
                         </th>
                     @endforeach
                     <th></th>
-                </tr>                
+                </tr>
             </thead>
             <tbody>
                 @foreach($models as $model)
                     @php
-                        $manageableModel = $manageableModelClass::make($model)->withInstanceSetup();
+                        $manageableModel = $manageableModelClass::make($model);
                     @endphp
                     <tr class="odd:bg-slate-100 dark:odd:bg-slate-700 even:bg-slate-200 dark:even:bg-slate-800">
-                        @foreach($manageableModel->getFinalBrowseColumns() as $column => $browseColumn)
+                        @foreach($manageableModel->getBrowseColumnsFinal() as $column => $browseColumn)
                             @continue($browseColumn === null)
                             <td class="px-3 py-2 whitespace-nowrap" @if($browseColumn->width != null) style="width: {{ is_numeric($browseColumn->width) ? $browseColumn->width.'px' : $browseColumn->width }}" @endif>
                                 {!! $browseColumn->renderValue($model, $column) !!}
@@ -86,7 +86,7 @@
                         <td class="px-3 py-2">
                             <div class="flex justify-end gap-2">
 
-                                @foreach($manageableModel->getItemActions() as $browseAction)
+                                @foreach($manageableModel->getInstanceActionsFinal() as $browseAction)
                                     {!! $browseAction->render() !!}
                                 @endforeach
 
@@ -137,5 +137,5 @@
 </div>
 
 @push('appendBody')
-    
+
 @endpush

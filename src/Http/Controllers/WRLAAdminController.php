@@ -125,12 +125,12 @@ class WRLAAdminController extends Controller
         if($modelId == null)
         {
             // Create new model instance
-            $manageableModel = $manageableModelClass::make()->withInstanceSetup();
+            $manageableModel = $manageableModelClass::make();
         }
         else
         {
             // Get model by it's id
-            $manageableModel =  $manageableModelClass::make($modelId)->withInstanceSetup();
+            $manageableModel =  $manageableModelClass::make($modelId);
 
             // Check model id exists
             if ($manageableModel == null) {
@@ -219,7 +219,7 @@ class WRLAAdminController extends Controller
     public function manageAccount(Request $request): View
     {
         // Get manageable model instance
-        $manageableModel = User::current()->withInstanceSetup();
+        $manageableModel = User::current();
 
         return view(WRLAHelper::getViewPath('manage-account'), [
             'upsertType' => PageType::EDIT,

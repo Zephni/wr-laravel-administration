@@ -268,10 +268,10 @@ class BrowseColumnBase
     /**
      * Render string value
      * 
-     * @param string $value
+     * @param ?string $value
      * @return string
      */
-    public function renderFinalStringValue(string $value): string
+    public function renderFinalStringValue(?string $value): string
     {
         $value ??= '';
 

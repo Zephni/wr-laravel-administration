@@ -133,9 +133,8 @@ class WRLAAuthController extends Controller
      */
     public function forgotPasswordPost(Request $request)
     {
-        // Get user with instance setup
+        // Get wrla user instance
         $userInstance = \App\WRLA\User::make();
-        $userInstance->instanceSetup();
 
         // Get user email validation rule without unique or confirmed
         $forgotPasswordValidation = WRLAHelper::removeRuleFromValidationString(
@@ -194,9 +193,8 @@ class WRLAAuthController extends Controller
      */
     public function resetPasswordPost(Request $request, $token)
     {
-        // Get user with instance setup
+        // Get wrla user instance
         $userInstance = \App\WRLA\User::make();
-        $userInstance->instanceSetup();
 
         // Get user email validation rules without unique (Note we do not have to include the id here because we are using a blank user)
         $resetPasswordValidation = WRLAHelper::removeRuleFromValidationString(
