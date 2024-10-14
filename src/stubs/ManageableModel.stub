@@ -45,28 +45,42 @@ class {{ $MODEL }} extends ManageableModel
     }
 
     /**
-     * Setup the instance properties of the model.
-     * 
-     * @return void
+     * Provide an array of columns to display in the browse view.
+     *
+     * @return array
      */
-    public final function instanceSetup(): void
+    public final function getBrowseColumns(): array
     {
-        // Browse columns
-        $this->setBrowseColumns([
+        return [
             'id' => 'Id',
             // 'name' => 'Name',
-            // 'something_else' => BrowseColumn::make($this, 'something_else')
-        ]);
+            // 'something_else' => BrowseColumn::make('Something Else', 'string')
+        ];
+    }
 
-        // Item actions
-        $this->setInstanceActions(parent::getDefaultInstanceActions());
-
-        // Manageable fields
-        $this->setManageableFields([
+    /**
+     * Provide an array of manageable fields to display in the upsert view.
+     *
+     * @return array
+     */
+    public final function getManageableFields(): array
+    {
+        return [
             // Text::make($this, 'name')
             //     ->required()
             //     ->validation('string|max:255')
-            //     ->setAttribute('placeholder', 'John Doe'), 
-        ]);
+            //     ->setAttribute('placeholder', 'John Doe'),
+        ];
+    }
+
+    /**
+     * Provide the model instance actions.
+     *
+     * @param Collection $instanceActions default instance actions (edit, delete)
+     * @return Collection
+     */
+    public final function getInstanceActions(Collection $instanceActions): Collection
+    {
+        return $instanceActions;
     }
 }

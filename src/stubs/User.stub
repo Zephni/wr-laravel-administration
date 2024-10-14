@@ -3,6 +3,7 @@
 namespace App\WRLA;
 
 use \Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Builder;
 use WebRegulate\LaravelAdministration\Models\UserData;
@@ -77,14 +78,13 @@ class User extends ManageableModel
     }
 
     /**
-     * Setup the instance properties of the model.
+     * Provide an array of columns to display in the browse view.
      *
-     * @return void
+     * @return array
      */
-    public final function instanceSetup(): void
+    public final function getBrowseColumns(): array
     {
-        // Browse columns
-        $this->setBrowseColumns([
+        return [
             'wrlaUserData.data->profile->avatar' => BrowseColumn::make('Avatar', 'image', 80)->setOptions([
                 'aspect' => '1:1',
                 'rounded' => true,
@@ -97,31 +97,20 @@ class User extends ManageableModel
             'wrlaUserData.permissions->admin' => BrowseColumn::make('Admin')->overrideRenderValue(function($value, $model) {
                 return $value ? 'Yes' : 'No';
             }),
-        ]);
+        ];
+    }
 
-        // Item actions
-        $browseActions = static::getDefaultInstanceActions();
-        $model = $this->getModelInstance();
-        // If not current user
-        if($model->id !== Auth::id()) {
-            // If not soft deleted and has impersonate permission, add login as browse action
-            if(!$model->trashed() && static::getPermission(self::IMPERSONATE)) {
-                $browseActions->prepend(view(WRLAHelper::getViewPath('components.browse-actions.login-as'), [
-                    'modelInstance' => $model
-                ]), 'login_as');
-            }
-        // Remove delete browse action if current user
-        } else {
-            $browseActions->forget('delete');
-        }
-
-        $this->setInstanceActions($browseActions);
-
-        // Manageable fields
+    /**
+     * Provide an array of manageable fields to display in the upsert view.
+     *
+     * @return array
+     */
+    public final function getManageableFields(): array
+    {
         $currentUser = User::current()->getModelInstance();
         $modelInstance = $this->getModelInstance();
 
-        $this->setManageableFields([
+        return [
             Text::make($this, 'name')
                 ->required()
                 ->validation('string|max:255')
@@ -171,7 +160,33 @@ class User extends ManageableModel
                 ])
                 ->hideContainingBraces()
                 ->setAttributes(['placeholder' => 'JSON Data', 'rows' => 4]),
-        ]);
+        ];
+    }
+
+    /**
+     * Provide the model instance actions.
+     *
+     * @param \Illuminate\Support\Collection $instanceActions default instance actions (edit, delete)
+     * @return \Illuminate\Support\Collection
+     */
+    public final function getInstanceActions(Collection $instanceActions): Collection
+    {
+        $model = $this->getModelInstance();
+
+        // If not current user
+        if($model->id !== Auth::id()) {
+            // If not soft deleted and has impersonate permission, add login as browse action
+            if(!$model->trashed() && static::getPermission(self::IMPERSONATE)) {
+                $instanceActions->prepend(view(WRLAHelper::getViewPath('components.browse-actions.login-as'), [
+                    'modelInstance' => $model
+                ]), 'login_as');
+            }
+        // Remove delete browse action if current user
+        } else {
+            $instanceActions->forget('delete');
+        }
+
+        return $instanceActions;
     }
 
     /**
