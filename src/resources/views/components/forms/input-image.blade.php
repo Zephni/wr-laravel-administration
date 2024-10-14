@@ -35,14 +35,9 @@
     {{-- Preview image container --}}
     <div class="w-2/12">
         @themeComponent('forced-aspect-image', [
-            'imageClass' => 'wrla_image_preview',
+            'src' => $src,
+            'class' => "wrla_image_preview {$options['class']} ".($imageExists ? '' : 'wrla_no_image'),
             'aspect' => $options["aspect"],
-            'rounded' => $options["rounded"],
-            'imageClass' => $options['imageClass'].' wrla_image_preview '.($imageExists ? '' : 'wrla_no_image'),
-            'attributes' => new \Illuminate\View\ComponentAttributeBag([
-                'src' => $src,
-                'class' => 'border- border-slate-600'
-            ])
         ])
     </div>
 

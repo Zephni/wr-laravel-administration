@@ -88,7 +88,7 @@ class User extends ManageableModel
             'wrlaUserData.data->profile->avatar' => BrowseColumn::make('Avatar', 'image', 80)->setOptions([
                 'aspect' => '1:1',
                 'rounded' => true,
-                'imageClass' => 'object-cover',
+                'class' => 'object-cover',
                 'value' => $this->getModelInstance()->getProfileAvatar()
             ]),
             'name' => 'Name',
@@ -128,7 +128,7 @@ class User extends ManageableModel
             Image::make($this, 'wrlaUserData.data->profile->avatar', 'storage/images/avatars', '{id}-avatar-{time}.jpg')
                 ->defaultImage($modelInstance->getProfileAvatar())
                 ->aspect('1:1')
-                ->setOption('imageClass', 'object-cover')
+                ->setAttribute('class', 'object-cover')
                 ->rounded()
                 ->manipulateImage(function($image) {
                     $image->cover(300, 300, 'center');

@@ -70,10 +70,8 @@
         <div class="w-18 min-w-14">
             @themeComponent('forced-aspect-image', [
                 'src' => $WRLAUser->getProfileAvatar(),
-                'class' => 'border border-slate-600',
-                'imageClass' => 'object-cover',
-                'aspect' => '1:1',
-                'rounded' => 'full'
+                'class' => 'rounded-full !border-slate-600',
+                'aspect' => '1/1',
             ])
         </div>
         <div class="flex flex-col text-sm">

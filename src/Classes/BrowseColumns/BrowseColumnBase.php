@@ -67,7 +67,7 @@ class BrowseColumnBase
 
     /**
      * Build label (removes first part of relation.label or relation.something->label)
-     * 
+     *
      * @param string $label
      * @return string
      */
@@ -137,7 +137,7 @@ class BrowseColumnBase
 
     /**
      * Render html in the column (false by default)
-     * 
+     *
      * @param bool $renderHtml
      * @return static
      */
@@ -209,13 +209,10 @@ class BrowseColumnBase
         }
         elseif($this->type == 'image')
         {
-            $renderedView = view(
-                WRLAHelper::getViewPath('components.forced-aspect-image', false), [
+            $renderedView = view(WRLAHelper::getViewPath('components.forced-aspect-image', false), [
                 "src" => $value,
-                "class" => $this->getOption('containerClass') ?? 'border border-slate-600',
-                "imageClass" => 'wrla_image_preview '.$this->getOption('imageClass') ?? '',
-                "aspect" => $this->getOption('aspect'),
-                "rounded" => $this->getOption('rounded') ?? false,
+                "class" => $this->getOption('class') ?? ' border border-slate-400',
+                "aspect" => $this->getOption('aspect')
             ])->render();
 
             $value = <<<BLADE
@@ -230,7 +227,7 @@ class BrowseColumnBase
 
     /**
      * Interpret value from column on the given model
-     * 
+     *
      * @param Model $model
      * @param string $column
      */
@@ -253,10 +250,10 @@ class BrowseColumnBase
             // If relationship parts [1] has -> then it's a json column so we dig for the value
             if(str($relationshipParts[1])->contains('->')) {
                 $dotNotationParts = explode('->', $relationshipParts[1]);
-                $jsonField = $model->{$relationshipParts[0]}->{$dotNotationParts[0]};                        
+                $jsonField = $model->{$relationshipParts[0]}->{$dotNotationParts[0]};
                 return data_get(json_decode($jsonField), implode('.', array_slice($dotNotationParts, 1)));
             }
-    
+
             // Otherwise, just return the relationship value
             return $model->{$relationshipParts[0]}?->{$relationshipParts[1]} ?? '';
         }
@@ -267,7 +264,7 @@ class BrowseColumnBase
 
     /**
      * Render string value
-     * 
+     *
      * @param ?string $value
      * @return string
      */

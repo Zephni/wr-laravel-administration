@@ -47,10 +47,8 @@ class Image
             'unlinkOld' => true,
             'allowRemove' => true,
             'aspect' => null,
-            'rounded' => false,
             'storeFilenameOnly' => true,
-            'class' => 'border border-primary-500',
-            'imageClass' => 'object-cover',
+            'class' => '',
         ]);
         return $imageInstance;
     }
@@ -138,12 +136,12 @@ class Image
      * Cover fit aspect ratio
      *
      * @param int $width
-     * @param string $aspect (4:3, 16:9, etc)
+     * @param string $aspect (4/3, 16/9, etc)
      * @param string $position (center, top, bottom, left, right, top-left, top-right, bottom-left, bottom-right)
      * @param int $quality
      * @return $this
      */
-    public function coverFitAspect(int $width, string $aspect = '4:3', string $position = 'center', int $quality = 100): static
+    public function coverFitAspect(int $width, string $aspect = '4/3', string $position = 'center', int $quality = 100): static
     {
         // Set aspect display for image
         $this->aspect($aspect);
@@ -312,7 +310,15 @@ class Image
      */
     public function rounded(null|bool|string $rounded = true): static
     {
-        $this->setOption('rounded', $rounded);
+        if($rounded == false) {
+            $this->options['class'] = str_replace('rounded-full', '', $this->options['class']);
+            return $this;
+        }
+
+        if($rounded === true || $rounded === null) $rounded = 'full';
+
+        $this->options['class'] .= " rounded-$rounded";
+
         return $this;
     }
 
