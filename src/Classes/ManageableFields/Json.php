@@ -2,12 +2,15 @@
 
 namespace WebRegulate\LaravelAdministration\Classes\ManageableFields;
 
+use WebRegulate\LaravelAdministration\Traits\ManageableField;
 use Illuminate\View\ComponentAttributeBag;
 use WebRegulate\LaravelAdministration\Enums\PageType;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 
-class Json extends ManageableField
+class Json
 {
+    use ManageableField;
+    
     /**
      * Option to hide containing braces.
      */
@@ -172,17 +175,16 @@ class Json extends ManageableField
     /**
      * Render the input field.
      *
-     * @param PageType $upsertType
      * @return mixed
      */
-    public function render(PageType $upsertType): mixed
+    public function render(): mixed
     {
         // Check if value is set in old() and set if so
-        if(old($this->attributes['name']) !== null) {
-            $value = old($this->attributes['name']);
+        if(old($this->getAttribute('name')) !== null) {
+            $value = old($this->getAttribute('name'));
             $this->setAttribute('value', $value);
         } else {
-            $value = $this->attributes['value'];
+            $value =$this->getAttribute('value');
         }
 
         // Apply calculated value, which will apply default key values and pretty print json
@@ -191,8 +193,8 @@ class Json extends ManageableField
         return view(WRLAHelper::getViewPath('components.forms.textarea'), [
             'label' => $this->getLabel(),
             'options' => $this->options,
-            'attributes' => new ComponentAttributeBag(array_merge($this->attributes, [
-                'name' => $this->attributes['name'],
+            'attributes' => new ComponentAttributeBag(array_merge($this->htmlAttributes, [
+                'name' => $this->getAttribute('name'),
                 'value' => $value
             ])),
         ])->render();

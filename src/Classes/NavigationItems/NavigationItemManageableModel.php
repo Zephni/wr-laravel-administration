@@ -35,6 +35,11 @@ class NavigationItemManageableModel extends NavigationItem
     {
         // If current page is edit
         if(WRLAHelper::getCurrentPageType() === PageType::EDIT) {
+            // If modelUrlAlias doesn't exist, return false
+            if(!isset(Route::current()->parameters['modelUrlAlias']) || !isset($this->routeData['modelUrlAlias'])) {
+                return false;
+            }
+
             // If the current route data modelUrlAlias is same as $this->routeData
             if(Route::current()->parameters['modelUrlAlias'] == $this->routeData['modelUrlAlias']) {
                 return true;

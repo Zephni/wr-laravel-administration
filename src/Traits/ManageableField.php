@@ -1,13 +1,13 @@
 <?php
 
-namespace WebRegulate\LaravelAdministration\Classes\ManageableFields;
+namespace WebRegulate\LaravelAdministration\Traits;
 
 use Illuminate\Http\Request;
 use WebRegulate\LaravelAdministration\Enums\PageType;
 use WebRegulate\LaravelAdministration\Classes\ManageableModel;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 
-class ManageableField
+trait ManageableField
 {
     /**
      * Key remove constant
@@ -28,7 +28,7 @@ class ManageableField
      *
      * @var array
      */
-    public $attributes;
+    public $htmlAttributes;
 
     /**
      * Options
@@ -93,7 +93,7 @@ class ManageableField
         }
 
         // Set base attributes
-        $this->attributes = [
+        $this->htmlAttributes = [
             'name' => $this->buildNameAttribute($name ?? ''),
             'value' => $value ?? '',
         ];
@@ -165,10 +165,10 @@ class ManageableField
     public function getValue(): string
     {
         if($this->options['ignoreOld'] ?? false) {
-            return $this->attributes['value'];
+            return $this->htmlAttributes['value'];
         }
 
-        return old($this->attributes['name'], $this->attributes['value']) ?? '';
+        return old($this->htmlAttributes['name'], $this->htmlAttributes['value']) ?? '';
     }
 
     /**
@@ -305,7 +305,7 @@ class ManageableField
             $value = $this->buildNameAttribute($value);
         }
 
-        $this->attributes[$key] = $value;
+        $this->htmlAttributes[$key] = $value;
         return $this;
     }
 
@@ -317,7 +317,7 @@ class ManageableField
      */
     public function getAttribute(string $key): mixed
     {
-        return $this->attributes[$key] ?? null;
+        return $this->htmlAttributes[$key] ?? null;
     }
 
     /**
@@ -333,7 +333,7 @@ class ManageableField
             $attributes['name'] = $this->buildNameAttribute($attributes['name']);
         }
         
-        $this->attributes = array_merge($this->attributes, $attributes);
+        $this->htmlAttributes = array_merge($this->htmlAttributes, $attributes);
         return $this;
     }
 
@@ -344,7 +344,7 @@ class ManageableField
      */
     public function getAttributes(): array
     {
-        return $this->attributes;
+        return $this->htmlAttributes;
     }
 
     /**
@@ -360,7 +360,7 @@ class ManageableField
             return $this;
         }
 
-        $this->attributes['value'] = $value;
+        $this->htmlAttributes['value'] = $value;
 
         return $this;
     }
@@ -396,7 +396,7 @@ class ManageableField
         // If wrla::from_field_name then get the name and convert to label
         if($label === 'wrla::from_field_name') {
             // If name is based on a relation on json column (eg has a . or -> in it) we get the last part of the name
-            $label = str_replace(self::WRLA_REL_DOT, '.', $this->attributes['name']);
+            $label = str_replace(self::WRLA_REL_DOT, '.', $this->htmlAttributes['name']);
             $label = str($label)->afterLast('.')->afterLast('->');
             $label = $label->replace('_', ' ')->ucfirst();
             return $label;
@@ -520,7 +520,7 @@ class ManageableField
      */
     public function isRelationshipField(): bool
     {
-        return str($this->attributes['name'])->contains('.') || str($this->attributes['name'])->contains(self::WRLA_REL_DOT);
+        return str($this->htmlAttributes['name'])->contains('.') || str($this->htmlAttributes['name'])->contains(self::WRLA_REL_DOT);
     }
 
     /**
@@ -530,7 +530,7 @@ class ManageableField
      */
     public function getRelationshipFieldName(): string
     {
-        $fieldName = str($this->attributes['name'])->after(self::WRLA_REL_DOT);
+        $fieldName = str($this->htmlAttributes['name'])->after(self::WRLA_REL_DOT);
 
         // If contains ->, get the first part
         if($fieldName->contains('->')) {
@@ -549,7 +549,7 @@ class ManageableField
     {
         // Get model instance, field name and relationship parts
         $modelInstance = $this->manageableModel->getModelInstance();
-        $fieldName = str($this->attributes['name'])->replace(self::WRLA_REL_DOT, '.');
+        $fieldName = str($this->htmlAttributes['name'])->replace(self::WRLA_REL_DOT, '.');
         $relationshipParts = WRLAHelper::parseBrowseColumnRelationship($fieldName);
 
         // Reload and get relationship instance
@@ -580,7 +580,7 @@ class ManageableField
         }
 
         $HTML = $this->getOption('beginGroup') == true ? '<div class="w-full flex flex-col md:flex-row items-center gap-6">' : '';
-        $HTML .= $this->render($upsertType);
+        $HTML .= $this->render();
         $HTML .= $this->getOption('endGroup') == true ? '</div>' : '';
 
         if(empty($HTML))
@@ -604,10 +604,9 @@ class ManageableField
     /**
      * Render the input field.
      *
-     * @param PageType $upsertType
      * @return mixed
      */
-    public function render(PageType $upsertType): mixed
+    public function render(): mixed
     {
         return null;
     }

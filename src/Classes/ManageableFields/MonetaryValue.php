@@ -2,14 +2,17 @@
 
 namespace WebRegulate\LaravelAdministration\Classes\ManageableFields;
 
+use WebRegulate\LaravelAdministration\Traits\ManageableField;
 use Illuminate\Http\Request;
 use Illuminate\View\ComponentAttributeBag;
 use WebRegulate\LaravelAdministration\Enums\PageType;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 use WebRegulate\LaravelAdministration\Classes\ManageableModel;
 
-class MonetaryValue extends ManageableField
+class MonetaryValue
 {
+    use ManageableField;
+    
     /**
      * Make method (can be used in any class that extends FormComponent).
      *
@@ -45,7 +48,7 @@ class MonetaryValue extends ManageableField
     public function applySubmittedValue(Request $request, mixed $value): mixed
     {
         // Multiply by the currency decimal multiplier
-        $value = $request->input($this->attributes['name']) * $this->options['currencyDecimalMultiplier'];
+        $value = $request->input($this->getAttribute('name')) * $this->options['currencyDecimalMultiplier'];
 
         // Make sure is integer
         $value = (int) $value;
@@ -56,19 +59,18 @@ class MonetaryValue extends ManageableField
     /**
      * Render the input field.
      *
-     * @param PageType $upsertType
      * @return mixed
      */
-    public function render(PageType $upsertType): mixed
+    public function render(): mixed
     {
-        $actualValue = old($this->attributes['name'], $this->getValue());
+        $actualValue = old($this->getAttribute('name'), $this->getValue());
         $value = number_format($actualValue / $this->options['currencyDecimalMultiplier'], $this->options['decimalPlaces']);
 
         return view(WRLAHelper::getViewPath('components.forms.input-monetary-value'), [
             'label' => $this->getLabel(),
             'options' => $this->options,
-            'attributes' => new ComponentAttributeBag(array_merge($this->attributes, [
-                'name' => $this->attributes['name'],
+            'attributes' => new ComponentAttributeBag(array_merge($this->htmlAttributes, [
+                'name' => $this->getAttribute('name'),
                 'value' => $value,
                 'type' => 'number',
             ])),

@@ -69,7 +69,12 @@ class WRLAHelper
             return PageType::CREATE;
         } else if(Route::is('wrla.manageable-models.edit')) {
             return PageType::EDIT;
+        } else if(Route::is('wrla.manage-account')) {
+            return PageType::EDIT;
         }
+
+        // dd route name
+        // dd('Page type not found for route name: ' . Route::currentRouteName(). ' within WRLAHelper::getCurrentPageType()');
 
         return null;
     }

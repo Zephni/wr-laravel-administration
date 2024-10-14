@@ -2,6 +2,7 @@
 
 namespace WebRegulate\LaravelAdministration\Classes\ManageableFields;
 
+use WebRegulate\LaravelAdministration\Traits\ManageableField;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Intervention\Image\ImageManager;
@@ -11,8 +12,10 @@ use WebRegulate\LaravelAdministration\Enums\PageType;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 use WebRegulate\LaravelAdministration\Classes\ManageableModel;
 
-class Image extends ManageableField
+class Image
 {
+    use ManageableField;
+    
     /**
      * Manipulate image function, set with manipulateImage method on creation
      *
@@ -62,7 +65,7 @@ class Image extends ManageableField
     public function applySubmittedValue(Request $request, mixed $value): mixed
     {
         // Get current value of image
-        $currentImage = $this->attributes['value'];
+        $currentImage = $this->getAttribute('value');
 
         // If value is equal to the special constant WRLA_KEY_REMOVE, we delete the image
         if ($value === ManageableField::WRLA_KEY_REMOVE) {
@@ -70,8 +73,8 @@ class Image extends ManageableField
             return null;
         }
 
-        if ($request->hasFile($this->attributes['name'])) {
-            $value = $this->uploadImage($request->file($this->attributes['name']));
+        if ($request->hasFile($this->getAttribute('name'))) {
+            $value = $this->uploadImage($request->file($this->getAttribute('name')));
 
             // If unlinkOld option set, and an image already exists with the old value, we delete it
             if ($this->getOption('unlinkOld') == true && !empty($currentImage)) {
@@ -197,16 +200,16 @@ class Image extends ManageableField
     public function getValue(): string
     {
         // If starts with http, return as is
-        if (strpos($this->attributes['value'], 'http') === 0) {
-            return $this->attributes['value'];
+        if (strpos($this->getAttribute('value'), 'http') === 0) {
+            return $this->getAttribute('value');
         // Else, we apply a forward slash to the beginning of the path
         } else {
             // If no value is set, return default image
-            if (empty($this->attributes['value'])) {
+            if (empty($this->getAttribute('value'))) {
                 return $this->getOption('defaultImage');
             }
 
-            return '/'.ltrim(WRLAHelper::forwardSlashPath($this->attributes['value']), '/');
+            return '/'.ltrim(WRLAHelper::forwardSlashPath($this->getAttribute('value')), '/');
         }
     }
 
@@ -318,10 +321,9 @@ class Image extends ManageableField
     /**
      * Render the input field.
      *
-     * @param PageType $upsertType
      * @return mixed
      */
-    public function render(PageType $upsertType): mixed
+    public function render(): mixed
     {
         $HTML = '';
 
@@ -330,8 +332,8 @@ class Image extends ManageableField
         $HTML .= view(WRLAHelper::getViewPath('components.forms.input-image'), [
             'label' => $this->getLabel(),
             'options' => $this->options,
-            'attributes' => new ComponentAttributeBag(array_merge($this->attributes, [
-                'name' => $this->attributes['name'],
+            'attributes' => new ComponentAttributeBag(array_merge($this->htmlAttributes, [
+                'name' => $this->getAttribute('name'),
                 'value' => $path.$this->getValue(),
                 'type' => 'file'
             ])),

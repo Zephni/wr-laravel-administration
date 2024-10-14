@@ -5,7 +5,7 @@ namespace WebRegulate\LaravelAdministration\Classes;
 use Illuminate\Support\Collection;
 use Illuminate\Database\Eloquent\Builder;
 use WebRegulate\LaravelAdministration\Enums\PageType;
-use WebRegulate\LaravelAdministration\Classes\ManageableFields\ManageableField;
+use WebRegulate\LaravelAdministration\Traits\ManageableField;
 
 class BrowseFilter
 {
@@ -34,7 +34,7 @@ class BrowseFilter
      * @param ManageableField|callable $field
      * @param callable $applicableFilter
      */
-    public function __construct(ManageableField|callable $field, callable $applicableFilter)
+    public function __construct($field, callable $applicableFilter)
     {
         $this->field = $field;
         $this->applicableFilter = $applicableFilter;
@@ -46,7 +46,7 @@ class BrowseFilter
      * @param array $filterKeyValues
      * @return ManageableField
      */
-    public function getField($filterKeyValues): ManageableField
+    public function getField($filterKeyValues)
     {
         return !is_callable($this->field)
             ? $this->field

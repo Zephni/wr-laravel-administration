@@ -2,14 +2,17 @@
 
 namespace WebRegulate\LaravelAdministration\Classes\ManageableFields;
 
-use Illuminate\Support\Collection;
+use WebRegulate\LaravelAdministration\Traits\ManageableField;
 use Illuminate\View\ComponentAttributeBag;
+use Illuminate\Support\Collection;
 use WebRegulate\LaravelAdministration\Enums\PageType;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 use WebRegulate\LaravelAdministration\Classes\ManageableModel;
 
-class Select extends ManageableField
+class Select
 {
+    use ManageableField;
+    
     /**
      * Items
      *
@@ -126,9 +129,9 @@ class Select extends ManageableField
             return $this;
         }
 
-        // If $this->attributes['value'] is not set, set it to the first key in the items array
-        if (!isset($this->attributes['value']) || empty($this->attributes['value'])) {
-            $this->attributes['value'] = array_key_first($this->items);
+        // If $this->htmlAttributes['value'] is not set, set it to the first key in the items array
+        if (!isset($this->htmlAttributes['value']) || empty($this->getAttribute('value'))) {
+            $this->setAttribute('value', array_key_first($this->items));
         }
 
         return $this;
@@ -137,10 +140,9 @@ class Select extends ManageableField
     /**
      * Render the input field.
      *
-     * @param PageType $upsertType
      * @return mixed
      */
-    public function render(PageType $upsertType): mixed
+    public function render(): mixed
     {
         $this->setToFirstValueIfNotSet();
 
@@ -148,8 +150,8 @@ class Select extends ManageableField
             'label' => $this->getLabel(),
             'options' => $this->options,
             'items' => $this->items,
-            'attributes' => new ComponentAttributeBag(array_merge($this->attributes, [
-                'name' => $this->attributes['name'],
+            'attributes' => new ComponentAttributeBag(array_merge($this->htmlAttributes, [
+                'name' => $this->getAttribute('name'),
                 'value' => $this->getValue()
             ])),
         ])->render();
