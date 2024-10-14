@@ -869,6 +869,9 @@ abstract class ManageableModel
             $fieldName = $manageableField->getAttribute('name');
             $relationshipInstance = null;
 
+            // If doesn't exist in form key values, then skip
+            if (!array_key_exists($fieldName, $formKeyValues)) continue;
+
             // If manageable field is relationship, we need to temporarily deal with the relationship instance instead
             if($manageableField->isRelationshipField()) {
                 $relationshipInstance = $manageableField->getRelationshipInstance();
@@ -896,10 +899,8 @@ abstract class ManageableModel
             $fieldValue = '';
 
             if (!$isUsingNestedJson) {
-                if (array_key_exists($fieldName, $formKeyValues)) {
-                    // Apply the value to the form component and get the field value
-                    $fieldValue = $formComponent->applySubmittedValue($request, $formKeyValues[$fieldName]);
-                }
+                // Apply the value to the form component and get the field value
+                $fieldValue = $formComponent->applySubmittedValue($request, $formKeyValues[$fieldName]);
             } else {
                 // If is relation, get current field value from relationship instance
                 if($relationshipInstance != null) {
