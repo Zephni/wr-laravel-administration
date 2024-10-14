@@ -806,7 +806,7 @@ abstract class ManageableModel
                 continue;
             }
 
-            // Get field name. If contains WRLA_REL_DOT then convert to . notation
+            // Get field name
             $fieldName = $manageableField->getAttribute('name');
 
             // Get input value
@@ -848,7 +848,7 @@ abstract class ManageableModel
             if ($removeKeys->count() > 0) {
                 $removeKeys->each(function ($value, $key) use(&$formKeyValues) {
                     $keyWithoutRemovePrefix = ltrim($key, 'wrla_remove_');
-                    $formKeyValues[$keyWithoutRemovePrefix] = ManageableField::WRLA_KEY_REMOVE;
+                    $formKeyValues[$keyWithoutRemovePrefix] = WRLAHelper::WRLA_KEY_REMOVE;
                     unset($formKeyValues[$key]);
                 });
             }

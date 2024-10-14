@@ -19,6 +19,20 @@ use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItem;
 class WRLAHelper
 {
     /**
+     * Key remove constant
+     *
+     * @var string
+     */
+    const WRLA_KEY_REMOVE = '__WRLA::KEY::REMOVE__';
+
+    /**
+     * Key remove constant
+     *
+     * @var string
+     */
+    const WRLA_REL_DOT = '__WRLA::REL::DOT__';
+    
+    /**
      * Manageable model setup global data, uses format
      * '\App\WRLA\ManageableModelClass' => $staticOptions
      *

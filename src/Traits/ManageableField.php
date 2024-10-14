@@ -10,20 +10,6 @@ use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 trait ManageableField
 {
     /**
-     * Key remove constant
-     *
-     * @var string
-     */
-    const WRLA_KEY_REMOVE = '__WRLA::KEY::REMOVE__';
-
-    /**
-     * Key remove constant
-     *
-     * @var string
-     */
-    const WRLA_REL_DOT = '__WRLA::REL::DOT__';
-
-    /**
      * Attributes of the form component.
      *
      * @var array
@@ -112,7 +98,7 @@ trait ManageableField
      */
     private static function buildNameAttribute(string $name): string
     {
-        return str_replace('.', self::WRLA_REL_DOT, $name);
+        return str_replace('.', WRLAHelper::WRLA_REL_DOT, $name);
     }
 
     /**
@@ -396,7 +382,7 @@ trait ManageableField
         // If wrla::from_field_name then get the name and convert to label
         if($label === 'wrla::from_field_name') {
             // If name is based on a relation on json column (eg has a . or -> in it) we get the last part of the name
-            $label = str_replace(self::WRLA_REL_DOT, '.', $this->htmlAttributes['name']);
+            $label = str_replace(WRLAHelper::WRLA_REL_DOT, '.', $this->htmlAttributes['name']);
             $label = str($label)->afterLast('.')->afterLast('->');
             $label = $label->replace('_', ' ')->ucfirst();
             return $label;
@@ -520,7 +506,7 @@ trait ManageableField
      */
     public function isRelationshipField(): bool
     {
-        return str($this->htmlAttributes['name'])->contains('.') || str($this->htmlAttributes['name'])->contains(self::WRLA_REL_DOT);
+        return str($this->htmlAttributes['name'])->contains('.') || str($this->htmlAttributes['name'])->contains(WRLAHelper::WRLA_REL_DOT);
     }
 
     /**
@@ -530,7 +516,7 @@ trait ManageableField
      */
     public function getRelationshipFieldName(): string
     {
-        $fieldName = str($this->htmlAttributes['name'])->after(self::WRLA_REL_DOT);
+        $fieldName = str($this->htmlAttributes['name'])->after(WRLAHelper::WRLA_REL_DOT);
 
         // If contains ->, get the first part
         if($fieldName->contains('->')) {
@@ -549,7 +535,7 @@ trait ManageableField
     {
         // Get model instance, field name and relationship parts
         $modelInstance = $this->manageableModel->getModelInstance();
-        $fieldName = str($this->htmlAttributes['name'])->replace(self::WRLA_REL_DOT, '.');
+        $fieldName = str($this->htmlAttributes['name'])->replace(WRLAHelper::WRLA_REL_DOT, '.');
         $relationshipParts = WRLAHelper::parseBrowseColumnRelationship($fieldName);
 
         // Reload and get relationship instance

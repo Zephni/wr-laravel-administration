@@ -66,7 +66,7 @@ class Image
         $currentImage = $this->getAttribute('value');
 
         // If value is equal to the special constant WRLA_KEY_REMOVE, we delete the image
-        if ($value === ManageableField::WRLA_KEY_REMOVE) {
+        if ($value === WRLAHelper::WRLA_KEY_REMOVE) {
             $this->deleteImageByPath($currentImage);
             return null;
         }
