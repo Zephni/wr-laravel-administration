@@ -78,7 +78,7 @@ class User extends ManageableModel
     }
 
     /**
-     * Provide an array of columns to display in the browse view.
+     * Get an array of columns to display in the browse view.
      *
      * @return array
      */
@@ -86,9 +86,8 @@ class User extends ManageableModel
     {
         return [
             'wrlaUserData.data->profile->avatar' => BrowseColumn::make('Avatar', 'image', 80)->setOptions([
-                'aspect' => '1:1',
-                'rounded' => true,
-                'class' => 'object-cover',
+                'aspect' => '1/1',
+                'class' => 'rounded-full',
                 'value' => $this->getModelInstance()->getProfileAvatar()
             ]),
             'name' => 'Name',
@@ -101,7 +100,7 @@ class User extends ManageableModel
     }
 
     /**
-     * Provide an array of manageable fields to display in the upsert view.
+     * Get an array of manageable fields to display in the upsert view.
      *
      * @return array
      */
@@ -127,9 +126,8 @@ class User extends ManageableModel
 
             Image::make($this, 'wrlaUserData.data->profile->avatar', 'storage/images/avatars', '{id}-avatar-{time}.jpg')
                 ->defaultImage($modelInstance->getProfileAvatar())
-                ->aspect('1:1')
-                ->setAttribute('class', 'object-cover')
-                ->rounded()
+                ->aspect('1/1')
+                ->rounded('full')
                 ->manipulateImage(function($image) {
                     $image->cover(300, 300, 'center');
                     $image->toJpeg(100);
@@ -145,8 +143,8 @@ class User extends ManageableModel
                     'admin' => false
                 ])
                 ->jsonFormatValidation([
-                    'master' => 'boolean'.(($currentUser->id == $modelInstance->id) ? "|wrla_no_change:wrla_user_data,{$modelInstance->wrlaUserData?->id},permissions->master" : ''),
-                    'admin' => 'boolean'.(($currentUser->id == $modelInstance->id) ? "|wrla_no_change:wrla_user_data,{$modelInstance->wrlaUserData?->id},permissions->admin" : ''),
+                    'master' => 'boolean'.(($currentUser?->id == $modelInstance?->id) ? "|wrla_no_change:wrla_user_data,{$modelInstance->wrlaUserData?->id},permissions->master" : ''),
+                    'admin' => 'boolean'.(($currentUser?->id == $modelInstance?->id) ? "|wrla_no_change:wrla_user_data,{$modelInstance->wrlaUserData?->id},permissions->admin" : ''),
                 ])
                 ->hideContainingBraces()
                 ->setAttributes(['placeholder' => 'JSON Data', 'rows' => 4]),
@@ -164,7 +162,7 @@ class User extends ManageableModel
     }
 
     /**
-     * Provide the model instance actions.
+     * Get the model instance actions.
      *
      * @param \Illuminate\Support\Collection $instanceActions default instance actions (edit, delete)
      * @return \Illuminate\Support\Collection
