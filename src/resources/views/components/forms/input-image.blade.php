@@ -19,7 +19,7 @@
         : '<span class="float-right text-red-500">Image not found</span>';
 @endphp
 
-<div class="{{ $options['containerClass'] ?? 'w-full flex-1 md:flex-auto' }}">
+<div wire:ignore class="{{ $options['containerClass'] ?? 'w-full flex-1 md:flex-auto' }}">
 
 @if(!empty($label))
     {!! view($WRLAHelper::getViewPath('components.forms.label'), [
