@@ -16,6 +16,17 @@ class SearchableValue
     public array $filteredItems = [];
 
     /**
+     * Post constructed method, called after name and value attributes are set.
+     *
+     * @return $this
+     */
+    public function postConstructed(): mixed
+    {
+        $this->setAttribute('wire:model.live', "fields.{$this->getAttribute('name')}");
+        return $this;
+    }
+
+    /**
      * Set items for the options list. $items must use the following format:
      * key => display_value,...
      *
@@ -118,6 +129,7 @@ class SearchableValue
         }
 
         $searchAttributes = collect($this->htmlAttributes)->only(['placeholder'])->toArray();
+        $hiddenValueAttributes = collect($this->htmlAttributes)->except(['placeholder'])->toArray();
 
         return view(WRLAHelper::getViewPath('components.forms.searchable-value'), [
             'label' => $this->getLabel(),
@@ -127,10 +139,15 @@ class SearchableValue
             'fields' => self::$fields,
             'searchAttributes' => new ComponentAttributeBag(array_merge($searchAttributes, [
                 'name' => $this->getAttribute('name'),
-                'value' => $this->getValue(),
+                'wire:model.live' => "fields.searchable_value_{$hiddenValueAttributes['name']}",
+                'value' => '',
                 'type' => $this->getAttribute('type') ?? 'text',
             ])),
-            'attributes' => new ComponentAttributeBag(collect($this->htmlAttributes)->except(['placeholder'])->toArray()),
+            'attributes' => new ComponentAttributeBag(collect($this->htmlAttributes)-> merge([
+                'type' => 'hidden',
+                'name' => $this->getAttribute('name'),
+                'value' => $this->getValue(),
+            ])->toArray()),
 
         ])->render();
     }

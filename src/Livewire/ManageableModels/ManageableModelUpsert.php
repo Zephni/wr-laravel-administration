@@ -128,7 +128,9 @@ class ManageableModelUpsert extends Component
         // If first render,set default livewire field values
         if($this->numberOfRenders === 0) {
             foreach($manageableFields as $manageableField) {
-                $this->fields[$manageableField->getAttribute('name')] = $manageableField->getValue();
+                if($manageableField->isModeledWithLivewire()) {
+                    $this->fields[$manageableField->getAttribute('name')] = $manageableField->getValue();
+                }
             }
         }
 
@@ -138,7 +140,9 @@ class ManageableModelUpsert extends Component
         // If force refresh manageable fields, set field values
         if($this->refreshManageableFields) {
             foreach($manageableFields as $manageableField) {
-                $manageableField->setAttribute('value', $this->fields[$manageableField->getAttribute('name')]);
+                if($manageableField->isModeledWithLivewire()) {
+                    $manageableField->setAttribute('value', $this->fields[$manageableField->getAttribute('name')]);
+                }
             }
         }
 

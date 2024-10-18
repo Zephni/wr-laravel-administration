@@ -25,10 +25,10 @@
             'attributes' => new \Illuminate\View\ComponentAttributeBag(array_merge($searchAttributes->getAttributes(), [
                 'name' => "searchable_value_{$attributes->get('name')}",
                 'x-ref' => "searchable_value_{$attributes->get('name')}_input",
-                'wire:model.live' => "fields.searchable_value_{$attributes->get('name')}",
                 'value' => '',
                 'type' => 'text',
                 'class' => '!bg-slate-100 !placeholder-slate-400',
+                'autocomplete' => 'off',
             ])),
         ])
     </div>
@@ -66,9 +66,9 @@
                 <i class="fas fa-check-circle text-green-500"></i>
                 <b class="text-medium">{{ $items[$attributes->get('value')] }}</b>
             </div>
-            {{-- Actual value here to submit to form below --}}
-            <input type="hidden" readonly name={{ $attributes->get('name') }} value="{{ $attributes->get('value') }}">
-        @endif
+            @endif
+        {{-- Actual value here to submit to form below --}}
+        <input {{ $attributes->merge() }}>
     </div>
 
     {{-- Field notes (if options has notes key) --}}

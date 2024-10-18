@@ -91,7 +91,6 @@ trait ManageableField
         // Set base attributes
         $this->htmlAttributes = [
             'name' => $name,
-            'wire:model.live' => "fields.$name",
             'value' => $value ?? '',
         ];
 
@@ -132,6 +131,22 @@ trait ManageableField
     public function getType(): string
     {
         return (new \ReflectionClass($this))->getShortName();
+    }
+
+    /**
+     * Moddeled with livewire
+     * 
+     * @return bool
+     */
+    public function isModeledWithLivewire(): bool
+    {
+        foreach($this->htmlAttributes as $key => $value) {
+            if(strpos($key, 'wire:model') !== false) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

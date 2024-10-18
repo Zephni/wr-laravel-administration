@@ -190,6 +190,9 @@ class Json
         // Apply calculated value, which will apply default key values and pretty print json
         $value = $this->calculatedValue($value);
 
+        // Set static $fields
+        $this->setField($this->getAttribute('name'), $value);
+
         return view(WRLAHelper::getViewPath('components.forms.textarea'), [
             'label' => $this->getLabel(),
             'options' => $this->options,

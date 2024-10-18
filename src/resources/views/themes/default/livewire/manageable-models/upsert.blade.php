@@ -62,9 +62,20 @@
         </div>
 
     </form>
-
-    <p class="text-sm text-slate-500 text-right"><br /><br />Render counter: {{ $numberOfRenders }}</p>
+    
+    @if($WRLAUser->getSetting('debug') == true)
+        <div class="border border-slate-300 rounded-md p-2 mt-10 text-slate-500">
+            <p class=" text-sm font-semibold">Debug Information:</p>
+            <hr class="my-1 border-slate-300">
+            Render counter: {{ $numberOfRenders }}<br />
+            Livewire fields ({{ count($fields) }}):<br />
+            @foreach($fields as $key => $value)
+                {{ $key }}: <b class="font-medium">{{ $value }}</b><br />
+            @endforeach
+        </div>
+    @endif
 </div>
+
 
 @if($usesWysiwyg === true)
     @push('appendBody')
