@@ -5,7 +5,7 @@
     $id = empty($attributes->get('id')) ? 'wrinput-'.$attributes->get('name') : $attributes->get('id');
 @endphp
 
-<div class="{{ $options['containerClass'] ?? 'w-full flex-1 md:flex-auto' }}">
+<div wire:ignore class="{{ $options['containerClass'] ?? 'w-full flex-1 md:flex-auto' }}">
 
 @if(!empty($label))
     {!! view($WRLAHelper::getViewPath('components.forms.label'), [
