@@ -59,6 +59,13 @@ class ManageableModelUpsert extends Component
      */
     public ?int $modelId = null;
 
+    /**
+     * Override title
+     * 
+     * @var ?string
+     */
+    public ?string $overrideTitle = null;
+
     /* Livewire Methods / Hooks
     --------------------------------------------------------------------------*/
 
@@ -70,7 +77,7 @@ class ManageableModelUpsert extends Component
      * @param ?int $modelId The id of the model to upsert, null if creating a new model.
      * @return \Illuminate\Http\RedirectResponse|null
      */
-    public function mount(string $manageableModelClass, PageType $upsertType, ?int $modelId = null)
+    public function mount(string $manageableModelClass, PageType $upsertType, ?int $modelId = null, ?string $overrideTitle = null)
     {
         // If the manageable model reference is null, redirect to the dashboard
         if (is_null($manageableModelClass)) {
@@ -90,6 +97,8 @@ class ManageableModelUpsert extends Component
         // Set other properties
         $this->modelId = $modelId;
         $this->upsertType = $upsertType;
+        $this->overrideTitle = $overrideTitle;
+
     }
 
     /**
@@ -152,7 +161,8 @@ class ManageableModelUpsert extends Component
             'upsertType' => $this->upsertType,
             'usesWysiwyg' => $manageableModel->usesWysiwyg(),
             'manageableFields' => $manageableFields,
-            'numberOfRenders' => $this->numberOfRenders
+            'numberOfRenders' => $this->numberOfRenders,
+            'overrideTitle' => $this->overrideTitle
         ]);
     }
 

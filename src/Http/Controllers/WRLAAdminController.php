@@ -221,9 +221,15 @@ class WRLAAdminController extends Controller
         // Get manageable model instance
         $manageableModel = User::current();
 
-        return view(WRLAHelper::getViewPath('manage-account'), [
-            'upsertType' => PageType::EDIT,
-            'manageableModel' => $manageableModel
+        return view(WRLAHelper::getViewPath('livewire-content'), [
+            'title' => "Manage Account",
+            'livewireComponentAlias' => 'wrla.manageable-models.upsert',
+            'livewireComponentData' => [
+                'manageableModelClass' => User::class,
+                'upsertType' => PageType::EDIT,
+                'modelId' => $manageableModel->getModelInstance()->id,
+                'overrideTitle' => 'Manage Account',
+            ]
         ]);
     }
 }

@@ -12,10 +12,14 @@
     {{-- Heading --}}
     <div class="flex justify-between">
         <div class="text-xl font-semibold">
-            @if($manageableModel->getmodelInstance()->id == null)
-                Creating new {{ $manageableModel->getDisplayName() }}
+            @if(!empty($overrideTitle))
+                {{ $overrideTitle }}
             @else
-                Editing {{ $manageableModel->getDisplayName() }} #{{ $manageableModel->getmodelInstance()->id }}
+                @if($manageableModel->getmodelInstance()->id == null)
+                    Creating new {{ $manageableModel->getDisplayName() }}
+                @else
+                    Editing {{ $manageableModel->getDisplayName() }} #{{ $manageableModel->getmodelInstance()->id }}
+                @endif
             @endif
         </div>
         <div class="flex justify-end gap-2 !text-sm">
