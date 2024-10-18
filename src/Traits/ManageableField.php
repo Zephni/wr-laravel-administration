@@ -17,6 +17,13 @@ trait ManageableField
     public $htmlAttributes;
 
     /**
+     * Static livewire $fields array.
+     * 
+     * @var array
+     */
+    public static array $fields = [];
+
+    /**
      * Options
      *
      * @var array
@@ -78,9 +85,13 @@ trait ManageableField
             $value = $manageableModel->getInstanceJsonValue($name);
         }
 
+        // Get name
+        $name = $this->buildNameAttribute($name ?? '');
+
         // Set base attributes
         $this->htmlAttributes = [
-            'name' => $this->buildNameAttribute($name ?? ''),
+            'name' => $name,
+            'wire:model.live' => "fields.$name",
             'value' => $value ?? '',
         ];
 
@@ -334,6 +345,49 @@ trait ManageableField
     }
 
     /**
+     * Set static field
+     * 
+     * @param string $key
+     * @param mixed $value
+     */
+    public static function setField(string $key, mixed $value): void
+    {
+        self::$fields[$key] = $value;
+    }
+
+    /**
+     * Set static fields. For fields with attribute: wire:model.live="fields.field_name", passed to each field blade view (if applicable).
+     * 
+     * @param array $fields
+     */
+    public static function setFields(array $fields): void
+    {
+        self::$fields = $fields;
+    }
+
+    /**
+     * Has field
+     * 
+     * @param string $key
+     * @return bool
+     */
+    public static function hasField(string $key): bool
+    {
+        return isset(self::$fields[$key]);
+    }
+
+    /**
+     * Get field
+     * 
+     * @param string $key
+     * @return mixed
+     */
+    public static function getField(string $key): mixed
+    {
+        return self::$fields[$key] ?? null;
+    }
+
+    /**
      * Set default value.
      *
      * @param mixed $value
@@ -555,15 +609,18 @@ trait ManageableField
      * Return view component.
      *
      * @param PageType $upsertType
-     * @param mixed $inject
+     * @param array $fields
      * @return mixed
      */
-    public function renderParent(PageType $upsertType): mixed
+    public function renderParent(PageType $upsertType, array $fields): mixed
     {
         if(!in_array($upsertType, $this->showOnPages))
         {
             return '';
         }
+
+        // Set static fields
+        self::setFields($fields);
 
         $HTML = $this->getOption('beginGroup') == true ? '<div class="w-full flex flex-col md:flex-row items-center gap-6">' : '';
         $HTML .= $this->render();

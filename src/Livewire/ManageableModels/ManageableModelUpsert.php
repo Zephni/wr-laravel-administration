@@ -25,6 +25,27 @@ class ManageableModelUpsert extends Component
     public string $manageableModelClass;
 
     /**
+     * Fields, attach with manageable model ->setAttribute('wire:model.live', 'fields.key')
+     * 
+     * @var array
+     */
+    public array $fields = [];
+
+    /**
+     * Number of renders counter
+     * 
+     * @var int
+     */
+    public int $numberOfRenders = 0;
+
+    /**
+     * Refresh manageable field values
+     * 
+     * @var bool
+     */
+    public bool $refreshManageableFields = false;
+
+    /**
      * Upsert type
      *
      * @var PageType
@@ -72,6 +93,29 @@ class ManageableModelUpsert extends Component
     }
 
     /**
+     * Set field value (Livewire method)
+     * 
+     * @param string $field Field name
+     * @param mixed $value Field value
+     */
+    public function setFieldValue(string $field, mixed $value) {
+        $this->fields[$field] = $value;
+        $this->refreshManageableFields = true;
+    }
+
+    /**
+     * Set field values (Livewire method)
+     * 
+     * @param array $fieldKeyValues Field key values
+     */
+    public function setFieldValues(array $fieldKeyValues) {
+        foreach($fieldKeyValues as $field => $value) {
+            $this->fields[$field] = $value;
+        }
+        $this->refreshManageableFields = true;
+    }
+
+    /**
      * Render the component.
      *
      * @return \Illuminate\Contracts\View\View
@@ -79,11 +123,32 @@ class ManageableModelUpsert extends Component
     public function render()
     {
         $manageableModel = $this->manageableModelClass::make($this->modelId);
+        $manageableFields = $manageableModel->getManageableFields();
 
+        // If first render,set default livewire field values
+        if($this->numberOfRenders === 0) {
+            foreach($manageableFields as $manageableField) {
+                $this->fields[$manageableField->getAttribute('name')] = $manageableField->getValue();
+            }
+        }
+
+        // Increment number of renders
+        $this->numberOfRenders++;
+
+        // If force refresh manageable fields, set field values
+        if($this->refreshManageableFields) {
+            foreach($manageableFields as $manageableField) {
+                $manageableField->setAttribute('value', $this->fields[$manageableField->getAttribute('name')]);
+            }
+        }
+
+        // Render the view
         return view(WRLAHelper::getViewPath('livewire.manageable-models.upsert'), [
             'manageableModel' => $manageableModel,
             'upsertType' => $this->upsertType,
             'usesWysiwyg' => $manageableModel->usesWysiwyg(),
+            'manageableFields' => $manageableFields,
+            'numberOfRenders' => $this->numberOfRenders
         ]);
     }
 

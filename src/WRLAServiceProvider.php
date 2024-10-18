@@ -22,6 +22,7 @@ use WebRegulate\LaravelAdministration\Http\Middleware\IsNotAdmin;
 use WebRegulate\LaravelAdministration\Livewire\NotificationsWidget;
 use WebRegulate\LaravelAdministration\Commands\CreateManageableModelCommand;
 use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItem;
+use WebRegulate\LaravelAdministration\Livewire\ManageableFields\SearchableValue;
 use WebRegulate\LaravelAdministration\Livewire\ManageableModels\ManageableModelBrowse;
 use WebRegulate\LaravelAdministration\Livewire\ManageableModels\ManageableModelUpsert;
 
@@ -147,6 +148,7 @@ class WRLAServiceProvider extends ServiceProvider
         Livewire::component('wrla.notifications-widget', NotificationsWidget::class);
         Livewire::component('wrla.import-data-modal', ImportDataModal::class);
         Livewire::component('wrla.wire-elements-modal', \LivewireUI\Modal\Modal::class);
+        Livewire::component('wrla.manageable-fields.searchable-value', SearchableValue::class);
         Livewire::forceAssetInjection();
 
         // Load custom blade directives

@@ -1,24 +1,19 @@
 <?php
-
 namespace WebRegulate\LaravelAdministration\Classes\ManageableFields;
 
-use WebRegulate\LaravelAdministration\Traits\ManageableField;
-use Illuminate\View\ComponentAttributeBag;
 use Illuminate\Support\Collection;
-use WebRegulate\LaravelAdministration\Enums\PageType;
+use Illuminate\Support\Facades\Log;
+use Illuminate\View\ComponentAttributeBag;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
+use WebRegulate\LaravelAdministration\Traits\ManageableField;
 use WebRegulate\LaravelAdministration\Classes\ManageableModel;
 
-class Select
+class SearchableValue
 {
     use ManageableField;
-    
-    /**
-     * Items
-     *
-     * @var array
-     */
-    protected array $items = [];
+
+    public array $items = [];
+    public array $filteredItems = [];
 
     /**
      * Set items for the options list. $items must use the following format:
@@ -30,26 +25,6 @@ class Select
     public function setItems(array|Collection $items): static
     {
         $this->items = $items;
-
-        $this->setToFirstValueIfNotSet();
-
-        return $this;
-    }
-
-    /**
-     * Set items from collection key and value.
-     *
-     * @param Collection $collection eg. User::all()
-     * @param string $key eg. 'id'
-     * @param string $value eg. 'name'
-     * @return $this
-     */
-    public function setItemsFromCollection(Collection $collection, string $key, string $value): static
-    {
-        $this->items = $collection->pluck($value, $key)->toArray();
-
-        $this->setToFirstValueIfNotSet();
-
         return $this;
     }
 
@@ -89,8 +64,6 @@ class Select
                 // $this->items = ['all' => 'All'] + $this->items;
                 $this->items = $postModifyFunction($this->items);
             }
-
-            $this->setToFirstValueIfNotSet();
         }
         catch (\Exception $e)
         {
@@ -127,16 +100,38 @@ class Select
      */
     public function render(): mixed
     {
-        $this->setToFirstValueIfNotSet();
+        $searchFieldValue = self::getField("searchable_value_{$this->getAttribute('name')}");
 
-        return view(WRLAHelper::getViewPath('components.forms.input-select'), [
+        // On first render make sure the searchable_value_{name} field is set
+        if($searchFieldValue == null) {
+            self::setField("searchable_value_{$this->getAttribute('name')}", '');
+        }
+
+        // Filtered items
+        if($searchFieldValue != '') {
+            $this->filteredItems = [];
+            foreach($this->items as $key => $value) {
+                if(str($value)->contains($searchFieldValue, true)) {
+                    $this->filteredItems[$key] = $value;
+                }
+            }
+        }
+
+        $searchAttributes = collect($this->htmlAttributes)->only(['placeholder'])->toArray();
+
+        return view(WRLAHelper::getViewPath('components.forms.searchable-value'), [
             'label' => $this->getLabel(),
             'options' => $this->options,
             'items' => $this->items,
-            'attributes' => new ComponentAttributeBag(array_merge($this->htmlAttributes, [
+            'filteredItems' => $this->filteredItems,
+            'fields' => self::$fields,
+            'searchAttributes' => new ComponentAttributeBag(array_merge($searchAttributes, [
                 'name' => $this->getAttribute('name'),
-                'value' => $this->getValue()
+                'value' => $this->getValue(),
+                'type' => $this->getAttribute('type') ?? 'text',
             ])),
+            'attributes' => new ComponentAttributeBag(collect($this->htmlAttributes)->except(['placeholder'])->toArray()),
+
         ])->render();
     }
 }

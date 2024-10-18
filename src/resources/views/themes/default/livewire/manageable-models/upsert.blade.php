@@ -38,8 +38,8 @@
         @csrf
         
         <div class="flex flex-wrap gap-6 mt-4 p-4 bg-slate-100 dark:bg-slate-700 shadow-slate-300 dark:shadow-slate-850 rounded-lg shadow-lg">
-            @foreach($manageableModel->getManageableFields() as $manageableField)
-                {!! $manageableField->renderParent($upsertType) !!}
+            @foreach($manageableFields as $manageableField)
+                {!! $manageableField->renderParent($upsertType, $fields) !!}
             @endforeach
         </div>
 
@@ -62,6 +62,8 @@
         </div>
 
     </form>
+
+    <p class="text-sm text-slate-500 text-right"><br /><br />Render counter: {{ $numberOfRenders }}</p>
 </div>
 
 @if($usesWysiwyg === true)
