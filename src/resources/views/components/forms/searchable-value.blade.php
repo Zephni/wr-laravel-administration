@@ -72,8 +72,10 @@
         class="select-none cursor-pointer"
     >
         @if(!$valueIsSet)
-            <div class="mt-1 px-2 py-1 text-slate-800">
-                - None selected -
+            <div class="flex gap-2 items-center mt-1 px-2 py-1 text-slate-800">
+                {{-- Negative icon --}}
+                <i class="fas fa-exclamation-triangle text-slate-400"></i>
+                None selected
             </div>
         @else
             <div
