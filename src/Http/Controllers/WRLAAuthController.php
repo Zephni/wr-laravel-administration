@@ -34,7 +34,7 @@ class WRLAAuthController extends Controller
             'email' => 'required|email',
             'password' => 'required',
         ]);
-        
+
         // For debugging, force login
         // $user = User::where('email', $request->input('email'))->first();
         // Auth::login($user);
@@ -46,7 +46,7 @@ class WRLAAuthController extends Controller
             if($request->session()->has('wrla_impersonating_user')) {
                 $request->session()->forget('wrla_impersonating_user');
             }
-            
+
             return redirect()->route('wrla.dashboard');
         }
 
@@ -55,7 +55,7 @@ class WRLAAuthController extends Controller
 
     /**
      * Impersonate / Login as user
-     * 
+     *
      * @param Request $request
      * @param int $userId
      */
@@ -83,13 +83,17 @@ class WRLAAuthController extends Controller
         // Set wrla_impersonating_user in session to original user id
         session()->put('wrla_impersonating_user', $origionalUserId);
 
-        // Redirect to dashboard
-        return redirect()->route('wrla.dashboard');
+        // If user has admin privilege redirect to dashboard, otherwise redirect to frontend
+        if($user->isAdmin()) {
+            return redirect()->route('wrla.dashboard');
+        } else {
+            return redirect('/');
+        }
     }
 
     /**
      * Impersonate / Switch back
-     * 
+     *
      * @param Request $request
      * @return \Illuminate\Http\RedirectResponse
      */
@@ -111,7 +115,7 @@ class WRLAAuthController extends Controller
 
         // Forget wrla_impersonating_user from session
         $request->session()->forget('wrla_impersonating_user');
-        
+
         // Redirect back
         return redirect()->back();
     }
