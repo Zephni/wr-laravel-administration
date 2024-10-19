@@ -22,7 +22,7 @@ class SearchableValue
      */
     public function postConstructed(): mixed
     {
-        $this->setAttribute('wire:model.live', "fields.{$this->getAttribute('name')}");
+        $this->setAttribute('wire:model.live', "livewireData.{$this->getAttribute('name')}");
         return $this;
     }
 
@@ -111,14 +111,15 @@ class SearchableValue
      */
     public function render(): mixed
     {
+        // Get the searchable value field value
         $searchFieldValue = self::getField("searchable_value_{$this->getAttribute('name')}");
-
-        // On first render make sure the searchable_value_{name} field is set
+        
+        // If null set to empty string (on first render)
         if($searchFieldValue == null) {
             self::setField("searchable_value_{$this->getAttribute('name')}", '');
         }
 
-        // Filtered items
+        // If search field value is not empty, filter the items
         if($searchFieldValue != '') {
             $this->filteredItems = [];
             foreach($this->items as $key => $value) {
@@ -128,9 +129,11 @@ class SearchableValue
             }
         }
 
+        // Get attributes for search field and main input field
         $searchAttributes = collect($this->htmlAttributes)->only(['placeholder'])->toArray();
-        $hiddenValueAttributes = collect($this->htmlAttributes)->except(['placeholder'])->toArray();
+        $attributes = collect($this->htmlAttributes)->except(['placeholder'])->toArray();
 
+        // Render the view
         return view(WRLAHelper::getViewPath('components.forms.searchable-value'), [
             'label' => $this->getLabel(),
             'options' => $this->options,
@@ -139,8 +142,7 @@ class SearchableValue
             'fields' => self::$fields,
             'searchAttributes' => new ComponentAttributeBag(array_merge($searchAttributes, [
                 'name' => $this->getAttribute('name'),
-                'wire:model.live' => "fields.searchable_value_{$hiddenValueAttributes['name']}",
-                'value' => '',
+                'wire:model.live' => "livewireData.searchable_value_{$attributes['name']}",
                 'type' => $this->getAttribute('type') ?? 'text',
             ])),
             'attributes' => new ComponentAttributeBag(collect($this->htmlAttributes)-> merge([

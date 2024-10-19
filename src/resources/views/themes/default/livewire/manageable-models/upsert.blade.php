@@ -43,7 +43,7 @@
         
         <div class="flex flex-wrap gap-6 mt-4 p-4 bg-slate-100 dark:bg-slate-700 shadow-slate-300 dark:shadow-slate-850 rounded-lg shadow-lg">
             @foreach($manageableFields as $manageableField)
-                {!! $manageableField->renderParent($upsertType, $fields) !!}
+                {!! $manageableField->renderParent($upsertType, $livewireData) !!}
             @endforeach
         </div>
 
@@ -72,8 +72,8 @@
             <p class=" text-sm font-semibold">Debug Information:</p>
             <hr class="my-1 border-slate-300">
             Render counter: {{ $numberOfRenders }}<br />
-            Livewire fields ({{ count($fields) }}):<br />
-            @foreach($fields as $key => $value)
+            Livewire data ({{ count($livewireData) }}):<br />
+            @foreach($livewireData as $key => $value)
                 {{ $key }}: <b class="font-medium">{{ $value }}</b><br />
             @endforeach
         </div>

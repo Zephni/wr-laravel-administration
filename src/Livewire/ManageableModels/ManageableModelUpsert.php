@@ -25,11 +25,11 @@ class ManageableModelUpsert extends Component
     public string $manageableModelClass;
 
     /**
-     * Fields, attach with manageable model ->setAttribute('wire:model.live', 'fields.key')
+     * Livewire fields, attach with manageable model ->setAttribute('wire:model.live', 'livewireData.key')
      * 
      * @var array
      */
-    public array $fields = [];
+    public array $livewireData = [];
 
     /**
      * Number of renders counter
@@ -108,7 +108,7 @@ class ManageableModelUpsert extends Component
      * @param mixed $value Field value
      */
     public function setFieldValue(string $field, mixed $value) {
-        $this->fields[$field] = $value;
+        $this->livewireData[$field] = $value;
         $this->refreshManageableFields = true;
     }
 
@@ -119,7 +119,7 @@ class ManageableModelUpsert extends Component
      */
     public function setFieldValues(array $fieldKeyValues) {
         foreach($fieldKeyValues as $field => $value) {
-            $this->fields[$field] = $value;
+            $this->livewireData[$field] = $value;
         }
         $this->refreshManageableFields = true;
     }
@@ -138,7 +138,7 @@ class ManageableModelUpsert extends Component
         if($this->numberOfRenders === 0) {
             foreach($manageableFields as $manageableField) {
                 if($manageableField->isModeledWithLivewire()) {
-                    $this->fields[$manageableField->getAttribute('name')] = $manageableField->getValue();
+                    $this->livewireData[$manageableField->getAttribute('name')] = $manageableField->getValue();
                 }
             }
         }
@@ -150,7 +150,7 @@ class ManageableModelUpsert extends Component
         if($this->refreshManageableFields) {
             foreach($manageableFields as $manageableField) {
                 if($manageableField->isModeledWithLivewire()) {
-                    $manageableField->setAttribute('value', $this->fields[$manageableField->getAttribute('name')]);
+                    $manageableField->setAttribute('value', $this->livewireData[$manageableField->getAttribute('name')]);
                 }
             }
         }

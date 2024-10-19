@@ -1,11 +1,5 @@
 <div
-    @once
-        @if(empty($attributes->get('value')))
-            x-data="{showSearchField: true}"
-        @else
-            x-data="{showSearchField: false}"
-        @endif
-    @endonce
+    x-data="{showSearchField: true}"
     class="{{ $options['containerClass'] ?? 'w-full flex-1 md:flex-auto' }}"
 >
     {{-- Label --}}
@@ -23,10 +17,7 @@
         @themeComponent('forms.input-text', [
             'options' => [],
             'attributes' => new \Illuminate\View\ComponentAttributeBag(array_merge($searchAttributes->getAttributes(), [
-                'name' => "searchable_value_{$attributes->get('name')}",
                 'x-ref' => "searchable_value_{$attributes->get('name')}_input",
-                'value' => '',
-                'type' => 'text',
                 'class' => '!bg-slate-100 !placeholder-slate-400',
                 'autocomplete' => 'off',
             ])),
@@ -62,8 +53,8 @@
             </div>
         @else
             <div
-                class="flex items-center gap-1.5 px-2 py-1 text-slate-800 bg-slate-200 border border-slate-400 rounded-md">
-                <i class="fas fa-check-circle text-green-500"></i>
+                class="flex items-center gap-2 px-2 py-1 text-slate-800 bg-slate-200 border border-slate-400 rounded-md">
+                <i class="fas fa-check-circle text-primary-600"></i>
                 <b class="text-medium">{{ $items[$attributes->get('value')] }}</b>
             </div>
             @endif
