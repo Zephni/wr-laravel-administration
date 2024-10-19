@@ -140,6 +140,8 @@ class SearchableValue
             'items' => $this->items,
             'filteredItems' => $this->filteredItems,
             'fields' => self::$fields,
+            'searchFieldValue' => $searchFieldValue,
+            'valueIsSet' => $this->getAttribute('value') != null,
             'searchAttributes' => new ComponentAttributeBag(array_merge($searchAttributes, [
                 'name' => $this->getAttribute('name'),
                 'wire:model.live' => "livewireData.searchable_value_{$attributes['name']}",

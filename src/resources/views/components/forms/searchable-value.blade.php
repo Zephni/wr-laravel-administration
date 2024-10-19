@@ -1,5 +1,5 @@
 <div
-    x-data="{showSearchField: true}"
+    x-data="{showSearchField: {{ $valueIsSet ? 'false' : 'true' }} }"
     class="{{ $options['containerClass'] ?? 'w-full flex-1 md:flex-auto' }}"
 >
     {{-- Label --}}
@@ -25,29 +25,42 @@
     </div>
 
     {{-- Display selectable filtered items list --}}
-    @if(count($filteredItems) > 0)
-        <div class="mt-1 w-full bg-slate-200 border border-slate-300 px-1 max-h-72 overflow-y-auto" x-show="showSearchField" x-cloak>
-            @foreach($filteredItems as $key => $value)
+    @if($searchFieldValue != '')
+        <div
+            x-ref="searchable_value_{{ $attributes->get('name') }}_list"
+            class="mt-1 w-full bg-slate-200 border border-slate-300 px-1 max-h-72 overflow-y-auto">
+            @forelse($filteredItems as $key => $value)
                 <button
                     type="button"
                     wire:click="setFieldValues({
                         '{{ $attributes->get('name') }}': '{{ $key }}',
                         'searchable_value_{{ $attributes->get('name') }}': ''
                     })"
-                    x-on:click="showSearchField = false"
+                    x-on:click="
+                        showSearchField = false;
+                        $refs.searchable_value_{{ $attributes->get('name') }}_list.style.display = 'none';
+                    "
                     class="block odd:bg-slate-100 hover:bg-slate-50  hover:border-l-4 border-primary-500 w-full text-left px-2 py-1.5">
                     {{ $value }}
                 </button>
-            @endforeach
+            @empty
+                <div class="flex gap-2 items-center text-slate-700 px-2 py-1">
+                    <i class="fas fa-info-circle text-slate-400"></i>
+                    No items found, please expand your search.
+                </div>
+            @endforelse
         </div>
     @endif
+    {{-- @dump($searchFieldValue, $attributes->get('value'), $items, $filteredItems) --}}
 
     {{-- Display current value --}}
     <div x-on:click="
-        showSearchField = true;
-        setTimeout(() => $refs.searchable_value_{{ $attributes->get('name') }}_input.focus(), 100);
-    ">
-        @if(empty($attributes->get('value')))
+            showSearchField = true;
+            setTimeout(() => $refs.searchable_value_{{ $attributes->get('name') }}_input.focus(), 100);
+        "
+        class="select-none cursor-pointer"
+    >
+        @if(!$valueIsSet)
             <div class="mt-1 px-2 py-1 text-slate-800">
                 - None selected -
             </div>
