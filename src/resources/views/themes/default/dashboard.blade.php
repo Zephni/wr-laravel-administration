@@ -6,7 +6,7 @@
     {{-- Styled dashboard title --}}
     <div class="pb-6">
         <h1 class="text-2xl font-light">
-            <i class="fas fa-tachometer-alt text-slate-500 mr-1"></i>
+            <i class="fas fa-tachometer-alt text-slate-500 dark:text-white mr-1"></i>
             Dashboard
         </h1>
         <hr class="border-b border-slate-300 w-80 mt-1 mb-3">

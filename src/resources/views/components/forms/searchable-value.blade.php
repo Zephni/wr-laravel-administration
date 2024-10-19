@@ -20,7 +20,7 @@
             ],
             'attributes' => new \Illuminate\View\ComponentAttributeBag(array_merge($searchAttributes->getAttributes(), [
                 'x-ref' => "searchable_value_{$attributes->get('name')}_input",
-                'class' => '!bg-slate-100 !placeholder-slate-400',
+                'class' => '!bg-slate-100 dark:!bg-slate-900 !placeholder-slate-400',
                 'autocomplete' => 'off',
             ])),
         ])
@@ -30,7 +30,7 @@
     @if($searchFieldValue != '')
         <div
             x-ref="searchable_value_{{ $attributes->get('name') }}_list"
-            class="mt-1 w-full bg-slate-200 border border-slate-300 px-1 max-h-72 overflow-y-auto">
+            class="mt-1 w-full bg-slate-200 dark:bg-slate-800 border border-slate-300 px-1 max-h-72 overflow-y-auto">
             @forelse($filteredItems as $key => $value)
                 <button
                     type="button"
@@ -42,7 +42,7 @@
                         showSearchField = false;
                         $refs.searchable_value_{{ $attributes->get('name') }}_list.style.display = 'none';
                     "
-                    class="block odd:bg-slate-100 hover:bg-slate-50  hover:border-l-4 border-primary-500 w-full text-left px-2 py-1.5">
+                    class="block odd:bg-slate-100 dark:odd:bg-slate-900 hover:border-l-4 border-primary-500 w-full text-left px-2 py-1.5">
                     {{ $value }}
                 </button>
             @empty
@@ -79,7 +79,7 @@
             </div>
         @else
             <div
-                class="flex items-center gap-2 px-2 py-1 text-slate-800 bg-slate-200 border border-slate-400 rounded-md">
+                class="flex items-center gap-2 px-2 py-1 text-slate-800 dark:text-slate-100 bg-slate-200 dark:bg-slate-900 border border-slate-400 rounded-md">
                 <i class="fas fa-check-circle text-primary-600"></i>
                 <b class="text-medium">{{ $items[$attributes->get('value')] }}</b>
             </div>

@@ -1,7 +1,7 @@
 <div>
     <div class="flex justify-between items-center">
-        <h3 class="text-lg font-light text-slate-600 mb-3">
-            <i class="fas fa-bell text-slate-500 mr-1"></i>
+        <h3 class="text-lg font-light mb-3">
+            <i class="fas fa-bell mr-1"></i>
             Notifications / Tasks
         </h3>
         <div class="">
@@ -12,7 +12,7 @@
                     @themeComponent('forms.input-select', [
                         'attributes' => new \Illuminate\View\ComponentAttributeBag([
                             'wire:model.live' => 'statusFilter',
-                            'class' => '!bg-slate-100 !mt-0'
+                            'class' => '!bg-slate-100 dark:!bg-slate-800 !mt-0'
                         ]),
                         'items' => $statusFilterOptions,
                         'options' => []
@@ -26,10 +26,10 @@
         <div class="flex flex-col text-sm text-sm bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-300 rounded-lg overflow-hidden">
             <!-- Header Row -->
             <div class="flex border-b bg-slate-700 dark:bg-slate-400 text-slate-100 dark:text-slate-800 border-slate-400 dark:border-slate-600 py-2">
-                <div style="width: 18%;" class="px-2 text-white font-medium">Type</div>
-                <div style="width: 59%;" class="px-2 text-white font-medium">Message</div>
-                <div style="width: 9%;" class="px-2 text-white font-medium">Date</div>
-                <div style="width: 14%;" class="px-2 text-white font-medium"></div>
+                <div style="width: 18%;" class="px-2 font-medium">Type</div>
+                <div style="width: 59%;" class="px-2 font-medium">Message</div>
+                <div style="width: 9%;" class="px-2 font-medium">Date</div>
+                <div style="width: 14%;" class="px-2 font-medium"></div>
             </div>
             <!-- Content Rows -->
             @forelse($notifications as $notification)
