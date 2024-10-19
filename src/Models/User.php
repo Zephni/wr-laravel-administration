@@ -42,11 +42,7 @@ class User extends Authenticatable implements CanResetPassword
      */
     public static function fromUser(\App\Models\User $user): static
     {
-        return once(function() use ($user) {
-            // Set all properties in one go
-            $wrlaUser = new static($user->toArray());
-            return $wrlaUser;
-        });
+        return static::find($user->id);
     }
 
     /**
@@ -56,11 +52,7 @@ class User extends Authenticatable implements CanResetPassword
      */
     public function toFrontendUser(): \App\Models\User
     {
-        $user = new \App\Models\User();
-        foreach ($this->getAttributes() as $key => $value) {
-            $user->$key = $value;
-        }
-        return $user;
+        return \App\Models\User::find($this->id);
     }
 
     /**
