@@ -78,7 +78,7 @@ class User extends ManageableModel
     }
 
     /**
-     * Get an array of columns to display in the browse view.
+     * Provide an array of columns to display in the browse view.
      *
      * @return array
      */
@@ -100,7 +100,7 @@ class User extends ManageableModel
     }
 
     /**
-     * Get an array of manageable fields to display in the upsert view.
+     * Provide an array of manageable fields to display in the upsert view.
      *
      * @return array
      */
@@ -158,11 +158,16 @@ class User extends ManageableModel
                 ])
                 ->hideContainingBraces()
                 ->setAttributes(['placeholder' => 'JSON Data', 'rows' => 4]),
+
+            Text::make($this, 'email_verified_at')
+                ->setLabel('Email Verified At')
+                ->validation('nullable|date')
+                ->setAttributes(['type' => 'datetime-local']),
         ];
     }
 
     /**
-     * Get the model instance actions.
+     * Provide the model instance actions.
      *
      * @param \Illuminate\Support\Collection $instanceActions default instance actions (edit, delete)
      * @return \Illuminate\Support\Collection
