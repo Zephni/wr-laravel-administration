@@ -130,7 +130,6 @@ class SearchableValue
         }
 
         // Get attributes for search field and main input field
-        $searchAttributes = collect($this->htmlAttributes)->only(['placeholder'])->toArray();
         $attributes = collect($this->htmlAttributes)->except(['placeholder'])->toArray();
 
         // Render the view
@@ -142,11 +141,10 @@ class SearchableValue
             'fields' => self::$fields,
             'searchFieldValue' => $searchFieldValue,
             'valueIsSet' => $this->getAttribute('value') != null,
-            'searchAttributes' => new ComponentAttributeBag(array_merge($searchAttributes, [
-                'name' => $this->getAttribute('name'),
+            'searchAttributes' => new ComponentAttributeBag([
                 'wire:model.live' => "livewireData.searchable_value_{$attributes['name']}",
-                'type' => $this->getAttribute('type') ?? 'text',
-            ])),
+                'placeholder' => $this->getAttribute('placeholder') ?? 'Search...',
+            ]),
             'attributes' => new ComponentAttributeBag(collect($this->htmlAttributes)-> merge([
                 'type' => 'hidden',
                 'name' => $this->getAttribute('name'),

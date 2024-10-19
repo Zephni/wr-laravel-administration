@@ -15,7 +15,9 @@
     {{-- Search input --}}
     <div class="w-full" x-show="showSearchField" x-cloak>
         @themeComponent('forms.input-text', [
-            'options' => [],
+            'options' => [
+                'showError' => false,
+            ],
             'attributes' => new \Illuminate\View\ComponentAttributeBag(array_merge($searchAttributes->getAttributes(), [
                 'x-ref' => "searchable_value_{$attributes->get('name')}_input",
                 'class' => '!bg-slate-100 !placeholder-slate-400',

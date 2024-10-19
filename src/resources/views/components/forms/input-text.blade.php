@@ -27,9 +27,10 @@
     @themeComponent('forms.field-notes', ['notes' => $options['notes']])
 @endif
 
-@error($attributes->get('name'))
-    @themeComponent('alert', ['type' => 'error', 'message' => $message, 'class' => 'mt-2'])
-@enderror
-
+@if($options['showError'] ?? true)
+    @error($attributes->get('name'))
+        @themeComponent('alert', ['type' => 'error', 'message' => $message, 'class' => 'mt-2'])
+    @enderror
+@endif
 
 </div>
