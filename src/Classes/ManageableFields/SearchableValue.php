@@ -12,6 +12,8 @@ class SearchableValue
 {
     use ManageableField;
 
+    public const SELECT_FIRST = 1; // If no value is set, select the first value in the items array on load
+    public const SHOW_ALL = 2; // When begin searching, show all items before filtering
     public array $items = [];
     public array $filteredItems = [];
 
@@ -27,6 +29,27 @@ class SearchableValue
     }
 
     /**
+     * Set search mode (can be multiple, use bitwise eg. SearchableValue::SELECT_FIRST | SearchableValue::SHOW_ALL)
+     * 
+     * @param int $searchMode/s
+     */
+    public function setSearchMode(int $searchMode): static
+    {
+        $this->setAttribute('searchMode', $searchMode);
+        return $this;
+    }
+
+    /**
+     * Search mode includes
+     * 
+     * @param int $searchMode
+     */
+    public function searchModeHas(int $searchMode): bool
+    {
+        return ($this->getAttribute('searchMode') & $searchMode) == $searchMode;
+    }
+
+    /**
      * Set items for the options list. $items must use the following format:
      * key => display_value,...
      *
@@ -36,6 +59,12 @@ class SearchableValue
     public function setItems(array|Collection $items): static
     {
         $this->items = $items;
+
+        // If search mode includes SELECT_FIRST, set to first value if not set
+        if($this->searchModeHas(self::SELECT_FIRST)) {
+            $this->setToFirstValueIfNotSet();
+        }
+        
         return $this;
     }
 
@@ -81,8 +110,17 @@ class SearchableValue
             throw new \Exception("Error in Select->setItemsFromModel on table '$table': ". $e->getMessage());
         }
 
+        // If search mode includes SELECT_FIRST, set to first value if not set
+        if($this->searchModeHas(self::SELECT_FIRST)) {
+            $this->setToFirstValueIfNotSet();
+        }
+
         return $this;
     }
+
+    /**
+     * Set search mode
+     */
 
     /**
      * Set to first value in items if value not set
@@ -121,10 +159,20 @@ class SearchableValue
 
         // If search field value is not empty, filter the items
         if($searchFieldValue != '') {
-            $this->filteredItems = [];
-            foreach($this->items as $key => $value) {
-                if(str($value)->contains($searchFieldValue, true)) {
-                    $this->filteredItems[$key] = $value;
+            $trimmedSearch = trim($searchFieldValue);
+
+            // If show all is set and search field value trims to empty, set filtered items to all items
+            if($this->searchModeHas(self::SHOW_ALL) && $trimmedSearch == '')
+            {
+                $this->filteredItems = $this->items;
+            }
+            else
+            {
+                $this->filteredItems = [];
+                foreach($this->items as $key => $value) {
+                    if(str($value)->contains($trimmedSearch, true)) {
+                        $this->filteredItems[$key] = $value;
+                    }
                 }
             }
         }
@@ -134,6 +182,7 @@ class SearchableValue
 
         // Render the view
         return view(WRLAHelper::getViewPath('components.forms.searchable-value'), [
+            'searchModeHas_SHOW_ALL' => $this->searchModeHas(self::SHOW_ALL),
             'label' => $this->getLabel(),
             'options' => $this->options,
             'items' => $this->items,

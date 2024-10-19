@@ -58,7 +58,16 @@
     {{-- Display current value --}}
     <div x-on:click="
             showSearchField = true;
-            setTimeout(() => $refs.searchable_value_{{ $attributes->get('name') }}_input.focus(), 100);
+            {{-- Standard mode --}}
+            @if(!$searchModeHas_SHOW_ALL)
+                setTimeout(() => $refs.searchable_value_{{ $attributes->get('name') }}_input.focus(), 100);
+            {{-- Show all mode --}}
+            @else
+                // Set searchable value to space (This will trigger the search to show all items)
+                $wire.set('livewireData.searchable_value_{{ $attributes->get('name') }}', ' ');
+                // After wire set above, select the input text
+                setTimeout(() => $refs.searchable_value_{{ $attributes->get('name') }}_input.select(), 200);
+            @endif
         "
         class="select-none cursor-pointer"
     >
