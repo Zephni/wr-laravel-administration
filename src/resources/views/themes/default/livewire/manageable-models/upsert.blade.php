@@ -60,7 +60,7 @@
                 'href' => route('wrla.manageable-models.browse', ['modelUrlAlias' => $manageableModel->getUrlAlias()]),
                 'text' => 'Cancel',
                 'size' => 'medium',
-                'color' => 'danger',
+                'color' => 'muted',
                 'icon' => 'fa fa-times',
             ])
         </div>

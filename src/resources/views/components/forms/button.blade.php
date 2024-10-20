@@ -11,13 +11,9 @@
     else if($size == 'small') $sizeClasses = 'w-fit px-2 text-[14px]';
 
     // Set colour classes
-    if($color == 'primary') $colorClasses = 'bg-teal-600 hover:bg-teal-700 border-teal-500 shadow-lg shadow-slate-400 dark:shadow-slate-700 text-white dark:text-gray-800';
-    else if($color == 'secondary') $colorClasses = 'bg-slate-600 dark:bg-slate-500 hover:bg-slate-700 dark:hover:bg-slate-600 border-slate-700 shadow-lg shadow-slate-400 dark:shadow-slate-700 text-white dark:text-gray-800';
-    else if($color == 'cyan') $colorClasses = 'bg-cyan-500 hover:bg-cyan-600 border-cyan-500 shadow-lg shadow-slate-400 dark:shadow-slate-700 text-white dark:text-gray-800';
-    else if($color == 'indigo') $colorClasses = 'bg-indigo-500 hover:bg-indigo-600 border-indigo-500 shadow-lg shadow-slate-400 dark:shadow-slate-700 text-white dark:text-gray-800';
-    else if($color == 'teal') $colorClasses = 'bg-teal-600 hover:bg-teal-700 border-teal-600 shadow-lg shadow-slate-400 dark:shadow-slate-700 text-white dark:text-gray-800';
-    else if($color == 'danger') $colorClasses = 'bg-rose-500 hover:bg-rose-600 border-rose-500 shadow-lg shadow-slate-400 dark:shadow-slate-700 text-white dark:text-gray-800';
-    else if($color == 'grey') $colorClasses = 'bg-gray-500 hover:bg-gray-600 border-gray-500 text-gray-300 shadow-lg shadow-slate-400 dark:shadow-slate-700 text-white dark:text-gray-800';
+    if($color == 'primary') $colorClasses = 'bg-teal-600 dark:bg-teal-800 dark:text-slate-200 hover:bg-teal-700 dark:hover:bg-teal-700 border-teal-500 dark:border-teal-600 shadow-lg shadow-slate-400 dark:shadow-slate-700 text-white dark:text-gray-800';
+    else if($color == 'muted') $colorClasses = 'bg-slate-500 dark:bg-slate-600 dark:text-slate-200 hover:bg-slate-700 dark:hover:bg-slate-500 border-slate-700 dark:border-slate-500 shadow-lg shadow-slate-400 dark:shadow-slate-700 text-white dark:text-gray-800';
+    else if($color == 'danger') $colorClasses = 'bg-rose-500 dark:bg-rose-700 dark:text-rose-100 hover:bg-rose-600 dark:hover:bg-rose-600 border-rose-500 shadow-lg shadow-slate-400 dark:shadow-slate-700 text-white dark:text-gray-800';
 @endphp
 
 @if(empty($href))

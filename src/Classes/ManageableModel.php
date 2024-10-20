@@ -465,7 +465,7 @@ abstract class ManageableModel
             $browseActions->put(-10, view(WRLAHelper::getViewPath('components.forms.button'), [
                 'text' => 'Create ' . static::getDisplayName(),
                 'icon' => 'fa fa-plus',
-                'color' => 'teal',
+                'color' => 'primary',
                 'size' => 'small',
                 'href' => route('wrla.manageable-models.create', ['modelUrlAlias' => static::getStaticOption(static::class, 'urlAlias')])
             ]));
@@ -480,7 +480,7 @@ abstract class ManageableModel
         $browseActions->put(51, view(WRLAHelper::getViewPath('components.forms.button'), [
             'text' => 'Import Data',
             'icon' => 'fa fa-file-import',
-            'color' => 'teal',
+            'color' => 'primary',
             'size' => 'small',
             'attributes' => new ComponentAttributeBag([
                 'onclick' => "window.loadLivewireModal(this, 'import-data-modal', {
@@ -493,7 +493,7 @@ abstract class ManageableModel
         $browseActions->put(52, view(WRLAHelper::getViewPath('components.forms.button'), [
             'text' => 'Export CSV',
             'icon' => 'fa fa-file-csv',
-            'color' => 'teal',
+            'color' => 'primary',
             'size' => 'small',
             'attributes' => new ComponentAttributeBag([
                 'wire:click' => 'exportAsCSVAction'
@@ -692,7 +692,7 @@ abstract class ManageableModel
 
     /**
      * Get instance actions.
-     * 
+     *
      * @return Collection
      */
     public function getInstanceActions(Collection $instanceActions): Collection

@@ -29,7 +29,7 @@
     <div
         x-data="{
             leftPanelOpen: $persist(true).using(sessionStorage),
-            leftPanelAttemptedWidth: $persist(360)
+            leftPanelAttemptedWidth: $persist(350)
         }"
         class="relative flex flex-row w-full min-h-full overflow-x-auto text-slate-900 dark:text-slate-100">
 
