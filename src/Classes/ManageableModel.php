@@ -541,12 +541,11 @@ abstract class ManageableModel
      * @return Collection
      */
     public function getDefaultInstanceActions(): Collection {
-        // Get current page type and set browse actions to empty collection
-        $currentPageType = WRLAHelper::getCurrentPageType();
+        // Initialise collection
         $browseActions = collect();
 
         // If create page, return empty collection
-        if($currentPageType == PageType::CREATE) {
+        if(WRLAHelper::getCurrentPageType() == PageType::CREATE) {
             return $browseActions;
         }
 

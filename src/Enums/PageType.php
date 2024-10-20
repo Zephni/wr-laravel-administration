@@ -7,6 +7,7 @@ enum PageType: string
     case CREATE = 'CREATE';
     case EDIT = 'EDIT';
     case BROWSE = 'BROWSE';
+    case GENERAL = 'GENERAL';
 
     public function getString(): string
     {
@@ -14,6 +15,7 @@ enum PageType: string
             PageType::CREATE => 'Create',
             PageType::EDIT => 'Edit',
             PageType::BROWSE => 'Browse',
+            PageType::GENERAL => 'General',
         };
     }
 }

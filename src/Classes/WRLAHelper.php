@@ -41,6 +41,13 @@ class WRLAHelper
     public static array $globalManageableModelData = [];
 
     /**
+     * Current page type
+     * 
+     * @var PageType
+     */
+    public static PageType $currentPageType = PageType::GENERAL;
+
+    /**
      * Get documenation URL
      *
      * @return string
@@ -71,26 +78,25 @@ class WRLAHelper
     }
 
     /**
+     * Set current page type
+     * 
+     * @param PageType $pageType The page type to set.
+     * @return PageType
+     */
+    public static function setCurrentPageType(PageType $pageType): PageType
+    {
+        static::$currentPageType = $pageType;
+        return static::$currentPageType;
+    }
+
+    /**
      * Get current page type
      *
      * @return ?PageType $pageType
      */
     public static function getCurrentPageType(): ?PageType
     {
-        if(Route::is('wrla.manageable-models.browse')) {
-            return PageType::BROWSE;
-        } else if(Route::is('wrla.manageable-models.create')) {
-            return PageType::CREATE;
-        } else if(Route::is('wrla.manageable-models.edit')) {
-            return PageType::EDIT;
-        } else if(Route::is('wrla.manage-account')) {
-            return PageType::EDIT;
-        }
-
-        // dd route name
-        // dd('Page type not found for route name: ' . Route::currentRouteName(). ' within WRLAHelper::getCurrentPageType()');
-
-        return null;
+        return static::$currentPageType;
     }
 
     /**

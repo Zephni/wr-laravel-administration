@@ -41,6 +41,9 @@ class WRLAAdminController extends Controller
      */
     public function browse(Request $request, string $modelUrlAlias): View | RedirectResponse
     {
+        // Set page type
+        WRLAHelper::setCurrentPageType(PageType::BROWSE);
+
         // Get preFilters from Get url
         $preFilters = $request->get('preFilters') ?? null;
 
@@ -76,6 +79,9 @@ class WRLAAdminController extends Controller
      */
     public function upsert(Request $request, string $modelUrlAlias, ?int $modelId = null): View | RedirectResponse
     {
+        // Set page type
+        $upsertType = WRLAHelper::setCurrentPageType($modelId == null ? PageType::CREATE : PageType::EDIT);
+
         // Get the manageable model by its URL alias
         $manageableModelClass = ManageableModel::getByUrlAlias($modelUrlAlias);
 
@@ -88,9 +94,6 @@ class WRLAAdminController extends Controller
         if($modelId != null && $manageableModelClass::getBaseModelClass()::find($modelId) == null) {
             return redirect()->route('wrla.dashboard')->with('error', "Model ".$manageableModelClass." with ID `$modelId` not found.");
         }
-
-        // Get upsert type
-        $upsertType = $modelId == null ? PageType::CREATE : PageType::EDIT;
 
         return view(WRLAHelper::getViewPath('livewire-content'), [
             'title' => $upsertType->getString() . ' ' . $manageableModelClass::getDisplayName(),
@@ -112,6 +115,9 @@ class WRLAAdminController extends Controller
      */
     public function upsertPost(Request $request, string $modelUrlAlias, ?int $modelId = null): RedirectResponse
     {
+        // Set page type
+        WRLAHelper::setCurrentPageType($modelId == null ? PageType::CREATE : PageType::EDIT);
+
         // dd($request->all());
 
         // Get manageable model class by its URL alias
@@ -218,6 +224,9 @@ class WRLAAdminController extends Controller
      */
     public function manageAccount(Request $request): View
     {
+        // Set page type
+        WRLAHelper::setCurrentPageType(PageType::EDIT);
+
         // Get manageable model instance
         $manageableModel = User::current();
 
