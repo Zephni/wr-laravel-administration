@@ -22,6 +22,8 @@
                 'x-ref' => "searchable_value_{$attributes->get('name')}_input",
                 'class' => '!bg-slate-100 dark:!bg-slate-900 !placeholder-slate-400',
                 'autocomplete' => 'off',
+                'spellcheck' => 'false',
+                'aria-autocomplete' => 'none'
             ])),
         ])
     </div>
