@@ -66,8 +66,11 @@ class WRLASettings
     */
     public static function getUserGroup(string $key): ?Collection
     {
-        if($key == 'admin') {
-            return User::whereJsonContains('permissions', ['admin' => true])->get();
+        if($key == 'admin')
+        {
+            return User::whereHas('wrlaUserData', function($query) {
+                $query->whereJsonContains('permissions', ['admin' => true]);
+            })->get();
         }
 
         return collect([User::find($key)]);

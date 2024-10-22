@@ -74,42 +74,42 @@ class InstallCommand extends Command
         $notificationBaseFile = WRLAHelper::generateFileFromStub(
             'NotificationExample.stub',
             [],
-            app_path('NotificationDefinitions/NotificationExample.php')
+            app_path('WRLA/NotificationDefinitions/NotificationExample.php')
         );
 
         // If the NotificationExample class was created
         if ($notificationBaseFile !== false) {
             $this->info(' - NotificationExample class created successfully here: ' . $notificationBaseFile);
         } else {
-            $this->warn(' - NotificationExample class already exists at ' . WRLAHelper::removeBasePath(app_path('NotificationDefinitions/NotificationExample.php')) . '. To replace it delete the file and run again.');
+            $this->warn(' - NotificationExample class already exists at ' . WRLAHelper::removeBasePath(app_path('WRLA/NotificationDefinitions/NotificationExample.php')) . '. To replace it delete the file and run again.');
         }
 
         // Create NotificationMail class
         $notificationMailFile = WRLAHelper::generateFileFromStub(
             'NotificationMail.stub',
             [],
-            app_path('Mail/NotificationMail.php')
+            app_path('Mail/WRLA/NotificationMail.php')
         );
 
         // If the NotificationMail class was created
         if ($notificationMailFile !== false) {
             $this->info(' - NotificationMail class created successfully here: ' . $notificationMailFile);
         } else {
-            $this->warn(' - NotificationMail class already exists at ' . WRLAHelper::removeBasePath(app_path('Mail/NotificationMail.php')) . '. To replace it delete the file and run again.');
+            $this->warn(' - NotificationMail class already exists at ' . WRLAHelper::removeBasePath(app_path('Mail/WRLA/NotificationMail.php')) . '. To replace it delete the file and run again.');
         }
 
         // Create notification-mail.blade.php file
         $notificationMailBladeFile = WRLAHelper::generateFileFromStub(
             'notification-mail.blade.stub',
             [],
-            resource_path('views/email/notification-mail.blade.php')
+            resource_path('views/email/wrla/notification-mail.blade.php')
         );
 
         // If the notification-mail.blade.php file was created
         if ($notificationMailBladeFile !== false) {
             $this->info(' - notification-mail.blade.php created successfully here: ' . $notificationMailBladeFile);
         } else {
-            $this->warn(' - notification-mail.blade.php already exists at ' . WRLAHelper::removeBasePath(resource_path('views/email/notification-mail.blade.php')) . '. To replace it delete the file and run again.');
+            $this->warn(' - notification-mail.blade.php already exists at ' . WRLAHelper::removeBasePath(resource_path('views/email/wrla/notification-mail.blade.php')) . '. To replace it delete the file and run again.');
         }
 
         // Success message

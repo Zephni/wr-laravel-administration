@@ -46,7 +46,14 @@ class Notification extends Model
      */
     public function getDefinition(): NotificationBase
     {
-        return new $this->type($this->user_id, json_decode($this->data, true));
+        $notificationClass = $this->type;
+
+        // If doesn't start with \, prepend it
+        if (str_starts_with($notificationClass, '\\') === false) {
+            $notificationClass = '\\' . $notificationClass;
+        }
+
+        return new $notificationClass($this->user_id, json_decode($this->data, true));
     }
 
     /**

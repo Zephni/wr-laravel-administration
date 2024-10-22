@@ -11,7 +11,6 @@ class NotificationBase
     public mixed $userId;
     public array $data;
     public ?User $user;
-    public $displayMode = '';
 
     public function __construct(mixed $userId, array $data)
     {
@@ -19,11 +18,6 @@ class NotificationBase
         $this->user = is_int($this->userId) ? User::find($userId) : null;
         $this->data = $data;
         $this->mount($data);
-    }
-
-    public function setDisplayMode(string $mode): void
-    {
-        $this->displayMode = $mode;
     }
 
     public function getUserGroup(): ?Collection
@@ -49,6 +43,11 @@ class NotificationBase
     public function getMessage(): string
     {
         return "This is an example of notification, target user: {$this->user->name}, with passed data: {$this->data['example']}";
+    }
+
+    public function getEmailMessage(): string
+    {
+        return $this->getMessage();
     }
 
     public function getLink(): string

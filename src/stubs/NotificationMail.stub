@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Mail;
+namespace App\Mail\WRLA;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
@@ -29,7 +29,7 @@ class NotificationMail extends Mailable
         public string $passedSubject,
         public ?array $passedAttachments = null,
     ) {
-        $this->notificationDefinition->setDisplayMode('email');
+
     }
 
     /**
@@ -50,7 +50,7 @@ class NotificationMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            markdown: 'email.notification-mail',
+            markdown: 'email.wrla.notification-mail',
         );
     }
 
