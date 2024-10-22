@@ -42,7 +42,7 @@ class User extends Authenticatable implements CanResetPassword
      */
     public static function fromUser(\App\Models\User $user): static
     {
-        return static::find($user->id);
+        return static::withTrashed()->find($user->id);
     }
 
     /**
@@ -52,7 +52,7 @@ class User extends Authenticatable implements CanResetPassword
      */
     public function toFrontendUser(): \App\Models\User
     {
-        return \App\Models\User::find($this->id);
+        return \App\Models\User::withTrashed()->find($this->id);
     }
 
     /**
