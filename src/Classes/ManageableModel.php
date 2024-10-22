@@ -111,18 +111,39 @@ abstract class ManageableModel
     }
 
     /**
-     * Main setup.
+     * Abstract: Main setup.
      *
      * @return void
      */
     public abstract static function mainSetup(): void;
 
     /**
-     * Static setup.
+     * Abstract: Static setup.
      *
      * @return void
      */
     public abstract static function globalSetup(): void;
+
+    /**
+     * Abstract: Get manageable fields method.
+     *
+     * @return array
+     */
+    public abstract function getManageableFields(): array;
+
+    /**
+     * Abstract: Get the browsable columns from options.
+     *
+     * @return array
+     */
+    public abstract function getBrowseColumns(): array;
+
+    /**
+     * Abstract: Get instance actions.
+     *
+     * @return Collection
+     */
+    public abstract function getInstanceActions(Collection $instanceActions): Collection;
 
     /**
      * Get static option.
@@ -655,25 +676,20 @@ abstract class ManageableModel
     }
 
     /**
-     * Get manageable fields method.
-     *
-     * @return array
+     * Get instance actions and pass in the default instance actions.
+     * 
+     * @return Collection
      */
-    public function getManageableFields(): array
+    public final function getInstanceActionsFinal(): Collection
     {
-        throw new \Exception('getManageableFields() method needs to be overriden within: '.static::class);
+        return $this->getInstanceActions($this->getDefaultInstanceActions());
     }
 
     /**
-     * Get the browsable columns from options.
-     *
-     * @return array
+     * Get browse columns (final) and make sure all values are BrowseColumn instances.
+     * 
+     * @return \Illuminate\Support\Collection
      */
-    public function getBrowseColumns(): array
-    {
-        throw new \Exception('getBrowseColumns() method needs to be overriden within: '.static::class);
-    }
-
     public function getBrowseColumnsFinal(): Collection
     {
         // If any of the values are strings, we convert into BrowseColumn instances
@@ -688,21 +704,6 @@ abstract class ManageableModel
             // If value is not a BrowseColumn instance, then we convert it into a basic string BrowseColumn
             return $valueIsBrowseColumn ? $value : BrowseColumn::make($value, 'string');
         });
-    }
-
-    /**
-     * Get instance actions.
-     *
-     * @return Collection
-     */
-    public function getInstanceActions(Collection $instanceActions): Collection
-    {
-        throw new \Exception('getInstanceActions($instanceActions) method needs to be overriden within: '.static::class);
-    }
-
-    public final function getInstanceActionsFinal(): Collection
-    {
-        return $this->getInstanceActions($this->getDefaultInstanceActions());
     }
 
     /**

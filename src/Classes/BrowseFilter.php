@@ -4,7 +4,6 @@ namespace WebRegulate\LaravelAdministration\Classes;
 
 use Illuminate\Support\Collection;
 use Illuminate\Database\Eloquent\Builder;
-use WebRegulate\LaravelAdministration\Enums\PageType;
 use WebRegulate\LaravelAdministration\Traits\ManageableField;
 
 class BrowseFilter
@@ -61,7 +60,7 @@ class BrowseFilter
      */
     public function render(array $filterKeyValues): string
     {
-        return $this->getField($filterKeyValues)->render(PageType::BROWSE);
+        return $this->getField($filterKeyValues)->render();
     }
 
     /**
