@@ -147,7 +147,7 @@ class Image
         $this->aspect($aspect);
 
         // Get aspect parts
-        $aspectParts = explode(':', $aspect);
+        $aspectParts = explode('/', $aspect);
 
         return $this->manipulateImage(function($image) use ($width, $aspectParts, $position, $quality) {
             $height = $width / $aspectParts[0] * $aspectParts[1];
@@ -282,7 +282,7 @@ class Image
     }
 
     /**
-     * Set aspect ratio using 1:1 format
+     * Set aspect ratio using 1/1 format
      *
      * @param null|string $aspect
      */
