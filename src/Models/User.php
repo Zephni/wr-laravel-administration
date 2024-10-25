@@ -178,6 +178,21 @@ class User extends Authenticatable implements CanResetPassword
     }
 
     /**
+     * Set inner data by key
+     * @param string $dottedKey
+     * @param mixed $value
+     * @return void
+     */
+    public function setData(string $dottedKey, $value): void
+    {
+        $wrlaUserData = $this->wrlaUserData;
+        if ($wrlaUserData == null) return;
+        $data = json_decode($wrlaUserData->data ?? '', true);
+        Arr::set($data, $dottedKey, $value);
+        $wrlaUserData->data = json_encode($data);
+    }
+
+    /**
      * Get role
      *
      * @return string
