@@ -50,13 +50,13 @@ class NotificationBase
         return $this->getMessage();
     }
 
-    public function getLink(): string
-    {
-        return '/';
-    }
-
     public function postCreated(): void
     {
         // Handle email sending, push notifications, etc.
+    }
+
+    public function getButtons(Collection $defaultButtons): Collection
+    {
+        return $defaultButtons;
     }
 }
