@@ -5,6 +5,7 @@ namespace WebRegulate\LaravelAdministration\Classes;
 use App\Models\User;
 use App\WRLA\WRLASettings;
 use Illuminate\Support\Collection;
+use WebRegulate\LaravelAdministration\Models\Notification;
 
 class NotificationBase
 {
@@ -55,8 +56,39 @@ class NotificationBase
         // Handle email sending, push notifications, etc.
     }
 
-    public function getButtons(Collection $defaultButtons): Collection
+    public function getButtons(Collection $defaultButtons, Notification $notification): Collection
     {
         return $defaultButtons;
+    }
+
+    protected function buildNotificationButton(Notification $notification, array $htmlAttributes, string $text, string $icon = 'fas fa-check', string $color = 'primary')
+    {
+        return NotificationBase::staticBuildNotificationButton($notification, $htmlAttributes, $text, $icon, $color);
+    }
+
+    protected function buildNotificationActionButton(Notification $notification, string $localMethod, ?array $methodData, string $text, string $icon = 'fas fa-check', array $additionalHtmlAttributes = [], string $color = 'primary')
+    {
+        return NotificationBase::staticBuildNotificationButton(
+            $notification,
+            array_merge([
+                'wire:click.prevent' => "callNotificationDefinitionMethod({$notification->id}, '{$localMethod}', '" . json_encode($methodData) . "')",
+            ], $additionalHtmlAttributes),
+            $text,
+            $icon,
+            $color
+        );
+    }
+
+    public static function staticBuildNotificationButton(Notification $notification, array $htmlAttributes, string $text, string $icon = 'fas fa-check', string $color = 'primary')
+    {
+        return view(WRLAHelper::getViewPath('components.forms.button'), [
+            'attributes' => new \Illuminate\View\ComponentAttributeBag($htmlAttributes),
+            'text' => $text,
+            'icon' => $icon,
+            'color' => $color,
+            'size' => 'small',
+            'type' => 'button',
+            'class' => 'px-4'
+        ]);
     }
 }

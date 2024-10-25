@@ -52,4 +52,26 @@ class NotificationsWidget extends Component
         // Refresh
         $this->render();
     }
+
+    public function callNotificationDefinitionMethod(int $notificationId, string $methodName, ?string $methodData = null)
+    {
+        // Decode method data
+        if($methodData !== null) {
+            $methodData = json_decode($methodData, true);
+        }
+
+        // Get notification
+        $notification = Notification::find($notificationId);
+
+        // Get definition
+        $notificationDefinition = $notification->getDefinition();
+
+        // If method data null, call method without data
+        if($methodData === null) {
+            $notificationDefinition->$methodName();
+        // Otherwise, call method with data array
+        } else {
+            $notificationDefinition->$methodName(...$methodData);
+        }
+    }
 }

@@ -61,23 +61,21 @@ class Notification extends Model
     public function getFinalButtons(): Collection
     {
         $definition = $this->getDefinition();
-        return $definition->getButtons($this->defaultButtons());
+        return $definition->getButtons($this->defaultButtons(), $this);
     }
 
     private function defaultButtons(): Collection
     {
         return collect([
-            view(WRLAHelper::getViewPath('components.forms.button'), [
-                'attributes' => new \Illuminate\View\ComponentAttributeBag([
+            NotificationBase::staticBuildNotificationButton(
+                $this,
+                [
                     'wire:click.prevent' => "flipRead({$this->id})",
                     'title' => $this->read_at === null ? 'Mark as completed' : 'Undo completion',
-                ]),
-                'text' => $this->read_at === null ? 'Complete' : 'Undo',
-                'icon' => $this->read_at === null ? 'fa fa-check' : 'fa fa-undo',
-                'size' => 'small',
-                'type' => 'button',
-                'class' => 'px-4'
-            ])
+                ],
+                $this->read_at === null ? 'Complete' : 'Undo',
+                $this->read_at === null ? 'fa fa-check' : 'fa fa-undo'
+            )
         ]);
     }
 

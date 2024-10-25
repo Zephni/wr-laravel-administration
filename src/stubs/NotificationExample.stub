@@ -1,10 +1,12 @@
 <?php
 
-namespace App\NotificationDefinitions;
+namespace App\WRLA\NotificationDefinitions;
 
-use WebRegulate\LaravelAdministration\Classes\NotificationBase;
+use Illuminate\Support\Collection;
+use App\Mail\WRLA\NotificationMail;
 use Illuminate\Support\Facades\Mail;
-use App\Mail\NotificationMail;
+use WebRegulate\LaravelAdministration\Models\Notification;
+use WebRegulate\LaravelAdministration\Classes\NotificationBase;
 
 class NotificationExample extends NotificationBase
 {
@@ -23,7 +25,7 @@ class NotificationExample extends NotificationBase
         return "This is an example of notification, target user: {$this->user->name}, with passed data: {$this->data['example']}";
     }
 
-    public function getButtons(Collection $defaultButtons): Collection
+    public function getButtons(Notification $notification, Collection $defaultButtons): Collection
     {
         return $defaultButtons;
     }
