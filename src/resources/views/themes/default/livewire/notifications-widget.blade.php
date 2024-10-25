@@ -38,11 +38,11 @@
                 @endphp
                 <div
                     target="_blank"
-                    class="flex items-center bg-slate-100 dark:bg-slate-700 odd:bg-slate-200 dark:odd:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-600 py-1">
-                    <div style="width: 18%; font-size: 13px; line-height: 13px;" class="px-2 py-2 truncate [&_a]:font-medium [&_a]:underline">{!! $definition->getTitle() !!}</div>
+                    class="flex items-center bg-slate-100 dark:bg-slate-700 odd:bg-slate-200 dark:odd:bg-slate-800 py-1">
+                    <div style="width: 18%; font-size: 13px; line-height: 13px;" class="px-2 py-2 truncate font-medium [&_a]:underline">{!! $definition->getTitle() !!}</div>
                     {{-- String replace <a href=" with <a target="_blank" href=" --}}
                     <div style="width: 59%; font-size: 13px; line-height: 13px;" class="px-2 py-2 truncate [&_a]:font-medium [&_a]:underline">{!! str_replace('<a href=', '<a target="_blank" href=', $definition->getMessage()) !!}</div>
-                    <div style="width: 9%; font-size: 13px; line-height: 13px;" class="px-2 py-2 truncate [&_a]:font-medium [&_a]:underline">{{ $notification->created_at->format('d/m/Y') }}</div>
+                    <div style="width: 9%; font-size: 13px; line-height: 13px;" class="px-2 py-2 truncate">{{ $notification->created_at->format('d/m/Y') }}</div>
                     <div style="width: 14%;" class="px-2 py-2 gap-3 truncate flex justify-end items-center">
                         {{-- Notification buttons --}}
                         @foreach($notification->getFinalButtons() as $button)
