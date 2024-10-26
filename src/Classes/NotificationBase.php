@@ -79,6 +79,19 @@ class NotificationBase
         );
     }
 
+    public static function staticBuildNotificationActionButton(Notification $notification, string $localMethod, ?array $methodData, string $text, string $icon = 'fas fa-check', array $additionalHtmlAttributes = [], string $color = 'primary')
+    {
+        return NotificationBase::staticBuildNotificationButton(
+            $notification,
+            array_merge([
+                'wire:click.prevent' => "callNotificationDefinitionMethod({$notification->id}, '{$localMethod}', '" . json_encode($methodData) . "')",
+            ], $additionalHtmlAttributes),
+            $text,
+            $icon,
+            $color
+        );
+    }
+
     public static function staticBuildNotificationButton(Notification $notification, array $htmlAttributes, string $text, string $icon = 'fas fa-check', string $color = 'primary')
     {
         return view(WRLAHelper::getViewPath('components.forms.button'), [
@@ -90,6 +103,15 @@ class NotificationBase
             'type' => 'button',
             'class' => 'px-4'
         ]);
+    }
+
+    public function flipNotificationMarkedAsRead(Notification|int $notification): void
+    {
+        if (is_int($notification)) {
+            $notification = Notification::find($notification);
+        }
+
+        $notification->flipMarkedAsRead();
     }
 
     public function deleteNotification(Notification|int $notification): void

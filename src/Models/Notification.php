@@ -67,14 +67,15 @@ class Notification extends Model
     private function defaultButtons(): Collection
     {
         return collect([
-            NotificationBase::staticBuildNotificationButton(
+            NotificationBase::staticBuildNotificationActionButton(
                 $this,
-                [
-                    'wire:click.prevent' => "flipRead({$this->id})",
-                    'title' => $this->read_at === null ? 'Mark as read' : 'Mark as unread',
-                ],
+                'flipNotificationMarkedAsRead',
+                [$this->id],
                 $this->read_at === null ? 'Read' : 'Undo',
-                $this->read_at === null ? 'fa fa-check' : 'fa fa-undo'
+                $this->read_at === null ? 'fa fa-check' : 'fa fa-undo',
+                [
+                    'title' => $this->read_at === null ? 'Mark as read' : 'Mark as unread',
+                ]
             )
         ]);
     }
@@ -91,6 +92,17 @@ class Notification extends Model
         }
 
         $this->read_at = now();
+        $this->save();
+    }
+
+    /**
+     * Flip notification as read.
+     * 
+     * @return void
+     */
+    public function flipMarkedAsRead(): void
+    {
+        $this->read_at = $this->read_at === null ? now() : null;
         $this->save();
     }
 
