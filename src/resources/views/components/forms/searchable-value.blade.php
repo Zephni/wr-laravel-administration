@@ -19,7 +19,7 @@
                 'showError' => false,
             ],
             'attributes' => new \Illuminate\View\ComponentAttributeBag(array_merge($searchAttributes->getAttributes(), [
-                'x-ref' => "searchable_value_{$attributes->get('name')}_input",
+                'x-ref' => "{$attributes->get('name')}_searchable_value_input",
                 'class' => '!bg-slate-100 dark:!bg-slate-900 !placeholder-slate-400',
                 'autocomplete' => 'off',
                 'spellcheck' => 'false',
@@ -31,18 +31,18 @@
     {{-- Display selectable filtered items list --}}
     @if($searchFieldValue != '')
         <div
-            x-ref="searchable_value_{{ $attributes->get('name') }}_list"
+            x-ref="{{ $attributes->get('name') }}_searchable_value_list"
             class="mt-1 w-full bg-slate-200 dark:bg-slate-800 border border-slate-300 px-1 max-h-72 overflow-y-auto">
             @forelse($filteredItems as $key => $value)
                 <button
                     type="button"
                     wire:click="setFieldValues({
                         '{{ $attributes->get('name') }}': '{{ $key }}',
-                        'searchable_value_{{ $attributes->get('name') }}': ''
+                        '{{ $attributes->get('name') }}_searchable_value': ''
                     })"
                     x-on:click="
                         showSearchField = false;
-                        $refs.searchable_value_{{ $attributes->get('name') }}_list.style.display = 'none';
+                        $refs.{{ $attributes->get('name') }}_searchable_value_list.style.display = 'none';
                     "
                     class="block odd:bg-slate-100 dark:odd:bg-slate-900 hover:border-l-4 border-primary-500 w-full text-left px-2 py-1.5">
                     {{ $value }}
@@ -62,13 +62,13 @@
             showSearchField = true;
             {{-- Standard mode --}}
             @if(!$searchModeHas_SHOW_ALL)
-                setTimeout(() => $refs.searchable_value_{{ $attributes->get('name') }}_input.focus(), 100);
+                setTimeout(() => $refs.{{ $attributes->get('name') }}_searchable_value_input.focus(), 100);
             {{-- Show all mode --}}
             @else
                 // Set searchable value to space (This will trigger the search to show all items)
-                $wire.set('livewireData.searchable_value_{{ $attributes->get('name') }}', ' ');
+                $wire.set('livewireData.{{ $attributes->get('name') }}_searchable_value', ' ');
                 // After wire set above, select the input text
-                setTimeout(() => $refs.searchable_value_{{ $attributes->get('name') }}_input.select(), 200);
+                setTimeout(() => $refs.{{ $attributes->get('name') }}_searchable_value_input.select(), 200);
             @endif
         "
         class="select-none cursor-pointer"

@@ -27,7 +27,7 @@ class SearchableValue
     public function livewireSetup(): ?array
     {
         return [
-            "searchable_value_{$this->getAttribute('name')}" => '',
+            "{$this->getAttribute('name')}_searchable_value" => '',
         ];
     }
 
@@ -153,7 +153,7 @@ class SearchableValue
     public function render(): mixed
     {
         // Get the searchable value field value
-        $searchFieldValue = self::getLivewireField("searchable_value_{$this->getAttribute('name')}");
+        $searchFieldValue = self::getLivewireField("{$this->getAttribute('name')}_searchable_value");
 
         // If search field value is not empty, filter the items
         if($searchFieldValue != '') {
@@ -189,7 +189,7 @@ class SearchableValue
             'searchFieldValue' => $searchFieldValue,
             'valueIsSet' => $this->getAttribute('value') != null,
             'searchAttributes' => new ComponentAttributeBag([
-                'wire:model.live' => "livewireData.searchable_value_{$attributes['name']}",
+                'wire:model.live' => "livewireData.{$attributes['name']}_searchable_value",
                 'placeholder' => $this->getAttribute('placeholder') ?? 'Search...',
             ]),
             'attributes' => new ComponentAttributeBag(collect($this->htmlAttributes)-> merge([
