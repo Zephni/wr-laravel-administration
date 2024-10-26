@@ -18,14 +18,17 @@ class SearchableValue
     public array $filteredItems = [];
 
     /**
-     * Post constructed method, called after name and value attributes are set.
-     *
-     * @return $this
+     * Livewire setup. Return a key => value array of livewire fields to register their default values.
+     * Note that if returns array, this manageable field will automatically add the wire:model.live attribute to the input field.
+     * If not using livewire fields for this manageable model, return null.
+     * 
+     * @return ?array Key => value array of livewire fields to register their default values.
      */
-    public function postConstructed(): mixed
+    public function livewireSetup(): ?array
     {
-        $this->setAttribute('wire:model.live', "livewireData.{$this->getAttribute('name')}");
-        return $this;
+        return [
+            "searchable_value_{$this->getAttribute('name')}" => '',
+        ];
     }
 
     /**
@@ -151,11 +154,6 @@ class SearchableValue
     {
         // Get the searchable value field value
         $searchFieldValue = self::getField("searchable_value_{$this->getAttribute('name')}");
-        
-        // If null set to empty string (on first render)
-        if($searchFieldValue == null) {
-            self::setField("searchable_value_{$this->getAttribute('name')}", '');
-        }
 
         // If search field value is not empty, filter the items
         if($searchFieldValue != '') {

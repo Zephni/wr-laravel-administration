@@ -94,8 +94,13 @@ trait ManageableField
             'value' => $value ?? '',
         ];
 
+        // Set manageable model
         $this->manageableModel = $manageableModel;
 
+        // Handle livewire setup (if applicable)
+        $this->handleLivewireSetup();
+
+        // Run post constructed method
         $this->postConstructed();
     }
 
@@ -400,6 +405,58 @@ trait ManageableField
     public static function getField(string $key): mixed
     {
         return self::$fields[$key] ?? null;
+    }
+
+    /**
+     * Livewire setup. Return a key => value array of livewire fields to register their default values.
+     * Note that if returns array, this manageable field will automatically add the wire:model.live attribute to the input field.
+     * If not using livewire fields for this manageable model, return null.
+     * 
+     * @return ?array Key => value array of livewire fields to register their default values.
+     */
+    public function livewireSetup(): ?array
+    {
+        return null;
+    }
+
+    /**
+     * Set livewire wire:model.live attribute with the livewireData. prefix for use in
+     * the livewire component and other manageable fields.
+     * 
+     * @param string $name
+     * @return $this
+     */
+    public function setLivewireModel(): static
+    {
+        $this->setAttribute('wire:model.live', "livewireData.{$this->getAttribute('name')}");
+
+        return $this;
+    }
+
+    /**
+     * Handle livewire setup
+     * 
+     * @return void
+     */
+    private function handleLivewireSetup(): void
+    {
+        // Get livewire setup result
+        $livewireSetupResult = $this->livewireSetup();
+
+        // If null then return
+        if($livewireSetupResult === null) {
+            return;
+        }
+
+        // Set livewire model attribute
+        $this->setLivewireModel();
+
+        // Set each static field default if not already set
+        foreach($livewireSetupResult as $key => $value) {
+            if(!self::hasField($key)) {
+                self::setField($key, $value);
+            }
+        }
     }
 
     /**
