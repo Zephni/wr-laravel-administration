@@ -21,7 +21,7 @@ trait ManageableField
      * 
      * @var array
      */
-    public static array $fields = [];
+    public static array $livewireFields = [];
 
     /**
      * Options
@@ -370,9 +370,9 @@ trait ManageableField
      * @param string $key
      * @param mixed $value
      */
-    public static function setField(string $key, mixed $value): void
+    public static function setLivewireField(string $key, mixed $value): void
     {
-        self::$fields[$key] = $value;
+        self::$livewireFields[$key] = $value;
     }
 
     /**
@@ -380,9 +380,9 @@ trait ManageableField
      * 
      * @param array $fields
      */
-    public static function setFields(array $fields): void
+    public static function setLivewireFields(array $fields): void
     {
-        self::$fields = $fields;
+        self::$livewireFields = $fields;
     }
 
     /**
@@ -391,9 +391,9 @@ trait ManageableField
      * @param string $key
      * @return bool
      */
-    public static function hasField(string $key): bool
+    public static function hasLivewireField(string $key): bool
     {
-        return isset(self::$fields[$key]);
+        return isset(self::$livewireFields[$key]);
     }
 
     /**
@@ -402,9 +402,9 @@ trait ManageableField
      * @param string $key
      * @return mixed
      */
-    public static function getField(string $key): mixed
+    public static function getLivewireField(string $key): mixed
     {
-        return self::$fields[$key] ?? null;
+        return self::$livewireFields[$key] ?? null;
     }
 
     /**
@@ -453,8 +453,8 @@ trait ManageableField
 
         // Set each static field default if not already set
         foreach($livewireSetupResult as $key => $value) {
-            if(!self::hasField($key)) {
-                self::setField($key, $value);
+            if(!self::hasLivewireField($key)) {
+                self::setLivewireField($key, $value);
             }
         }
     }
@@ -692,7 +692,7 @@ trait ManageableField
         }
 
         // Set static fields
-        self::setFields($fields);
+        self::setLivewireFields($fields);
 
         $HTML = $this->getOption('beginGroup') == true ? '<div class="w-full flex flex-col md:flex-row items-center gap-6">' : '';
         $HTML .= $this->render();

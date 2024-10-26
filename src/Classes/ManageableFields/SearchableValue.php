@@ -153,7 +153,7 @@ class SearchableValue
     public function render(): mixed
     {
         // Get the searchable value field value
-        $searchFieldValue = self::getField("searchable_value_{$this->getAttribute('name')}");
+        $searchFieldValue = self::getLivewireField("searchable_value_{$this->getAttribute('name')}");
 
         // If search field value is not empty, filter the items
         if($searchFieldValue != '') {
@@ -185,7 +185,7 @@ class SearchableValue
             'options' => $this->options,
             'items' => $this->items,
             'filteredItems' => $this->filteredItems,
-            'fields' => self::$fields,
+            'fields' => self::$livewireFields,
             'searchFieldValue' => $searchFieldValue,
             'valueIsSet' => $this->getAttribute('value') != null,
             'searchAttributes' => new ComponentAttributeBag([
