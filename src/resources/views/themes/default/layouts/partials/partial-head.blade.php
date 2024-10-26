@@ -79,7 +79,6 @@
             Livewire.on(`${modalComponent}.opened`, () => { resolve(); });
         }));
     };
-    
 </script>
 
 {{-- Font Awesome cdn --}}

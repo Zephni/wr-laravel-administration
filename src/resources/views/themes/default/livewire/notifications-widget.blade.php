@@ -46,7 +46,7 @@
                             <td style="font-size: 13px;" class="text-wrap px-2 py-2 truncate [&_a]:font-medium [&_a]:underline">{!! str_replace('<a href=', '<a target="_blank" href=', $definition->getMessage()) !!}</div>
                             <td style="font-size: 13px;" class="px-2 py-2 truncate">{{ $notification->created_at->format('d/m/Y H:i') }}</td>
                             <td class="px-2 py-2">
-                                <div class="flex justify-end items-center gap-3 truncate">
+                                <div class="flex justify-end items-center gap-2 truncate">
                                     {{-- Notification buttons --}}
                                     @foreach($notification->getFinalButtons() as $button)
                                         {!! $button !!}

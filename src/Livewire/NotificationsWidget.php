@@ -76,5 +76,8 @@ class NotificationsWidget extends Component
 
         // Refresh
         $this->render();
+
+        // Emit event
+        $this->dispatch('notificationWidgetFinishedLoading');
     }
 }

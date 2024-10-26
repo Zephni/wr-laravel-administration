@@ -95,7 +95,15 @@ class NotificationBase
     public static function staticBuildNotificationButton(Notification $notification, array $htmlAttributes, string $text, string $icon = 'fas fa-check', string $color = 'primary')
     {
         return view(WRLAHelper::getViewPath('components.forms.button'), [
-            'attributes' => new \Illuminate\View\ComponentAttributeBag($htmlAttributes),
+            'attributes' => new \Illuminate\View\ComponentAttributeBag(array_merge([
+                'onclick' => "
+                    window.buttonSignifyLoading(this, () => new Promise((resolve) => {
+                        Livewire.on('notificationWidgetFinishedLoading', () => {
+                            resolve();
+                        });
+                    }));
+                ",
+            ],$htmlAttributes)),
             'text' => $text,
             'icon' => $icon,
             'color' => $color,
