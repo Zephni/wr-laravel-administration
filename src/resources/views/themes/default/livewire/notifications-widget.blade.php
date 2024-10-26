@@ -59,16 +59,16 @@
                             </td>
                         </tr>
                     @empty
-                        <tr class="!bg-slate-100 dark:bg-slate-700 odd:bg-slate-200 dark:odd:bg-slate-800 py-3">
-                            <td colspan="4" class="px-2 py-6 text-slate-500 dark:text-slate-300 text-center text-base">
+                        <tr class="bg-slate-100 dark:bg-slate-800 py-3">
+                            <td colspan="4" class="px-2 py-6 text-center text-base">
                                 @if($statusFilter === 'unread')
                                     <i class="fas fa-check-circle text-primary-500 mr-1"></i>
                                     All tasks complete!
                                 @elseif($statusFilter === 'read')
-                                    <i class="fas fa-check-circle text-slate-500 mr-1"></i>
+                                    <i class="fas fa-check-circle mr-1"></i>
                                     No completed notifications found.
                                 @else
-                                    <i class="fas fa-check-circle text-slate-500 mr-1"></i>
+                                    <i class="fas fa-check-circle mr-1"></i>
                                     No notifications found.
                                 @endif
                             </td>
