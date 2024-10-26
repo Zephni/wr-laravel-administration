@@ -73,5 +73,8 @@ class NotificationsWidget extends Component
         } else {
             $notificationDefinition->$methodName(...$methodData);
         }
+
+        // Refresh
+        $this->render();
     }
 }

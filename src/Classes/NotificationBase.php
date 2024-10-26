@@ -91,4 +91,9 @@ class NotificationBase
             'class' => 'px-4'
         ]);
     }
+
+    public function deleteNotification(Notification $notification): void
+    {
+        $notification->delete();
+    }
 }

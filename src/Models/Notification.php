@@ -71,9 +71,9 @@ class Notification extends Model
                 $this,
                 [
                     'wire:click.prevent' => "flipRead({$this->id})",
-                    'title' => $this->read_at === null ? 'Mark as completed' : 'Undo completion',
+                    'title' => $this->read_at === null ? 'Mark as read' : 'Mark as unread',
                 ],
-                $this->read_at === null ? 'Complete' : 'Undo',
+                $this->read_at === null ? 'Read' : 'Undo',
                 $this->read_at === null ? 'fa fa-check' : 'fa fa-undo'
             )
         ]);
