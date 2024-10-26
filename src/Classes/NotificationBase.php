@@ -92,8 +92,12 @@ class NotificationBase
         ]);
     }
 
-    public function deleteNotification(Notification $notification): void
+    public function deleteNotification(Notification|int $notification): void
     {
+        if (is_int($notification)) {
+            $notification = Notification::find($notification);
+        }
+
         $notification->delete();
     }
 }
