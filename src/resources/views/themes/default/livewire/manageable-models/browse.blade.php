@@ -40,8 +40,8 @@
     </div>
 
     <div class="rounded-md overflow-hidden shadow-lg shadow-slate-300 dark:shadow-slate-850">
-        <table class="table w-full text-sm bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-300">
-            <thead class="border-b bg-slate-700 dark:bg-slate-400 text-slate-100 dark:text-slate-800 border-slate-400 dark:border-slate-600">
+        <table class="table w-full text-sm bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-200">
+            <thead class="border-b bg-slate-700 dark:bg-slate-700 text-slate-100 dark:text-slate-300 border-slate-400 dark:border-slate-600">
                 <tr>
                     @foreach($manageableModelClass::make()->getBrowseColumnsFinal() as $column => $browseColumn)
                         @continue($browseColumn === null)
@@ -49,12 +49,12 @@
                             @if($browseColumn->getOption('allowOrdering'))
                                 title="Order by {{ $column }} {{ $orderDirection == 'asc' ? 'descending' : 'ascending' }}"
                             @endif
-                            class="text-left px-3 py-2 @if($browseColumn->getOption('allowOrdering')) group hover:text-primary-500 dark:hover:text-slate-700 @endif @if($orderBy == $column) text-primary-500 dark:text-slate-800 @endif" @if($browseColumn->width != null) style="width: {{ is_numeric($browseColumn->width) ? $browseColumn->width.'px' : $browseColumn->width }}" @endif>
+                            class="text-left px-3 py-2 @if($browseColumn->getOption('allowOrdering')) group hover:text-primary-500 @endif @if($orderBy == $column) text-primary-500 @endif" @if($browseColumn->width != null) style="width: {{ is_numeric($browseColumn->width) ? $browseColumn->width.'px' : $browseColumn->width }}" @endif>
                             @if($browseColumn->getOption('allowOrdering'))
                                 <button class="flex items-center gap-3 w-full text-left" wire:click="reOrderAction('{{ $column }}', '{{ $orderDirection == 'asc' ? 'desc' : 'asc' }}')">
                                     {{ $browseColumn->renderDisplayName() }}
                                     @if($orderBy == $column)
-                                        <i class="relative fas fa-sort-{{ $orderDirection == 'asc' ? 'up' : 'down' }} text-primary-500 dark:text-slate-800"
+                                        <i class="relative fas fa-sort-{{ $orderDirection == 'asc' ? 'up' : 'down' }} text-primary-500"
                                             style="{{ $orderDirection == 'asc' ? 'top: 3px;' : 'top: -3px;' }}"
                                             ></i>
                                     @else
@@ -76,7 +76,7 @@
                     @php
                         $manageableModel = $manageableModelClass::make($model);
                     @endphp
-                    <tr class="odd:bg-slate-100 dark:odd:bg-slate-700 even:bg-slate-200 dark:even:bg-slate-800">
+                    <tr class="bg-slate-100 dark:bg-slate-800 odd:bg-slate-200 dark:odd:bg-slate-900">
                         @foreach($manageableModel->getBrowseColumnsFinal() as $column => $browseColumn)
                             @continue($browseColumn === null)
                             <td class="px-3 py-2 whitespace-nowrap" @if($browseColumn->width != null) style="width: {{ is_numeric($browseColumn->width) ? $browseColumn->width.'px' : $browseColumn->width }}" @endif>

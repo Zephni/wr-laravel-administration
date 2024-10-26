@@ -27,7 +27,7 @@
             <!-- Header Row -->
             <table class="w-full table-auto text-left align-middle">
                 <thead>
-                    <tr class="border-b bg-slate-700 dark:bg-slate-400 text-slate-100 dark:text-slate-800 border-slate-400 dark:border-slate-600 py-2">
+                    <tr class="border-b bg-slate-700 dark:bg-slate-700 text-slate-100 dark:text-slate-300 border-slate-400 dark:border-slate-600 py-2">
                         <th class="px-2 py-2 font-medium">Type</th>
                         <th class="px-2 py-2 font-medium">Message</th>
                         <th class="px-2 py-2 font-medium">Created</th>
@@ -40,7 +40,7 @@
                         @php
                             $definition = $notification->getDefinition();
                         @endphp
-                        <tr target="_blank" class="bg-slate-100 dark:bg-slate-700 odd:bg-slate-200 dark:odd:bg-slate-800 py-1">
+                        <tr target="_blank" class="bg-slate-100 dark:bg-slate-800 odd:bg-slate-200 dark:odd:bg-slate-900 py-1">
                             <td style="font-size: 13px;" class="px-2 py-2 truncate font-medium [&_a]:underline">{!! $definition->getTitle() !!}</td>
                             {{-- String replace <a href=" with <a target="_blank" href=" --}}
                             <td style="font-size: 13px;" class="text-wrap px-2 py-2 truncate [&_a]:font-medium [&_a]:underline">{!! str_replace('<a href=', '<a target="_blank" href=', $definition->getMessage()) !!}</div>
