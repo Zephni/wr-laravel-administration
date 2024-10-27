@@ -56,7 +56,7 @@ class NotificationBase
     {
         $message = $this->getMessage();
 
-        // Remove all tabs / 4 spaces from begining of lines
+        // Remove all all spaces and tabs from the beginning of any lines
         $message = preg_replace('/^[\t ]+/m', '', $message);
 
         // Get markdown -> html
