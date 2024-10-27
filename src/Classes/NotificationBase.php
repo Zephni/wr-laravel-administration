@@ -76,7 +76,7 @@ class NotificationBase
         $message = preg_replace('/^[\t ]+/m', '', $message);
 
         // Return markdown -> html
-        return Str::markdown($message);
+        return $message;
     }
 
     public function postCreated(): void
