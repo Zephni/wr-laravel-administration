@@ -4,6 +4,7 @@ namespace WebRegulate\LaravelAdministration\Classes;
 
 use App\Models\User;
 use App\WRLA\WRLASettings;
+use Illuminate\Support\Str;
 use Illuminate\Support\Collection;
 use WebRegulate\LaravelAdministration\Models\Notification;
 
@@ -49,6 +50,33 @@ class NotificationBase
     public function getEmailMessage(): string
     {
         return $this->getMessage();
+    }
+
+    public function getMessageFinal(): string
+    {
+        $message = $this->getMessage();
+
+        // Remove all tabs / 4 spaces from begining of lines
+        $message = preg_replace('/^[\t ]+/m', '', $message);
+
+        // Get markdown -> html
+        $message = Str::markdown($message);
+
+        // Add target _blank to all links
+        $message = str_replace('<a href=', '<a target="_blank" href=', $message);
+
+        return $message;
+    }
+
+    public function getEmailMessageFinal(): string
+    {
+        $message = $this->getEmailMessage();
+
+        // Remove all tabs / 4 spaces from begining of lines
+        $message = preg_replace('/^[\t ]+/m', '', $message);
+
+        // Return markdown -> html
+        return Str::markdown($message);
     }
 
     public function postCreated(): void
