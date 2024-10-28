@@ -2,15 +2,29 @@
     x-data="{showSearchField: {{ $valueIsSet ? 'false' : 'true' }} }"
     class="{{ $options['containerClass'] ?? 'w-full flex-1 md:flex-auto' }}"
 >
-    {{-- Label --}}
-    @if(!empty($label))
-        {!! view($WRLAHelper::getViewPath('components.forms.label'), [
-            'label' => $label,
-            'attributes' => new \Illuminate\View\ComponentAttributeBag([
-                'class' => 'mb-2 '.($options['labelClass'] ?? '')
-            ])
-        ])->render() !!}
-    @endif
+    <div class="flex justify-between">
+        {{-- Label --}}
+        @if(!empty($label))
+            {!! view($WRLAHelper::getViewPath('components.forms.label'), [
+                'label' => $label,
+                'attributes' => new \Illuminate\View\ComponentAttributeBag([
+                    'class' => 'mb-2 '.($options['labelClass'] ?? '')
+                ])
+            ])->render() !!}
+        @endif
+
+        {{-- Cancel button --}}
+        @if($attributes->get('required') != true && $valueIsSet)
+            <button
+                type="button"
+                class="relative top-[-2px] flex items-center gap-2 text-slate-500 hover:text-rose-600 dark:text-slate-400 dark:hover:text-slate-300"
+                wire:click.prevent="setFieldValue('{{ $attributes->get('name') }}', null)"
+            >
+                <i class="fas fa-times-circle text-xs"></i>
+                <span class="text-sm">Cancel</span>
+            </button>
+        @endif
+    </div>
 
     {{-- Search input --}}
     <div class="w-full" x-show="showSearchField" x-cloak>
@@ -20,7 +34,7 @@
             ],
             'attributes' => new \Illuminate\View\ComponentAttributeBag(array_merge($searchAttributes->getAttributes(), [
                 'x-ref' => "{$attributes->get('name')}_searchable_value_input",
-                'class' => '!bg-slate-100 dark:!bg-slate-900 !placeholder-slate-400',
+                'class' => '!mt-0 !bg-slate-100 dark:!bg-slate-900 !placeholder-slate-400',
                 'autocomplete' => 'off',
                 'spellcheck' => 'false',
                 'aria-autocomplete' => 'none'
@@ -73,7 +87,7 @@
         "
         class="select-none cursor-pointer"
     >
-        @if(!$valueIsSet)
+        @if($attributes->get('required') == true && !$valueIsSet)
             <div class="flex gap-2 items-center mt-1 px-2 py-1 text-slate-800">
                 {{-- Negative icon --}}
                 <i class="fas fa-exclamation-triangle text-slate-400"></i>
