@@ -83,7 +83,7 @@
             <div
                 class="flex items-center gap-2 px-2 py-1 text-slate-800 dark:text-slate-100 bg-slate-200 dark:bg-slate-900 border border-slate-400 rounded-md">
                 <i class="fas fa-check-circle text-primary-600"></i>
-                <b class="text-medium">{{ $items[$attributes->get('value')] ?? '' }}</b>
+                <b class="text-medium">{{ $items[$attributes->get('value')] ?? ' - None selected - ' }}</b>
             </div>
             @endif
         {{-- Actual value here to submit to form below --}}
