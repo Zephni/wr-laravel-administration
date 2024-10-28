@@ -16,6 +16,7 @@ class SearchableValue
     public const SHOW_ALL = 2; // When begin searching, show all items before filtering
     public array $items = [];
     public array $filteredItems = [];
+    public mixed $emptyValue = null;
 
     /**
      * Livewire setup. Return a key => value array of livewire fields to register their default values.
@@ -50,6 +51,18 @@ class SearchableValue
     public function searchModeHas(int $searchMode): bool
     {
         return ($this->getAttribute('searchMode') & $searchMode) == $searchMode;
+    }
+
+    /**
+     * Define the empty value. Eg. use 0 or 'none' instead of null (default).
+     * 
+     * @param mixed $emptyValue
+     * @return $this
+     */
+    public function setEmptyValue(mixed $emptyValue): static
+    {
+        $this->emptyValue = $emptyValue;
+        return $this;
     }
 
     /**
@@ -178,6 +191,11 @@ class SearchableValue
         // Get attributes for search field and main input field
         $attributes = collect($this->htmlAttributes)->except(['placeholder'])->toArray();
 
+        // If empty value is set and value is empty, set value to empty value
+        if($this->emptyValue !== null && empty($this->getAttribute('value'))) {
+            $this->setAttribute('value', $this->emptyValue);
+        }
+
         // Render the view
         return view(WRLAHelper::getViewPath('components.forms.searchable-value'), [
             'searchModeHas_SHOW_ALL' => $this->searchModeHas(self::SHOW_ALL),
@@ -187,7 +205,7 @@ class SearchableValue
             'filteredItems' => $this->filteredItems,
             'fields' => self::$livewireFields,
             'searchFieldValue' => $searchFieldValue,
-            'valueIsSet' => $this->getAttribute('value') != null,
+            'valueIsSet' => $this->getAttribute('value') != $this->emptyValue,
             'searchAttributes' => new ComponentAttributeBag([
                 'wire:model.live' => "livewireData.{$attributes['name']}_searchable_value",
                 'placeholder' => $this->getAttribute('placeholder') ?? 'Search...',
