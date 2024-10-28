@@ -22,9 +22,9 @@ use WebRegulate\LaravelAdministration\Http\Middleware\IsNotAdmin;
 use WebRegulate\LaravelAdministration\Livewire\NotificationsWidget;
 use WebRegulate\LaravelAdministration\Commands\CreateManageableModelCommand;
 use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItem;
-use WebRegulate\LaravelAdministration\Livewire\ManageableFields\SearchableValue;
 use WebRegulate\LaravelAdministration\Livewire\ManageableModels\ManageableModelBrowse;
 use WebRegulate\LaravelAdministration\Livewire\ManageableModels\ManageableModelUpsert;
+use WebRegulate\LaravelAdministration\Classes\ManageableFields\SearchableValue;
 
 class WRLAServiceProvider extends ServiceProvider
 {
