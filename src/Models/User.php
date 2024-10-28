@@ -42,7 +42,16 @@ class User extends Authenticatable implements CanResetPassword
      */
     public static function fromUser(\App\Models\User $user): static
     {
-        return static::withTrashed()->find($user->id);
+        // Build WRLA user from frontend user (set attributes)
+        $wrlaUser = new static();
+        foreach ($user->getAttributes() as $key => $value) {
+            $wrlaUser->$key = $value;
+        }
+
+        // Set password
+        $wrlaUser->password = $user->password;
+
+        return $wrlaUser;
     }
 
     /**
@@ -52,7 +61,16 @@ class User extends Authenticatable implements CanResetPassword
      */
     public function toFrontendUser(): \App\Models\User
     {
-        return \App\Models\User::withTrashed()->find($this->id);
+        // Build frontend user from WRLA user (set attributes)
+        $user = new \App\Models\User();
+        foreach ($this->getAttributes() as $key => $value) {
+            $user->$key = $value;
+        }
+
+        // Set password
+        $user->password = $this->password;
+
+        return $user;
     }
 
     /**
