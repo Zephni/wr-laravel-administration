@@ -1,9 +1,11 @@
-<x-mail::message>
+@component('mail::message')
+@component('mail::panel')
 # {!! $notificationDefinition->getTitle() !!}
 
-{!! $notificationDefinition->getEmailMessage() !!}
+{!! $notificationDefinition->getEmailMessageFinal() !!}
+@endcomponent
 
 <br>
 Thanks,<br>
 {{ config('app.name') }}
-</x-mail::message>
+@endcomponent
