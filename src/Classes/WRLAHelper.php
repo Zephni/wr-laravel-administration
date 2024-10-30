@@ -31,7 +31,7 @@ class WRLAHelper
      * @var string
      */
     const WRLA_REL_DOT = '__WRLA::REL::DOT__';
-    
+
     /**
      * Manageable model setup global data, uses format
      * '\App\WRLA\ManageableModelClass' => $staticOptions
@@ -42,7 +42,7 @@ class WRLAHelper
 
     /**
      * Current page type
-     * 
+     *
      * @var PageType
      */
     public static PageType $currentPageType = PageType::GENERAL;
@@ -79,7 +79,7 @@ class WRLAHelper
 
     /**
      * Set current page type
-     * 
+     *
      * @param PageType $pageType The page type to set.
      * @return PageType
      */
@@ -357,7 +357,7 @@ class WRLAHelper
      * @param array $parameters The parameters to check.
      * @return bool
      */
-    public static function isCurrentRouteWithParameters(string $routeName, array $parameters): bool
+    public static function isCurrentRouteWithParameters(?string $routeName, ?array $parameters): bool
     {
         // First check if name is true
         if(request()->route()->getName() !== $routeName) {

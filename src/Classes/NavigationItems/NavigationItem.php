@@ -29,15 +29,15 @@ class NavigationItem
     /**
      * Constructor
      *
-     * @param string $route
-     * @param array $routeData
+     * @param ?string $route
+     * @param ?array $routeData
      * @param string $name
      * @param string $icon
      * @param array $children
      */
     public function __construct(
-        public string $route,
-        public array $routeData,
+        public ?string $route,
+        public ?array $routeData,
         public string $name,
         public string $icon = 'fa fa-question',
         public array $children = [],
@@ -64,7 +64,11 @@ class NavigationItem
      */
     public function getUrl(): string
     {
-        return route($this->route, $this->routeData);
+        if(empty($this->route)) {
+            return '#';
+        }
+
+        return route($this->route, $this->routeData ?? []);
     }
 
     /**
@@ -73,7 +77,7 @@ class NavigationItem
      */
     public function isActive(): bool
     {
-        return WRLAHelper::isCurrentRouteWithParameters($this->route, $this->routeData);
+        return WRLAHelper::isCurrentRouteWithParameters($this->route, $this->routeData ?? []);
     }
 
     /**

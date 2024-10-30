@@ -41,12 +41,15 @@
                     </a>
                 {{-- If navigation item does not have a route --}}
                 @else
-                    <div class="grid grid-cols-[36px,1fr] flex-1 h-full px-6 pt-2 pb-1 text-start whitespace-nowrap hover:!text-primary-500">
+                    <span
+                        @click="dropdownOpen = !dropdownOpen;"
+                        :class="{ '!text-primary-500 !bg-slate-800': !dropdownOpen && thisActive, '!text-primary-500 bg-slate-750': childIsActive, '!border-t-2 !border-b-2 border-slate-600': !dropdownOpen && (thisActive || childIsActive), '!border-t-2 !border-b border-slate-600': dropdownOpen && (thisActive || childIsActive) }"
+                        class="grid grid-cols-[36px,1fr] justify-start items-center whitespace-nowrap w-full select-none pl-2 pt-2 pb-1 font-bold text-slate-200 hover:text-primary-500 bg-slate-700 hover:bg-slate-800">
                         <div class="text-center w-8 h-8 overflow-hidden">
-                            <i class="{{ $navigationItem->icon }} text-lg mr-1" :class="{ 'text-primary-500': childIsActive }"></i>
+                            <i class="{{ $navigationItem->icon }} text-lg mr-1" :class="{ 'text-primary-500': thisActive || childIsActive }"></i>
                         </div>
                         <span class="relative text-sm" style="top: -1px;">{{ $navigationItem->render() }}</span>
-                    </div>
+                    </span>
                 @endif
 
                 {{-- Dropdown arrow --}}
