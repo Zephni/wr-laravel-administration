@@ -10,12 +10,12 @@
             Dashboard
         </h1>
         <hr class="border-b border-slate-300 w-80 mt-1 mb-3">
-        {{-- <h2 class="text-xl font-thin">The dashboard is currently under development</h2> --}}
     </div>
-    {{-- <p>Using theme: <b>{{ data_get($WRLAThemeData, 'name') }}</b></p> --}}
 
     {{-- Notifications widget --}}
     <div>
         @livewire('wrla.notifications-widget')
     </div>
+
+    {{-- Customise dashboard by copying this file to /resources/views/vendor/wrla/themes/default/dashboard.blade.php --}}
 @endsection

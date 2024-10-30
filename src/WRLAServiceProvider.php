@@ -247,7 +247,7 @@ class WRLAServiceProvider extends ServiceProvider
     protected function passVariablesToViews(): void
     {
         // Share variables with all views within this package
-        view()->composer(['wr-laravel-administration::*', 'vendor.wrla.*'], function ($view) {
+        view()->composer(['wr-laravel-administration::*', '*wrla.*'], function ($view) {
             // Current user
             $view->with('WRLAUser', User::current());
 
