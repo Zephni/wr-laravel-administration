@@ -132,7 +132,7 @@ class ManageableModelUpsert extends Component
     public function render()
     {
         $manageableModel = $this->manageableModelClass::make($this->modelId);
-        $manageableFields = $manageableModel->getManageableFields();
+        $manageableFields = $manageableModel->getManageableFieldsFinal();
 
         // If first render,set default livewire field values
         if($this->numberOfRenders === 0) {

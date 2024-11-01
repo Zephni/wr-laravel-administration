@@ -145,7 +145,7 @@ class WRLAAdminController extends Controller
         }
 
         // Get manageable fields
-        $manageableFields = $manageableModel->getManageableFields();
+        $manageableFields = $manageableModel->getManageableFieldsFinal();
 
         // Run pre validation hook on all manageable fields and store in array to merge with request
         $requestMerge = [];

@@ -707,6 +707,17 @@ abstract class ManageableModel
     }
 
     /**
+     * Get manageable fields (final)
+     * 
+     * @return array
+     */
+    public function getManageableFieldsFinal(): array
+    {
+        // Simply remove any null values from the manageable fields
+        return array_filter($this->getManageableFields());
+    }
+
+    /**
      * Get a json value with -> notation, eg: column->key1->key2
      *
      * @param string $key The key in the json value.
@@ -759,7 +770,7 @@ abstract class ManageableModel
      */
     public function getValidationRules(): Collection
     {
-        $manageableFields = $this->getManageableFields();
+        $manageableFields = $this->getManageableFieldsFinal();
 
         $validationRules = collect();
 
@@ -777,7 +788,7 @@ abstract class ManageableModel
      */
     public function getFormFieldsKeyValues(): array
     {
-        $manageableFields = $this->getManageableFields();
+        $manageableFields = $this->getManageableFieldsFinal();
 
         $formFieldsValues = [];
 
@@ -796,7 +807,7 @@ abstract class ManageableModel
      */
     public function runInlineValidation(Request $request): true|array
     {
-        $manageableFields = $this->getManageableFields();
+        $manageableFields = $this->getManageableFieldsFinal();
 
         $messageBag = [];
 
@@ -855,7 +866,7 @@ abstract class ManageableModel
         }
 
         // Get the manageable fields for the model, and get form components as a collection
-        $manageableFields = $this->getManageableFields();
+        $manageableFields = $this->getManageableFieldsFinal();
         $formComponents = collect($formComponents);
 
         // First do a loop through to check for any field names that use -> notation for nested json, if
@@ -1002,7 +1013,7 @@ abstract class ManageableModel
      */
     public function usesWysiwyg(): bool
     {
-        foreach($this->getManageableFields() as $manageableField) {
+        foreach($this->getManageableFieldsFinal() as $manageableField) {
             if($manageableField->getType() == 'Wysiwyg') {
                 return true;
             }
