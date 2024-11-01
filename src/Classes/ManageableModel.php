@@ -682,6 +682,11 @@ abstract class ManageableModel
      */
     public final function getInstanceActionsFinal(): Collection
     {
+        // If id is null, return empty collection
+        if($this->getModelInstance()->id == null) {
+            return collect();
+        }
+
         return $this->getInstanceActions($this->getDefaultInstanceActions());
     }
 
