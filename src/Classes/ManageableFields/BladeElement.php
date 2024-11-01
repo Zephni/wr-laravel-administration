@@ -14,20 +14,24 @@ class BladeElement
      *
      * @param ?ManageableModel $manageableModel
      * @param ?mixed $column
-     * @param string $bladeCode
+     * @param string|callable $bladeCode callable passes the field instance as the first argument
      * @param array $data
      * @return static
      */
-    public static function make(?ManageableModel $manageableModel = null, ?string $column = null, string $bladeCode, array $data = []): static
+    public static function make(?ManageableModel $manageableModel = null, ?string $column = null, string|callable $bladeCode, array $data = []): static
     {
         $manageableField = new static($column, $manageableModel?->getModelInstance()->{$column}, $manageableModel);
         $manageableField->options['bladeCode'] = $bladeCode;
         $manageableField->options['data'] = $data;
         return $manageableField;
     }
-    
+
     public function render(): mixed
     {
-        return Blade::render($this->options['bladeCode'], $this->options['data']);
+        $bladeCode = is_string($this->options['bladeCode'])
+            ? $this->options['bladeCode']
+            : call_user_func($this->options['bladeCode'], $this);
+
+        return Blade::render($bladeCode, $this->options['data']);
     }
 }

@@ -18,7 +18,7 @@ trait ManageableField
 
     /**
      * Static livewire $fields array.
-     * 
+     *
      * @var array
      */
     public static array $livewireFields = [];
@@ -107,7 +107,7 @@ trait ManageableField
     /**
      * Build name attribute. We need this because PHP converts dots to underscores in request input, so we need to
      * convert the . to a special reversable key.
-     * 
+     *
      * @param string $name
      * @return string
      */
@@ -140,7 +140,7 @@ trait ManageableField
 
     /**
      * Moddeled with livewire
-     * 
+     *
      * @return bool
      */
     public function isModeledWithLivewire(): bool
@@ -349,7 +349,7 @@ trait ManageableField
         if(isset($attributes['name'])) {
             $attributes['name'] = $this->buildNameAttribute($attributes['name']);
         }
-        
+
         $this->htmlAttributes = array_merge($this->htmlAttributes, $attributes);
         return $this;
     }
@@ -366,7 +366,7 @@ trait ManageableField
 
     /**
      * Set static field
-     * 
+     *
      * @param string $key
      * @param mixed $value
      */
@@ -377,7 +377,7 @@ trait ManageableField
 
     /**
      * Set static fields. For fields with attribute: wire:model.live="fields.field_name", passed to each field blade view (if applicable).
-     * 
+     *
      * @param array $fields
      */
     public static function setLivewireFields(array $fields): void
@@ -387,7 +387,7 @@ trait ManageableField
 
     /**
      * Has field
-     * 
+     *
      * @param string $key
      * @return bool
      */
@@ -398,7 +398,7 @@ trait ManageableField
 
     /**
      * Get field
-     * 
+     *
      * @param string $key
      * @return mixed
      */
@@ -411,7 +411,7 @@ trait ManageableField
      * Livewire setup. Return a key => value array of livewire fields to register their default values.
      * Note that if returns array, this manageable field will automatically add the wire:model.live attribute to the input field.
      * If not using livewire fields for this manageable model, return null.
-     * 
+     *
      * @return ?array Key => value array of livewire fields to register their default values.
      */
     public function livewireSetup(): ?array
@@ -422,20 +422,20 @@ trait ManageableField
     /**
      * Set livewire wire:model.live attribute with the livewireData. prefix for use in
      * the livewire component and other manageable fields.
-     * 
+     *
      * @param string $name
      * @return $this
      */
-    public function setLivewireModel(): static
+    public function setLivewireModel(string $type = 'live'): static
     {
-        $this->setAttribute('wire:model.live', "livewireData.{$this->getAttribute('name')}");
+        $this->setAttribute("wire:model.$type", "livewireData.{$this->getAttribute('name')}");
 
         return $this;
     }
 
     /**
      * Handle livewire setup
-     * 
+     *
      * @return void
      */
     private function handleLivewireSetup(): void
@@ -627,7 +627,7 @@ trait ManageableField
 
     /**
      * Is relationship field.
-     * 
+     *
      * @return bool
      */
     public function isRelationshipField(): bool
@@ -637,7 +637,7 @@ trait ManageableField
 
     /**
      * Get relationship field name.
-     * 
+     *
      * @return string
      */
     public function getRelationshipFieldName(): string
@@ -654,7 +654,7 @@ trait ManageableField
 
     /**
      * Get relationship instance.
-     * 
+     *
      * @return mixed
      */
     public function getRelationshipInstance(): mixed
@@ -667,7 +667,7 @@ trait ManageableField
         // Reload and get relationship instance
         $modelInstance->load($relationshipParts[0]);
         $relationshipInstance = $modelInstance->{$relationshipParts[0]};
-        
+
         // If relationship instance is not null, return it
         if($relationshipInstance != null) return $relationshipInstance;
 
