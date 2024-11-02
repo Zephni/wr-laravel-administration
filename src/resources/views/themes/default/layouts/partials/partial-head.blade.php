@@ -79,6 +79,35 @@
             Livewire.on(`${modalComponent}.opened`, () => { resolve(); });
         }));
     };
+
+    /**
+     * The below is for the wrlaInsertTextAtCursor function which is used to insert text at the cursor position in an input or textarea element.
+     * 
+     * @param {string} text
+     */
+    let wrlaLastFocusedElement = null;
+    document.addEventListener('focusin', (event) => wrlaLastFocusedElement = event.target);
+    window.wrlaInsertTextAtCursor = function(text) {
+        setTimeout(() => {
+            const activeElement = wrlaLastFocusedElement;
+            
+            if (activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA')) {
+                const start = activeElement.selectionStart;
+                const end = activeElement.selectionEnd;
+
+                activeElement.value = 
+                    activeElement.value.slice(0, start) + 
+                    text + 
+                    activeElement.value.slice(end);
+
+                // Update the cursor position to be after the inserted text
+                activeElement.selectionStart = activeElement.selectionEnd = start + text.length;
+                
+                // Refocus on the element
+                activeElement.focus();
+            }
+        }, 0);
+    }
 </script>
 
 {{-- Font Awesome cdn --}}
