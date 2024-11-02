@@ -59,9 +59,6 @@ class NotificationBase
         // Remove all all spaces and tabs from the beginning of any lines
         $message = preg_replace('/^[\t ]+/m', '', $message);
 
-        // Get markdown -> html
-        $message = Str::markdown($message);
-
         // Add target _blank to all links
         $message = str_replace('<a href=', '<a target="_blank" href=', $message);
 
