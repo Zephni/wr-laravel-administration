@@ -43,7 +43,7 @@
                         <tr target="_blank" class="bg-slate-100 dark:bg-slate-800 odd:bg-slate-200 dark:odd:bg-slate-900 py-1">
                             <td style="font-size: 13px;" class="px-2 py-2 truncate font-medium [&_a]:underline">{!! $definition->getTitle() !!}</td>
                             {{-- String replace <a href=" with <a target="_blank" href=" --}}
-                            <td style="font-size: 13px;" class="text-wrap px-2 py-2 truncate [&_a]:font-medium [&_a]:underline">{!! $definition->getMessageFinal() !!}</div>
+                            <td style="font-size: 13px;" class="text-wrap px-2 py-2 truncate [&_a]:font-medium [&_a]:underline">{!! $definition->getMessageFinal(true) !!}</div>
                             <td style="font-size: 13px;" class="px-2 py-2 truncate">{{ $notification->created_at->format('d/m/Y H:i') }}</td>
                             <td class="px-2 py-2">
                                 <div class="flex justify-end items-center gap-2 truncate">

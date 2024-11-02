@@ -52,7 +52,7 @@ class NotificationBase
         return $this->getMessage();
     }
 
-    public function getMessageFinal(): string
+    public function getMessageFinal(bool $asHtml = false): string
     {
         $message = $this->getMessage();
 
@@ -68,7 +68,13 @@ class NotificationBase
         // Add target _blank to all links
         $message = str_replace('<a href=', '<a target="_blank" href=', $message);
 
-        return $message;
+        // Return markdown
+        if(!$asHtml) {
+            return $message;
+        }
+        
+        // Return markdown -> html
+        return Str::markdown($message);
     }
 
     public function getEmailMessageFinal(): string
