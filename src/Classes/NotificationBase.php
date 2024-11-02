@@ -56,8 +56,17 @@ class NotificationBase
     {
         $message = $this->getMessage();
 
-        // Remove all all spaces and tabs from the beginning of any lines
+        // Remove all spaces and tabs from the beginning of any lines
         $message = preg_replace('/^[\t ]+/m', '', $message);
+
+        // Remove all double spaces
+        $message = preg_replace('/\s+/', ' ', $message);
+
+        // Convert <br> to \n
+        $message = br2nl($message);
+
+        // Strip all tags
+        $message = strip_tags($message);
 
         // Add target _blank to all links
         $message = str_replace('<a href=', '<a target="_blank" href=', $message);
