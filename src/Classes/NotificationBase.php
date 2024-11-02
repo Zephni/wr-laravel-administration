@@ -62,9 +62,6 @@ class NotificationBase
         // Remove all double spaces
         $message = preg_replace('/\s+/', ' ', $message);
 
-        // Convert <br> to \n
-        $message = br2nl($message);
-
         // Strip all tags
         $message = strip_tags($message);
 
