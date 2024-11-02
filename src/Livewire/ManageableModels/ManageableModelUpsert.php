@@ -69,6 +69,10 @@ class ManageableModelUpsert extends Component
     /* Livewire Methods / Hooks
     --------------------------------------------------------------------------*/
 
+    public $listeners = [
+        'wrla_upsert_refresh' => '$refresh'
+    ];
+
     /**
      * Mount the component.
      *

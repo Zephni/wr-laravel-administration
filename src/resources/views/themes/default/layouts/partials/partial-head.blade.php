@@ -87,7 +87,7 @@
      */
     let wrlaLastFocusedElement = null;
     document.addEventListener('focusin', (event) => wrlaLastFocusedElement = event.target);
-    window.wrlaInsertTextAtCursor = function(text) {
+    window.wrlaInsertTextAtCursor = function(text, callback = null) {
         setTimeout(() => {
             const activeElement = wrlaLastFocusedElement;
             
@@ -105,6 +105,15 @@
                 
                 // Refocus on the element
                 activeElement.focus();
+
+                // Run the callback function if provided
+                if (callback) {
+                    callback(activeElement);
+                    return;
+                }
+
+                // If no callback provided, dispatch the input event
+                activeElement.dispatchEvent(new Event('input', { bubbles: true }));
             }
         }, 0);
     }
