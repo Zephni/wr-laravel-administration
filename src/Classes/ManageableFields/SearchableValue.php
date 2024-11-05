@@ -22,7 +22,7 @@ class SearchableValue
      * Livewire setup. Return a key => value array of livewire fields to register their default values.
      * Note that if returns array, this manageable field will automatically add the wire:model.live attribute to the input field.
      * If not using livewire fields for this manageable model, return null.
-     * 
+     *
      * @return ?array Key => value array of livewire fields to register their default values.
      */
     public function livewireSetup(): ?array
@@ -34,7 +34,7 @@ class SearchableValue
 
     /**
      * Set search mode (can be multiple, use bitwise eg. SearchableValue::SELECT_FIRST | SearchableValue::SHOW_ALL)
-     * 
+     *
      * @param int $searchMode/s
      */
     public function setSearchMode(int $searchMode): static
@@ -45,7 +45,7 @@ class SearchableValue
 
     /**
      * Search mode includes
-     * 
+     *
      * @param int $searchMode
      */
     public function searchModeHas(int $searchMode): bool
@@ -55,7 +55,7 @@ class SearchableValue
 
     /**
      * Define the empty value. Eg. use 0 or 'none' instead of null (default).
-     * 
+     *
      * @param mixed $emptyValue
      * @return $this
      */
@@ -80,7 +80,7 @@ class SearchableValue
         if($this->searchModeHas(self::SELECT_FIRST)) {
             $this->setToFirstValueIfNotSet();
         }
-        
+
         return $this;
     }
 
@@ -107,6 +107,7 @@ class SearchableValue
 
         if ($queryBuilderFunction != null) {
             $query = $queryBuilderFunction($query);
+            $query->addSelect("$table.$displayColumn");
             $query->addSelect("$table.id");
         } else {
             $query->select('id', $displayColumn);
