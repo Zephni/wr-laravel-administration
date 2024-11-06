@@ -107,8 +107,12 @@ class SearchableValue
 
         if ($queryBuilderFunction != null) {
             $query = $queryBuilderFunction($query);
-            $query->addSelect("$table.$displayColumn");
             $query->addSelect("$table.id");
+
+            // If display column exist on the model, add it to the select
+            if(isset($model->$displayColumn)) {
+                $query->addSelect("$table.$displayColumn");
+            }
         } else {
             $query->select('id', $displayColumn);
         }
