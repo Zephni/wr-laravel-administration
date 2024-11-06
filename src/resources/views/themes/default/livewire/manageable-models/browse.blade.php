@@ -30,9 +30,10 @@
 
     {{-- Filters --}}
     <div class="w-full rounded-lg px-3 pt-2 pb-3 mb-1 bg-slate-100 shadow-md dark:bg-slate-800">
-        <div class="flex justify-start items-stretch gap-4">
+        <div class="flex flex-wrap justify-start items-stretch gap-x-4 gap-y-2">
 
             @foreach($manageableModelClass::getBrowseFilters() as $filter)
+                @if($filter->field->getOption('newRow')) <div class="basis-full"></div> @endif
                 {!! $filter->render($filters) !!}
             @endforeach
 

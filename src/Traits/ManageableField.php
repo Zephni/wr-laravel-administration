@@ -164,6 +164,7 @@ trait ManageableField
     {
         return static::make(null, $filterAlias)
             ->setOptions([
+                'newRow' => false,
                 'containerClass' => '',
                 'labelClass' => 'font-thin',
             ])

@@ -957,7 +957,7 @@ abstract class ManageableModel
     }
 
     /**
-     * Post update model instance hook
+     * Post update model instance hook. Note that this is called after validation but before the model is updated and saved.
      *
      * @return void
      */
