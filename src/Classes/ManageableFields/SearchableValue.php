@@ -100,6 +100,8 @@ class SearchableValue
 
         if($model instanceof ManageableModel) {
             $model = $model->getModelInstance();
+        } else {
+            throw new \Exception("In Select ManageableField: Model must be an instance of ManageableModel");
         }
 
         $table = $model->getTable();

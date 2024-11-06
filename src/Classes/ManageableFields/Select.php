@@ -69,6 +69,8 @@ class Select
 
         if($model instanceof ManageableModel) {
             $model = $model->getModelInstance();
+        } else {
+            throw new \Exception("In Select ManageableField: Model must be an instance of ManageableModel");
         }
 
         $table = $model->getTable();
@@ -77,6 +79,11 @@ class Select
         if ($queryBuilderFunction != null) {
             $query = $queryBuilderFunction($query);
             $query->addSelect("$table.id");
+
+            // If display column exist on the model, add it to the select
+            if(isset($model->$displayColumn)) {
+                $query->addSelect("$table.$displayColumn");
+            }
         } else {
             $query->select('id', $displayColumn);
         }
