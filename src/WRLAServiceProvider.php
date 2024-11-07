@@ -132,7 +132,7 @@ class WRLAServiceProvider extends ServiceProvider
 
             // Load custom routes from WRLASettings if exists
             if(class_exists('\App\WRLA\WRLASettings') && method_exists('\App\WRLA\WRLASettings', 'buildCustomRoutes')) {
-                Route::prefix(config('wr-laravel-administration.base_url', 'wr-admin'))->name('wrla.')->group(function () {
+                Route::prefix(config('wr-laravel-administration.base_url', 'wr-admin'))->group(function () {
                     Route::group(['middleware' => ['is_admin']], function () {
                         \App\WRLA\WRLASettings::buildCustomRoutes();
                     });

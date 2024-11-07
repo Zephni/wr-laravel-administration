@@ -79,7 +79,7 @@ class WRLASettings
     }
 
     /**
-     * Build custom routes. Note all route names will be automatically prefixed with 'wrla.'
+     * Build custom routes. It is recommended to prefix all custom route names with 'wrla.'
      *
      * @return void
      */
