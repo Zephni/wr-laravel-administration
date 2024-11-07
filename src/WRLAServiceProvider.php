@@ -20,11 +20,12 @@ use WebRegulate\LaravelAdministration\Livewire\ImportDataModal;
 use WebRegulate\LaravelAdministration\Commands\CreateUserCommand;
 use WebRegulate\LaravelAdministration\Http\Middleware\IsNotAdmin;
 use WebRegulate\LaravelAdministration\Livewire\NotificationsWidget;
+use WebRegulate\LaravelAdministration\Http\Controllers\WRLAAdminController;
 use WebRegulate\LaravelAdministration\Commands\CreateManageableModelCommand;
 use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItem;
+use WebRegulate\LaravelAdministration\Classes\ManageableFields\SearchableValue;
 use WebRegulate\LaravelAdministration\Livewire\ManageableModels\ManageableModelBrowse;
 use WebRegulate\LaravelAdministration\Livewire\ManageableModels\ManageableModelUpsert;
-use WebRegulate\LaravelAdministration\Classes\ManageableFields\SearchableValue;
 
 class WRLAServiceProvider extends ServiceProvider
 {
@@ -128,6 +129,15 @@ class WRLAServiceProvider extends ServiceProvider
         // Load routes
         Route::middleware('web')->group(function () {
             $this->loadRoutesFrom(__DIR__ . '/routes/wr-laravel-administration-routes.php');
+
+            // Load custom routes from WRLASettings if exists
+            if(class_exists('\App\WRLA\WRLASettings') && method_exists('\App\WRLA\WRLASettings', 'buildCustomRoutes')) {
+                Route::prefix(config('wr-laravel-administration.base_url', 'wr-admin'))->name('wrla.')->group(function () {
+                    Route::group(['middleware' => ['is_admin']], function () {
+                        \App\WRLA\WRLASettings::buildCustomRoutes();
+                    });
+                });
+            }
         });
 
         // Find all classes that extend ManageableModel and register them
@@ -331,8 +341,9 @@ class WRLAServiceProvider extends ServiceProvider
             $className::globalSetup();
         }
 
-        // Set navigation items (if App\WRLA\WRLASettings exists)
+        // Handle post boot WRLASettings
         if(class_exists('\App\WRLA\WRLASettings')) {
+            // Set navigation items (if App\WRLA\WRLASettings exists)
             NavigationItem::$navigationItems = \App\WRLA\WRLASettings::buildNavigation() ?? [];
         }
     }

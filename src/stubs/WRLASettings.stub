@@ -8,6 +8,8 @@ use WebRegulate\LaravelAdministration\Models\User;
 use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItem;
 use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItemDivider;
 use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItemsAllManageableModels;
+use Illuminate\Support\Facades\Route;
+use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 
 class WRLASettings
 {
@@ -74,5 +76,21 @@ class WRLASettings
         }
 
         return collect([User::find($key)]);
+    }
+
+    /**
+     * Build custom routes. Note all route names will be automatically prefixed with 'wrla.'
+     *
+     * @return void
+     */
+    public static function buildCustomRoutes(): void
+    {
+        // Route::get('custom-livewire-page', function() {
+        //     return view(WRLAHelper::getViewPath('livewire-content'), [
+        //         'title' => "Custom Livewire Page",
+        //         'livewireComponentAlias' => 'wrla.custom-livewire-page',
+        //         'livewireComponentData' => []
+        //     ]);
+        // })->name('custom-livewire-page');
     }
 }
