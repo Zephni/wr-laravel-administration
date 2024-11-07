@@ -2,6 +2,7 @@
 
 namespace WebRegulate\LaravelAdministration\Classes;
 
+use Livewire\Livewire;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -690,6 +691,36 @@ class WRLAHelper
 
         // Finally clean up the validation string by removing unnecessary pipes
         return str_replace('||', '|', rtrim(ltrim($validationString, '|'), '|'));
+    }
+
+    /**
+     * Register livewire route (For use in WRLASettings::buildCustomRoutes)
+     *
+     * @param string $routeName The route name to create. Note the route name will default to "wrla.$routeName".
+     * @param string $livewireComponentAlias The livewire component alias to use.
+     * @param string $livewireComponentClass The livewire component class to use.
+     * @param array $livewireComponentData The livewire component data to use.
+     * @param string $title The title to use.
+     * @return \Illuminate\Routing\Route The route created.
+     */
+    public static function registerLivewireRoute(string $routeName, string $livewireComponentAlias, string $livewireComponentClass, array $livewireComponentData, string $title): \Illuminate\Routing\Route
+    {
+        // Register the livewire component
+        Livewire::component($livewireComponentAlias, $livewireComponentClass);
+
+        // Build the route
+        $route = Route::get($routeName, function() use ($livewireComponentAlias, $livewireComponentClass, $livewireComponentData, $title) {
+            return view(WRLAHelper::getViewPath('livewire-content'), [
+                'title' => $title,
+                'livewireComponentAlias' => $livewireComponentAlias,
+                'livewireComponentData' => $livewireComponentData
+            ]);
+        });
+
+        // Set default name
+        $route->name("wrla.$routeName");
+
+        return $route;
     }
 
     /**
