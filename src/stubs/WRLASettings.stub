@@ -2,7 +2,6 @@
 
 namespace App\WRLA;
 
-use App\Models\Config;
 use Illuminate\Support\Collection;
 use WebRegulate\LaravelAdministration\Models\User;
 use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItem;
@@ -20,14 +19,6 @@ class WRLASettings
     public static function buildNavigation(): array
     {
         return [
-            // Frontend
-            (new NavigationItem('home', [], 'Frontend', 'fa fa-globe'))
-                ->openInNewTab(true)
-                ->showOnCondition(function(){
-                    return true;
-                    // return User::current()->email == 'craig.dennis@webregulate.co.uk';
-                }),
-
             // Dashboard
             new NavigationItem('wrla.dashboard', [], 'Dashboard', 'fa fa-tachometer-alt'),
 
@@ -38,16 +29,7 @@ class WRLASettings
             // NavigationItemsAllManageableModels::import(),
 
             // Manageable models
-            \App\WRLA\Config::getNavigationItem(),
-            \App\WRLA\TrainingCourseDate::getNavigationItem(),
-            \App\WRLA\Contact::getNavigationItem(),
-            \App\WRLA\Manual::getNavigationItem(),
-            new NavigationItem('wrla.manageable-models.edit', ['modelUrlAlias' => 'e-learning-product', 'id' => 1], 'E-Learning', 'fas fas fa-chalkboard-teacher'),
-            \App\WRLA\Page::getNavigationItem(),
-            \App\WRLA\ShoppingCart::getNavigationItem(),
-            \App\WRLA\Invoice::getNavigationItem(),
-            \App\WRLA\Blog::getNavigationItem(),
-            \App\WRLA\User::getNavigationItem(),
+            // \App\WRLA\User::getNavigationItem(),
 
             // Divider
             new NavigationItemDivider(),
@@ -85,11 +67,11 @@ class WRLASettings
     public static function buildCustomRoutes(): void
     {
         WRLAHelper::registerLivewireRoute(
-            'schedule-batch-emails',
-            'wrla.schedule-batch-emails',
-            ScheduleBatchEmails::class,
+            'url-route',
+            'wrla.dummy-livewire-component',
+            DummyLivewireComponent::class,
             [],
-            'Schedule Batch Emails',
+            'Page Meta Title',
         );
     }
 }
