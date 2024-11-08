@@ -33,7 +33,6 @@
         <div class="flex flex-wrap justify-start items-stretch gap-x-4 gap-y-2">
 
             @foreach($manageableModelClass::getBrowseFilters() as $filter)
-                @if($filter->field->getOption('newRow')) <div class="basis-full"></div> @endif
                 {!! $filter->render($filters) !!}
             @endforeach
 

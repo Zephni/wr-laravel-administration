@@ -60,7 +60,18 @@ class BrowseFilter
      */
     public function render(array $filterKeyValues): string
     {
-        return $this->getField($filterKeyValues)->render();
+        // Get field
+        $field = $this->getField($filterKeyValues);
+
+        // Build HTML
+        $prependHTML = '';
+
+        // If newRow option is set, prepend a new row
+        if($field->getOption('newRow')) {
+            $prependHTML .= '<div class="basis-full"></div>';
+        }
+
+        return $prependHTML.$field->render();
     }
 
     /**
