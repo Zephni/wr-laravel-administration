@@ -3,6 +3,7 @@ namespace WebRegulate\LaravelAdministration\Classes\ManageableFields;
 
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\View\ComponentAttributeBag;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 use WebRegulate\LaravelAdministration\Traits\ManageableField;
@@ -98,10 +99,12 @@ class SearchableValue
         // Get model instance, if it's a manageable model then get the model instance
         $model = new $modelClass;
 
-        if($model instanceof ManageableModel) {
+        if ($model instanceof \Illuminate\Database\Eloquent\Model) {
+            // Do nothing
+        } else if($model instanceof ManageableModel) {
             $model = $model->getModelInstance();
         } else {
-            throw new \Exception("In Select ManageableField: Model must be an instance of ManageableModel");
+            throw new \Exception("In SearchableValue ManageableField: Model must be an instance of ManageableModel");
         }
 
         $table = $model->getTable();
@@ -111,9 +114,11 @@ class SearchableValue
             $query = $queryBuilderFunction($query);
             $query->addSelect("$table.id");
 
-            // If display column exist on the model, add it to the select
-            if(isset($model->$displayColumn)) {
+            $columnExists = Schema::hasColumn($table, $displayColumn);
+            if($columnExists) {
                 $query->addSelect("$table.$displayColumn");
+            } else {
+                throw new \Exception("Error in Select->setItemsFromModel on table '$table': Display column '$displayColumn' does not exist on model '$modelClass'");
             }
         } else {
             $query->select('id', $displayColumn);
