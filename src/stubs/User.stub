@@ -242,17 +242,27 @@ class User extends ManageableModel
      * Pre update relationship instance field hook. Note that this is called after validation but before the relationship instance is updated and saved for each field it's associated with.
      *
      * @param mixed $modelInstance The model instance.
+     * @param mixed $relationshipInstance The relationship instance (If it already exists)
      * @param string $relationshipName The name of the relationship.
      * @param string $relationshipFieldName The name of the field in the relationship.
-     * @param mixed $relationshipInstance The relationship instance (If it already exists)
      * @param mixed $fieldValue The field value.
-     * @return
+     * @return void
      */
-    public function preUpdateRelationshipInstanceField(mixed $modelInstance, string $relationshipName, string $relationshipFieldName, mixed $relationshipInstance, mixed $fieldValue): mixed
+    public function preUpdateRelationshipInstanceField(mixed &$modelInstance, mixed &$relationshipInstance, string $relationshipName, string $relationshipFieldName, mixed $fieldValue): void
     {
-        // We prematurely save the model instance here so that we can get the user_id for the wrlaUserData model within postUpdateModelInstance
-        return once(function() use ($modelInstance) {
+        // dd($modelInstance, $relationshipInstance, $relationshipName, $relationshipFieldName, $fieldValue);
+
+        // If page type is not create, or relationship is not wrlaUserData then bail
+        if(WRLAHelper::getCurrentPageType() !== PageType::CREATE || $relationshipName !== 'wrlaUserData' || $modelInstance->id != null) {
+            return;
+        }
+
+        // We prematurely save the model instance here and set the relationship instance user_id to the model instance id
+        once(function() use ($modelInstance, $relationshipInstance) {
             $modelInstance->save();
+
+            $relationshipInstance->user_id = $modelInstance->id;
+            $relationshipInstance->save();
         });
     }
 
@@ -265,13 +275,6 @@ class User extends ManageableModel
      */
     public function postUpdateModelInstance(Request $request, mixed $model): void
     {
-        // If page type is create, create user data record
-        if(WRLAHelper::getCurrentPageType() === PageType::CREATE) {
-            $userData = new UserData();
-            $userData->user_id = $model->id;
-            $userData->save();
-        }
-
         // Relogin as the user if the id is the same as the current user, and email or password has been changed
         if ($this->getModelInstance()->id === Auth::id() && ($request->email !== $this->getModelInstance()->email || $request->password)) {
             Auth::login($this->getModelInstance());

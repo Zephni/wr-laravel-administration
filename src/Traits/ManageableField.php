@@ -671,22 +671,29 @@ trait ManageableField
      */
     public function getRelationshipInstance(): mixed
     {
-        // Get model instance, field name and relationship parts
-        $modelInstance = $this->manageableModel->getModelInstance();
-        $fieldName = str($this->htmlAttributes['name'])->replace(WRLAHelper::WRLA_REL_DOT, '.');
-        $relationshipParts = WRLAHelper::parseBrowseColumnRelationship($fieldName);
-
-        // Reload and get relationship instance
-        $modelInstance->load($relationshipParts[0]);
-        $relationshipInstance = $modelInstance->{$relationshipParts[0]};
-
-        // If relationship instance is not null, return it
-        if($relationshipInstance != null) return $relationshipInstance;
-
-        // Get model class from relationship and return new instance
-        $relationship = $modelInstance->{$relationshipParts[0]}();
-        $relationshipClass = get_class($relationship->getRelated());
-        return new $relationshipClass;
+        return once(function() {
+            // Get model instance, field name and relationship parts
+            $modelInstance = $this->manageableModel->getModelInstance();
+            $fieldName = str($this->htmlAttributes['name'])->replace(WRLAHelper::WRLA_REL_DOT, '.');
+            $relationshipParts = WRLAHelper::parseBrowseColumnRelationship($fieldName);
+    
+            
+            if($modelInstance == null) {
+                dd($modelInstance, $fieldName, $relationshipParts);
+            }
+    
+            // Reload and get relationship instance
+            $modelInstance->load($relationshipParts[0]);
+            $relationshipInstance = $modelInstance->{$relationshipParts[0]};
+    
+            // If relationship instance is not null, return it
+            if($relationshipInstance != null) return $relationshipInstance;
+    
+            // Get model class from relationship and return new instance
+            $relationship = $modelInstance->{$relationshipParts[0]}();
+            $relationshipClass = get_class($relationship->getRelated());
+            return new $relationshipClass;
+        });
     }
 
     /**

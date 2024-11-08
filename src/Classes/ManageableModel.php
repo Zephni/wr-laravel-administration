@@ -935,7 +935,7 @@ abstract class ManageableModel
                 // If relationship instance is set
                 if($relationshipInstance != null) {
                     // Pre relationship field update hook
-                    $this->modelInstance = $this->preUpdateRelationshipInstanceField($this->modelInstance, $manageableField->getRelationshipName(), $manageableField->getRelationshipFieldName(), $relationshipInstance, $fieldValue);
+                    $this->preUpdateRelationshipInstanceField($this->modelInstance, $relationshipInstance, $manageableField->getRelationshipName(), $manageableField->getRelationshipFieldName(), $fieldValue);
 
                     // Update field and save the relationship instance
                     $relationshipInstance->{$manageableField->getRelationshipFieldName()} = $fieldValue;
@@ -967,16 +967,15 @@ abstract class ManageableModel
      * Pre update relationship instance field hook. Note that this is called after validation but before the relationship instance is updated and saved for each field it's associated with.
      *
      * @param mixed $modelInstance The model instance.
+     * @param mixed $relationshipInstance The relationship instance (If it already exists)
      * @param string $relationshipName The name of the relationship.
      * @param string $relationshipFieldName The name of the field in the relationship.
-     * @param mixed $relationshipInstance The relationship instance (If it already exists)
      * @param mixed $fieldValue The field value.
-     * @return mixed Model instance
+     * @return void
      */
-    public function preUpdateRelationshipInstanceField(mixed $modelInstance, string $relationshipName, string $relationshipFieldName, mixed $relationshipInstance, mixed $fieldValue): mixed
+    public function preUpdateRelationshipInstanceField(mixed &$modelInstance, mixed &$relationshipInstance, string $relationshipName, string $relationshipFieldName, mixed $fieldValue): void
     {
         // Override this method in your model to add custom logic before updating the relationship instance field
-        return $modelInstance;
     }
 
     /**
