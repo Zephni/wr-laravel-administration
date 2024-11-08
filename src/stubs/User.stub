@@ -218,27 +218,6 @@ class User extends ManageableModel
     }
 
     /**
-     * Pre update model instance hook. Note that this is called after validation but before the model is updated and saved.
-     *
-     * @param Request $request The HTTP request object.
-     * @return void
-     */
-    public function preUpdateModelInstance(Request $request): void {
-        // If page type is not edit, bail
-        if(WRLAHelper::getCurrentPageType() !== PageType::EDIT) {
-            return;
-        }
-
-        // If UserData exists with this user id, update it, otherwise create it
-        $userData = UserData::where('user_id', $this->getModelInstance()->id)->first();
-        if($userData == null) {
-            $userData = new UserData();
-            $userData->user_id = $this->getModelInstance()->id;
-            $userData->save();
-        }
-    }
-
-    /**
      * Pre update relationship instance field hook. Note that this is called after validation but before the relationship instance is updated and saved for each field it's associated with.
      *
      * @param mixed $modelInstance The model instance.
@@ -250,17 +229,14 @@ class User extends ManageableModel
      */
     public function preUpdateRelationshipInstanceField(mixed &$modelInstance, mixed &$relationshipInstance, string $relationshipName, string $relationshipFieldName, mixed $fieldValue): void
     {
-        // dd($modelInstance, $relationshipInstance, $relationshipName, $relationshipFieldName, $fieldValue);
-
-        // If page type is not create, or relationship is not wrlaUserData then bail
-        if(WRLAHelper::getCurrentPageType() !== PageType::CREATE || $relationshipName !== 'wrlaUserData' || $modelInstance->id != null) {
-            return;
-        }
-
         // We prematurely save the model instance here and set the relationship instance user_id to the model instance id
         once(function() use ($modelInstance, $relationshipInstance) {
-            $modelInstance->save();
+            // If user is being created, save the model instance first
+            if($modelInstance->id !== null) {
+                $modelInstance->save();
+            }
 
+            // Set the relationship instance user_id to the model instance id
             $relationshipInstance->user_id = $modelInstance->id;
             $relationshipInstance->save();
         });
