@@ -637,6 +637,17 @@ trait ManageableField
     }
 
     /**
+     * Get relationship name.
+     *
+     * @return string
+     */
+    public function getRelationshipName(): string
+    {
+        $relationshipName = str($this->htmlAttributes['name'])->before(WRLAHelper::WRLA_REL_DOT);
+        return $relationshipName;
+    }
+
+    /**
      * Get relationship field name.
      *
      * @return string

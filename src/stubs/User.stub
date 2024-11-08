@@ -6,6 +6,7 @@ use \Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Builder;
+use WebRegulate\LaravelAdministration\Enums\PageType;
 use WebRegulate\LaravelAdministration\Models\UserData;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 use WebRegulate\LaravelAdministration\Classes\BrowseFilter;
@@ -193,6 +194,19 @@ class User extends ManageableModel
     }
 
     /**
+     * Is model soft deletable
+     *
+     * @return bool
+     */
+    public static function isSoftDeletable(): bool
+    {
+        // Get whether base model has SoftDeletes trait
+        return once(function(){
+            return in_array('Illuminate\Database\Eloquent\SoftDeletes', class_uses(\App\Models\User::class)) ?? false;
+        });
+    }
+
+    /**
      * Get current user manageable model
      *
      * @return User
@@ -204,17 +218,57 @@ class User extends ManageableModel
     }
 
     /**
-     * Update the model instance after a POST request.
+     * Pre update model instance hook. Note that this is called after validation but before the model is updated and saved.
      *
-     * @param Request $request
+     * @param Request $request The HTTP request object.
      * @return void
      */
-    public function postUpdateModelInstance(Request $request): void {
+    public function preUpdateModelInstance(Request $request): void {
+        // If page type is not edit, bail
+        if(WRLAHelper::getCurrentPageType() !== PageType::EDIT) {
+            return;
+        }
+
         // If UserData exists with this user id, update it, otherwise create it
         $userData = UserData::where('user_id', $this->getModelInstance()->id)->first();
         if($userData == null) {
             $userData = new UserData();
             $userData->user_id = $this->getModelInstance()->id;
+            $userData->save();
+        }
+    }
+
+    /**
+     * Pre update relationship instance field hook. Note that this is called after validation but before the relationship instance is updated and saved for each field it's associated with.
+     *
+     * @param mixed $modelInstance The model instance.
+     * @param string $relationshipName The name of the relationship.
+     * @param string $relationshipFieldName The name of the field in the relationship.
+     * @param mixed $relationshipInstance The relationship instance (If it already exists)
+     * @param mixed $fieldValue The field value.
+     * @return
+     */
+    public function preUpdateRelationshipInstanceField(mixed $modelInstance, string $relationshipName, string $relationshipFieldName, mixed $relationshipInstance, mixed $fieldValue): mixed
+    {
+        // We prematurely save the model instance here so that we can get the user_id for the wrlaUserData model within postUpdateModelInstance
+        return once(function() use ($modelInstance) {
+            $modelInstance->save();
+        });
+    }
+
+    /**
+     * Post update model instance hook. Note that this is called after validation and after the model is updated and saved.
+     *
+     * @param Request $request The HTTP request object.
+     * @param mixed $model The model instance.
+     * @return void
+     */
+    public function postUpdateModelInstance(Request $request, mixed $model): void
+    {
+        // If page type is create, create user data record
+        if(WRLAHelper::getCurrentPageType() === PageType::CREATE) {
+            $userData = new UserData();
+            $userData->user_id = $model->id;
             $userData->save();
         }
 

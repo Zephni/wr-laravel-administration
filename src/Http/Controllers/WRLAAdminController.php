@@ -152,7 +152,7 @@ class WRLAAdminController extends Controller
         foreach ($manageableFields as $manageableField) {
             $forceMergeIntoRequest = $manageableField->preValidation($request->input($manageableField->getAttribute('name')));
 
-            if($forceMergeIntoRequest) {                    
+            if($forceMergeIntoRequest) {
                 $requestMerge[$manageableField->getAttribute('name')] = $manageableField->getAttribute('value');
             }
         }
@@ -179,14 +179,14 @@ class WRLAAdminController extends Controller
                     $validationErrors->add($key, $value);
                 }
             }
-            
+
             // Redirect back with input and errors
             return redirect()->back()->withInput()->withErrors($validationErrors)->withFragment('#first-message');
         }
 
         // Update only changed values on the model instance (Note that this also updates special relationship fields)
         $result = $manageableModel->updateModelInstanceProperties($request, $manageableFields, $request->all());
-        
+
         // If the result is not true, redirect back with input and errors
         if($result !== true) {
             return redirect()->back()->withInput()->withErrors($result)->withFragment('#first-message');
@@ -194,6 +194,9 @@ class WRLAAdminController extends Controller
 
         // Save the model
         $manageableModel->getmodelInstance()->save();
+
+        // Perform any necessary actions after updating the model instance
+        $manageableModel->postUpdateModelInstance($request, $manageableModel->getmodelInstance());
 
         // Default success message
         $defaultSuccessMessage = 'Saved '.$manageableModel->getDisplayName().' #'.$manageableModel->getmodelInstance()->id.' successfully.';

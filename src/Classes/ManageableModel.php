@@ -35,15 +35,6 @@ abstract class ManageableModel
     public static ?Collection $manageableModels = null;
 
     /**
-     * Cache.
-     *
-     * @var array
-     */
-    public static array $cache = [
-        'isSoftDeletable' => null
-    ];
-
-    /**
      * Register the manageable model.
      *
      * @return void
@@ -677,7 +668,7 @@ abstract class ManageableModel
 
     /**
      * Get instance actions and pass in the default instance actions.
-     * 
+     *
      * @return Collection
      */
     public final function getInstanceActionsFinal(): Collection
@@ -692,7 +683,7 @@ abstract class ManageableModel
 
     /**
      * Get browse columns (final) and make sure all values are BrowseColumn instances.
-     * 
+     *
      * @return \Illuminate\Support\Collection
      */
     public function getBrowseColumnsFinal(): Collection
@@ -713,7 +704,7 @@ abstract class ManageableModel
 
     /**
      * Get manageable fields (final)
-     * 
+     *
      * @return array
      */
     public function getManageableFieldsFinal(): array
@@ -851,7 +842,7 @@ abstract class ManageableModel
     public function updateModelInstanceProperties(Request $request, array $formComponents, array $formKeyValues): bool|MessageBag
     {
         // Perform any necessary actions before updating the model instance
-        $this->postUpdateModelInstance($request);
+        $this->preUpdateModelInstance($request);
 
         // Check id request has any values that start with wrla_remove_ and apply to formKeyValues if so
         if (count($request->all()) > 0) {
@@ -941,10 +932,15 @@ abstract class ManageableModel
             if ($fieldValue instanceof MessageBag) {
                 return $fieldValue;
             } else {
-                // If relationship instance is set, we need to update and save now
+                // If relationship instance is set
                 if($relationshipInstance != null) {
+                    // Pre relationship field update hook
+                    $this->modelInstance = $this->preUpdateRelationshipInstanceField($this->modelInstance, $manageableField->getRelationshipName(), $manageableField->getRelationshipFieldName(), $relationshipInstance, $fieldValue);
+
+                    // Update field and save the relationship instance
                     $relationshipInstance->{$manageableField->getRelationshipFieldName()} = $fieldValue;
                     // dump($fieldName, $manageableField->getRelationshipFieldName(), $fieldValue);
+
                     $relationshipInstance->save();
                 } else {
                     // Update the field value of the model instance
@@ -957,11 +953,40 @@ abstract class ManageableModel
     }
 
     /**
-     * Post update model instance hook. Note that this is called after validation but before the model is updated and saved.
+     * Pre update model instance hook. Note that this is called after validation but before the model is updated and saved.
      *
+     * @param Request $request The HTTP request object.
      * @return void
      */
-    public function postUpdateModelInstance(Request $request): void
+    public function preUpdateModelInstance(Request $request): void
+    {
+        // Override this method in your model to add custom logic before updating the model instance
+    }
+
+    /**
+     * Pre update relationship instance field hook. Note that this is called after validation but before the relationship instance is updated and saved for each field it's associated with.
+     *
+     * @param mixed $modelInstance The model instance.
+     * @param string $relationshipName The name of the relationship.
+     * @param string $relationshipFieldName The name of the field in the relationship.
+     * @param mixed $relationshipInstance The relationship instance (If it already exists)
+     * @param mixed $fieldValue The field value.
+     * @return mixed Model instance
+     */
+    public function preUpdateRelationshipInstanceField(mixed $modelInstance, string $relationshipName, string $relationshipFieldName, mixed $relationshipInstance, mixed $fieldValue): mixed
+    {
+        // Override this method in your model to add custom logic before updating the relationship instance field
+        return $modelInstance;
+    }
+
+    /**
+     * Post update model instance hook. Note that this is called after validation and after the model is updated and saved.
+     *
+     * @param Request $request The HTTP request object.
+     * @param mixed $model The model instance.
+     * @return void
+     */
+    public function postUpdateModelInstance(Request $request, mixed $model): void
     {
         // Override this method in your model to add custom logic after updating the model instance
     }
@@ -983,12 +1008,10 @@ abstract class ManageableModel
      */
     public static function isSoftDeletable(): bool
     {
-        if(static::$cache['isSoftDeletable'] == null) {
-            // Get whether base model has SoftDeletes trait
-            static::$cache['isSoftDeletable'] = in_array('Illuminate\Database\Eloquent\SoftDeletes', class_uses(static::getBaseModelClass()));
-        }
-
-        return static::$cache['isSoftDeletable'] ?? false;
+        // Get whether base model has SoftDeletes trait
+        return once(function(){
+            return in_array('Illuminate\Database\Eloquent\SoftDeletes', class_uses(static::getBaseModelClass())) ?? false;
+        });
     }
 
     /**
