@@ -82,11 +82,6 @@ class Select
         if ($queryBuilderFunction != null) {
             $query = $queryBuilderFunction($query);
             $query->addSelect("$table.id");
-
-            $columnExists = Schema::hasColumn($table, $displayColumn);
-            if($columnExists) {
-                $query->addSelect("$table.$displayColumn");
-            }
         } else {
             $query->select('id', $displayColumn);
         }

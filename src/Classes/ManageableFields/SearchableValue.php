@@ -113,13 +113,6 @@ class SearchableValue
         if ($queryBuilderFunction != null) {
             $query = $queryBuilderFunction($query);
             $query->addSelect("$table.id");
-
-            $columnExists = Schema::hasColumn($table, $displayColumn);
-            if($columnExists) {
-                $query->addSelect("$table.$displayColumn");
-            } else {
-                throw new \Exception("Error in Select->setItemsFromModel on table '$table': Display column '$displayColumn' does not exist on model '$modelClass'");
-            }
         } else {
             $query->select('id', $displayColumn);
         }
