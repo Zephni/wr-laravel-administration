@@ -23,6 +23,9 @@ class NavigationItem
     // Show on condition callback
     private $showOnConditionCallback = null;
 
+    // Enable on condition callback
+    private $enableOnConditionCallback = null;
+
     // Open in new tab
     public bool $openInNewTab = false;
 
@@ -108,6 +111,46 @@ class NavigationItem
     }
 
     /**
+     * Check show condition
+     *
+     * @return bool
+     */
+    public function checkShowCondition(): bool
+    {
+        if($this->showOnConditionCallback === null) {
+            return true;
+        }
+
+        return call_user_func($this->showOnConditionCallback);
+    }
+
+    /**
+     * Enable on condition, callback must return true or a string with the reason why not enabled (appears as tooltip)
+     *
+     * @param callable $callback
+     * @return $this
+     */
+    public function enableOnCondition(callable $callback): static
+    {
+        $this->enableOnConditionCallback = $callback;
+        return $this;
+    }
+
+    /**
+     * Check enabled condition, returns true or a string with the reason why not enabled (appears as tooltip)
+     *
+     * @return true|string
+     */
+    public function checkEnabledCondition(): true|string
+    {
+        if($this->enableOnConditionCallback === null) {
+            return true;
+        }
+
+        return call_user_func($this->enableOnConditionCallback);
+    }
+
+    /**
      * Open in new tab
      *
      * @param bool $openInNewTab
@@ -117,20 +160,6 @@ class NavigationItem
     {
         $this->openInNewTab = $openInNewTab;
         return $this;
-    }
-
-    /**
-     * Test condition
-     *
-     * @return bool
-     */
-    public function testCondition(): bool
-    {
-        if($this->showOnConditionCallback) {
-            return call_user_func($this->showOnConditionCallback);
-        }
-
-        return true;
     }
 
     /**

@@ -1,6 +1,7 @@
 @foreach($WRLAHelper::getNavigationItems() as $navigationItem)
-    {{-- If $navigationItem is null then continue --}}
-    @continue($navigationItem == null || !$navigationItem->testCondition())
+    {{-- If $navigationItem is null or fails checkCondition then continue --}}
+    @continue($navigationItem == null || !$navigationItem->checkShowCondition())
+    @php $enabled = $navigationItem->checkEnabledCondition(); @endphp
 
     {{-- If navigation item does not have children --}}
     @if(!$navigationItem->hasChildren())
@@ -8,7 +9,9 @@
             <div class="{{ $navigationItem->name }}"></div>
         @else
             <div class="relative w-full overflow-hidden">
-                <a href="{{ $navigationItem->getUrl() }}" @if($navigationItem->openInNewTab === true) target="_blank" @endif class="@if($WRLAHelper::isNavItemCurrentRoute($navigationItem)) !text-primary-500 bg-slate-800 !border-t-2 !border-b-2 border-slate-600 @endif grid grid-cols-[36px,1fr] justify-start items-center whitespace-nowrap w-full select-none pl-2 pt-2 pb-1 font-bold text-slate-200 hover:text-primary-500 bg-slate-700 hover:bg-slate-800">
+                <a
+                    @if($enabled === true) href="{{ $navigationItem->getUrl() }}" @else title="{{ $enabled }}" @endif
+                    @if($navigationItem->openInNewTab === true) target="_blank" @endif class="@if($WRLAHelper::isNavItemCurrentRoute($navigationItem)) !text-primary-500 bg-slate-800 !border-t-2 !border-b-2 border-slate-600 @endif grid grid-cols-[36px,1fr] @if($enabled === true) hover:bg-slate-800 hover:!text-primary-500 dark:hover:!text-primary-500 text-slate-200 @else text-slate-400 @endif justify-start items-center whitespace-nowrap w-full select-none pl-2 pt-2 pb-1 font-bold">
                     <div class="text-center w-8 h-8 overflow-hidden">
                         <i class="{{ $navigationItem->icon }} text-lg mr-1 @if($navigationItem->isActive()) text-primary-500 @endif"></i>
                     </div>
@@ -69,9 +72,12 @@
                 x-transition:leave.duration.40ms
                 class="w-full bg-slate-725 border-t border-b border-slate-800" style="border-bottom-color: {{ config('wr-laravel-administration.colors.slate.600') }};">
                 @foreach($navigationItem->children as $child)
+                    {{-- If $child is null or fails checkCondition then continue --}}
+                    @continue($child == null || !$child->checkShowCondition())
+                    @php $enabled = $child->checkEnabledCondition(); @endphp
                     <a
-                        href="{{ $child->getUrl() }}"
-                        class="grid grid-cols-[36px,1fr] @if($child->isActive()) !text-primary-500 !bg-slate-800 @endif flex items-center justify-start w-full pl-7 pr-6 pt-1 text-slate-200 pb-0 font-bold hover:bg-slate-800 hover:!text-primary-500 dark:hover:!text-primary-500">
+                        @if($enabled === true) href="{{ $child->getUrl() }}" @else title="{{ $enabled }}" @endif
+                        class="grid grid-cols-[36px,1fr] @if($child->isActive()) !text-primary-500 !bg-slate-800 @endif @if($enabled === true) hover:bg-slate-800 hover:!text-primary-500 dark:hover:!text-primary-500 text-slate-200 @else text-slate-400 @endif flex items-center justify-start w-full pl-7 pr-6 pt-1 pb-0 font-bold">
                         <div class="text-center w-8 h-8 overflow-hidden">
                             <i class="{{ $child->icon }} text-lg mr-1 @if($child->isActive()) text-primary-500 @endif"></i>
                         </div>
