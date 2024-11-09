@@ -19,6 +19,9 @@ class WRLASettings
     public static function buildNavigation(): array
     {
         return [
+            // Frontend (Uncomment and set route to frontent to add a frontend link)
+            // (new NavigationItem('home', [], 'Frontend', 'fa fa-globe'))->openInNewTab(true),
+
             // Dashboard
             new NavigationItem('wrla.dashboard', [], 'Dashboard', 'fa fa-tachometer-alt'),
 
@@ -26,7 +29,7 @@ class WRLASettings
             new NavigationItemDivider(),
 
             // Import all manageable models as nav items - Optionally use example below to add individually
-            // NavigationItemsAllManageableModels::import(),
+            NavigationItemsAllManageableModels::import(),
 
             // Manageable models
             // \App\WRLA\User::getNavigationItem(),
