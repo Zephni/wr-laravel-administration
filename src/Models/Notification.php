@@ -48,14 +48,17 @@ class Notification extends Model
      */
     public function getDefinition(): NotificationBase
     {
-        $notificationClass = $this->type;
-
-        // If doesn't start with \, prepend it
-        if (str_starts_with($notificationClass, '\\') === false) {
-            $notificationClass = '\\' . $notificationClass;
-        }
-
-        return new $notificationClass($this->user_id, json_decode($this->data, true));
+        // Now we use cache instead
+        return cache()->remember("notification.{$this->id}.definition", now()->addMinutes(5), function() {
+            $notificationClass = $this->type;
+    
+            // If doesn't start with \, prepend it
+            if (str_starts_with($notificationClass, '\\') === false) {
+                $notificationClass = '\\' . $notificationClass;
+            }
+    
+            return new $notificationClass($this->user_id, json_decode($this->data, true));
+        });
     }
 
     public function getFinalButtons(): Collection
