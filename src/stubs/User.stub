@@ -162,6 +162,7 @@ class User extends ManageableModel
 
             Text::make($this, 'email_verified_at')
                 ->setLabel('Email Verified At')
+                ->default(date('Y-m-d H:i:s'))
                 ->validation('nullable|date')
                 ->setAttributes(['type' => 'datetime-local']),
         ];
