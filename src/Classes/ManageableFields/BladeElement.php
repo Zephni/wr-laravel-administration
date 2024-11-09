@@ -18,7 +18,7 @@ class BladeElement
      * @param array $data
      * @return static
      */
-    public static function make(?ManageableModel $manageableModel = null, ?string $column = null, string|callable $bladeCode, array $data = []): static
+    public static function make(?ManageableModel $manageableModel, ?string $column, string|callable $bladeCode, array $data = []): static
     {
         $manageableField = new static($column, $manageableModel?->getModelInstance()->{$column}, $manageableModel);
         $manageableField->options['bladeCode'] = $bladeCode;

@@ -78,10 +78,10 @@ trait ManageableField
     public function __construct(?string $name, ?string $value, ?ManageableModel $manageableModel = null)
     {
         // Check if name has . (relationship) or -> (json seperator) in it we need to get the appropriate value
-        if(strpos($name, '.') !== false) {
+        if(strpos($name ?? '', '.') !== false) {
             $value = $manageableModel->getInstanceRelationValue($name);
         }
-        elseif(strpos($name, '->') !== false) {
+        elseif(strpos($name ?? '', '->') !== false) {
             $value = $manageableModel->getInstanceJsonValue($name);
         }
 
