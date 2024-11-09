@@ -246,6 +246,9 @@ class ManageableModelBrowse extends Component
         $baseModelClass = $this->manageableModelClass::getBaseModelClass();
         $baseModelInstance = new $baseModelClass;
 
+        // Run browse setup method
+        $this->manageableModelClass::browseSetup();
+
         // Get table name
         $tableName = $baseModelInstance->getTable();
 
