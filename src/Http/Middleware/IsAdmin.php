@@ -5,6 +5,7 @@ namespace WebRegulate\LaravelAdministration\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
+use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 
 class IsAdmin
 {
@@ -24,6 +25,16 @@ class IsAdmin
                 'error',
                 'You do not have permission to access this page.'
             );
+        }
+
+        // Check that current route is both shown and enabled, otherwise redirect to the dashboard with error
+        $isRouteAllowed = WRLAHelper::isCurrentRouteAllowed();
+        if($isRouteAllowed !== true) {
+            $message = is_string($isRouteAllowed)
+                ? "Cannot access requested route: $isRouteAllowed"
+                : 'The current route is not enabled or does not exist.';
+                
+            return redirect()->route('wrla.dashboard')->with('error', $message);
         }
 
         return $next($request);

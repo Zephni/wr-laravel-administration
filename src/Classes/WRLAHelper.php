@@ -350,7 +350,7 @@ class WRLAHelper
 
         // dd(self::$globalManageableModelData);
     }
-
+    
     /**
      * Is the current route the given route name, and has the given parameters.
      *
@@ -359,10 +359,15 @@ class WRLAHelper
      * @return bool
      */
     public static function isCurrentRouteWithParameters(?string $routeName, ?array $parameters): bool
-    {
+    {        
         // First check if name is true
         if(request()->route()->getName() !== $routeName) {
             return false;
+        }
+
+        // If parameters empty or null, return true
+        if(empty($parameters)) {
+            return true;
         }
 
         // Check if all of the parameters passed are in the route parameters
@@ -721,6 +726,56 @@ class WRLAHelper
         $route->name("wrla.$routeName");
 
         return $route;
+    }
+
+    /**
+     * Is current route allowed (Based on NavigationItem show and enabled conditions)
+     * 
+     * @return bool|string
+     */
+    public static function isCurrentRouteAllowed(): bool|string
+    {
+        $navigationItems = static::getNavigationItems();
+
+        foreach ($navigationItems as $navigationItem) {
+            $result = static::isCurrentRouteAllowedForItem($navigationItem);
+            if ($result !== true) {
+                return $result;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Determines if the current route is allowed for the given navigation item and it's children recursively.
+     *
+     * @param object $navigationItem The navigation item to check.
+     * @return bool|string Returns true, false, or string error message.
+     */
+    private static function isCurrentRouteAllowedForItem($navigationItem): bool|string
+    {
+        if (static::isNavItemCurrentRoute($navigationItem)) {
+            if ($navigationItem->checkShowCondition() === false) {
+                return false;
+            }
+
+            $checkEnabledCondition = $navigationItem->checkEnabledCondition();
+            if ($checkEnabledCondition !== true) {
+                return $checkEnabledCondition;
+            }
+        }
+
+        if (!empty($navigationItem->children) && is_array($navigationItem->children)) {
+            foreach ($navigationItem->children as $childItem) {
+                $result = static::isCurrentRouteAllowedForItem($childItem);
+                if ($result !== true) {
+                    return $result;
+                }
+            }
+        }
+
+        return true;
     }
 
     /**
