@@ -110,6 +110,9 @@ class ManageableModelBrowse extends Component
             return redirect()->route('wrla.dashboard')->with('error', "Model `$modelClass` not found while loading manageable model `$manageableModelClass`.");
         }
 
+        // Run browse setup method
+        $this->manageableModelClass::browseSetup();
+
         // Build parent columns from manageable model
         $columns = $manageableModelInstance->getBrowseColumns();
         $this->columns = collect($columns)->map(function($column) {

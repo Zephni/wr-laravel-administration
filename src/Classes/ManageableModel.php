@@ -109,11 +109,18 @@ abstract class ManageableModel
     public abstract static function mainSetup(): void;
 
     /**
-     * Abstract: Static setup.
+     * Abstract: Global setup.
      *
      * @return void
      */
     public abstract static function globalSetup(): void;
+
+    /**
+     * Abstract: Browse setup.
+     *
+     * @return void
+     */
+    public abstract static function browseSetup(): void;
 
     /**
      * Abstract: Get manageable fields method.

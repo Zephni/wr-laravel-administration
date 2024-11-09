@@ -43,7 +43,7 @@ class User extends ManageableModel
     }
 
     /**
-     * Setup the static (global) properties of the model.
+     * Setup global properties of this manageable model.
      *
      * @return void
      */
@@ -51,7 +51,15 @@ class User extends ManageableModel
     {
         // Navigation
         static::setChildNavigationItems(static::getDefaultChildNavigationItems());
+    }
 
+    /**
+     * Setup brwose properties of this manageable model.
+     *
+     * @return void
+     */
+    public final static function browseSetup(): void
+    {
         // Browse filters
         static::setBrowseFilters(static::getDefaultBrowseFilters()->merge([
             'userTypeFilter' => new BrowseFilter(
