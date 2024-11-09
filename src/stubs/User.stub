@@ -232,7 +232,7 @@ class User extends ManageableModel
         // We prematurely save the model instance here and set the relationship instance user_id to the model instance id
         once(function() use ($modelInstance, $relationshipInstance) {
             // If user is being created, save the model instance first
-            if($modelInstance->id !== null) {
+            if($modelInstance->id === null) {
                 $modelInstance->save();
             }
 
