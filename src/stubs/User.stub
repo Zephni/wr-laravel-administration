@@ -236,9 +236,11 @@ class User extends ManageableModel
                 $modelInstance->save();
             }
 
-            // Set the relationship instance user_id to the model instance id
-            $relationshipInstance->user_id = $modelInstance->id;
-            $relationshipInstance->save();
+            // If relationship instance does not yet exist, set the relationship instance user_id to the model instance id and save
+            if($relationshipInstance?->id === null) {
+                $relationshipInstance->user_id = $modelInstance->id;
+                $relationshipInstance->save();
+            }
         });
     }
 
