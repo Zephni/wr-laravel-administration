@@ -781,12 +781,13 @@ class WRLAHelper
     /**
      * Check if table exists in database
      *
+     * @param mixed $baseModelInstance The base model instance, we need this to get the connection name this model uses
      * @param string $table The table to check if exists.
      * @return bool
      */
-    public static function tableExists(string $table): bool
+    public static function tableExists(mixed $baseModelInstance, string $table): bool
     {
-        return Schema::hasTable($table);
+        return Schema::connection($baseModelInstance->getConnectionName())->hasTable($table);
     }
 
     /**

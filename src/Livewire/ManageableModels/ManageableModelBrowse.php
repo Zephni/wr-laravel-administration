@@ -239,18 +239,19 @@ class ManageableModelBrowse extends Component
      */
     protected function browseModels()
     {
+        // get base model class and instance
+        $baseModelClass = $this->manageableModelClass::getBaseModelClass();
+        $baseModelInstance = new $baseModelClass;
+
         // Get table name
-        $tableName = (new ($this->manageableModelClass::getStaticOption($this->manageableModelClass, 'baseModelClass')))->getTable();
+        $tableName = $baseModelInstance->getTable();
 
         // If table does not exist in database, redirect to dashboard with error
-        if(!WRLAHelper::tableExists($tableName)) {
+        if(!WRLAHelper::tableExists($baseModelInstance, $tableName)) {
             session()->flash('error', 'Table `' . $tableName . '` does not exist in the database.');
             $this->redirectRoute('wrla.dashboard');
             return collect([]); // We have to return a collection so that the view does not error
         }
-
-        // get base model class
-        $baseModelClass = $this->manageableModelClass::getBaseModelClass();
 
         // Get Relationship and Json reference columns
         $relationshipColumns = $this->getRelationshipColumns();
