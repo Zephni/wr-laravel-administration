@@ -108,7 +108,7 @@
             @endif
 
             {{-- Check has create permissions --}}
-            @if($manageableModelClass::getPermission(\WebRegulate\LaravelAdministration\Enums\ManageableModelPermissions::CREATE->getString()))
+            @if($manageableModelClass::getPermission(\WebRegulate\LaravelAdministration\Enums\ManageableModelPermissions::CREATE))
                 @themeComponent('forms.button', [
                     'href' => route('wrla.manageable-models.create', ['modelUrlAlias' => $manageableModelClass::getUrlAlias()]),
                     'size' => 'small',

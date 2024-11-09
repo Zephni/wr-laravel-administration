@@ -56,7 +56,7 @@ class WRLAAdminController extends Controller
         }
 
         // Check has browse permission
-        if(!$manageableModelClass::getPermission(ManageableModelPermissions::BROWSE->getString())) {
+        if(!$manageableModelClass::getPermission(ManageableModelPermissions::BROWSE)) {
             return redirect()->route('wrla.dashboard')->with('error', "You do not have permission to browse ".$manageableModelClass::getDisplayName().".");
         }
 
@@ -96,7 +96,7 @@ class WRLAAdminController extends Controller
         }
 
         return view(WRLAHelper::getViewPath('livewire-content'), [
-            'title' => $upsertType->getString() . ' ' . $manageableModelClass::getDisplayName(),
+            'title' => $upsertType->value . ' ' . $manageableModelClass::getDisplayName(),
             'livewireComponentAlias' => 'wrla.manageable-models.upsert',
             'livewireComponentData' => [
                 'manageableModelClass' => $manageableModelClass,

@@ -361,7 +361,7 @@ class ManageableModelBrowse extends Component
         $manageableModel = new $this->manageableModelClass($id);
 
         // Check has delete permission
-        if(!$this->manageableModelClass::getPermission(ManageableModelPermissions::DELETE->getString())) {
+        if(!$this->manageableModelClass::getPermission(ManageableModelPermissions::DELETE)) {
             $this->errorMessage = 'You do not have permission to delete this model.';
             return;
         }
