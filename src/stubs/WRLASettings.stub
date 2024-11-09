@@ -66,12 +66,12 @@ class WRLASettings
      */
     public static function buildCustomRoutes(): void
     {
-        WRLAHelper::registerLivewireRoute(
-            'url-route',
-            'wrla.dummy-livewire-component',
-            DummyLivewireComponent::class,
-            [],
-            'Page Meta Title',
-        );
+        // WRLAHelper::registerLivewireRoute(
+        //     'url-route',
+        //     'wrla.dummy-livewire-component',
+        //     DummyLivewireComponent::class,
+        //     [],
+        //     'Page Meta Title',
+        // );
     }
 }
