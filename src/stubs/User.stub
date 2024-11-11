@@ -35,10 +35,13 @@ class User extends ManageableModel
      */
     public final static function mainSetup(): void
     {
+        // Main
         static::setBaseModelClass(WRLAUser::class);
         static::setDisplayName();
         static::setUrlAlias('user');
         static::setIcon('fa fa-user');
+
+        // Permissions
         static::setPermission(self::IMPERSONATE, function() { return WRLAUser::current()->isMaster(); });
     }
 

@@ -18,10 +18,14 @@ class {{ $MODEL }} extends ManageableModel
      */
     public final static function mainSetup(): void
     {
+        // Main
         static::setBaseModelClass(\App\Models\{{ $MODEL_WITH_PATH }}::class);
         static::setDisplayName();
         static::setUrlAlias('{{ $URL_ALIAS }}');
         static::setIcon('{{ $ICON }}');
+
+        // Permissions
+        // static::setPermission(ManageableModelPermissions::DELETE, false);
     }
 
     /**
