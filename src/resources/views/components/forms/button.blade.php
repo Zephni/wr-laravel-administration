@@ -1,9 +1,12 @@
-@props(['text' => 'Submit', 'icon' => '', 'size' => 'small', 'color' => 'primary', 'error' => null])
+@props(['text' => 'Submit', 'icon' => '', 'size' => 'small', 'color' => 'primary', 'href' => null, 'error' => null])
 
 @php
     // Set id from name if unset
     $id = empty($attributes->get('id')) ? 'wrinput-'.$attributes->get('name') : $attributes->get('id');
     $name = empty($attributes->get('name')) ? 'wrinput-'.rand(1000, 9999) : $attributes->get('name');
+
+    // If href or attributes->href is set, set href to attributes->href
+    $href = $href ?? $attributes->get('href') ?? null;
 
     // Set size classes
     if($size == 'large') $sizeClasses = 'w-full px-4 py-2';

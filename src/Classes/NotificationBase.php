@@ -72,7 +72,7 @@ class NotificationBase
         if(!$asHtml) {
             return $message;
         }
-        
+
         // Return markdown -> html
         return Str::markdown($message);
     }
@@ -100,7 +100,15 @@ class NotificationBase
 
     protected function buildNotificationButton(Notification $notification, array $htmlAttributes, string $text, string $icon = 'fas fa-check', string $color = 'primary')
     {
-        return NotificationBase::staticBuildNotificationButton($notification, $htmlAttributes, $text, $icon, $color);
+        return NotificationBase::staticBuildNotificationButton(
+            $notification,
+            array_merge([
+                'onclick' => ""
+            ], $htmlAttributes),
+            $text,
+            $icon,
+            $color
+        );
     }
 
     protected function buildNotificationActionButton(Notification $notification, string $localMethod, ?array $methodData, string $text, string $icon = 'fas fa-check', array $additionalHtmlAttributes = [], string $color = 'primary')
