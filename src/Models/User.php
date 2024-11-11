@@ -2,7 +2,6 @@
 
 namespace WebRegulate\LaravelAdministration\Models;
 
-use \Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\CanResetPassword;
@@ -170,7 +169,29 @@ class User extends Authenticatable implements CanResetPassword
     {
         $wrlaUserData = $this->wrlaUserData;
         if ($wrlaUserData == null) return null;
-        return Arr::get(json_decode($wrlaUserData->permissions ?? '', true), $dottedKey);
+        return data_get(json_decode($wrlaUserData->permissions ?? '', true), $dottedKey);
+    }
+
+    /**
+     * Set inner permission by key
+     * @param string $dottedKey
+     * @param mixed $value
+     * @return void
+     */
+    public function setPermission(string $dottedKey, $value): void
+    {
+        $wrlaUserData = $this->wrlaUserData;
+        if ($wrlaUserData == null) return;
+        $permissions = json_decode($wrlaUserData->permissions ?? '', true);
+
+        // If not array, create new array
+        if (!is_array($permissions)) {
+            $permissions = [];
+        }
+
+        data_set($permissions, $dottedKey, $value);
+        $wrlaUserData->permissions = json_encode($permissions);
+        $wrlaUserData->save();
     }
 
     /**
@@ -181,7 +202,29 @@ class User extends Authenticatable implements CanResetPassword
     {
         $wrlaUserData = $this->wrlaUserData;
         if ($wrlaUserData == null) return null;
-        return Arr::get(json_decode($wrlaUserData->settings ?? '', true), $dottedKey);
+        return data_get(json_decode($wrlaUserData->settings ?? '', true), $dottedKey);
+    }
+
+    /**
+     * Set inner setting by key
+     * @param string $dottedKey
+     * @param mixed $value
+     * @return void
+     */
+    public function setSetting(string $dottedKey, $value): void
+    {
+        $wrlaUserData = $this->wrlaUserData;
+        if ($wrlaUserData == null) return;
+        $settings = json_decode($wrlaUserData->settings ?? '', true);
+
+        // If not array, create new array
+        if (!is_array($settings)) {
+            $settings = [];
+        }
+
+        data_set($settings, $dottedKey, $value);
+        $wrlaUserData->settings = json_encode($settings);
+        $wrlaUserData->save();
     }
 
     /**
@@ -192,7 +235,7 @@ class User extends Authenticatable implements CanResetPassword
     {
         $wrlaUserData = $this->wrlaUserData;
         if ($wrlaUserData == null) return null;
-        return Arr::get(json_decode($wrlaUserData->data ?? '', true), $dottedKey);
+        return data_get(json_decode($wrlaUserData->data ?? '', true), $dottedKey);
     }
 
     /**
@@ -206,8 +249,15 @@ class User extends Authenticatable implements CanResetPassword
         $wrlaUserData = $this->wrlaUserData;
         if ($wrlaUserData == null) return;
         $data = json_decode($wrlaUserData->data ?? '', true);
-        Arr::set($data, $dottedKey, $value);
+
+        // If not array, create new array
+        if (!is_array($data)) {
+            $data = [];
+        }
+
+        data_set($data, $dottedKey, $value);
         $wrlaUserData->data = json_encode($data);
+        $wrlaUserData->save();
     }
 
     /**
