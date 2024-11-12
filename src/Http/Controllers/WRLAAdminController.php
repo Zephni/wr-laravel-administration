@@ -144,8 +144,21 @@ class WRLAAdminController extends Controller
             }
         }
 
-        // Get manageable fields
+        // Get manageable fields (we need to get these first and set the livewire fields, and then get them again so
+        // we can make sure all the correct fields and values are exactly as they were prior to submitting the form.
         $manageableFields = $manageableModel->getManageableFieldsFinal();
+        
+        $usesLivewireFields = false;
+        foreach($manageableFields as $manageableField) {
+            if($manageableField->isModeledWithLivewire()) {
+                ManageableModel::setLivewireField($manageableField->getAttribute('name'), $request->input($manageableField->getAttribute('name')));
+                $usesLivewireFields = true;
+            }
+        }
+
+        if($usesLivewireFields) {
+            $manageableFields = $manageableModel->getManageableFieldsFinal();
+        }
 
         // Run pre validation hook on all manageable fields and store in array to merge with request
         $requestMerge = [];
