@@ -25,7 +25,7 @@
     {!! view($WRLAHelper::getViewPath('components.forms.label'), [
         'label' => $label,
         'attributes' => new \Illuminate\View\ComponentAttributeBag([
-            'id' => $id.'-label',
+            'id' => $id,
             'class' => $options['labelClass'] ?? ''
         ])
     ])->render() !!}
