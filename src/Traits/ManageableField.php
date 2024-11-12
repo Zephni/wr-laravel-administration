@@ -366,49 +366,6 @@ trait ManageableField
     }
 
     /**
-     * Set static field
-     *
-     * @param string $key
-     * @param mixed $value
-     */
-    public static function setLivewireField(string $key, mixed $value): void
-    {
-        self::$livewireFields[$key] = $value;
-    }
-
-    /**
-     * Set static fields. For fields with attribute: wire:model.live="fields.field_name", passed to each field blade view (if applicable).
-     *
-     * @param array $fields
-     */
-    public static function setLivewireFields(array $fields): void
-    {
-        self::$livewireFields = $fields;
-    }
-
-    /**
-     * Has field
-     *
-     * @param string $key
-     * @return bool
-     */
-    public static function hasLivewireField(string $key): bool
-    {
-        return isset(self::$livewireFields[$key]);
-    }
-
-    /**
-     * Get field
-     *
-     * @param string $key
-     * @return mixed
-     */
-    public static function getLivewireField(string $key): mixed
-    {
-        return self::$livewireFields[$key] ?? null;
-    }
-
-    /**
      * Livewire setup. Return a key => value array of livewire fields to register their default values.
      * Note that if returns array, this manageable field will automatically add the wire:model.live attribute to the input field.
      * If not using livewire fields for this manageable model, return null.
@@ -454,8 +411,8 @@ trait ManageableField
 
         // Set each static field default if not already set
         foreach($livewireSetupResult as $key => $value) {
-            if(!self::hasLivewireField($key)) {
-                self::setLivewireField($key, $value);
+            if(!ManageableModel::hasLivewireField($key)) {
+                ManageableModel::setLivewireField($key, $value);
             }
         }
     }
@@ -711,7 +668,7 @@ trait ManageableField
         }
 
         // Set static fields
-        self::setLivewireFields($fields);
+        ManageableModel::setLivewireFields($fields);
 
         $HTML = $this->getOption('beginGroup') == true ? '<div class="w-full flex flex-col md:flex-row items-center gap-6">' : '';
         $HTML .= $this->render();

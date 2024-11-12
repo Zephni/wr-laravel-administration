@@ -33,6 +33,20 @@ abstract class ManageableModel
      * @var ?Collection
      */
     public static ?Collection $manageableModels = null;
+    
+    /**
+     * Livewire fields
+     * 
+     * @var array
+     */
+    public static array $livewireFields = [];
+
+    /**
+     * Uses wysiwyg editor
+     * 
+     * @var bool
+     */
+    public bool $usesWysiwygEditor = false;
 
     /**
      * Register the manageable model.
@@ -142,6 +156,49 @@ abstract class ManageableModel
      * @return Collection
      */
     public abstract function getInstanceActions(Collection $instanceActions): Collection;
+
+    /**
+     * Set static field
+     *
+     * @param string $key
+     * @param mixed $value
+     */
+    public static function setLivewireField(string $key, mixed $value): void
+    {
+        self::$livewireFields[$key] = $value;
+    }
+
+    /**
+     * Set static fields. For fields with attribute: wire:model.live="fields.field_name", passed to each field blade view (if applicable).
+     *
+     * @param array $fields
+     */
+    public static function setLivewireFields(array $fields): void
+    {
+        self::$livewireFields = $fields;
+    }
+
+    /**
+     * Has field
+     *
+     * @param string $key
+     * @return bool
+     */
+    public static function hasLivewireField(string $key): bool
+    {
+        return isset(ManageableModel::$livewireFields[$key]);
+    }
+
+    /**
+     * Get field
+     *
+     * @param string $key
+     * @return mixed
+     */
+    public static function getLivewireField(string $key): mixed
+    {
+        return ManageableModel::$livewireFields[$key] ?? null;
+    }
 
     /**
      * Get static option.
@@ -731,7 +788,15 @@ abstract class ManageableModel
     public function getManageableFieldsFinal(): array
     {
         // Simply remove any null values from the manageable fields
-        return array_filter($this->getManageableFields());
+        $manageableFields = array_filter($this->getManageableFields());
+
+        foreach($manageableFields as $manageableField) {
+            if($manageableField->getType() == 'Wysiwyg') {
+                $this->usesWysiwygEditor = true;
+            }
+        }
+
+        return $manageableFields;
     }
 
     /**
@@ -1055,18 +1120,12 @@ abstract class ManageableModel
     }
 
     /**
-     * Does one of the manageable fields have use a wysiwyg editor
+     * Note this must be called after getManageableFieldsFinal() as this sets the usesWysiwygEditor property
      *
      * @return bool
      */
     public function usesWysiwyg(): bool
     {
-        foreach($this->getManageableFieldsFinal() as $manageableField) {
-            if($manageableField->getType() == 'Wysiwyg') {
-                return true;
-            }
-        }
-
-        return false;
+        return $this->usesWysiwygEditor;
     }
 }

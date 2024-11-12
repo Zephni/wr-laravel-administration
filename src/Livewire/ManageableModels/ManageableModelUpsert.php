@@ -136,15 +136,23 @@ class ManageableModelUpsert extends Component
     public function render()
     {
         $manageableModel = $this->manageableModelClass::make($this->modelId);
+        ManageableModel::$livewireFields = $this->livewireData;
         $manageableFields = $manageableModel->getManageableFieldsFinal();
 
         // If first render,set default livewire field values
+        $usesLivewireFields = false;
         if($this->numberOfRenders === 0) {
             foreach($manageableFields as $manageableField) {
                 if($manageableField->isModeledWithLivewire()) {
                     $this->livewireData[$manageableField->getAttribute('name')] = $manageableField->getValue();
+                    $usesLivewireFields = true;
                 }
             }
+        }
+
+        if($usesLivewireFields) {
+            ManageableModel::$livewireFields = $this->livewireData;
+            $manageableFields = $manageableModel->getManageableFieldsFinal();
         }
 
         // Increment number of renders

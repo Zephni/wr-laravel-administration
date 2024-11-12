@@ -171,7 +171,7 @@ class SearchableValue
     public function render(): mixed
     {
         // Get the searchable value field value
-        $searchFieldValue = self::getLivewireField("{$this->getAttribute('name')}_searchable_value");
+        $searchFieldValue = ManageableModel::getLivewireField("{$this->getAttribute('name')}_searchable_value");
 
         // If search field value is not empty, filter the items
         if($searchFieldValue != '') {
