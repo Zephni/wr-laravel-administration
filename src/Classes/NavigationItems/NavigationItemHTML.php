@@ -2,6 +2,8 @@
 
 namespace WebRegulate\LaravelAdministration\Classes\NavigationItems;
 
+use Illuminate\Support\Facades\Blade;
+
 class NavigationItemHTML extends NavigationItem
 {
     public function __construct(
@@ -23,6 +25,6 @@ class NavigationItemHTML extends NavigationItem
      */
     public function render(): string
     {
-        return $this->html;
+        return Blade::render($this->html);
     }
 }
