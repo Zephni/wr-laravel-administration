@@ -6,7 +6,7 @@ use Illuminate\Support\Collection;
 use WebRegulate\LaravelAdministration\Models\User;
 use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItem;
 use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItemDivider;
-use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItemsAllManageableModels;
+use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItemsManageableModels;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 
 class WRLASettings
