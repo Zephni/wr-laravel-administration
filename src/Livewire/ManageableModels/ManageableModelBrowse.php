@@ -350,7 +350,7 @@ class ManageableModelBrowse extends Component
 
         $this->debugMessage = $eloquent->toRawSql();
 
-        $final = $eloquent->paginate(12);
+        $final = $eloquent->paginate(20);
 
         return $final;
     }
