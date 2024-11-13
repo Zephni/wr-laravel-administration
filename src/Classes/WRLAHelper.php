@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\RateLimiter;
 use WebRegulate\LaravelAdministration\Models\User;
 use WebRegulate\LaravelAdministration\Enums\PageType;
+use WebRegulate\LaravelAdministration\Enums\ManageableModelPermissions;
 use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItem;
 
 class WRLAHelper
@@ -47,6 +48,13 @@ class WRLAHelper
      * @var PageType
      */
     public static PageType $currentPageType = PageType::GENERAL;
+
+    /**
+     * Current active manageable model class
+     *
+     * @var ?string
+     */
+    public static ?string $currentActiveManageableModelClass = null;
 
     /**
      * Get documenation URL
@@ -98,6 +106,35 @@ class WRLAHelper
     public static function getCurrentPageType(): ?PageType
     {
         return static::$currentPageType;
+    }
+
+    /**
+     * Set currently active manageable model, if user does not have HAS_ACCESS permission then redirect to dashboard.
+     *
+     * @param ?string $manageableModel The manageable model to set as active.
+     * @return ?string
+     */
+    public static function setCurrentActiveManageableModelClass(?string $manageableModelClass): ?string
+    {
+        static::$currentActiveManageableModelClass = $manageableModelClass;
+
+        // Get current active manageable model and check it has HAS_ACCESS permission
+        if(static::$currentActiveManageableModelClass::getPermission(ManageableModelPermissions::ENABLED) !== true) {
+            $message = "Cannot access requested route: You do not have access to the ". static::$currentActiveManageableModelClass::getDisplayName() ." manageable model.";
+            abort(redirect()->route('wrla.dashboard')->with('error', $message));
+        }
+
+        return static::$currentActiveManageableModelClass;
+    }
+
+    /**
+     * Get currently active manageable model
+     * 
+     * @return ?string
+     */
+    public static function getCurrentActiveManageableModelClass(): ?string
+    {
+        return static::$currentActiveManageableModelClass;
     }
 
     /**

@@ -5,6 +5,7 @@ namespace WebRegulate\LaravelAdministration\Classes\NavigationItems;
 use Illuminate\Support\Facades\Route;
 use WebRegulate\LaravelAdministration\Enums\PageType;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
+use WebRegulate\LaravelAdministration\Enums\ManageableModelPermissions;
 
 class NavigationItemManageableModel extends NavigationItem
 {
@@ -47,5 +48,19 @@ class NavigationItemManageableModel extends NavigationItem
         }
 
         return parent::isChildActive();
+    }
+
+    /**
+     * Check show condition
+     *
+     * @return bool
+     */
+    public function checkShowCondition(): bool
+    {
+        if(!$this->manageableModelClass::getPermission(ManageableModelPermissions::ENABLED)) {
+            return false;
+        }
+
+        return parent::checkShowCondition();
     }
 }

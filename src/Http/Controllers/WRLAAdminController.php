@@ -49,11 +49,14 @@ class WRLAAdminController extends Controller
 
         // Get the manageable model class by its URL alias
         $manageableModelClass = ManageableModel::getByUrlAlias($modelUrlAlias);
-
+        
         // If the manageable model is null, redirect to the dashboard with error
         if (is_null($manageableModelClass)) {
             return redirect()->route('wrla.dashboard')->with('error', "Manageable model with url alias `$modelUrlAlias` not found.");
         }
+
+        // Set current active manageable model class
+        WRLAHelper::setCurrentActiveManageableModelClass($manageableModelClass);
 
         // Check has browse permission
         if(!$manageableModelClass::getPermission(ManageableModelPermissions::BROWSE)) {
@@ -79,9 +82,6 @@ class WRLAAdminController extends Controller
      */
     public function upsert(Request $request, string $modelUrlAlias, ?int $modelId = null): View | RedirectResponse
     {
-        // Set page type
-        $upsertType = WRLAHelper::setCurrentPageType($modelId == null ? PageType::CREATE : PageType::EDIT);
-
         // Get the manageable model by its URL alias
         $manageableModelClass = ManageableModel::getByUrlAlias($modelUrlAlias);
 
@@ -89,6 +89,10 @@ class WRLAAdminController extends Controller
         if (is_null($manageableModelClass)) {
             return redirect()->route('wrla.dashboard')->with('error', "Manageable model with url alias `$modelUrlAlias` not found.");
         }
+
+        // Set page type
+        $upsertType = WRLAHelper::setCurrentPageType($modelId == null ? PageType::CREATE : PageType::EDIT);
+        WRLAHelper::setCurrentActiveManageableModelClass($manageableModelClass);
 
         // If model id doesn't exist then return to dashboard with error
         if($modelId != null && $manageableModelClass::getBaseModelClass()::find($modelId) == null) {
@@ -115,11 +119,6 @@ class WRLAAdminController extends Controller
      */
     public function upsertPost(Request $request, string $modelUrlAlias, ?int $modelId = null): RedirectResponse
     {
-        // Set page type
-        WRLAHelper::setCurrentPageType($modelId == null ? PageType::CREATE : PageType::EDIT);
-
-        // dd($request->all());
-
         // Get manageable model class by its URL alias
         $manageableModelClass = ManageableModel::getByUrlAlias($modelUrlAlias);
 
@@ -127,6 +126,10 @@ class WRLAAdminController extends Controller
         if (is_null($manageableModelClass) || !class_exists($manageableModelClass)) {
             return redirect()->route('wrla.dashboard')->with('error', "Manageable model `$manageableModelClass` not found.");
         }
+
+        // Set page type and manageable model class
+        WRLAHelper::setCurrentPageType($modelId == null ? PageType::CREATE : PageType::EDIT);
+        WRLAHelper::setCurrentActiveManageableModelClass($manageableModelClass);
 
         if($modelId == null)
         {
@@ -245,6 +248,7 @@ class WRLAAdminController extends Controller
     {
         // Set page type
         WRLAHelper::setCurrentPageType(PageType::EDIT);
+        WRLAHelper::setCurrentActiveManageableModelClass(User::class);
 
         // Get manageable model instance
         $manageableModel = User::current();

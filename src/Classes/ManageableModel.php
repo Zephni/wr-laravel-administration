@@ -67,6 +67,7 @@ abstract class ManageableModel
         WRLAHelper::$globalManageableModelData[static::class] = [
             'baseModelClass' => null,
             'permissions' => [
+                ManageableModelPermissions::ENABLED->value => true,
                 ManageableModelPermissions::CREATE->value => true,
                 ManageableModelPermissions::BROWSE->value => true,
                 ManageableModelPermissions::EDIT->value => true,
@@ -548,6 +549,11 @@ abstract class ManageableModel
     public static function getDefaultBrowseActions(): Collection {
         $browseActions = collect();
 
+        // If has_access is false, return empty collection
+        if(!static::getPermission(ManageableModelPermissions::ENABLED)) {
+            return $browseActions;
+        }
+
         // $manageableModel = static::make(); // This makes everything crash with bytes exhausted error
 
         // Check has create permission
@@ -633,6 +639,11 @@ abstract class ManageableModel
     public function getDefaultInstanceActions(): Collection {
         // Initialise collection
         $browseActions = collect();
+
+        // If has_access is false, return empty collection
+        if(!static::getPermission(ManageableModelPermissions::ENABLED)) {
+            return $browseActions;
+        }
 
         // If create page, return empty collection
         if(WRLAHelper::getCurrentPageType() == PageType::CREATE) {
@@ -751,6 +762,11 @@ abstract class ManageableModel
      */
     public final function getInstanceActionsFinal(): Collection
     {
+        // If HAS_ACCESS is false, return empty collection
+        if(!static::getPermission(ManageableModelPermissions::ENABLED)) {
+            return collect();
+        }
+
         // If id is null, return empty collection
         if($this->getModelInstance()->id == null) {
             return collect();
@@ -766,6 +782,10 @@ abstract class ManageableModel
      */
     public function getBrowseColumnsFinal(): Collection
     {
+        if(!static::getPermission(ManageableModelPermissions::ENABLED)) {
+            return collect();
+        }
+
         // If any of the values are strings, we convert into BrowseColumn instances
         return collect($this->getBrowseColumns())->map(function($value, $key) {
             if($value == null) {
@@ -787,6 +807,10 @@ abstract class ManageableModel
      */
     public function getManageableFieldsFinal(): array
     {
+        if(!static::getPermission(ManageableModelPermissions::ENABLED)) {
+            return [];
+        }
+
         // Simply remove any null values from the manageable fields
         $manageableFields = array_filter($this->getManageableFields());
 
