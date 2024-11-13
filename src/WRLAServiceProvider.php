@@ -340,11 +340,5 @@ class WRLAServiceProvider extends ServiceProvider
         foreach(WRLAHelper::$globalManageableModelData as $className => $value) {
             $className::globalSetup();
         }
-
-        // Handle post boot WRLASettings
-        if(class_exists('\App\WRLA\WRLASettings')) {
-            // Set navigation items (if App\WRLA\WRLASettings exists)
-            NavigationItem::$navigationItems = \App\WRLA\WRLASettings::buildNavigation() ?? [];
-        }
     }
 }

@@ -6,6 +6,7 @@ use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
+use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItem;
 
 class IsAdmin
 {
@@ -35,6 +36,12 @@ class IsAdmin
                 : 'The current route is not enabled or does not exist.';
                 
             return redirect()->route('wrla.dashboard')->with('error', $message);
+        }
+
+        // Handle WRLASettings
+        if(class_exists('\App\WRLA\WRLASettings')) {
+            // Set navigation items (if App\WRLA\WRLASettings exists)
+            NavigationItem::$navigationItems = \App\WRLA\WRLASettings::buildNavigation() ?? [];
         }
 
         return $next($request);
