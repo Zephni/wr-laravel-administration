@@ -5,8 +5,8 @@
 
     {{-- If navigation item does not have children --}}
     @if(!$navigationItem->hasChildren())
-        @if($navigationItem->route == 'wrla::divider')
-            <div class="{{ $navigationItem->name }}"></div>
+        @if($navigationItem->route == 'wrla::html')
+            {!! $navigationItem->render() !!}
         @else
             <div class="relative w-full overflow-hidden">
                 <a

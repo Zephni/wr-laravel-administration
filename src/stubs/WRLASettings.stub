@@ -25,8 +25,8 @@ class WRLASettings
             // Dashboard
             new NavigationItem('wrla.dashboard', [], 'Dashboard', 'fa fa-tachometer-alt'),
 
-            // Divider - classes can be appened using the appendClass() method or overriden in the constructor or setClass method
-            new NavigationItemDivider(),
+            // Divider
+            new NavigationItemDivider('Site Management', 'fas fa-cog mr-1'),
 
             // Import all manageable models as nav items - Optionally use example below to add individually
             NavigationItemsAllManageableModels::import(),
@@ -35,7 +35,7 @@ class WRLASettings
             // \App\WRLA\User::getNavigationItem(),
 
             // Divider
-            new NavigationItemDivider(),
+            new NavigationItemDivider('My Account', 'fa fa-user mr-1'),
 
             // Manage account
             new NavigationItem('wrla.manage-account', [], 'Manage Account', 'fa fa-user-circle'),
