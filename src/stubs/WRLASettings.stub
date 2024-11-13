@@ -28,11 +28,11 @@ class WRLASettings
             // Divider
             new NavigationItemDivider('Site Management', 'fas fa-cog mr-1'),
 
-            // Import all manageable models as nav items - Optionally use example below to add individually
-            NavigationItemsAllManageableModels::import(),
-
-            // Manageable models
-            // \App\WRLA\User::getNavigationItem(),
+            // Import manageable model nav items - If array is empty, all manageable models will be imported
+            NavigationItemsManageableModels::import([
+                // \App\WRLA\User::class,
+                // ...
+            ]),
 
             // Divider
             new NavigationItemDivider('My Account', 'fa fa-user mr-1'),
