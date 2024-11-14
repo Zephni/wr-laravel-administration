@@ -2,13 +2,34 @@
 
 namespace WebRegulate\LaravelAdministration\Livewire;
 
+use Livewire\Attributes\Rule;
+use Livewire\WithFileUploads;
+use Livewire\Attributes\Validate;
 use LivewireUI\Modal\ModalComponent;
+use Illuminate\Support\Facades\Storage;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 use WebRegulate\LaravelAdministration\Classes\ManageableModel;
 
 class ImportDataModal extends ModalComponent
 {
+    use WithFileUploads;
+
     public $manageableModelClass;
+
+    #[Rule(['required', 'mimes:csv'])]
+    public $file;
+
+    public function updatedFile()
+    {
+        if (!$this->getErrorBag()->isEmpty()) {
+            // Delete the temporary file if validation fails
+            if ($this->file) {
+                // Delete the temporary file from the Storage livewire-tmp folder
+                Storage::disk('local')->delete('livewire-tmp/' . $this->file->getFilename());
+            }
+            $this->file = null; // Clear the file property
+        }
+    }
 
     public function mount(string $manageableModelClass)
     {
