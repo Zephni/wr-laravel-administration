@@ -45,10 +45,24 @@
                 if ($browseColumn === null) {
                     return 'auto';
                 }
+
                 if ($browseColumn->width != null) {
                     return is_numeric($browseColumn->width) ? $browseColumn->width . 'px' : $browseColumn->width;
                 }
-                return 'minmax(0,1fr)';
+
+                $minWidth = '0px';
+                if($browseColumn->getOption('minWidth') !== null) {
+                    $minWidth = $browseColumn->getOption('minWidth');
+                    $minWidth = is_int($minWidth) ? "{$minWidth}px" : $minWidth;
+                }
+
+                $maxWidth = '1fr';
+                if($browseColumn->getOption('maxWidth') !== null) {
+                    $maxWidth = $browseColumn->getOption('maxWidth');
+                    $maxWidth = is_int($maxWidth) ? "{$maxWidth}px" : $maxWidth;
+                }
+
+                return "minmax($minWidth, $maxWidth)";
             })
             ->toArray();
         // Append 'auto' for the actions column

@@ -37,6 +37,8 @@ class BrowseColumnBase
         'allowOrdering' => true,
         'maxChars' => 50,
         'renderHtml' => false,
+        'minWidth' => null, // null|int|string
+        'maxWidth' => null, // null|int|string
     ];
 
     /**
