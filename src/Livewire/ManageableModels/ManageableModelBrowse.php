@@ -249,7 +249,8 @@ class ManageableModelBrowse extends Component
         // Run browse setup method
         $this->manageableModelClass::browseSetup();
 
-        // Get table name
+        // Get connection and table name
+        $tableConnection = $baseModelInstance->getConnectionName();
         $tableName = $baseModelInstance->getTable();
 
         // If table does not exist in database, redirect to dashboard with error
@@ -284,7 +285,11 @@ class ManageableModelBrowse extends Component
 
                 // Get relation information
                 $relation = $eloquent->getRelation($relationshipMethod);
-                $relationTable = $relation->getRelated()->getTable();
+                $related = $relation->getRelated();
+                $connection = $related->getConnectionName();
+                $relationTable = $related->getTable();
+                // Get local column for relationship
+                $foreignKey = $relation->getForeignKeyName();
 
                 // If join already made, skip
                 if(in_array($relationTable, $joinsMade)) {
@@ -292,7 +297,7 @@ class ManageableModelBrowse extends Component
                 }
 
                 // Apply join for relationship
-                $eloquent = $eloquent->leftJoin($relationTable, "$relationTable.id", "$tableName.id");
+                $eloquent = $eloquent->leftJoin("$connection.$relationTable", "$relationTable.id", "$tableName.$foreignKey");
 
                 // Add to joins made
                 $joinsMade[] = $relationTable;
@@ -306,8 +311,10 @@ class ManageableModelBrowse extends Component
                 if($relationshipColumns->has($column)) {
                     [$relationshipMethod, $remoteColumn] = WRLAHelper::parseBrowseColumnRelationship($column);
                     $relation = $eloquent->getRelation($relationshipMethod);
-                    $relationTable = $relation->getRelated()->getTable();
-                    $eloquent->addSelect("$relationTable.$remoteColumn as $column");
+                    $related = $relation->getRelated();
+                    $connection = $related->getConnectionName();
+                    $relationTable = $related->getTable();
+                    $eloquent->addSelect("$connection.$relationTable.$remoteColumn as $column");
                     continue;
                 }
 
@@ -321,6 +328,10 @@ class ManageableModelBrowse extends Component
         $manageableModelFilters = $this->manageableModelClass::getBrowseFilters();
 
         foreach($manageableModelFilters as $key => $browseFilter) {
+            if($key == 'searchFilter' && empty($this->filters['searchFilter'])) {
+                continue;
+            }
+
             $eloquent = $browseFilter->apply($eloquent, $tableName, $this->columns, $this->filters[$key]);
         }
 
@@ -335,12 +346,14 @@ class ManageableModelBrowse extends Component
 
             // Get relation information
             $relation = $eloquent->getRelation($relationshipMethod);
-            $relationTable = $relation->getRelated()->getTable();
+            $related = $relation->getRelated();
+            $connection = $related->getConnectionName();
+            $relationTable = $related->getTable();
             $foreignKey = $relation->getForeignKeyName();
 
             // Apply join for relationship and order by relationship column (if not already joined)
             if(!in_array($relationTable, $joinsMade)) {
-                $eloquent = $eloquent->leftJoin($relationTable, "$relationTable.id", "$tableName.$foreignKey");
+                $eloquent = $eloquent->leftJoin("$connection.$relationTable", "$relationTable.id", "$tableName.$foreignKey");
                 $joinsMade[] = $relationTable;
             }
 

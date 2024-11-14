@@ -33,17 +33,17 @@ abstract class ManageableModel
      * @var ?Collection
      */
     public static ?Collection $manageableModels = null;
-    
+
     /**
      * Livewire fields
-     * 
+     *
      * @var array
      */
     public static array $livewireFields = [];
 
     /**
      * Uses wysiwyg editor
-     * 
+     *
      * @var bool
      */
     public bool $usesWysiwygEditor = false;
@@ -716,9 +716,18 @@ abstract class ManageableModel
                                 $relationshipParts = WRLAHelper::parseBrowseColumnRelationship($column);
 
                                 $baseModelClass = self::getBaseModelClass();
-                                $relationshipTableName = (new $baseModelClass)->{$relationshipParts[0]}()->getRelated()->getTable();
+                                $relationship = (new $baseModelClass)->{$relationshipParts[0]}();
+                                $relationshipConnection = $relationship->getRelated()->getConnectionName();
+                                $relationshipTableName = $relationship->getRelated()->getTable();
+                                $foreignColumn = $relationship->getForeignKeyName();
 
-                                $query->orWhereRelation($relationshipParts[0], "{$relationshipTableName}.{$relationshipParts[1]}", 'like', "%{$value}%");
+                                // $query->orWhereRelation($relationshipParts[0], "$relationshipConnection.$relationshipTableName.{$relationshipParts[1]}", 'like', "%{$value}%");
+                                // We do the above but as raw now, because it wasn't injecting the relationships connection, eg: `connection`.`related_table`
+                                $query->orWhereRaw("exists (
+                                    select * from `$relationshipConnection`.`$relationshipTableName` where `$relationshipTableName`.`id` = `$table`.`{$foreignColumn}`
+                                    and `$relationshipTableName`.`{$relationshipParts[1]}` like '%$value%'
+                                )");
+                                // dump($query->toRawSql());
                             // Otherwise just use the table and column
                             } else {
                                 $column = "$table.$column";
