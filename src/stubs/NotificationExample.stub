@@ -25,7 +25,7 @@ class NotificationExample extends NotificationBase
         return "This is an example of notification, target user: {$this->user->name}, with passed data: {$this->data['example']}";
     }
 
-    public function getButtons(Notification $notification, Collection $defaultButtons): Collection
+    public function getButtons(Collection $defaultButtons, Notification $notification): Collection
     {
         return $defaultButtons;
     }
