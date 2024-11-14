@@ -35,7 +35,7 @@ class BrowseColumnBase
      */
     public array $options = [
         'allowOrdering' => true,
-        'maxChars' => 50,
+        'maxChars' => 80,
         'renderHtml' => false,
         'minWidth' => null, // null|int|string
         'maxWidth' => null, // null|int|string
