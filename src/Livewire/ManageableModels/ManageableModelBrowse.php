@@ -211,6 +211,18 @@ class ManageableModelBrowse extends Component
     --------------------------------------------------------------------------*/
 
     /**
+     * Get standard columns (non json reference or relationship columns)
+     * 
+     * @return Collection
+     */
+    public function getStandardColumns()
+    {
+        return collect($this->columns)->filter(function($label, $column) {
+            return !WRLAHelper::isBrowseColumnRelationship($column) && strpos($column, '->') === false;
+        });
+    }
+
+    /**
      * Get JSON reference columns
      *
      * @return Collection
@@ -260,15 +272,19 @@ class ManageableModelBrowse extends Component
             return collect([]); // We have to return a collection so that the view does not error
         }
 
-        // Get Relationship and Json reference columns
+        // Get all types of columns
+        // TODO: This could much more efficient if we filtered from a single collection of columns
+        $standardColumns = $this->getStandardColumns();
         $relationshipColumns = $this->getRelationshipColumns();
         $jsonReferenceColumns = $this->getJsonReferenceColumns();
 
         // Start eloquent query
         $eloquent = $baseModelClass::query();
 
-        // We now just select all fields
-        $eloquent = $eloquent->addSelect($tableName.'.*');
+        // Select any fields that aren't relationships or json references
+        foreach($standardColumns as $column => $label) {
+            $eloquent = $eloquent->addSelect("$tableName.$column");
+        }
 
         // Relationship named columns look like this relationship->remote_column, so we need to split them
         // and add left joins and selects to the query
@@ -369,7 +385,7 @@ class ManageableModelBrowse extends Component
 
         $this->debugMessage = $eloquent->toRawSql();
 
-        $final = $eloquent->paginate(20);
+        $final = $eloquent->paginate(18);
 
         return $final;
     }
