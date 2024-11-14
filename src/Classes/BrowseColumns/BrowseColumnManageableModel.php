@@ -13,10 +13,9 @@ class BrowseColumnManageableModel extends BrowseColumnBase
      * @param string|null $label
      * @param string $relatedIdColumn Note if we are using a relationship, we can use dot notation to access the related model's id through the relationship, eg. relatedModel.id
      * @param string $manageableModelClass
-     * @param null|integer|string|null $width
      * @return BrowseColumnLink
      */
-    public static function make(?string $label, string $relatedIdColumn, string $manageableModel, null|int|string $width = null): BrowseColumnLink
+    public static function make(?string $label, string $relatedIdColumn, string $manageableModel): BrowseColumnLink
     {
         return BrowseColumnLink::make($label, function($value, $model) use($manageableModel, $relatedIdColumn) {
             if(empty($value) || data_get($model, $relatedIdColumn) == null) {
@@ -31,6 +30,6 @@ class BrowseColumnManageableModel extends BrowseColumnBase
                 'text' => $value,
                 'icon' => $manageableModel::getIcon().' text-xs'
             ];
-        }, $width)->renderHtml(true);
+        })->renderHtml(true);
     }
 }

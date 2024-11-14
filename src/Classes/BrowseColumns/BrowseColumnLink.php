@@ -26,13 +26,12 @@ class BrowseColumnLink extends BrowseColumnBase
      *
      * @param string|null $label
      * @param callable $linkBuilderCallback Must take $value, $model as arguments and return an array of ['url' => string, 'label' => string, 'icon' => ?string, 'class' => ?string] or return null to display nothing
-     * @param null|integer|string|null $width
      * @return static
      */
-    public static function make(?string $label, callable $linkBuilderCallback, null|int|string $width = null): static
+    public static function make(?string $label, callable $linkBuilderCallback): static
     {
         // Create new instance
-        $browseColumnLink = new static($label, 'link', $width);
+        $browseColumnLink = new static($label, 'link');
 
         // Set the link builder callback
         $browseColumnLink->linkBuilderCallback = $linkBuilderCallback;

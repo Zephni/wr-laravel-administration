@@ -46,8 +46,9 @@
                     return 'auto';
                 }
 
-                if ($browseColumn->width != null) {
-                    return is_numeric($browseColumn->width) ? $browseColumn->width . 'px' : $browseColumn->width;
+                if($browseColumn->getOption('width') !== null) {
+                    $width = $browseColumn->getOption('width');
+                    return is_numeric($width) ? $width . 'px' : $width;
                 }
 
                 $minWidth = '0px';
@@ -104,9 +105,6 @@
                 </div>
             </div>
 
-            <style>
-                .row-odd {:bg-slate-200}
-            </style>
             <!-- Body -->
             @foreach ($models as $k => $model)
                 @php

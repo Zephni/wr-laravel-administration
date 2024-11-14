@@ -22,13 +22,6 @@ class BrowseColumnBase
     public string $type = 'string';
 
     /**
-     * Width of the column, defaults to natural table column width
-     *
-     * @var null|int|string
-     */
-    public null|int|string $width = null;
-
-    /**
      * Options for the column
      *
      * @var array
@@ -37,6 +30,7 @@ class BrowseColumnBase
         'allowOrdering' => true,
         'maxChars' => 80,
         'renderHtml' => false,
+        'width' => null, // null|int|string
         'minWidth' => null, // null|int|string
         'maxWidth' => null, // null|int|string
     ];
@@ -53,13 +47,11 @@ class BrowseColumnBase
      *
      * @param string|null $label
      * @param string $type
-     * @param null|integer|string|null $width
      */
-    public function __construct(?string $label, string $type, null|int|string $width = null)
+    public function __construct(?string $label, string $type)
     {
         $this->label = $this->buildLabel($label);
         $this->type = $type;
-        $this->width = $width;
 
         if($type == 'image') {
             $this->allowOrdering(false);
