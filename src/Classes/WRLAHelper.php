@@ -372,11 +372,21 @@ class WRLAHelper
 
         // Rather than looking at the declared classes, we now look at the files within the app_path('WRLA') directory (recursively)
         $manageableModels = [];
-        $files = File::allFiles(app_path('WRLA'));
+        $directory = app_path('WRLA');
+        $files = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($directory));
+        
         foreach($files as $file) {
-            $class = 'App\\WRLA\\' . $file->getBasename('.php');
-            if(is_subclass_of($class, 'WebRegulate\LaravelAdministration\Classes\ManageableModel')) {
-                $manageableModels[] = $class;
+            // If file is directory or does not end with .php then continue
+            if($file->isDir() || $file->getExtension() !== 'php') {
+                continue;
+            }
+
+            // Get anything after WRLA path and convert to namespace
+            $namespaceAndClass = 'App\\WRLA\\'.str($file->getPathname())->after(app_path('WRLA'))->replace('/', '\\')->replace('.php', '')->ltrim('\\');
+
+            // If is subclass of ManageableModel then add to manageableModels
+            if(is_subclass_of($namespaceAndClass, 'WebRegulate\LaravelAdministration\Classes\ManageableModel')) {
+                $manageableModels[] = $namespaceAndClass;
             }
         }
 
