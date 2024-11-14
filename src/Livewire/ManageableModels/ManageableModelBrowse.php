@@ -296,8 +296,11 @@ class ManageableModelBrowse extends Component
                     continue;
                 }
 
+                // If relationship connection is not empty, generate the SQL to inject it
+                $injectConnection = !empty($connection) ? "`$connection`." : '';
+
                 // Apply join for relationship
-                $eloquent = $eloquent->leftJoin("$connection.$relationTable", "$relationTable.id", "$tableName.$foreignKey");
+                $eloquent = $eloquent->leftJoin("{$injectConnection}{$relationTable}", "$relationTable.id", "$tableName.$foreignKey");
 
                 // Add to joins made
                 $joinsMade[] = $relationTable;
@@ -351,9 +354,12 @@ class ManageableModelBrowse extends Component
             $relationTable = $related->getTable();
             $foreignKey = $relation->getForeignKeyName();
 
+            // If relationship connection is not empty, generate the SQL to inject it
+            $injectConnection = !empty($connection) ? "`$connection`." : '';
+
             // Apply join for relationship and order by relationship column (if not already joined)
             if(!in_array($relationTable, $joinsMade)) {
-                $eloquent = $eloquent->leftJoin("$connection.$relationTable", "$relationTable.id", "$tableName.$foreignKey");
+                $eloquent = $eloquent->leftJoin("{$injectConnection}{$relationTable}", "$relationTable.id", "$tableName.$foreignKey");
                 $joinsMade[] = $relationTable;
             }
 
