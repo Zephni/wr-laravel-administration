@@ -117,14 +117,14 @@
                 <div class="contents odd:bg-slate-100 dark:odd:bg-slate-800">
                     @foreach ($manageableModel->getBrowseColumnsFinal() as $column => $browseColumn)
                         @continue($browseColumn === null)
-                        <div class="px-3 py-2 whitespace-nowrap bg-inherit">
-                            <div class="text-ellipsis truncate text-sm">
+                        <div class="table w-full h-full px-3 py-2 whitespace-nowrap bg-inherit text-ellipsis truncate text-sm">
+                            <div class="table-cell align-middle">
                                 {!! $browseColumn->renderValue($model, $column) !!}
                             </div>
                         </div>
                     @endforeach
                     <!-- Actions Column -->
-                    <div class="px-3 py-2 bg-inherit">
+                    <div class="flex items-center px-3 py-2 bg-inherit">
                         <div class="flex justify-end gap-2 text-sm">
                             @foreach ($manageableModel->getInstanceActionsFinal() as $browseAction)
                                 {!! $browseAction->render() !!}
