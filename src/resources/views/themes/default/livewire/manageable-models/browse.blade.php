@@ -53,23 +53,26 @@
                             @if($browseColumn->getOption('allowOrdering'))
                                 title="Order by {{ $column }} {{ $orderDirection == 'asc' ? 'descending' : 'ascending' }}"
                             @endif
-                            class="text-left whitespace-nowrap text-ellipsis truncate px-3 py-2 @if($browseColumn->getOption('allowOrdering')) group hover:text-primary-500 @endif @if($orderBy == $column) text-primary-500 @endif" style="@if($browseColumn->width != null) width: {{ is_numeric($browseColumn->width) ? $browseColumn->width.'px' : $browseColumn->width }}; @endif max-width: max-width: {{ $columnsMaxWidth }};" >
-                            @if($browseColumn->getOption('allowOrdering'))
-                                <button class="flex items-center gap-3 w-full text-left" wire:click="reOrderAction('{{ $column }}', '{{ $orderDirection == 'asc' ? 'desc' : 'asc' }}')">
-                                    {{ $browseColumn->renderDisplayName() }}
-                                    @if($orderBy == $column)
-                                        <i class="relative fas fa-sort-{{ $orderDirection == 'asc' ? 'up' : 'down' }} text-primary-500"
-                                            style="{{ $orderDirection == 'asc' ? 'top: 3px;' : 'top: -3px;' }}"
-                                            ></i>
-                                    @else
-                                        <i class="fas fa-sort text-slate-400 group-hover:text-primary-500 dark:group-hover:text-slate-700" title="Order ascending"></i>
-                                    @endif
-                                </button>
-                            @else
-                                <div class="flex items-center gap-3">
-                                    {{ $browseColumn->renderDisplayName() }}
-                                </div>
-                            @endif
+                            class="text-left whitespace-nowrap px-3 py-2 @if($browseColumn->getOption('allowOrdering')) group hover:text-primary-500 @endif @if($orderBy == $column) text-primary-500 @endif" style="@if($browseColumn->width != null) width: {{ is_numeric($browseColumn->width) ? $browseColumn->width.'px' : $browseColumn->width }}; @endif max-width: {{ $columnsMaxWidth }};"
+                        >
+                            <div class="w-full text-ellipsis truncate">
+                                @if($browseColumn->getOption('allowOrdering'))
+                                    <button class="flex items-center gap-3 w-full text-left" wire:click="reOrderAction('{{ $column }}', '{{ $orderDirection == 'asc' ? 'desc' : 'asc' }}')">
+                                        {{ $browseColumn->renderDisplayName() }}
+                                        @if($orderBy == $column)
+                                            <i class="relative fas fa-sort-{{ $orderDirection == 'asc' ? 'up' : 'down' }} text-primary-500"
+                                                style="{{ $orderDirection == 'asc' ? 'top: 3px;' : 'top: -3px;' }}"
+                                                ></i>
+                                        @else
+                                            <i class="fas fa-sort text-slate-400 group-hover:text-primary-500 dark:group-hover:text-slate-700" title="Order ascending"></i>
+                                        @endif
+                                    </button>
+                                @else
+                                    <div class="flex items-center gap-3">
+                                        {{ $browseColumn->renderDisplayName() }}
+                                    </div>
+                                @endif
+                            </div>
                         </th>
                     @endforeach
                     <th></th>
@@ -83,8 +86,8 @@
                     <tr class="bg-slate-100 dark:bg-slate-800 odd:bg-slate-200 dark:odd:bg-slate-900">
                         @foreach($manageableModel->getBrowseColumnsFinal() as $column => $browseColumn)
                             @continue($browseColumn === null)
-                            <td class="px-3 py-2 whitespace-nowrap" style="@if($browseColumn->width != null) width: {{ is_numeric($browseColumn->width) ? $browseColumn->width.'px' : $browseColumn->width }}; @endif max-width: {{ $columnsMaxWidth }};">
-                                <div class="text-ellipsis truncate">
+                            <td class="px-3 py-2 whitespace-nowrap" style="@if($browseColumn->width != null) width: {{ is_numeric($browseColumn->width) ? $browseColumn->width.'px' : $browseColumn->width }} !important; @endif max-width: {{ $columnsMaxWidth }};">
+                                <div class="w-full text-ellipsis truncate">
                                     {!! $browseColumn->renderValue($model, $column) !!}
                                 </div>
                             </td>
