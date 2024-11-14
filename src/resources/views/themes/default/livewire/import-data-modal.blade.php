@@ -5,5 +5,10 @@
     </div>
     <hr class="border border-gray-300 mt-[6px] mb-3">
 
-    <p>Currently in development</p>
+    {!! view($WRLAHelper::getViewPath('components.forms.label'), [
+        'label' => '1. Select a .csv file',
+        'attributes' => new \Illuminate\View\ComponentAttributeBag([
+            'class' => ''
+        ])
+    ])->render() !!}
 </x-wrla-modal-layout>

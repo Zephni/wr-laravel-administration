@@ -86,6 +86,7 @@ class WRLAServiceProvider extends ServiceProvider
         // Publish config
         $this->publishes([
             __DIR__ . '/config/wr-laravel-administration.php' => config_path('wr-laravel-administration.php'),
+            __DIR__ . '/config/wire-elements-modal.php' => config_path('wire-elements-modal.php'),
         ], 'wrla-config');
 
         // Publish assets
