@@ -784,7 +784,7 @@ abstract class ManageableModel
      */
     public final function getInstanceActionsFinal(): Collection
     {
-        // If HAS_ACCESS is false, return empty collection
+        // If ENABLED permission is false, return empty collection
         if(!static::getPermission(ManageableModelPermissions::ENABLED)) {
             return collect();
         }

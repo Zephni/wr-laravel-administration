@@ -282,6 +282,7 @@ class ManageableModelBrowse extends Component
         $eloquent = $baseModelClass::query();
 
         // Select any fields that aren't relationships or json references
+        $eloquent = $eloquent->addSelect("$tableName.id");
         foreach($standardColumns as $column => $label) {
             $eloquent = $eloquent->addSelect("$tableName.$column");
         }
