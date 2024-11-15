@@ -97,7 +97,8 @@ class User extends ManageableModel
     public final function getBrowseColumns(): array
     {
         return [
-            'wrlaUserData.data->profile->avatar' => BrowseColumn::make('Avatar', 'image', 80)->setOptions([
+            'wrlaUserData.data->profile->avatar' => BrowseColumn::make('Avatar', 'image')->setOptions([
+                'width' => 80,
                 'aspect' => '1/1',
                 'class' => 'rounded-full',
                 'value' => $this->getModelInstance()->getProfileAvatar()
@@ -168,6 +169,10 @@ class User extends ManageableModel
                 ->jsonFormatValidation([
                     'theme' => 'string|in:default'
                 ])
+                ->hideContainingBraces()
+                ->setAttributes(['placeholder' => 'JSON Data', 'rows' => 4]),
+
+            Json::make($this, 'wrlaUserData.data')
                 ->hideContainingBraces()
                 ->setAttributes(['placeholder' => 'JSON Data', 'rows' => 4]),
 
