@@ -834,6 +834,9 @@ class WRLAHelper
      */
     public static function tableExists(mixed $baseModelInstance, string $table): bool
     {
+        // If table has a . representing a schema, get table name after dot
+        $table = str($table)->afterLast('.');
+
         return Schema::connection($baseModelInstance->getConnectionName())->hasTable($table);
     }
 
