@@ -212,7 +212,7 @@ class ManageableModelBrowse extends Component
 
     /**
      * Get standard columns (non json reference or relationship columns)
-     * 
+     *
      * @return Collection
      */
     public function getStandardColumns()
@@ -282,10 +282,11 @@ class ManageableModelBrowse extends Component
         $eloquent = $baseModelClass::query();
 
         // Select any fields that aren't relationships or json references
-        $eloquent = $eloquent->addSelect("$tableName.id");
-        foreach($standardColumns as $column => $label) {
-            $eloquent = $eloquent->addSelect("$tableName.$column");
-        }
+        $eloquent = $eloquent->addSelect("$tableName.*");
+        // $eloquent = $eloquent->addSelect("$tableName.id");
+        // foreach($standardColumns as $column => $label) {
+        //     $eloquent = $eloquent->addSelect("$tableName.$column");
+        // }
 
         // Relationship named columns look like this relationship->remote_column, so we need to split them
         // and add left joins and selects to the query
@@ -325,7 +326,7 @@ class ManageableModelBrowse extends Component
                 $relation = $eloquent->getRelation($relationshipMethod);
                 $related = $relation->getRelated();
                 $connection = $related->getConnectionName();
-                
+
                 // If connection not empty, prepare it for statement
                 $connection = $connection ? "`$connection`." : '';
 
