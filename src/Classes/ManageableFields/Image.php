@@ -15,7 +15,7 @@ use WebRegulate\LaravelAdministration\Classes\ManageableModel;
 class Image
 {
     use ManageableField;
-    
+
     /**
      * Manipulate image function, set with manipulateImage method on creation
      *
@@ -204,7 +204,7 @@ class Image
         } else {
             // If no value is set, return default image
             if (empty($this->getAttribute('value'))) {
-                return $this->getOption('defaultImage');
+                return $this->getOption('defaultImage') ?? '__wrla_dont_find_me__';
             }
 
             return '/'.ltrim(WRLAHelper::forwardSlashPath($this->getAttribute('value')), '/');
@@ -248,10 +248,10 @@ class Image
     /**
      * Default if no image is set
      *
-     * @param string $path
+     * @param ?string $path
      * @return $this
      */
-    public function defaultImage(string $path): static
+    public function defaultImage(?string $path): static
     {
         $this->setOption('defaultImage', $path);
         return $this;
