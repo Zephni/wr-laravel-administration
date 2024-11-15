@@ -262,7 +262,6 @@ class ManageableModelBrowse extends Component
         $this->manageableModelClass::browseSetup();
 
         // Get connection and table name
-        $tableConnection = $baseModelInstance->getConnectionName();
         $tableName = $baseModelInstance->getTable();
 
         // If table does not exist in database, redirect to dashboard with error
@@ -304,7 +303,6 @@ class ManageableModelBrowse extends Component
                 // Get relation information
                 $relation = $eloquent->getRelation($relationshipMethod);
                 $related = $relation->getRelated();
-                $connection = $related->getConnectionName();
                 $relationTable = $related->getTable();
 
                 // If join already made, skip
@@ -325,21 +323,17 @@ class ManageableModelBrowse extends Component
                 [$relationshipMethod, $remoteColumn] = WRLAHelper::parseBrowseColumnRelationship($column);
                 $relation = $eloquent->getRelation($relationshipMethod);
                 $related = $relation->getRelated();
-                $connection = $related->getConnectionName();
-
-                // If connection not empty, prepare it for statement
-                $connection = $connection ? "`$connection`." : '';
 
                 // If in relationship columns
                 if($relationshipColumns->has($column)) {
                     $relationTable = $related->getTable();
-                    $eloquent->addSelect("{$connection}{$relationTable}.$remoteColumn as $column");
+                    $eloquent->addSelect("{$relationTable}.$remoteColumn as $column");
                     continue;
                 }
 
                 // Note that the column can be nested any number of levels deep, for example: data->profile->avatar
                 // With query builder, json_extract is already automatically added, so we just make a nice alias for the value
-                $eloquent = $eloquent->addSelect("{$connection}{$column} as $column");
+                $eloquent = $eloquent->addSelect("{$column} as $column");
             }
         }
 
@@ -366,7 +360,6 @@ class ManageableModelBrowse extends Component
             // Get relation information
             $relation = $eloquent->getRelation($relationshipMethod);
             $related = $relation->getRelated();
-            $connection = $related->getConnectionName();
             $relationTable = $related->getTable();
 
             // Apply join for relationship and order by relationship column (if not already joined)

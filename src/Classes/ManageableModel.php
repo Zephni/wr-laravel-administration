@@ -719,7 +719,6 @@ abstract class ManageableModel
 
                                 $baseModelClass = self::getBaseModelClass();
                                 $relationship = (new $baseModelClass)->{$relationshipParts[0]}();
-                                $relationshipConnection = $relationship->getRelated()->getConnectionName();
                                 $relationshipTableName = $relationship->getRelated()->getTable();
                                 $foreignColumn = $relationship->getForeignKeyName();
 
@@ -729,7 +728,7 @@ abstract class ManageableModel
                                 $whereIndex++;
 
                                 // Sadely escape value
-                                $query->orWhereRelation($relationshipParts[0], "{$relationshipConnection}{$relationshipTableName}.{$relationshipParts[1]}", 'like', "%{$value}%");
+                                $query->orWhereRelation($relationshipParts[0], "{$relationshipTableName}.{$relationshipParts[1]}", 'like', "%{$value}%");
                                 // The below seemed like it was working but an issue with certain relationships as keys the wrong way around
                                 // $query->orWhereRaw(
                                 //     "exists (
