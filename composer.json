@@ -25,6 +25,7 @@
         "php": "^8.2",
         "livewire/livewire": "^3.4",
         "intervention/image": "^3.6",
-        "wire-elements/modal": "^2.0"
+        "wire-elements/modal": "^2.0",
+        "reedware/laravel-relation-joins": "^6.0"
     }
 }

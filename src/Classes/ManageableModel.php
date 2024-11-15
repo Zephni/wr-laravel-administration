@@ -710,6 +710,8 @@ abstract class ManageableModel
                 // Apply filter
                 function(Builder $query, $table, $columns, $value) {
                     return $query->where(function($query) use($table, $columns, $value) {
+                        $whereIndex = 0;
+
                         foreach($columns as $column => $label) {
                             // If column is relationship, then modify the column to be the related column
                             if((WRLAHelper::isBrowseColumnRelationship($column))) {
@@ -722,14 +724,22 @@ abstract class ManageableModel
                                 $foreignColumn = $relationship->getForeignKeyName();
 
                                 // If relationship connection is not empty, generate the SQL to inject it
-                                $injectRelationshipConnection = !empty($relationshipConnection) ? "`$relationshipConnection`." : '';
+                                if(!empty($relationshipConnection)) $relationshipConnection = "`$relationshipConnection`.";
 
-                                // $query->orWhereRelation($relationshipParts[0], "$relationshipConnection.$relationshipTableName.{$relationshipParts[1]}", 'like', "%{$value}%");
-                                // We do the above but as raw now, because it wasn't injecting the relationships connection, eg: `connection`.`related_table`
-                                $query->orWhereRaw("exists (
-                                    select * from $injectRelationshipConnection`$relationshipTableName` where `$relationshipTableName`.`id` = `$table`.`{$foreignColumn}`
-                                    and `$relationshipTableName`.`{$relationshipParts[1]}` like '%$value%'
-                                )");
+                                $whereIndex++;
+
+                                // Sadely escape value
+                                $query->orWhereRelation($relationshipParts[0], "{$relationshipConnection}{$relationshipTableName}.{$relationshipParts[1]}", 'like', "%{$value}%");
+                                // The below seemed like it was working but an issue with certain relationships as keys the wrong way around
+                                // $query->orWhereRaw(
+                                //     "exists (
+                                //         select * from {$relationshipConnection}`{$relationshipTableName}` 
+                                //         where `{$relationshipTableName}`.`id` = `{$table}`.`{$foreignColumn}`
+                                //         and `{$relationshipTableName}`.`{$relationshipParts[1]}` like ?
+                                //     )", [
+                                //         "%{$value}%"
+                                //     ]
+                                // );
                                 // dump($query->toRawSql());
                             // Otherwise just use the table and column
                             } else {

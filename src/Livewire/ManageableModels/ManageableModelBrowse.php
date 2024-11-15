@@ -304,19 +304,13 @@ class ManageableModelBrowse extends Component
                 $related = $relation->getRelated();
                 $connection = $related->getConnectionName();
                 $relationTable = $related->getTable();
-                // Get local column for relationship
-                $foreignKey = $relation->getForeignKeyName();
 
                 // If join already made, skip
                 if(in_array($relationTable, $joinsMade)) {
                     continue;
                 }
 
-                // If relationship connection is not empty, generate the SQL to inject it
-                $injectConnection = !empty($connection) ? "`$connection`." : '';
-
-                // Apply join for relationship
-                $eloquent = $eloquent->leftJoin("{$injectConnection}{$relationTable}", "$relationTable.id", "$tableName.$foreignKey");
+                $eloquent = $eloquent->leftJoinRelation($relationshipMethod);
 
                 // Add to joins made
                 $joinsMade[] = $relationTable;
@@ -326,20 +320,24 @@ class ManageableModelBrowse extends Component
         // If Json reference columns exist, add them to the query
         if($jsonReferenceColumns->count() > 0) {
             foreach($jsonReferenceColumns as $column => $label) {
+                [$relationshipMethod, $remoteColumn] = WRLAHelper::parseBrowseColumnRelationship($column);
+                $relation = $eloquent->getRelation($relationshipMethod);
+                $related = $relation->getRelated();
+                $connection = $related->getConnectionName();
+                
+                // If connection not empty, prepare it for statement
+                $connection = $connection ? "`$connection`." : '';
+
                 // If in relationship columns
                 if($relationshipColumns->has($column)) {
-                    [$relationshipMethod, $remoteColumn] = WRLAHelper::parseBrowseColumnRelationship($column);
-                    $relation = $eloquent->getRelation($relationshipMethod);
-                    $related = $relation->getRelated();
-                    $connection = $related->getConnectionName();
                     $relationTable = $related->getTable();
-                    $eloquent->addSelect("$connection.$relationTable.$remoteColumn as $column");
+                    $eloquent->addSelect("{$connection}{$relationTable}.$remoteColumn as $column");
                     continue;
                 }
 
                 // Note that the column can be nested any number of levels deep, for example: data->profile->avatar
                 // With query builder, json_extract is already automatically added, so we just make a nice alias for the value
-                $eloquent = $eloquent->addSelect("$column as $column");
+                $eloquent = $eloquent->addSelect("{$connection}{$column} as $column");
             }
         }
 
@@ -368,14 +366,10 @@ class ManageableModelBrowse extends Component
             $related = $relation->getRelated();
             $connection = $related->getConnectionName();
             $relationTable = $related->getTable();
-            $foreignKey = $relation->getForeignKeyName();
-
-            // If relationship connection is not empty, generate the SQL to inject it
-            $injectConnection = !empty($connection) ? "`$connection`." : '';
 
             // Apply join for relationship and order by relationship column (if not already joined)
             if(!in_array($relationTable, $joinsMade)) {
-                $eloquent = $eloquent->leftJoin("{$injectConnection}{$relationTable}", "$relationTable.id", "$tableName.$foreignKey");
+                $eloquent = $eloquent->leftJoinRelation($relationshipMethod);
                 $joinsMade[] = $relationTable;
             }
 
