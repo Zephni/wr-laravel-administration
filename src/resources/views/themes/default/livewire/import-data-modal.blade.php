@@ -9,7 +9,7 @@
     {{-- Form --}}
     <div class="flex flex-col gap-2">
         {{-- Back button to go to previous step --}}
-        @if($data['currentStep'] > 1)
+        @if(is_int($data['currentStep']) && $data['currentStep'] > 1)
             <div>
                 <button wire:click="goToStep({{ $data['currentStep'] - 1 }})" class="text-sm">
                     <div wire:loading.remove>
@@ -134,10 +134,49 @@
                     'icon' => 'fas fa-file-import',
                     'size' => 'medium',
                     'attributes' => new \Illuminate\View\ComponentAttributeBag([
+                        'wire:loading.attr' => 'disabled',
+                        'wire:loading.class' => 'opacity-70 cursor-not-allowed',
                         'wire:click' => 'importData',
                     ])
                 ])->render() !!}
             </div>
+
+        @elseif($data['currentStep'] == 'completed')
+
+            <div class="text-lg font-thin border-b border-slate-400 pb-1 mt-2 mb-2">
+                <b>
+                    <i class="fas fa-check text-emerald-500 pr-1"></i>
+                    Import completed
+                </b>
+            </div>
+
+            {{-- Successfull imports --}}
+            <div class="text-base text-slate-600 text-center">
+                <i class="fas fa-info-circle text-slate-500 pr-1"></i>
+                <b class="text-emerald-500 text-lg">{{ $data['successfullImports'] }}</b> rows of data have been imported into {{ $manageableModelClass::getDisplayName(true) }}.
+            </div>
+
+            {{-- Failed imports --}}
+            <div class="text-base text-slate-600 text-center mt-2">
+                <i class="fas fa-info-circle text-slate-500 pr-1"></i>
+                <b class="text-rose-500 text-lg">{{ $data['failedImports'] }}</b> rows of data failed to import.
+            </div>
+
+            {{-- Import button --}}
+            <div class="flex justify-end mt-4">
+                {!! view($WRLAHelper::getViewPath('components.forms.button'), [
+                    'text' => 'Close and refresh',
+                    'icon' => 'fas fa-times',
+                    'size' => 'medium',
+                    'color' => 'muted',
+                    'attributes' => new \Illuminate\View\ComponentAttributeBag([
+                        'wire:click' => 'closeAndRefresh',
+                        'wire:loading.attr' => 'disabled',
+                        'wire:loading.class' => 'opacity-70 cursor-not-allowed',
+                    ])
+                ])->render() !!}
+            </div>
+
         @endif
 
     </div>

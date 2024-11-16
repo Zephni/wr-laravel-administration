@@ -5,8 +5,10 @@ namespace WebRegulate\LaravelAdministration\Livewire;
 use Livewire\Attributes\Rule;
 use Livewire\WithFileUploads;
 use LivewireUI\Modal\ModalComponent;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
+use Livewire\Features\SupportRedirects\Redirector;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 
 /**
@@ -46,12 +48,14 @@ class ImportDataModal extends ModalComponent
      */
     public array $data = [
         'previewRowsMax' => 8,
-        'currentStep' => 1,
+        'currentStep' => 1, // int or 'completed'
         'origionalHeaders' => [],
         'headers' => [],
         'origionalRows' => [],
         'rows' => [],
         'tableColumns' => [],
+        'successfullImports' => 0,
+        'failedImports' => 0,
     ];
 
     /**
@@ -152,11 +156,6 @@ class ImportDataModal extends ModalComponent
 
             $this->data['rows'][] = $newRow;
         }
-
-        // dd(
-        //     $this->data['headers'],
-        //     $this->data['rows']
-        // );
     }
 
 
@@ -228,10 +227,49 @@ class ImportDataModal extends ModalComponent
      */
     public function importData(): void
     {
-        dd(
-            $this->data['headers'],
-            $this->data['rows']
-        );
+        // Get the manageable model instance
+        $modelClass = (new $this->manageableModelClass)->getBaseModelClass();
+
+        // Iterate over each row of data
+        foreach ($this->data['rows'] as $row) {
+            try {
+                // Create model instance
+                $modelInstance = new $modelClass;
+    
+                // Map each header to the corresponding column
+                foreach ($this->headersMappedToColumns as $index => $column) {
+                    if (!empty($column)) {
+                        $modelInstance->$column = $row[$index];
+                    }
+                }
+    
+                // Save the model instance
+                $modelInstance->save();
+    
+                // Increment the number of successfull imports
+                $this->data['successfullImports']++;
+            } catch (\Exception $e) {
+                // Increment the number of failed imports
+                $this->data['failedImports']++;
+            }
+        }
+
+        // Advance current step to 'completed'
+        $this->data['currentStep'] = 'completed';
+    }
+
+    /**
+     * Close and refresh
+     * 
+     * @return void
+     */
+    public function closeAndRefresh()
+    {
+        // Close the modal
+        $this->closeModal();
+        
+        // Refresh current URL
+        $this->js('window.location.reload()'); 
     }
 
     /**
