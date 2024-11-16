@@ -8,56 +8,73 @@
 
     {{-- Form --}}
     <div class="flex flex-col gap-4">
-        <div>
-            {!! view($WRLAHelper::getViewPath('components.forms.input-file'), [
-                'label' => 'Import .csv file',
-                'options' => [
-                    'notes' => '<b>NOTE:</b> The first row of the file MUST be a list of headers.',
-                    'chooseFileText' => 'Select a .csv file to import...',
-                ],
-                'attributes' => new \Illuminate\View\ComponentAttributeBag([
-                    'name' => 'file',
-                    'wire:model.live' => 'file',
-                    'class' => ''
-                ])
-            ])->render() !!}
-        </div>
-
-        {{-- If associate with columns data is set, we allow the user to associate the columns with table --}}
-        @if(count($data['headersMappedToColumns']) > 0)
-            <div class="grid grid-cols-4 gap-4">
-                @foreach($data['headers'] as $headerIndex => $header)
-                    {!! view($WRLAHelper::getViewPath('components.forms.input-select'), [
-                        'label' => $header,
-                        'items' => $data['tableColumns'],
-                        'options' => [
-                            
-                        ],
-                        'attributes' => new \Illuminate\View\ComponentAttributeBag([
-                            'wire:key' => "mapped-header-$headerIndex",
-                            'wire:model.live' => "data.headersMappedToColumns.index_$headerIndex",
-                        ])
-                    ])->render() !!}
-                @endforeach
+        {{-- Back button to go to previous step --}}
+        @if($data['currentStep'] > 1)
+            <div>
+                <button wire:click="$set('currentStep', {{ $data['currentStep'] - 1 }})" class="text-sm">
+                    <i class="fas fa-arrow-left text-sm"></i> Back to step {{ $data['currentStep'] - 1 }}
+                </button>
             </div>
         @endif
+
+        @if($data['currentStep'] == 1)
+            <div class="text-lg border-b border-slate-400 pb-1">
+                <b>1. Import a .csv file</b>
+            </div>
+            <div>
+                {!! view($WRLAHelper::getViewPath('components.forms.input-file'), [
+                    'options' => [
+                        'notes' => '<b>NOTE:</b> The first row of the file MUST be a list of headers.',
+                        'chooseFileText' => 'Select a .csv file to import...',
+                    ],
+                    'attributes' => new \Illuminate\View\ComponentAttributeBag([
+                        'name' => 'file',
+                        'wire:model.live' => 'file',
+                        'class' => ''
+                    ])
+                ])->render() !!}
+            </div>
+        @elseif($data['currentStep'] == 2)
+            @if(count($headersMappedToColumns) > 0)
+                <div class="text-lg font-thin border-b border-slate-400 pb-1">
+                    <b>2. Map .csv headings to table columns</b>
+                </div>
+                <div class="grid grid-cols-5 gap-4">
+                    @foreach($data['headers'] as $headerIndex => $header)
+                        <div wire:key="mapped-header-{{ $headerIndex }}">
+                            {!! view($WRLAHelper::getViewPath('components.forms.input-select'), [
+                                'label' => $header,
+                                'items' => $data['tableColumns'],
+                                'options' => [
+                                    
+                                ],
+                                'attributes' => new \Illuminate\View\ComponentAttributeBag([
+                                    'wire:model.live' => "headersMappedToColumns.index_$headerIndex",
+                                ])
+                            ])->render() !!}
+                        </div>
+                    @endforeach
+                </div>
+            @endif
+        @endif
+
     </div>
 
     <br />
 
     <p class="py-2 font-medium">Debug: Headers mapped to columns</p>
-    @foreach($debugInfo['headersMappedToColumns'] ?? [] as $key => $value)
-        @dump([$key => $value])
+    @foreach($headersMappedToColumns ?? [] as $key => $value)
+        <p>{{ $key }}: {{ $value }}</p>
     @endforeach
 
     <p class="py-2 font-medium">Debug: Headers</p>
-    @foreach($debugInfo['headers'] ?? [] as $key => $value)
+    @foreach($data['headers'] ?? [] as $key => $value)
         @dump([$key => $value])
     @endforeach
 
     <br />
     <p class="py-2 font-medium">Debug: First 3 rows</p>
-    @foreach($debugInfo['rows'] ?? [] as $key => $value)
+    @foreach($data['rows'] ?? [] as $key => $value)
         @break($loop->index == 3)
         @dump($value)
     @endforeach

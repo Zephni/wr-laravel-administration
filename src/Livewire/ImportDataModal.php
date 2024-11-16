@@ -33,15 +33,22 @@ class ImportDataModal extends ModalComponent
     public $file = null;
 
     /**
+     * Headers mapped to columns
+     * 
+     * @var array
+     */
+    public array $headersMappedToColumns = [];
+
+    /**
      * Data related to the CSV file.
      * 
      * @var array
      */
     public array $data = [
+        'currentStep' => 1,
         'headers' => [],
         'rows' => [],
         'tableColumns' => [],
-        'headersMappedToColumns' => [],
     ];
 
     /**
@@ -88,8 +95,18 @@ class ImportDataModal extends ModalComponent
         // Automatically map headers to columns
         $this->autoMapHeadersToColumns();
 
-        // Store debug information
-        $this->debugInfo = $this->data;
+        // Advance current step
+        $this->data['currentStep'] = 2;
+    }
+
+    /**
+     * Hook that runs after mapping header to a columns field is updated.
+     * 
+     * @return void
+     */
+    public function updatedHeadersMappedToColumns()
+    {
+        
     }
 
     /**
@@ -174,14 +191,14 @@ class ImportDataModal extends ModalComponent
     {
         // Initialize the mapping of headers to columns
         foreach ($this->data['headers'] as $headerIndex => $header) {
-            $this->data['headersMappedToColumns']["index_$headerIndex"] = null;
+            $this->headersMappedToColumns["index_$headerIndex"] = null;
 
             // Attempt to map each header to a corresponding column
             foreach ($this->data['tableColumns'] as $actualColumn) {
                 $header = str($header)->lower()->replace(' ', '_')->__toString();
 
                 if (str($actualColumn) == $header) {
-                    $this->data['headersMappedToColumns']["index_$headerIndex"] = $actualColumn;
+                    $this->headersMappedToColumns["index_$headerIndex"] = $actualColumn;
                 }
             }
         }

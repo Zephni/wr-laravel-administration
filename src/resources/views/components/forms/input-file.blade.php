@@ -18,7 +18,7 @@
     ])->render() !!}
 @endif
 
-<div class="relative mt-2">
+<div class="relative">
     <input
         wire:key="{{ rand() }}"
         type="file"
