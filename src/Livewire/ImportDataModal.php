@@ -4,22 +4,39 @@ namespace WebRegulate\LaravelAdministration\Livewire;
 
 use Livewire\Attributes\Rule;
 use Livewire\WithFileUploads;
-use Livewire\Attributes\Validate;
 use LivewireUI\Modal\ModalComponent;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
-use WebRegulate\LaravelAdministration\Classes\ManageableModel;
 
+/**
+ * Class ImportDataModal
+ * Handles the import of CSV data into a manageable model.
+ */
 class ImportDataModal extends ModalComponent
 {
     use WithFileUploads;
 
+    /**
+     * The class name of the manageable model.
+     * 
+     * @var string
+     */
     public $manageableModelClass;
 
+    /**
+     * The uploaded file.
+     * 
+     * @var mixed
+     */
     #[Rule(['required', 'file', 'mimes:csv', 'max:5120'])]
     public $file = null;
 
+    /**
+     * Data related to the CSV file.
+     * 
+     * @var array
+     */
     public array $data = [
         'headers' => [],
         'rows' => [],
@@ -27,143 +44,149 @@ class ImportDataModal extends ModalComponent
         'headersMappedToColumns' => [],
     ];
 
+    /**
+     * Debug information.
+     * 
+     * @var array
+     */
     public array $debugInfo;
 
     /**
-     * Updated file hook, runs after attribute validation
+     * Hook that runs after the file attribute is validated.
      * 
      * @return void
      */
     public function updatedFile()
     {
-        // If any errors
+        // If there are validation errors, delete the uploaded file and reset the file attribute
         if (!$this->getErrorBag()->isEmpty()) {
-            // Delete the temporary file if validation fails
             if ($this->file) {
                 Storage::disk('local')->delete('livewire-tmp/' . $this->file->getFilename());
             }
-
-            // Clear the file property
             $this->file = null;
             return;
         }
 
-        // If valid, we now need to check the CSV file is valid, if not, manually add an error
+        // Get the real path of the uploaded file and read its contents
         $filePath = $this->file->getRealPath();
         $fileData = array_map('str_getcsv', file($filePath));
 
-        // Set first row as headers
+        // Extract headers and rows from the CSV file
         $this->data['headers'] = array_shift($fileData);
-
-        // Set row data
         $this->data['rows'] = $fileData;
 
-        // Clean all data
+        // Clean the extracted data
         $this->cleanAllData();
 
-        // Get all manageable model columns and set to tableColumns
+        // Get the columns of the manageable model's table, excluding the 'id' column
         $manageableModel = (new $this->manageableModelClass)->getModelInstance();
         $manageableModelColumns = Schema::getColumnListing($manageableModel->getTable());
         $manageableModelColumns = array_diff($manageableModelColumns, ['id']);
         $this->data['tableColumns'] = array_combine($manageableModelColumns, $manageableModelColumns);
         $this->data['tableColumns'] = ['__wrla_unset_column__' => '❌ Select a column'] + $this->data['tableColumns'];
 
-        // Do best we can at mapping keys to columns
+        // Automatically map headers to columns
         $this->autoMapHeadersToColumns();
 
+        // Store debug information
         $this->debugInfo = $this->data;
     }
 
+    /**
+     * Initializes the component with the given manageable model class.
+     * 
+     * @param string $manageableModelClass
+     * @return void
+     */
     public function mount(string $manageableModelClass)
     {
-        // Broadcast that modal has opened successfully
+        // Dispatch an event indicating that the modal has been opened
         $this->dispatch('import-data-modal.opened');
-
-        // Set manageable model
         $this->manageableModelClass = $manageableModelClass;
     }
 
+    /**
+     * Defines the behavior of the modal component.
+     * 
+     * @return array
+     */
     public static function behavior(): array
     {
         return [
-            // Close the modal if the escape key is pressed
             'close-on-escape' => true,
-            // Close the modal if someone clicks outside the modal
             'close-on-backdrop-click' => true,
-            // Trap the users focus inside the modal (e.g. input autofocus and going back and forth between input fields)
             'trap-focus' => true,
-            // Remove all unsaved changes once someone closes the modal
             'remove-state-on-close' => false,
         ];
     }
 
+    /**
+     * Defines the attributes of the modal component.
+     * 
+     * @return array
+     */
     public static function attributes(): array
     {
         return [
-            // Set the modal size to 2xl, you can choose between:
-            // xs, sm, md, lg, xl, 2xl, 3xl, 4xl, 5xl, 6xl, 7xl, fullscreen
             'size' => 'fullscreen',
         ];
     }
 
+    /**
+     * Renders the view for the component.
+     * 
+     * @return \Illuminate\View\View
+     */
     public function render()
     {
-        return view(WRLAHelper::getViewPath('livewire.import-data-modal'), [
-
-        ]);
+        return view(WRLAHelper::getViewPath('livewire.import-data-modal'), []);
     }
 
     /**
-     * Cleans all data (Headers and Rows) from the currently set data
+     * Cleans all data (headers and rows) from the currently set data.
      * 
      * @return void
      */
     public function cleanAllData()
     {
-        
-        // Clean headers
+        // Clean headers by trimming whitespace and removing unwanted characters
         foreach ($this->data['headers'] as $key => $value) {
-            // Trim
             $this->data['headers'][$key] = trim($value);
-
-            // Remove \u{FEFF} (UTF-8 BOM) from the start of the string
             $this->data['headers'][$key] = preg_replace('/^\x{FEFF}/u', '', $this->data['headers'][$key]);
-
-            // Remove all special characters but allow spaces
             $this->data['headers'][$key] = preg_replace('/[^A-Za-z0-9 ]/', '', $this->data['headers'][$key]);
         }
 
-        // Clean rows
+        // Clean rows by trimming whitespace and removing unwanted characters
         foreach ($this->data['rows'] as $rowKey => $row) {
             foreach ($row as $key => $value) {
-                // Trim
                 $this->data['rows'][$rowKey][$key] = trim($value);
-
-                // Remove all special characters but allow spaces
                 $this->data['rows'][$rowKey][$key] = preg_replace('/[^A-Za-z0-9 ]/', '', $this->data['rows'][$rowKey][$key]);
             }
         }
     }
 
+    /**
+     * Automatically maps headers to columns.
+     * 
+     * @return void
+     */
     public function autoMapHeadersToColumns()
     {
-        // Loop through all map keys to columns
+        // Initialize the mapping of headers to columns
         foreach ($this->data['headers'] as $headerIndex => $header) {
             $this->data['headersMappedToColumns']["index_$headerIndex"] = null;
 
-            // Loop through all table columns
+            // Attempt to map each header to a corresponding column
             foreach ($this->data['tableColumns'] as $actualColumn) {
                 $header = str($header)->lower()->replace(' ', '_')->__toString();
 
-                // If the example column is similar to the table column
                 if (str($actualColumn) == $header) {
-                    // Set the map key to column
                     $this->data['headersMappedToColumns']["index_$headerIndex"] = $actualColumn;
                 }
             }
         }
 
-        // Force re-render
+        // Re-render the component to reflect the changes
         $this->render();
     }
 }
