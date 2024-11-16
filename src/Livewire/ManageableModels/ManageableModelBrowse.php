@@ -298,7 +298,7 @@ class ManageableModelBrowse extends Component
                 [$relationshipMethod, $remoteColumn] = WRLAHelper::parseBrowseColumnRelationship($relationshipKey);
 
                 // With relationship
-                $eloquent = $eloquent->with($relationshipMethod);
+                $eloquent->with($relationshipMethod);
 
                 // Get relation information
                 $relation = $eloquent->getRelation($relationshipMethod);
@@ -311,9 +311,13 @@ class ManageableModelBrowse extends Component
                 }
 
                 $eloquent = $eloquent->leftJoinRelation($relationshipMethod);
-
-                // Add to joins made
+                
+                // Add to joins made (And check for any joins added by the relationship's joins)
                 $joinsMade[] = $relationTable;
+                foreach($eloquent->getQuery()->joins as $join) {
+                    if(in_array($join->table, $joinsMade)) continue;
+                    $joinsMade[] = $join->table;
+                }
             }
         }
 
