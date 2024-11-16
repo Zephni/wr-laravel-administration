@@ -28,6 +28,10 @@ class SearchableValue
      */
     public function livewireSetup(): ?array
     {
+        $this->setOptions([
+            'minChars' => 0,
+        ]);
+
         return [
             "{$this->getAttribute('name')}_searchable_value" => '',
         ];
@@ -178,11 +182,11 @@ class SearchableValue
             $trimmedSearch = trim($searchFieldValue);
 
             // If show all is set and search field value trims to empty, set filtered items to all items
-            if($this->searchModeHas(self::SHOW_ALL) && $trimmedSearch == '')
+            if($this->searchModeHas(self::SHOW_ALL) && $trimmedSearch == '' && $this->getOption('minChars') == 0)
             {
                 $this->filteredItems = $this->items;
             }
-            else
+            else if(strlen($trimmedSearch) >= $this->getOption('minChars'))
             {
                 $this->filteredItems = [];
                 foreach($this->items as $key => $value) {
