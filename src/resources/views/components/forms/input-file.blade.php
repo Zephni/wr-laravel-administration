@@ -21,6 +21,7 @@
 <div class="relative">
     <input
         wire:key="{{ rand() }}"
+        wire:loading.attr="disabled"
         type="file"
         id="{{ $id }}"
         class="absolute z-0 inset-0 opacity-0 w-0 h-0 !cursor-pointer"
@@ -30,7 +31,11 @@
         <div type="button" class="z-50 px-3 py-1.5 text-white bg-primary-600 hover:bg-primary-500 font-medium rounded-lg group-hover:bg-primary-500">
             Browse
         </div>
-        <span id="{{ $id }}-filename" class="ml-2">{{ $chooseFileText }}</span>
+        <div wire:loading class="ml-2">
+            <i class="fas fa-spinner fa-spin pr-2"></i>
+            Uploading file...
+        </div>
+        <span wire:loading.remove id="{{ $id }}-filename" class="ml-2">{{ $chooseFileText }}</span>
     </label>
 </div>
 

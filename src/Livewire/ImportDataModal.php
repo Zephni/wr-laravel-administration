@@ -160,6 +160,17 @@ class ImportDataModal extends ModalComponent
     }
 
     /**
+     * Go to step X
+     * 
+     * @param int $step
+     * @return void
+     */
+    public function goToStep(int $step)
+    {
+        $this->data['currentStep'] = $step;
+    }
+
+    /**
      * Cleans all data (headers and rows) from the currently set data.
      * 
      * @return void
@@ -177,7 +188,6 @@ class ImportDataModal extends ModalComponent
         foreach ($this->data['rows'] as $rowKey => $row) {
             foreach ($row as $key => $value) {
                 $this->data['rows'][$rowKey][$key] = trim($value);
-                $this->data['rows'][$rowKey][$key] = preg_replace('/[^A-Za-z0-9 ]/', '', $this->data['rows'][$rowKey][$key]);
             }
         }
     }
@@ -191,14 +201,14 @@ class ImportDataModal extends ModalComponent
     {
         // Initialize the mapping of headers to columns
         foreach ($this->data['headers'] as $headerIndex => $header) {
-            $this->headersMappedToColumns["index_$headerIndex"] = null;
+            $this->headersMappedToColumns["$headerIndex"] = null;
 
             // Attempt to map each header to a corresponding column
             foreach ($this->data['tableColumns'] as $actualColumn) {
                 $header = str($header)->lower()->replace(' ', '_')->__toString();
 
                 if (str($actualColumn) == $header) {
-                    $this->headersMappedToColumns["index_$headerIndex"] = $actualColumn;
+                    $this->headersMappedToColumns["$headerIndex"] = $actualColumn;
                 }
             }
         }
