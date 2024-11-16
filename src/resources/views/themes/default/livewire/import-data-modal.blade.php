@@ -7,7 +7,7 @@
     <hr class="border border-gray-300 mt-[6px] mb-3">
 
     {{-- Form --}}
-    <div class="flex flex-col gap-4">
+    <div class="flex flex-col gap-2">
         {{-- Back button to go to previous step --}}
         @if($data['currentStep'] > 1)
             <div>
@@ -25,7 +25,7 @@
         {{-- STEP 1 - Import a .csv file --}}
         @if($data['currentStep'] == 1)
 
-            <div class="text-lg border-b border-slate-400 pb-1">
+            <div class="text-lg border-b border-slate-400 pb-1 mb-1">
                 <b>
                     <i class="fas fa-file-import text-slate-600 dark:text-slate-300 pr-1"></i>
                     1. Import a .csv file
@@ -48,7 +48,7 @@
         {{-- STEP 2 - Map .csv headings to table columns --}}
         @elseif($data['currentStep'] == 2)
 
-            <div class="text-lg font-thin border-b border-slate-400 pb-1">
+            <div class="text-lg font-thin border-b border-slate-400 pb-1 mt-2 mb-2">
                 <b>
                     <i class="fas fa-map text-slate-600 dark:text-slate-300 pr-1"></i>
                     2. Map .csv headings to table columns
@@ -57,8 +57,8 @@
 
             @if(count($headersMappedToColumns) > 0)
                 {{-- Map headings to table columns --}}
-                <div class="grid grid-cols-5 gap-4">
-                    @foreach($data['headers'] as $headerIndex => $header)
+                <div class="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-4">
+                    @foreach($data['origionalHeaders'] as $headerIndex => $header)
                         <div wire:key="mapped-header-{{ $headerIndex }}">
                             {!! view($WRLAHelper::getViewPath('components.forms.input-select'), [
                                 'label' => $header,
@@ -68,22 +68,32 @@
                                 ],
                                 'attributes' => new \Illuminate\View\ComponentAttributeBag([
                                     'wire:model.live' => "headersMappedToColumns.$headerIndex",
+                                    'class' => 'px-1 py-0.5 '.($headersMappedToColumns[$headerIndex] == null ? '!border-rose-500' : '!border-emerald-500')
                                 ])
                             ])->render() !!}
                         </div>
                     @endforeach
                 </div>
 
-                <div class="text-lg font-thin border-b border-slate-400 pb-1">
-                    <b>Check data is aligned with correct columns</b>
+                <div class="flex justify-between text-lg font-thin border-b border-slate-400 pb-1 mt-4 mb-2">
+                    <b>
+                        <i class="fas fa-eye text-slate-600 dark:text-slate-300 pr-1"></i>
+                        Check data is aligned with correct columns.
+                    </b>
+
+                    <div class="flex gap-4 text-base">
+                        <span>Columns: <b>{{ count($data['headers']) }}</b></span>
+                        <span>Rows: <b>{{ count($data['rows']) }}</b></span>
+                    </div>
                 </div>
 
                 {{-- Example data (first 3 rows) --}}
-                <div class="w-full overflow-x-auto">
-                    <table class="w-full mt-4 border border-gray-300">
+                <div class="w-full max-h-96 overflow-auto">
+                    <table class="w-full border border-gray-300 text-xs">
                         <thead>
                             <tr>
                                 @foreach($headersMappedToColumns as $columnIndex => $tableColumn)
+                                    @continue(empty($headersMappedToColumns[$columnIndex]))
                                     <th class="px-2 py-1 border border-gray-300 bg-gray-100 dark:bg-slate-800 dark:border-slate-600 whitespace-nowrap">
                                         {{ $tableColumn }}
                                     </th>
@@ -91,7 +101,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach(array_slice($data['rows'], 0, 5) as $rowIndex => $row)
+                            @foreach(array_slice($data['rows'], 0, $data['previewRowsMax']) as $rowIndex => $row)
                                 <tr>
                                     @foreach($row as $columnIndex => $cell)
                                         <td class="px-2 py-1 border border-gray-300 dark:border-slate-600 whitespace-nowrap">
@@ -103,6 +113,13 @@
                         </tbody>
                     </table>
                 </div>
+
+                @if($data['rows'] > $data['previewRowsMax'])
+                    <div class="text-sm text-slate-600 text-center mt-2">
+                        <i class="fas fa-info-circle "></i>
+                        Showing first {{ $data['previewRowsMax'] }} rows of data.
+                    </div>
+                @endif
             @else
                 <div class="text-sm text-gray-500 text-center">
                     <i class="fas fa-info-circle"></i>
@@ -110,9 +127,21 @@
                 </div>
             @endif
 
+            {{-- Import button --}}
+            <div class="flex justify-end mt-4">
+                {!! view($WRLAHelper::getViewPath('components.forms.button'), [
+                    'text' => 'Import '.count($data['rows']).' rows into '.$manageableModelClass::getDisplayName(true),
+                    'icon' => 'fas fa-file-import',
+                    'size' => 'medium',
+                    'attributes' => new \Illuminate\View\ComponentAttributeBag([
+                        'wire:click' => 'importData',
+                    ])
+                ])->render() !!}
+            </div>
         @endif
 
     </div>
 
     <br />
+    {{-- @dump($data['headers'], array_slice($data['rows'], 0, $previewRowsMax), $headersMappedToColumns) --}}
 </x-wrla-modal-layout>

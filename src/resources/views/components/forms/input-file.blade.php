@@ -31,9 +31,9 @@
         <div type="button" class="z-50 px-3 py-1.5 text-white bg-primary-600 hover:bg-primary-500 font-medium rounded-lg group-hover:bg-primary-500">
             Browse
         </div>
-        <div wire:loading class="ml-2">
-            <i class="fas fa-spinner fa-spin pr-2"></i>
-            Uploading file...
+        <div wire:loading class="ml-2 flex gap-3">
+            <i class="fas fa-spinner fa-spin"></i>
+            <span>Uploading file...</span>
         </div>
         <span wire:loading.remove id="{{ $id }}-filename" class="ml-2">{{ $chooseFileText }}</span>
     </label>

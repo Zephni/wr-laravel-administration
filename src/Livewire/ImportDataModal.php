@@ -45,8 +45,11 @@ class ImportDataModal extends ModalComponent
      * @var array
      */
     public array $data = [
+        'previewRowsMax' => 8,
         'currentStep' => 1,
+        'origionalHeaders' => [],
         'headers' => [],
+        'origionalRows' => [],
         'rows' => [],
         'tableColumns' => [],
     ];
@@ -79,18 +82,22 @@ class ImportDataModal extends ModalComponent
         $fileData = array_map('str_getcsv', file($filePath));
 
         // Extract headers and rows from the CSV file
-        $this->data['headers'] = array_shift($fileData);
-        $this->data['rows'] = $fileData;
+        $this->data['origionalHeaders'] = array_shift($fileData);
+        $this->data['origionalRows'] = $fileData;
 
         // Clean the extracted data
-        $this->cleanAllData();
+        $this->cleanAllOriginalData();
+
+        // Set headers and rows
+        $this->data['headers'] = $this->data['origionalHeaders'];
+        $this->data['rows'] = $this->data['origionalRows'];
 
         // Get the columns of the manageable model's table, excluding the 'id' column
         $manageableModel = (new $this->manageableModelClass)->getModelInstance();
         $manageableModelColumns = Schema::getColumnListing($manageableModel->getTable());
         $manageableModelColumns = array_diff($manageableModelColumns, ['id']);
         $this->data['tableColumns'] = array_combine($manageableModelColumns, $manageableModelColumns);
-        $this->data['tableColumns'] = ['__wrla_unset_column__' => '❌ Select a column'] + $this->data['tableColumns'];
+        $this->data['tableColumns'] = ['' => ' - no column selected - '] + $this->data['tableColumns'];
 
         // Automatically map headers to columns
         $this->autoMapHeadersToColumns();
@@ -106,8 +113,52 @@ class ImportDataModal extends ModalComponent
      */
     public function updatedHeadersMappedToColumns()
     {
-        
+        $this->alignHeadersAndRowsWithMappedColumns();
     }
+
+    /**
+     * Align rows with mapped columns
+     * 
+     * @return void
+     */
+    public function alignHeadersAndRowsWithMappedColumns()
+    {
+        // Shift headers and rows based on mapping column index to column name
+        $this->data['headers'] = [];
+        $this->data['rows'] = [];
+
+        // Headers
+        foreach ($this->data['origionalHeaders'] as $index => $header) {
+            // If the header is not mapped to a column, skip the header
+            if (empty($this->headersMappedToColumns["$index"])) {
+                continue;
+            }
+
+            $this->data['headers'][] = $header;
+        }
+
+        // Rows
+        foreach ($this->data['origionalRows'] as $row) {
+            $newRow = [];
+
+            foreach ($row as $index => $value) {
+                // If the header is not mapped to a column, skip the value
+                if (empty($this->headersMappedToColumns["$index"])) {
+                    continue;
+                }
+
+                $newRow[$index] = $value;
+            }
+
+            $this->data['rows'][] = $newRow;
+        }
+
+        // dd(
+        //     $this->data['headers'],
+        //     $this->data['rows']
+        // );
+    }
+
 
     /**
      * Initializes the component with the given manageable model class.
@@ -171,23 +222,36 @@ class ImportDataModal extends ModalComponent
     }
 
     /**
+     * Import data
+     * 
+     * @return void
+     */
+    public function importData(): void
+    {
+        dd(
+            $this->data['headers'],
+            $this->data['rows']
+        );
+    }
+
+    /**
      * Cleans all data (headers and rows) from the currently set data.
      * 
      * @return void
      */
-    public function cleanAllData()
+    public function cleanAllOriginalData()
     {
         // Clean headers by trimming whitespace and removing unwanted characters
-        foreach ($this->data['headers'] as $key => $value) {
-            $this->data['headers'][$key] = trim($value);
-            $this->data['headers'][$key] = preg_replace('/^\x{FEFF}/u', '', $this->data['headers'][$key]);
-            $this->data['headers'][$key] = preg_replace('/[^A-Za-z0-9 ]/', '', $this->data['headers'][$key]);
+        foreach ($this->data['origionalHeaders'] as $key => $value) {
+            $this->data['origionalHeaders'][$key] = trim($value);
+            $this->data['origionalHeaders'][$key] = preg_replace('/^\x{FEFF}/u', '', $this->data['origionalHeaders'][$key]);
+            $this->data['origionalHeaders'][$key] = preg_replace('/[^A-Za-z0-9 ]/', '', $this->data['origionalHeaders'][$key]);
         }
 
         // Clean rows by trimming whitespace and removing unwanted characters
-        foreach ($this->data['rows'] as $rowKey => $row) {
+        foreach ($this->data['origionalRows'] as $rowKey => $row) {
             foreach ($row as $key => $value) {
-                $this->data['rows'][$rowKey][$key] = trim($value);
+                $this->data['origionalRows'][$rowKey][$key] = trim($value);
             }
         }
     }
@@ -199,6 +263,9 @@ class ImportDataModal extends ModalComponent
      */
     public function autoMapHeadersToColumns()
     {
+        // Already mapped
+        $alreadyMappedColoumns = [];
+
         // Initialize the mapping of headers to columns
         foreach ($this->data['headers'] as $headerIndex => $header) {
             $this->headersMappedToColumns["$headerIndex"] = null;
@@ -207,13 +274,14 @@ class ImportDataModal extends ModalComponent
             foreach ($this->data['tableColumns'] as $actualColumn) {
                 $header = str($header)->lower()->replace(' ', '_')->__toString();
 
-                if (str($actualColumn) == $header) {
+                if (!in_array($actualColumn, $alreadyMappedColoumns) && str($actualColumn) == $header) {
                     $this->headersMappedToColumns["$headerIndex"] = $actualColumn;
+                    $alreadyMappedColoumns[] = $actualColumn;
                 }
             }
         }
 
-        // Re-render the component to reflect the changes
-        $this->render();
+        // Align rows with mapped columns
+        $this->alignHeadersAndRowsWithMappedColumns();
     }
 }
