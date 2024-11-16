@@ -64,7 +64,11 @@
             @empty
                 <div class="flex gap-2 items-center text-slate-700 px-2 py-1">
                     <i class="fas fa-info-circle text-slate-400"></i>
-                    No items found, please expand your search.
+                    @if(strlen($searchFieldValue) < $options['minChars'])
+                        Type at least {{ $options['minChars'] }} characters to search
+                    @else
+                        No items found, please expand your search.
+                    @endif
                 </div>
             @endforelse
         </div>
