@@ -12,7 +12,8 @@
             {!! view($WRLAHelper::getViewPath('components.forms.input-file'), [
                 'label' => 'Import .csv file',
                 'options' => [
-                    'notes' => 'NOTE: The first row of the file MUST be a list of headers.',
+                    'notes' => '<b>NOTE:</b> The first row of the file MUST be a list of headers.',
+                    'chooseFileText' => 'Select a .csv file to import...',
                 ],
                 'attributes' => new \Illuminate\View\ComponentAttributeBag([
                     'name' => 'file',
