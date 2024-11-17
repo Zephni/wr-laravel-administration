@@ -65,6 +65,9 @@ class ImportDataModal extends ModalComponent
      */
     public array $debugInfo;
 
+    // Modal config
+    public static function modalMaxWidth(): string { return '7xl'; }
+
     /**
      * Hook that runs after the file attribute is validated.
      * 
@@ -170,33 +173,6 @@ class ImportDataModal extends ModalComponent
         // Dispatch an event indicating that the modal has been opened
         $this->dispatch('import-data-modal.opened');
         $this->manageableModelClass = $manageableModelClass;
-    }
-
-    /**
-     * Defines the behavior of the modal component.
-     * 
-     * @return array
-     */
-    public static function behavior(): array
-    {
-        return [
-            'close-on-escape' => true,
-            'close-on-backdrop-click' => true,
-            'trap-focus' => true,
-            'remove-state-on-close' => false,
-        ];
-    }
-
-    /**
-     * Defines the attributes of the modal component.
-     * 
-     * @return array
-     */
-    public static function attributes(): array
-    {
-        return [
-            'size' => 'fullscreen',
-        ];
     }
 
     /**
