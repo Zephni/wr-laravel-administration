@@ -40,7 +40,8 @@ Route::group(['namespace' => 'WebRegulate\LaravelAdministration\Http\Controllers
             Route::get('browse/{modelUrlAlias}', 'browse')->name('manageable-models.browse');
             Route::get('create/{modelUrlAlias}', 'upsert')->name('manageable-models.create');
             Route::get('edit/{modelUrlAlias}/{id}', 'upsert')->name('manageable-models.edit');
-            Route::post('upsert/{modelUrlAlias}/{modelId?}', 'upsertPost')->name('manageable-models.upsert.post');
+            Route::post('create/{modelUrlAlias}/{modelId?}', 'upsertPost')->name('manageable-models.upsert.post');
+            Route::post('edit/{modelUrlAlias}/{modelId?}', 'upsertPost')->name('manageable-models.upsert.post');
         });
 
         // Impersonate routes
