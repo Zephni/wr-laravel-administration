@@ -1075,9 +1075,11 @@ abstract class ManageableModel
 
                     // Update field and save the relationship instance
                     $relationshipInstance->{$manageableField->getRelationshipFieldName()} = $fieldValue;
-                    // dump($fieldName, $manageableField->getRelationshipFieldName(), $fieldValue);
-
                     $relationshipInstance->save();
+
+                    // if(isset($jsonNotation) && str($jsonNotation)->contains('avatar')) {
+                    //     dd($fieldName, $manageableField->getRelationshipFieldName(), $fieldValue, $relationshipInstance);
+                    // }
                 } else {
                     // Update the field value of the model instance
                     $this->modelInstance->{$fieldName} = $fieldValue;
