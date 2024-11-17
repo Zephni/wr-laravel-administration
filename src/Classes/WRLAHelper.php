@@ -547,6 +547,24 @@ class WRLAHelper
     }
 
     /**
+     * Is JSON
+     * 
+     * @param string $string The string to check if is json.
+     * @return bool
+     */
+    public static function isJson(string $string): bool
+    {
+        // If does not start with { and end with }, or does not start with [ and end with ] then return false
+        if(!((str_starts_with($string, '{') && str_ends_with($string, '}')) || (str_starts_with($string, '[') && str_ends_with($string, ']')))) {
+            return false;
+        }
+
+        // Now check if it is valid json
+        json_decode($string);
+        return json_last_error() === JSON_ERROR_NONE;
+    }
+
+    /**
      * Json pretty print
      *
      * @param string $json The json string to pretty print.

@@ -1030,7 +1030,7 @@ abstract class ManageableModel
                 }
 
                 $isUsingNestedJson = true;
-                [$fieldName, $dotNotation] = WRLAHelper::parseJsonNotation($fieldName);
+                [$fieldName, $jsonNotation] = WRLAHelper::parseJsonNotation($fieldName);
                 $newValue = $formKeyValues[$formComponent->getAttribute('name')];
             }
 
@@ -1048,8 +1048,13 @@ abstract class ManageableModel
                 // Apply the value to the form component and get the new value
                 $newValue = $formComponent->applySubmittedValue($request, $newValue);
 
+                // If $newValue is valid JSON, we convert it to an array
+                if (is_string($newValue) && WRLAHelper::isJson($newValue)) {
+                    $newValue = json_decode($newValue, true);
+                }
+
                 // Set the new value using dot notation on the field value
-                data_set($fieldValue, $dotNotation, $newValue);
+                data_set($fieldValue, $jsonNotation, $newValue);
 
                 // Convert the field value to JSON
                 if($newValue instanceof MessageBag) {

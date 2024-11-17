@@ -133,6 +133,11 @@ class Json
             $value = '[]';
         }
 
+        // If $value is array, convert to json first
+        if(is_array($value)) {
+            $value = json_encode($value);
+        }
+
         // Check if json is valid, if not then do not format it and show as is
         $jsonData = json_decode($value) !== null
             ? json_decode($value)
