@@ -100,7 +100,7 @@ class User extends Authenticatable implements CanResetPassword
      */
     public function getProfileAvatar(): string {
         // If has avatar, return it
-        $avatar = $this->wrlaUserData->avatar;
+        $avatar = $this->wrlaUserData?->avatar;
         if (!empty($avatar)) {
             return '/'.ltrim("storage/images/avatars/$avatar", '/');
         }
