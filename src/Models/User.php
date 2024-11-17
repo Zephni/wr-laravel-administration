@@ -99,13 +99,10 @@ class User extends Authenticatable implements CanResetPassword
      * @return string
      */
     public function getProfileAvatar(): string {
-        // If data has image, return it
-        $avatar = $this->getData('profile.avatar');
+        // If has avatar, return it
+        $avatar = $this->avatar;
         if (!empty($avatar)) {
-            // Return if image exists
-            // if (file_exists(storage_path("storage/images/avatars/$avatar"))) {
-                return '/'.ltrim("storage/images/avatars/$avatar", '/');
-            // }
+            return '/'.ltrim("storage/images/avatars/$avatar", '/');
         }
 
         // If name is empty, use U

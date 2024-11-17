@@ -17,14 +17,17 @@ return new class extends Migration {
             // User ID (foreign key to users table)
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
 
+            // Avatar
+            $table->string('avatar')->nullable()->default(null);
+
             // Add permissions JSON column
-            $table->json('permissions')->nullable();
+            $table->json('permissions')->nullable()->default(null);
 
             // Add settings JSON column
-            $table->json('settings')->nullable();
+            $table->json('settings')->nullable()->default(null);
 
             // Add data JSON column
-            $table->json('data')->nullable();
+            $table->json('data')->nullable()->default(null);
         });
     }
 
