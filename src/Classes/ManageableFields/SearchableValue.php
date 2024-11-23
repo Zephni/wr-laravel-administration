@@ -115,6 +115,7 @@ class SearchableValue
         $query = $model::query();
 
         if ($queryBuilderFunction != null) {
+            $query->addSelect("$table.$displayColumn");
             $query = $queryBuilderFunction($query);
             $query->addSelect("$table.id");
         } else {
