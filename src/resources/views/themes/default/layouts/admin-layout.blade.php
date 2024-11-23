@@ -28,8 +28,8 @@
     {{-- Main container --}}
     <div
         x-data="{
-            leftPanelOpen: $persist(true).using(sessionStorage),
-            leftPanelAttemptedWidth: $persist(350)
+            leftPanelOpen: window.innerWidth < 768 ? false : $persist(true).using(sessionStorage),
+            leftPanelAttemptedWidth: window.innerWidth < 768 ? window.innerWidth : $persist(350)
         }"
         class="relative flex flex-row w-full min-h-full overflow-x-auto text-slate-900 dark:text-slate-100">
 

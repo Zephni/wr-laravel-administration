@@ -6,8 +6,8 @@
         minW: 0,
         maxW: 0
     }"
-    x-bind:style="'width: ' + leftPanelAttemptedWidth + 'px;'"
-    :class="(leftPanelOpen ? 'min-w-44 max-w-[33%] ' : 'min-w-0 max-w-0 border-none ') + (!dragging ? 'transition-all' : '')"
+    x-bind:style="'width: ' + (window.innerWidth < 768 ? window.innerWidth : leftPanelAttemptedWidth) + 'px;'"
+    :class="(leftPanelOpen ? 'min-w-44 max-w-[100%] ' : 'min-w-0 max-w-0 border-none ') + (!dragging ? 'transition-all' : '')"
     id="left-panel"
     style="z-index: 6;"
     class="sticky whitespace-nowrap md:flex top-0 flex flex-col justify-start items-start h-full border-r-2 border-slate-300 dark:border-slate-950 bg-slate-700 dark:bg-slate-700 shadow-lg shadow-slate-500 dark:shadow-slate-950 z-10">
@@ -28,17 +28,25 @@
         :class="leftPanelOpen ? 'cursor-ew-resize' : 'hidden cursor-auto';"
         class="absolute top-0 -right-1 h-full w-[4px] bg-slate-400 dark:bg-slate-800 border-r border-slate-400 dark:border-slate-500"
         @mousedown="$event.preventDefault(); if(leftPanelOpen && !dragging){ startX = $event.clientX; dragging = true; }"
-        @mousemove.window="if (dragging) {
-            leftPanelAttemptedWidth = leftPanelAttemptedWidth + $event.clientX - startX;
-            startX = $event.clientX;
+        @mousemove.window="() => {
+            // If window width lower than mobile, set width to window width
+            if (window.innerWidth < 768) {
+                leftPanelAttemptedWidth = window.innerWidth;
+                return;
+            }
 
-            // Get the min and max width of the left panel
-            minW = parseInt(window.getComputedStyle(document.getElementById('left-panel')).getPropertyValue('min-width'));
-            maxW = Math.floor(window.innerWidth * 0.33);
+            if (dragging) {
+                leftPanelAttemptedWidth = leftPanelAttemptedWidth + $event.clientX - startX;
+                startX = $event.clientX;
 
-            // If leftPanelWidth is lower than min width or higher than max width, set it to min or max width
-            if (leftPanelAttemptedWidth < minW) leftPanelAttemptedWidth = minW;
-            if (leftPanelAttemptedWidth > maxW) leftPanelAttemptedWidth = maxW;
+                // Get the min and max width of the left panel
+                minW = parseInt(window.getComputedStyle(document.getElementById('left-panel')).getPropertyValue('min-width'));
+                maxW = Math.floor(window.innerWidth);
+
+                // If leftPanelWidth is lower than min width or higher than max width, set it to min or max width
+                if (leftPanelAttemptedWidth < minW) leftPanelAttemptedWidth = minW;
+                if (leftPanelAttemptedWidth > maxW) leftPanelAttemptedWidth = maxW;
+            }
         }"
         @mouseup.window="dragging = false;"
     ></div>
