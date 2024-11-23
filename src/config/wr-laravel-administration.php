@@ -82,6 +82,12 @@ return [
         ]
     ],
 
+    // User avatar, override the default user image path with a callback function that passes the \App\Models\User model as an argument
+    'user_avatar' => null,
+    // 'user_avatar' => function(\App\Models\User $user) {
+    //     return $user->profile_image;
+    // },
+
     // Rate limiting for wrla. routes
     // Note: each key is bound to middleware 'throttle:route_name' in routes automatically (Within WRLAServicesProvider.php)
     'rate_limiting' => [

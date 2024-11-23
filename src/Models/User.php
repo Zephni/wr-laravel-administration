@@ -99,6 +99,12 @@ class User extends Authenticatable implements CanResetPassword
      * @return string
      */
     public function getProfileAvatar(): string {
+        // If user_avatar callback is set in config, use that
+        $userAvatarConfig = config('wr-laravel-administration.user_avatar');
+        if ($userAvatarConfig != null && is_callable($userAvatarConfig)) {
+            return $userAvatarConfig($this->toFrontendUser());
+        }
+
         // If has avatar, return it
         $avatar = $this->wrlaUserData?->avatar;
         if (!empty($avatar)) {

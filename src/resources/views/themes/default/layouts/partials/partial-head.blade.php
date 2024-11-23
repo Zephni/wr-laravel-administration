@@ -136,7 +136,7 @@
     ::-webkit-scrollbar-thumb:hover { background-color: #94a3b8BB; }
     ::-webkit-scrollbar-corner { background-color: #94a3b855; }
 
-    /* {{ config('wr-laravel-administration.common_css') }} */
+    {{ config('wr-laravel-administration.common_css') }}
 </style>
 
 @stack('styles')
