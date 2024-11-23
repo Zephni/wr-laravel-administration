@@ -129,6 +129,13 @@
     [x-cloak] { display: none !important; }
     .wrla_no_image { object-fit: fill !important; }
 
+    /* Scrollbars */
+    ::-webkit-scrollbar { width: 10px; height: 10px; }
+    ::-webkit-scrollbar-track { background-color: #94a3b833; }
+    ::-webkit-scrollbar-thumb { background-color: #94a3b888; border-radius: 6px; }
+    ::-webkit-scrollbar-thumb:hover { background-color: #94a3b8BB; }
+    ::-webkit-scrollbar-corner { background-color: #94a3b855; }
+
     /* {{ config('wr-laravel-administration.common_css') }} */
 </style>
 
