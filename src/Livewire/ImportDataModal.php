@@ -259,7 +259,10 @@ class ImportDataModal extends ModalComponent
         foreach ($this->data['origionalHeaders'] as $key => $value) {
             $this->data['origionalHeaders'][$key] = trim($value);
             $this->data['origionalHeaders'][$key] = preg_replace('/^\x{FEFF}/u', '', $this->data['origionalHeaders'][$key]);
-            $this->data['origionalHeaders'][$key] = preg_replace('/[^A-Za-z0-9 ]/', '', $this->data['origionalHeaders'][$key]);
+            if($this->data['origionalHeaders'][$key] == 'id') {
+                unset($this->data['origionalHeaders'][$key]);
+            }
+            // $this->data['origionalHeaders'][$key] = preg_replace('/[^A-Za-z0-9 ]/', '', $this->data['origionalHeaders'][$key]);
         }
 
         // Clean rows by trimming whitespace and removing unwanted characters
