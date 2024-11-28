@@ -56,6 +56,7 @@ class ImportDataModal extends ModalComponent
         'tableColumns' => [],
         'successfullImports' => 0,
         'failedImports' => 0,
+        'failedReasons' => [],
     ];
 
     /**
@@ -68,6 +69,7 @@ class ImportDataModal extends ModalComponent
     // Modal config
     public static function modalMaxWidth(): string { return '7xl'; }
 
+    public $test = 0;
     /**
      * Hook that runs after the file attribute is validated.
      * 
@@ -88,12 +90,12 @@ class ImportDataModal extends ModalComponent
         $filePath = $this->file->getRealPath();
         $fileData = array_map('str_getcsv', file($filePath));
 
+        // Clean the extracted data and seperate headers from rows
+        [$origionalHeaders, $originalRows] = $this->cleanAllFileData($fileData);
+        
         // Extract headers and rows from the CSV file
-        $this->data['origionalHeaders'] = array_shift($fileData);
-        $this->data['origionalRows'] = $fileData;
-
-        // Clean the extracted data
-        $this->cleanAllOriginalData();
+        $this->data['origionalHeaders'] = $origionalHeaders;
+        $this->data['origionalRows'] = $originalRows;
 
         // Set headers and rows
         $this->data['headers'] = $this->data['origionalHeaders'];
@@ -182,7 +184,10 @@ class ImportDataModal extends ModalComponent
      */
     public function render()
     {
-        return view(WRLAHelper::getViewPath('livewire.import-data-modal'), []);
+        $previewRows = array_slice($this->data['rows'], 0, $this->data['previewRowsMax']);
+        return view(WRLAHelper::getViewPath('livewire.import-data-modal'), [
+            'previewRows' => $previewRows,
+        ]);
     }
 
     /**
@@ -227,6 +232,14 @@ class ImportDataModal extends ModalComponent
             } catch (\Exception $e) {
                 // Increment the number of failed imports
                 $this->data['failedImports']++;
+
+                // Stop adding to reasons after 5
+                if(count($this->data['failedReasons']) >= 5) {
+                    continue;
+                }
+
+                // Add the exception message to the failed reasons
+                $this->data['failedReasons'][] = $e->getMessage();
             }
         }
 
@@ -249,28 +262,40 @@ class ImportDataModal extends ModalComponent
     }
 
     /**
-     * Cleans all data (headers and rows) from the currently set data.
+     * Cleans all data (headers and rows) from the provided file data.
      * 
+     * @param array $fileData
      * @return void
      */
-    public function cleanAllOriginalData()
+    public function cleanAllFileData(array $fileData): array
     {
+        // Extract headers and rows from the file data
+        $headers = array_shift($fileData);
+        $rows = $fileData;
+
         // Clean headers by trimming whitespace and removing unwanted characters
-        foreach ($this->data['origionalHeaders'] as $key => $value) {
-            $this->data['origionalHeaders'][$key] = trim($value);
-            $this->data['origionalHeaders'][$key] = preg_replace('/^\x{FEFF}/u', '', $this->data['origionalHeaders'][$key]);
-            if($this->data['origionalHeaders'][$key] == 'id') {
-                unset($this->data['origionalHeaders'][$key]);
+        foreach ($headers as $key => $value) {
+            $value = trim($value);
+            $value = preg_replace('/^\x{FEFF}/u', '', $value);
+            $headers[$key] = $value;
+            if ($headers[$key] == 'id') {
+                unset($headers[$key]);
             }
-            // $this->data['origionalHeaders'][$key] = preg_replace('/[^A-Za-z0-9 ]/', '', $this->data['origionalHeaders'][$key]);
         }
 
         // Clean rows by trimming whitespace and removing unwanted characters
-        foreach ($this->data['origionalRows'] as $rowKey => $row) {
+        foreach ($rows as $rowKey => $row) {
             foreach ($row as $key => $value) {
-                $this->data['origionalRows'][$rowKey][$key] = trim($value);
+                $value = trim($value);
+                $value = preg_replace('/^\x{FEFF}/u', '', $value);
+                $rows[$rowKey][$key] = $value;
             }
         }
+
+        return [
+            $headers,
+            $rows
+        ];
     }
 
     /**

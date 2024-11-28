@@ -16,7 +16,7 @@
                         <i class="fas fa-arrow-left text-sm"></i> Back to step {{ $data['currentStep'] - 1 }}
                     </div>
                     <div wire:loading>
-                        <i class="fas fa-spinner fa-spin pr-2"></i> Please wait...
+                        <i class="fas fa-spinner fa-spin pr-2"></i> Please wait, this can take some time...
                     </div>
                 </button>
             </div>
@@ -101,7 +101,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach(array_slice($data['rows'], 0, $data['previewRowsMax']) as $rowIndex => $row)
+                            @foreach($previewRows as $rowIndex => $row)
                                 <tr>
                                     @foreach($row as $columnIndex => $cell)
                                         <td class="px-2 py-1 border border-gray-300 dark:border-slate-600 whitespace-nowrap">
@@ -114,7 +114,7 @@
                     </table>
                 </div>
 
-                @if($data['rows'] > $data['previewRowsMax'])
+                @if(count($data['rows']) > $data['previewRowsMax'])
                     <div class="text-sm text-slate-600 text-center mt-2">
                         <i class="fas fa-info-circle "></i>
                         Showing first {{ $data['previewRowsMax'] }} rows of data.
@@ -130,7 +130,10 @@
             {{-- Import button --}}
             <div class="flex justify-end mt-4">
                 {!! view($WRLAHelper::getViewPath('components.forms.button'), [
-                    'text' => 'Import '.count($data['rows']).' rows into '.$manageableModelClass::getDisplayName(true),
+                    'text' => '
+                        <span wire:loading.remove wire:target="importData">Import '.count($data['rows']).' rows into '.$manageableModelClass::getDisplayName(true).'</span>
+                        <span wire:loading wire:target="importData">Importing '.count($data['rows']).', please wait...</span>
+                    ',
                     'icon' => 'fas fa-file-import',
                     'size' => 'medium',
                     'attributes' => new \Illuminate\View\ComponentAttributeBag([
@@ -160,9 +163,18 @@
             <div class="text-base text-slate-600 text-center mt-2">
                 <i class="fas fa-info-circle text-slate-500 pr-1"></i>
                 <b class="text-rose-500 text-lg">{{ $data['failedImports'] }}</b> rows of data failed to import.
+
+                @if(count($data['failedReasons']) > 0)
+                    @foreach($data['failedReasons'] as $reason)
+                        <div class="text-sm text-rose-500">
+                            <i class="fas fa-exclamation-triangle text-rose-500 pr-1"></i>
+                            {{ $reason }}
+                        </div>
+                    @endforeach
+                @endif
             </div>
 
-            {{-- Import button --}}
+            {{-- Close and refresh button --}}
             <div class="flex justify-end mt-4">
                 {!! view($WRLAHelper::getViewPath('components.forms.button'), [
                     'text' => 'Close and refresh',
@@ -182,5 +194,4 @@
     </div>
 
     <br />
-    {{-- @dump($data['headers'], array_slice($data['rows'], 0, $previewRowsMax), $headersMappedToColumns) --}}
 </x-wrla-modal-layout>
