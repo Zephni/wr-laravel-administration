@@ -57,6 +57,8 @@ class ImportDataModal extends ModalComponent
         'successfullImports' => 0,
         'failedImports' => 0,
         'failedReasons' => [],
+        'totalImports' => 0,
+        'totalImported' => 0,
     ];
 
     /**
@@ -66,10 +68,23 @@ class ImportDataModal extends ModalComponent
      */
     public array $debugInfo;
 
+    /**
+     * Batch data for processing.
+     * 
+     * @var array
+     */
+    public array $batchData = [];
+
+    /**
+     * Listen for the process-next-batch event.
+     * 
+     * @return void
+     */
+    protected $listeners = ['process-next-batch' => 'processBatch'];
+
     // Modal config
     public static function modalMaxWidth(): string { return '7xl'; }
 
-    public $test = 0;
     /**
      * Hook that runs after the file attribute is validated.
      * 
@@ -101,10 +116,10 @@ class ImportDataModal extends ModalComponent
         $this->data['headers'] = $this->data['origionalHeaders'];
         $this->data['rows'] = $this->data['origionalRows'];
 
-        // Get the columns of the manageable model's table, excluding the 'id' column
+        // Get the columns of the manageable model's table, excluding the 'id', 'created_at', 'updated_at' and 'deleted_at' columns
         $manageableModel = (new $this->manageableModelClass)->getModelInstance();
         $manageableModelColumns = Schema::getColumnListing($manageableModel->getTable());
-        $manageableModelColumns = array_diff($manageableModelColumns, ['id']);
+        $manageableModelColumns = array_diff($manageableModelColumns, ['id', 'created_at', 'updated_at', 'deleted_at']);
         $this->data['tableColumns'] = array_combine($manageableModelColumns, $manageableModelColumns);
         $this->data['tableColumns'] = ['' => ' - no column selected - '] + $this->data['tableColumns'];
 
@@ -187,6 +202,8 @@ class ImportDataModal extends ModalComponent
         $previewRows = array_slice($this->data['rows'], 0, $this->data['previewRowsMax']);
         return view(WRLAHelper::getViewPath('livewire.import-data-modal'), [
             'previewRows' => $previewRows,
+            'totalImports' => count($this->data['rows']),
+            'totalImported' => $this->data['totalImported'],
         ]);
     }
 
@@ -208,43 +225,56 @@ class ImportDataModal extends ModalComponent
      */
     public function importData(): void
     {
-        // Get the manageable model instance
-        $modelClass = (new $this->manageableModelClass)->getBaseModelClass();
+        $this->batchData = $this->data['rows'];
+        $this->data['totalImported'] = 0;
+        $this->data['currentStep'] = 'processing';
+        $this->processBatch();
+    }
 
-        // Iterate over each row of data
-        foreach ($this->data['rows'] as $row) {
-            try {
-                // Create model instance
-                $modelInstance = new $modelClass;
-    
-                // Map each header to the corresponding column
+    /**
+     * Process a batch of data.
+     * 
+     * @return void
+     */
+    public function processBatch(): void
+    {
+        $modelClass = (new $this->manageableModelClass)->getBaseModelClass();
+        $batchSize = 100;
+        $batchData = array_splice($this->batchData, 0, $batchSize);
+
+        if (!empty($batchData)) {
+            $formattedBatchData = [];
+            foreach ($batchData as $row) {
+                $rowData = [];
                 foreach ($this->headersMappedToColumns as $index => $column) {
                     if (!empty($column)) {
-                        $modelInstance->$column = $row[$index];
+                        $rowData[$column] = $row[$index];
                     }
                 }
-    
-                // Save the model instance
-                $modelInstance->save();
-    
-                // Increment the number of successfull imports
-                $this->data['successfullImports']++;
-            } catch (\Exception $e) {
-                // Increment the number of failed imports
-                $this->data['failedImports']++;
+                $formattedBatchData[] = $rowData;
+            }
 
-                // Stop adding to reasons after 5
-                if(count($this->data['failedReasons']) >= 5) {
-                    continue;
-                }
+            $this->insertBatch($modelClass, $formattedBatchData);
+            $this->data['totalImported'] += count($formattedBatchData);
 
-                // Add the exception message to the failed reasons
+            // Trigger the next batch processing
+            $this->dispatch('process-next-batch');
+        } else {
+            $this->data['currentStep'] = 'completed';
+        }
+    }
+
+    private function insertBatch($modelClass, $batchData)
+    {
+        try {
+            $modelClass::insert($batchData);
+            $this->data['successfullImports'] += count($batchData);
+        } catch (\Exception $e) {
+            $this->data['failedImports'] += count($batchData);
+            if (count($this->data['failedReasons']) < 5) {
                 $this->data['failedReasons'][] = $e->getMessage();
             }
         }
-
-        // Advance current step to 'completed'
-        $this->data['currentStep'] = 'completed';
     }
 
     /**

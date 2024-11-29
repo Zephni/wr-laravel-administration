@@ -16,7 +16,7 @@
                         <i class="fas fa-arrow-left text-sm"></i> Back to step {{ $data['currentStep'] - 1 }}
                     </div>
                     <div wire:loading>
-                        <i class="fas fa-spinner fa-spin pr-2"></i> Please wait, this can take some time...
+                        <i class="fas fa-spinner fa-spin pr-2"></i> Please wait...
                     </div>
                 </button>
             </div>
@@ -142,6 +142,36 @@
                         'wire:click' => 'importData',
                     ])
                 ])->render() !!}
+            </div>
+
+        @elseif($data['currentStep'] == 'processing')
+
+            <div class="text-lg font-thin border-b border-slate-400 pb-1 mt-2 mb-2">
+                <b>
+                    <i class="fas fa-spinner fa-spin text-slate-600 pr-1"></i>
+                    Processing import data
+                </b>
+            </div>
+
+            {{-- Successfull imports --}}
+            <div class="text-base text-slate-600 text-center">
+                <i class="fas fa-info-circle text-slate-500 pr-1"></i>
+                <b class="text-emerald-500 text-lg">{{ $data['successfullImports'] }}</b> rows of data have been imported into {{ $manageableModelClass::getDisplayName(true) }}.
+            </div>
+
+            {{-- Failed imports --}}
+            <div class="text-base text-slate-600 text-center mt-2">
+                <i class="fas fa-info-circle text-slate-500 pr-1"></i>
+                <b class="text-rose-500 text-lg">{{ $data['failedImports'] }}</b> rows of data failed to import.
+
+                @if(count($data['failedReasons']) > 0)
+                    @foreach($data['failedReasons'] as $reason)
+                        <div class="text-sm text-rose-500">
+                            <i class="fas fa-exclamation-triangle text-rose-500 pr-1"></i>
+                            {{ $reason }}
+                        </div>
+                    @endforeach
+                @endif
             </div>
 
         @elseif($data['currentStep'] == 'completed')

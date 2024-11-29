@@ -33,7 +33,7 @@
         </div>
         <div wire:loading class="ml-2 flex gap-3">
             <i class="fas fa-spinner fa-spin"></i>
-            <span>Uploading file...</span>
+            <span>Uploading file, please wait this can take some time...</span>
         </div>
         <span wire:loading.remove id="{{ $id }}-filename" class="ml-2">{{ $chooseFileText }}</span>
     </label>
