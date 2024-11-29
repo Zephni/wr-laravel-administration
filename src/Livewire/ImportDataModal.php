@@ -69,13 +69,6 @@ class ImportDataModal extends ModalComponent
     public array $debugInfo;
 
     /**
-     * Batch data for processing.
-     * 
-     * @var array
-     */
-    public array $batchData = [];
-
-    /**
      * Listen for the process-next-batch event.
      * 
      * @return void
@@ -201,9 +194,7 @@ class ImportDataModal extends ModalComponent
     {
         $previewRows = array_slice($this->data['rows'], 0, $this->data['previewRowsMax']);
         return view(WRLAHelper::getViewPath('livewire.import-data-modal'), [
-            'previewRows' => $previewRows,
-            'totalImports' => count($this->data['rows']),
-            'totalImported' => $this->data['totalImported'],
+            'previewRows' => $previewRows
         ]);
     }
 
@@ -225,7 +216,6 @@ class ImportDataModal extends ModalComponent
      */
     public function importData(): void
     {
-        $this->batchData = $this->data['rows'];
         $this->data['totalImported'] = 0;
         $this->data['currentStep'] = 'processing';
         $this->processBatch();
@@ -240,7 +230,7 @@ class ImportDataModal extends ModalComponent
     {
         $modelClass = (new $this->manageableModelClass)->getBaseModelClass();
         $batchSize = 100;
-        $batchData = array_splice($this->batchData, 0, $batchSize);
+        $batchData = array_splice($this->data['rows'], 0, $batchSize);
 
         if (!empty($batchData)) {
             $formattedBatchData = [];
