@@ -80,6 +80,13 @@ class Select
         $query = $model::query();
 
         if ($queryBuilderFunction != null) {
+            // If displayColumn exists on modal, automatically prepend table
+            if (Schema::hasColumn($table, $displayColumn)) {
+                $query->addSelect("$table.$displayColumn");
+            } else {
+                $query->addSelect($displayColumn);
+            }
+
             $query = $queryBuilderFunction($query);
             $query->addSelect("$table.id");
         } else {

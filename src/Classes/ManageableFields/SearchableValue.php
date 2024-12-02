@@ -18,6 +18,8 @@ class SearchableValue
     public array $items = [];
     public array $filteredItems = [];
     public mixed $emptyValue = null;
+    public ?string $displayText = null;
+    public $itemsCallable = null;
 
     /**
      * Livewire setup. Return a key => value array of livewire fields to register their default values.
@@ -45,6 +47,18 @@ class SearchableValue
     public function setSearchMode(int $searchMode): static
     {
         $this->setAttribute('searchMode', $searchMode);
+        return $this;
+    }
+
+    /**
+     * Add search mode (if not already set)
+     * 
+     * @param int $searchMode
+     * @return $this
+     */
+    public function addSearchMode(int $searchMode): static
+    {
+        $this->setAttribute('searchMode', $this->getAttribute('searchMode') | $searchMode);
         return $this;
     }
 
@@ -115,7 +129,13 @@ class SearchableValue
         $query = $model::query();
 
         if ($queryBuilderFunction != null) {
-            $query->addSelect("$table.$displayColumn");
+            // If displayColumn exists on modal, automatically prepend table
+            if (Schema::hasColumn($table, $displayColumn)) {
+                $query->addSelect("$table.$displayColumn");
+            } else {
+                $query->addSelect($displayColumn);
+            }
+
             $query = $queryBuilderFunction($query);
             $query->addSelect("$table.id");
         } else {
@@ -145,8 +165,24 @@ class SearchableValue
     }
 
     /**
-     * Set search mode
+     * Set items dynamically based on current search value
+     * 
+     * @param callable $itemsFunction Takes search value as argument and returns items array
+     * @param callable $displayTextFunction Takes value as argument and returns display text (This is needed for values that are already set IE. when editing)
+     * @return $this
      */
+    public function setItemsFromSearch(callable $itemsCallable, callable $displayTextFunction): static
+    {
+        $this->items = [];
+        $this->itemsCallable = $itemsCallable;
+
+        // If value is set but display_text is not yet set, run the query now to set the display text
+        if(!empty($this->getValue()) && ManageableModel::getLivewireField("{$this->getAttribute('name')}_display_text") === null) {
+            $this->displayText = $displayTextFunction($this->getValue()) ?? ' - None selected - '.$this->getValue();
+        }
+
+        return $this;
+    }
 
     /**
      * Set to first value in items if value not set
@@ -182,21 +218,34 @@ class SearchableValue
         if($searchFieldValue != '') {
             $trimmedSearch = trim($searchFieldValue);
 
-            // If show all is set and search field value trims to empty, set filtered items to all items
-            if($this->searchModeHas(self::SHOW_ALL) && $trimmedSearch == '' && $this->getOption('minChars') == 0)
-            {
-                $this->filteredItems = $this->items;
-            }
-            else if(strlen($trimmedSearch) >= $this->getOption('minChars'))
-            {
+            // If search mode uses dynamic items, set items based on search value from callable
+            if($this->itemsCallable !== null) {
                 $this->filteredItems = [];
-                foreach($this->items as $key => $value) {
-                    if(str($value)->contains($trimmedSearch, true)) {
-                        $this->filteredItems[$key] = $value;
+                if(strlen($trimmedSearch) >= $this->getOption('minChars'))
+                {
+                    $this->filteredItems = ($this->itemsCallable)($trimmedSearch);
+                }
+            } else {
+                // If show all is set and search field value trims to empty, set filtered items to all items
+                if($this->searchModeHas(self::SHOW_ALL) && $trimmedSearch == '' && $this->getOption('minChars') == 0)
+                {
+                    $this->filteredItems = $this->items;
+                }
+                else if(strlen($trimmedSearch) >= $this->getOption('minChars'))
+                {
+                    $this->filteredItems = [];
+                    foreach($this->items as $key => $value) {
+                        if(str($value)->contains($trimmedSearch, true)) {
+                            $this->filteredItems[$key] = $value;
+                        }
                     }
                 }
             }
         }
+
+        // Set display text for selected value
+        if(ManageableModel::getLivewireField("{$this->getAttribute('name')}_display_text") !== null) $this->displayText = ManageableModel::getLivewireField("{$this->getAttribute('name')}_display_text");
+        $selectedValueText = $this->displayText ?? ' - None selected - ';
 
         // Get attributes for search field and main input field
         $attributes = collect($this->htmlAttributes)->except(['placeholder'])->toArray();
@@ -216,6 +265,8 @@ class SearchableValue
             'fields' => self::$livewireFields,
             'searchFieldValue' => $searchFieldValue,
             'valueIsSet' => $this->getAttribute('value') != $this->emptyValue,
+            'itemsCallable' => $this->itemsCallable,
+            'selectedValueText' => $selectedValueText,
             'searchAttributes' => new ComponentAttributeBag([
                 'wire:model.live' => "livewireData.{$attributes['name']}_searchable_value",
                 'placeholder' => $this->getAttribute('placeholder') ?? 'Search...',
