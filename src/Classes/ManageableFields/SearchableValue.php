@@ -171,7 +171,7 @@ class SearchableValue
      * @param callable $displayTextFunction Takes value as argument and returns display text (This is needed for values that are already set IE. when editing)
      * @return $this
      */
-    public function setItemsFromSearch(callable $itemsCallable, callable $displayTextFunction): static
+    public function dynamicItemsFromSearch(callable $itemsCallable, callable $displayTextFunction): static
     {
         $this->items = [];
         $this->itemsCallable = $itemsCallable;
@@ -180,6 +180,51 @@ class SearchableValue
         if(!empty($this->getValue()) && ManageableModel::getLivewireField("{$this->getAttribute('name')}_display_text") === null) {
             $this->displayText = $displayTextFunction($this->getValue()) ?? ' - None selected - '.$this->getValue();
         }
+
+        return $this;
+    }
+
+    /**
+     * Set items dynamically based on model, display column, optional modified query, and display callback
+     * 
+     * @param string $modelClass
+     * @param callable $queryBuilderFunction Takes query and search value as argument and returns items array
+     * @param callable $displayTextFunction Takes model as argument and returns display text
+     * @return $this
+     */
+    public function dynamicItemsFromModel(string $modelClass, callable $queryBuilderFunction, callable $displayTextFunction): static
+    {
+        $model = new $modelClass;
+
+        if ($model instanceof \Illuminate\Database\Eloquent\Model) {
+            // Do nothing
+        } else if($model instanceof ManageableModel) {
+            $model = $model->getModelInstance();
+        } else {
+            throw new \Exception("In SearchableValue ManageableField: Model must be an instance of ManageableModel");
+        }
+
+        $this->items = [];
+        $this->dynamicItemsFromSearch(function($searchValue) use ($model, $queryBuilderFunction, $displayTextFunction) {
+            $table = $model->getTable();
+            $query = $model::query();
+            $query = $queryBuilderFunction($query, $searchValue);
+            $query = $query->get();
+
+            try
+            {
+                return $query->mapWithKeys(function($model) use ($displayTextFunction) {
+                    return [$model->id => call_user_func($displayTextFunction, $model)];
+                })->toArray();
+            }
+            catch (\Exception $e)
+            {
+                throw new \Exception("Error in Select->dynamicItemsFromModel on table '$table': ". $e->getMessage());
+            }
+        }, function($modelId) use ($modelClass, $displayTextFunction) {
+            $model = $modelClass::find($modelId);
+            return call_user_func($displayTextFunction, $model);
+        });
 
         return $this;
     }
