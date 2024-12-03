@@ -188,7 +188,7 @@ class SearchableValue
      * Set items dynamically based on model, display column, optional modified query, and display callback
      * 
      * @param string $modelClass
-     * @param callable $queryBuilderFunction Takes query and search value as argument and returns items array
+     * @param callable $queryBuilderFunction Takes query and search value as argument and must return query builder
      * @param callable $displayTextFunction Takes model as argument and returns display text
      * @return $this
      */
