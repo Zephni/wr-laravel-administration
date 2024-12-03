@@ -244,6 +244,7 @@ class SearchableValue
         }
 
         // Set display text for selected value
+        if($this->itemsCallable === null) $this->displayText = $this->items[$this->getAttribute('value')] ?? null;
         if(ManageableModel::getLivewireField("{$this->getAttribute('name')}_display_text") !== null) $this->displayText = ManageableModel::getLivewireField("{$this->getAttribute('name')}_display_text");
         $selectedValueText = $this->displayText ?? ' - None selected - ';
 
