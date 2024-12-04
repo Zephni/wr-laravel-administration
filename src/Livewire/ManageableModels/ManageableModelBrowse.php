@@ -87,6 +87,17 @@ class ManageableModelBrowse extends Component
     --------------------------------------------------------------------------*/
 
     /**
+     * Updates fields
+     * 
+     * @param string $field
+     * @return void
+     */
+    public function updatedFilters(string $field): void
+    {
+        $this->resetPage();
+    }
+
+    /**
      * Mount the component.
      *
      * @param string $manageableModelClass The class name of the manageable model.
