@@ -265,6 +265,28 @@ trait ManageableField
     }
 
     /**
+     * Begin group
+     * 
+     * @return $this
+     */
+    public function beginGroup(): static
+    {
+        $this->options['beginGroup'] = true;
+        return $this;
+    }
+
+    /**
+     * End group
+     * 
+     * @return $this
+     */
+    public function endGroup(): static
+    {
+        $this->options['endGroup'] = true;
+        return $this;
+    }
+
+    /**
      * Set option.
      *
      * @param string $key
