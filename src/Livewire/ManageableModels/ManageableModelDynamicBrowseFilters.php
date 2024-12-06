@@ -102,7 +102,10 @@ class ManageableModelDynamicBrowseFilters extends Component
                 ->setOptions(['containerClass' => 'flex-1', 'labelClass' => ''])
                 ->setAttributes([
                     'placeholder' => 'Search...',
-                    'class' => '!mt-2'
+                    'class' => '!mt-2',
+                    'autocomplete' => 'off',
+                    'spellcheck' => 'false',
+                    'autocorrect' => 'off',
                 ]),
             function(Builder $query, $table, $columns, $value) use($item) {
                 if(!empty($value)) {
