@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Validator;
+use WebRegulate\LaravelAdministration\Livewire\ManageableModels\ManageableModelDynamicBrowseFilters;
 use WebRegulate\LaravelAdministration\Models\User;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 use WebRegulate\LaravelAdministration\Commands\RebuildUser;
@@ -154,6 +155,7 @@ class WRLAServiceProvider extends ServiceProvider
         $this->loadViewsFrom(__DIR__ . '/resources/views', 'wr-laravel-administration');
 
         // Livewire component registering and asset injection
+        Livewire::component('wrla.manageable-models.dynamic-browse-filters', ManageableModelDynamicBrowseFilters::class);
         Livewire::component('wrla.manageable-models.browse', ManageableModelBrowse::class);
         Livewire::component('wrla.manageable-models.upsert', ManageableModelUpsert::class);
         Livewire::component('wrla.notifications-widget', NotificationsWidget::class);

@@ -30,9 +30,18 @@
     <div class="w-full rounded-lg px-3 pt-2 pb-3 mb-1 bg-slate-100 shadow-md dark:bg-slate-800">
         <div class="flex flex-wrap justify-start items-stretch gap-x-4 gap-y-2">
 
-            @foreach ($manageableModelClass::getBrowseFilters() as $filter)
-                {!! $filter->render($filters) !!}
-            @endforeach
+            @if(!$manageableModelClass::getStaticOption($manageableModelClass, 'browse.useDynamicFilters'))
+                @foreach ($manageableModelClass::getBrowseFilters() as $filter)
+                    {!! $filter->render($filters) !!}
+                @endforeach
+            @else
+                @livewire(
+                    'wrla.manageable-models.dynamic-browse-filters',
+                    [
+                        'manageableModelClass' => $manageableModelClass,
+                    ]
+                )
+            @endif
 
         </div>
     </div>
@@ -168,6 +177,11 @@
             <hr class="my-1 border-slate-300">
             {{ $debugMessage }}
         </div>
+        {{-- @foreach($dynamicFilterInputs as $key => $browseFilterInput)
+            <div>
+                @dump($key, $browseFilterInput)
+            </div>
+        @endforeach --}}
     @endif
 
 </div>

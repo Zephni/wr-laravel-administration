@@ -6,6 +6,8 @@ use Livewire\Component;
 use Livewire\WithPagination;
 use Illuminate\Support\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Livewire\Attributes\Modelable;
+use Livewire\Attributes\Reactive;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 use WebRegulate\LaravelAdministration\Classes\ManageableModel;
@@ -48,6 +50,13 @@ class ManageableModelBrowse extends Component
     public array $filters = [];
 
     /**
+     * Dynamic filter inputs
+     * 
+     * @var array
+     */
+    public array $dynamicFilterInputs = [];
+
+    /**
      * Order by.
      *
      * @var string
@@ -82,9 +91,32 @@ class ManageableModelBrowse extends Component
      */
     public ?string $debugMessage = null;
 
+    /**
+     * Listeners
+     * 
+     * @var array
+     */
+    protected $listeners = [
+        'filtersUpdatedOutside' => 'filtersUpdatedOutside',
+    ];
 
     /* Livewire Methods / Hooks
     --------------------------------------------------------------------------*/
+
+    /**
+     * Filters updated outside
+     * 
+     * @param array $dynamicFilterInputs
+     * @param array $filters
+     */
+    public function filtersUpdatedOutside(array $dynamicFilterInputs): void
+    {
+        $this->dynamicFilterInputs = $dynamicFilterInputs;
+        
+        // foreach($dynamicFilterInputs as $item) {
+        //     $this->filters[$item['field']] = $item['value'];
+        // }
+    }
 
     /**
      * Updates fields
@@ -96,6 +128,10 @@ class ManageableModelBrowse extends Component
     {
         $this->resetPage();
     }
+
+    /**
+     * 
+     */
 
     /**
      * Mount the component.
@@ -132,6 +168,7 @@ class ManageableModelBrowse extends Component
 
         // Get manageable model filter keys from collection
         $manageableModelFilters = $manageableModelClass::getBrowseFilters();
+
         foreach($manageableModelFilters as $key => $browseFilter) {
             $this->filters[$key] = $browseFilter->getField($this->filters)->getValue();
         }
@@ -353,15 +390,37 @@ class ManageableModelBrowse extends Component
         }
 
         // Now we loop through the filterable fields and apply them to the query
-        $manageableModelFilters = $this->manageableModelClass::getBrowseFilters();
+        $manageableModelFilters = [];
+        
+        if(empty($this->dynamicFilterInputs))
+        {
+            $manageableModelFilters = $this->manageableModelClass::getBrowseFilters();
 
-        foreach($manageableModelFilters as $key => $browseFilter) {
-            if($key == 'searchFilter' && empty($this->filters['searchFilter'])) {
-                continue;
+            foreach($manageableModelFilters as $key => $browseFilter) {
+                if(empty($this->dynamicFilterInputs)) {
+                    if(empty($this->filters[$key])) {
+                        continue;
+                    }
+    
+                    $eloquent = $browseFilter->apply($eloquent, $tableName, $this->columns, $this->filters[$key]);
+                }
             }
-
-            $eloquent = $browseFilter->apply($eloquent, $tableName, $this->columns, $this->filters[$key]);
         }
+        else
+        {
+            foreach($this->dynamicFilterInputs as $item) {
+                $browseFilter = ManageableModelDynamicBrowseFilters::buildBrowseFilter($item);
+                $browseFilter->field->setAttribute('value', $item['value'] ?? '');
+                $manageableModelFilters[] = $browseFilter;
+
+                if(empty($browseFilter->field->getValue())) {
+                    continue;
+                }
+
+                $eloquent = $browseFilter->apply($eloquent, $tableName, $this->columns, $browseFilter->field->getValue());
+            }
+        }
+
 
         // Order by
         // If orderBy is standard column, order by that column
@@ -468,6 +527,11 @@ class ManageableModelBrowse extends Component
      */
     public function hasFilters()
     {
+        // If manageable model uses dynamic browse filters, return true
+        if($this->manageableModelClass::getStaticOption($this->manageableModelClass, 'browse.useDynamicFilters')) {
+            return true;
+        }
+
         // Get the manageable model filters
         $manageableModelFilters = $this->manageableModelClass::getBrowseFilters();
 

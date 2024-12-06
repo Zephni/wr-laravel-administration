@@ -361,6 +361,18 @@ trait ManageableField
     }
 
     /**
+     * Remove attribute
+     * 
+     * @param string $key
+     * @return $this
+     */
+    public function removeAttribute(string $key): static
+    {
+        unset($this->htmlAttributes[$key]);
+        return $this;
+    }
+
+    /**
      * Set attributes.
      *
      * @param ?array $attributes
@@ -488,16 +500,27 @@ trait ManageableField
         // If wrla::from_field_name then get the name and convert to label
         if($label === 'wrla::from_field_name') {
             // If name is based on a relation on json column (eg has a . or -> in it) we get the last part of the name
-            $label = str_replace(WRLAHelper::WRLA_REL_DOT, '.', $this->htmlAttributes['name']);
-            $label = str($label)->afterLast('.')->afterLast('->');
-            $label = $label->replace('_', ' ')->ucfirst();
-            return $label;
+            return static::getLabelFromFieldName($this->htmlAttributes['name']);
         }
         // If null then return null
         elseif($label === null) {
             return null;
         }
 
+        return $label;
+    }
+
+    /**
+     * Get label from field name
+     * 
+     * @return string
+     */
+    public static function getLabelFromFieldName(string $fieldName): string
+    {
+        // If name is based on a relation on json column (eg has a . or -> in it) we get the last part of the name
+        $label = str_replace(WRLAHelper::WRLA_REL_DOT, '.', $fieldName);
+        $label = str($label)->afterLast('.')->afterLast('->');
+        $label = $label->replace('_', ' ')->ucfirst();
         return $label;
     }
 

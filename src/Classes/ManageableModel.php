@@ -5,6 +5,7 @@ namespace WebRegulate\LaravelAdministration\Classes;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\MessageBag;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\View\ComponentAttributeBag;
@@ -17,6 +18,7 @@ use WebRegulate\LaravelAdministration\Classes\BrowseColumns\BrowseColumn;
 use WebRegulate\LaravelAdministration\Classes\BrowseColumns\BrowseColumnBase;
 use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItem;
 use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItemManageableModel;
+use WebRegulate\LaravelAdministration\Livewire\ManageableModels\ManageableModelDynamicBrowseFilters;
 
 abstract class ManageableModel
 {
@@ -464,6 +466,16 @@ abstract class ManageableModel
     }
 
     /**
+     * Get dynamic browse filters.
+     */
+    public static function setDynamicBrowseFilters(array $defaultDynamicFilters = [])
+    {
+        static::setBrowseFilters([]);
+        static::setStaticOption('browse.useDynamicFilters', true);
+        static::setStaticOption('browse.defaultDynamicFilters', $defaultDynamicFilters);
+    }
+
+    /**
      * Set browse actions.
      *
      * @param Collection|array $actions
@@ -727,19 +739,8 @@ abstract class ManageableModel
 
                                 $whereIndex++;
 
-                                // Sadely escape value
+                                // Safely escape value
                                 $query->orWhereRelation($relationshipParts[0], "{$relationshipTableName}.{$relationshipParts[1]}", 'like', "%{$value}%");
-                                // The below seemed like it was working but an issue with certain relationships as keys the wrong way around
-                                // $query->orWhereRaw(
-                                //     "exists (
-                                //         select * from {$relationshipConnection}`{$relationshipTableName}` 
-                                //         where `{$relationshipTableName}`.`id` = `{$table}`.`{$foreignColumn}`
-                                //         and `{$relationshipTableName}`.`{$relationshipParts[1]}` like ?
-                                //     )", [
-                                //         "%{$value}%"
-                                //     ]
-                                // );
-                                // dump($query->toRawSql());
                             // Otherwise just use the table and column
                             } else {
                                 $column = "$table.$column";
@@ -1179,5 +1180,15 @@ abstract class ManageableModel
     public function usesWysiwyg(): bool
     {
         return $this->usesWysiwygEditor;
+    }
+
+    /**
+     * Get table columns
+     * 
+     * @return array
+     */
+    public static function getTableColumns(): array
+    {
+        return Schema::getColumnListing((new static)->getModelInstance()->getTable());
     }
 }
