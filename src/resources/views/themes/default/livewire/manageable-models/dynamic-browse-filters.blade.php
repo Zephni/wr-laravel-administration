@@ -1,4 +1,8 @@
-<div class="flex flex-col gap-2 w-full pt-0.5">
+<div class="flex flex-col gap-1 w-full pt-0.5">
+    @themeComponent('forms.label', [
+        'label' => 'Filters',
+    ])
+
     @if(count($browseFilters))
         <div class="flex flex-col gap-2 w-full">
             @foreach ($browseFilters as $key => $browseFilter)
@@ -6,10 +10,10 @@
                     {{-- Column selector --}}
                     @themeComponent('forms.input-select', [
                         'name' => $browseFilter->field->getAttribute('name'),
-                        'label' => $browseFilter->field::getLabelFromFieldName($browseFilter->field->getAttribute('name')),
+                        'label' => '',
                         'items' => $tableColumns,
                         'options' => [
-                            'containerClass' => '!w-48',
+                            'containerClass' => '!w-44',
                         ],
                         'attributes' => new \Illuminate\View\ComponentAttributeBag([
                             'wire:model.live.debounce.400ms' =>  "browseFilterInputs.$key.field",
@@ -19,7 +23,7 @@
                     {{-- Operator selector --}}
                     @themeComponent('forms.input-select', [
                         'name' => $browseFilter->field->getAttribute('name'),
-                        'label' => '&nbsp;',
+                        'label' => '',
                         'items' => [
                             'like' => 'Contains',
                             'not like' => 'Does not contain',
@@ -29,7 +33,7 @@
                             '<' => 'Less than',
                         ],
                         'options' => [
-                            'containerClass' => '!w-48',
+                            'containerClass' => '!w-44',
                         ],
                         'attributes' => new \Illuminate\View\ComponentAttributeBag([
                             'wire:model.live.debounce.400ms' =>  "browseFilterInputs.$key.operator",
@@ -40,6 +44,12 @@
                     {{-- NOTE: We may want to pass the existing filters through here by just getting the values of all the browseFilters --}}
                     {{-- {!! $browseFilter->render($filters) !!} --}}
                     {!! $browseFilter->render([]) !!}
+
+                    {{-- Remove filter button --}}
+                    <button type="button" wire:click="removeFilterAction({{ $key }})" class="flex items-center justify-center w-8 h-8 border border-slate-500 text-slate-500 hover:border-rose-500 hover:text-rose-500 rounded-full">
+                        <i class="fa fa-times" wire:loading.remove wire:target="removeFilterAction({{ $key }})"></i>
+                        <i class="fa fa-spinner fa-spin" wire:loading wire:target="removeFilterAction({{ $key }})"></i>
+                    </button>
                 </div>
             @endforeach
         </div>
@@ -53,7 +63,7 @@
         @endforeach
     </div> --}}
 
-    <div class="mt-3">
+    <div class="mt-2">
         @themeComponent('forms.button', [
             'text' => 'Add filter',
             'icon' => 'fa fa-plus',

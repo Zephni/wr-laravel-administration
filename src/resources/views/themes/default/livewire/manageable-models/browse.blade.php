@@ -120,7 +120,6 @@
                     $rowLoop = $loop;
                     $manageableModel = $manageableModelClass::make($model);
                 @endphp
-                {{-- odd:bg-slate-200 dark:odd:bg-slate-900 --}}
                 <div class="contents odd:bg-slate-100 dark:odd:bg-slate-800">
                     @foreach ($manageableModel->getBrowseColumnsFinal() as $column => $browseColumn)
                         @continue($browseColumn === null)

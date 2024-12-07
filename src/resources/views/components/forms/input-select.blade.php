@@ -5,7 +5,7 @@
     $id = empty($attributes->get('id')) ? 'wrinput-'.$attributes->get('name') : $attributes->get('id');
 @endphp
 
-<div class="{{ $options['containerClass'] ?? 'w-full flex-1 md:flex-auto' }}">
+<div class="{{ $options['containerClass'] ?? 'w-full flex-1 flex flex-col gap-1 md:flex-auto' }}">
 
 @if(!empty($label))
     {!! view($WRLAHelper::getViewPath('components.forms.label'), [
@@ -18,7 +18,7 @@
 @endif
 
 <select {{ $attributes->merge([
-    'class' => 'block w-full mt-2 px-3 py-1 border border-slate-400 dark:border-slate-500 bg-slate-200 dark:bg-slate-900
+    'class' => 'block w-full px-3 py-1 border border-slate-400 dark:border-slate-500 bg-slate-200 dark:bg-slate-900
         focus:outline-none focus:ring-1 focus:ring-primary-500 dark:focus:ring-primary-500 rounded-md shadow-sm placeholder-slate-400 dark:placeholder-slate-600 pr-3'
 ]) }}>
     @foreach($items as $itemKey => $itemValue)

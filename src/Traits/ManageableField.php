@@ -170,7 +170,6 @@ trait ManageableField
             ])
             ->setAttributes([
                 'wire:model.live' => 'filters.'.$filterAlias,
-                'class' => '!mt-1'
             ]);
     }
 

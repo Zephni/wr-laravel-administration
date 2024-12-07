@@ -98,11 +98,10 @@ class ManageableModelDynamicBrowseFilters extends Component
     {
         return new BrowseFilter(
             Text::makeBrowseFilter($item['field'])
-                ->setLabel('&nbsp;')
+                ->setLabel('')
                 ->setOptions(['containerClass' => 'flex-1', 'labelClass' => ''])
                 ->setAttributes([
                     'placeholder' => 'Search...',
-                    'class' => '!mt-2',
                     'autocomplete' => 'off',
                     'spellcheck' => 'false',
                     'autocorrect' => 'off',
@@ -167,5 +166,17 @@ class ManageableModelDynamicBrowseFilters extends Component
             'operator' => 'like',
             'value' => '',
         ];
+    }
+
+    /**
+     * Remove filter action
+     * 
+     * @param int $index
+     * @return void
+     */
+    public function removeFilterAction(int $index)
+    {
+        unset($this->browseFilterInputs[$index]);
+        $this->browseFilterInputs = array_values($this->browseFilterInputs);
     }
 }
