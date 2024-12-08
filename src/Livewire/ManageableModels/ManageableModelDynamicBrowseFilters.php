@@ -107,13 +107,20 @@ class ManageableModelDynamicBrowseFilters extends Component
                     'autocorrect' => 'off',
                 ]),
             function(Builder $query, $table, $columns, $value) use($item) {
-                if(!empty($value)) {
+                // Split value by commas and search for each value
+                $values = explode(',', $value);
+
+                foreach($values as $delimitedValue) {
+                    $delimitedValue = trim($delimitedValue);
+
+                    if(empty($delimitedValue)) continue;
+
                     if($item['operator'] == 'like') {
-                        $query->where($table.'.'.$item['field'], 'like', '%'.$value.'%');
+                        $query->where($table.'.'.$item['field'], 'like', '%'.$delimitedValue.'%');
                     } elseif($item['operator'] == 'not like') {
-                        $query->where($table.'.'.$item['field'], 'not like', '%'.$value.'%');
+                        $query->where($table.'.'.$item['field'], 'not like', '%'.$delimitedValue.'%');
                     } else {
-                        $query->where($table.'.'.$item['field'], $item['operator'], $value);
+                        $query->where($table.'.'.$item['field'], $item['operator'], $delimitedValue);
                     }
                 }
 
