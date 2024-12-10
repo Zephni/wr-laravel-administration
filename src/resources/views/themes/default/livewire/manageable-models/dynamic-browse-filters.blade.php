@@ -27,10 +27,12 @@
                         'items' => [
                             'like' => 'Contains',
                             'not like' => 'Does not contain',
-                            '=' => 'Exactly equal to',
+                            '=' => 'Equal to',
                             '!=' => 'Not equal to',
                             '>' => 'Greater than',
                             '<' => 'Less than',
+                            '>=' => 'Greater or equal to',
+                            '<=' => 'Less or equal to',
                         ],
                         'options' => [
                             'containerClass' => '!w-44',

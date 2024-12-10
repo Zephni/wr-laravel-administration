@@ -413,10 +413,6 @@ class ManageableModelBrowse extends Component
                 $browseFilter->field->setAttribute('value', $item['value'] ?? '');
                 $manageableModelFilters[] = $browseFilter;
 
-                if(empty($browseFilter->field->getValue())) {
-                    continue;
-                }
-
                 $eloquent = $browseFilter->apply($eloquent, $tableName, $this->columns, $browseFilter->field->getValue());
             }
         }

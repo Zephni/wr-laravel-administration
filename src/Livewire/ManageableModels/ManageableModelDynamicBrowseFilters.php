@@ -114,18 +114,28 @@ class ManageableModelDynamicBrowseFilters extends Component
                 foreach($values as $delimitedValue) {
                     $delimitedValue = trim($delimitedValue);
 
-                    if($item['operator'] == 'like'
-                        && $item['operator'] == 'not like'
-                        && empty($delimitedValue)
-                    ) continue;
+                    // If like or not like operator and value is empty, skip
+                    if(($item['operator'] == 'like' || $item['operator'] == 'not like') && empty($delimitedValue)) continue;
 
-                    if($item['operator'] == 'like') {
-                        $query->where($table.'.'.$item['field'], 'like', '%'.$delimitedValue.'%');
-                    } elseif($item['operator'] == 'not like') {
-                        $query->where($table.'.'.$item['field'], 'not like', '%'.$delimitedValue.'%');
-                    } else {
-                        $query->where($table.'.'.$item['field'], $item['operator'], $delimitedValue);
+                    // Safely match operator
+                    $operator = match($item['operator']) {
+                        'like' => 'like',
+                        'not like' => 'not like',
+                        '=' => '=',
+                        '!=' => '!=',
+                        '>' => '>',
+                        '<' => '<',
+                        '>=' => '>=',
+                        '<=' => '<=',
+                        default => '=',
+                    };
+
+                    // If operator is like or not like, wrap value with %value%
+                    if($operator == 'like' || $operator == 'not like') {
+                        $delimitedValue = '%'.$delimitedValue.'%';
                     }
+
+                    $query->where($table.'.'.$item['field'], $operator, $delimitedValue);
                 }
 
                 return $query;
