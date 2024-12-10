@@ -159,8 +159,34 @@ class BrowseColumnBase
      */
     public function overrideRenderValue(callable $callback): static
     {
-        $this->overrideRenderValue = $callback;
+        // If no callback set, set it
+        if($this->overrideRenderValue === null)
+        {
+            $this->overrideRenderValue = $callback;
+        }
+        // If already set, merge the callbacks
+        elseif (is_callable($this->overrideRenderValue))
+        {
+            $oldCallback = $this->overrideRenderValue;
+            $this->overrideRenderValue = function($value, $model) use ($oldCallback, $callback) {
+                $value = call_user_func($oldCallback, $value, $model);
+                return call_user_func($callback, $value, $model);
+            };
+        }
         return $this;
+    }
+
+    /**
+     * Set date format render value
+     *
+     * @param string $format
+     * @return static
+     */
+    public function setDateFormat(string $format): static
+    {
+        return $this->overrideRenderValue(function($value) use ($format) {
+            return $value->format($format);
+        });
     }
 
     /**
