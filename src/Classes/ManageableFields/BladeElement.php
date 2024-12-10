@@ -34,4 +34,16 @@ class BladeElement
 
         return Blade::render($bladeCode, $this->options['data']);
     }
+
+    /**
+     * Set data
+     * 
+     * @param array $data
+     * @return static
+     */
+    public function setData(array $data): static
+    {
+        $this->options['data'] = $data;
+        return $this;
+    }
 }
