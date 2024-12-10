@@ -114,7 +114,10 @@ class ManageableModelDynamicBrowseFilters extends Component
                 foreach($values as $delimitedValue) {
                     $delimitedValue = trim($delimitedValue);
 
-                    if(empty($delimitedValue)) continue;
+                    if($item['operator'] == 'like'
+                        && $item['operator'] == 'not like'
+                        && empty($delimitedValue)
+                    ) continue;
 
                     if($item['operator'] == 'like') {
                         $query->where($table.'.'.$item['field'], 'like', '%'.$delimitedValue.'%');
