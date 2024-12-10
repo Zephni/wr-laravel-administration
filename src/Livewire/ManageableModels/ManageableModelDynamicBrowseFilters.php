@@ -103,8 +103,9 @@ class ManageableModelDynamicBrowseFilters extends Component
                 ->setAttributes([
                     'placeholder' => 'Search...',
                     'autocomplete' => 'off',
-                    'spellcheck' => 'false',
                     'autocorrect' => 'off',
+                    'spellcheck' => 'false',
+                    'data-lpignore' => 'true',
                 ]),
             function(Builder $query, $table, $columns, $value) use($item) {
                 // Split value by commas and search for each value
