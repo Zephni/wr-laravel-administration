@@ -585,17 +585,19 @@ abstract class ManageableModel
         HTML);
 
         // Import Data
-        $browseActions->put(51, view(WRLAHelper::getViewPath('components.forms.button'), [
-            'text' => 'Import Data',
-            'icon' => 'fa fa-file-import',
-            'color' => 'primary',
-            'size' => 'small',
-            'attributes' => new ComponentAttributeBag([
-                'onclick' => "window.loadLivewireModal(this, 'import-data-modal', {
-                    manageableModelClass: '".str(static::class)->replace('\\', '\\\\')."'
-                });"
-            ])
-        ]));
+        if(static::getPermission(ManageableModelPermissions::CREATE)) {
+            $browseActions->put(51, view(WRLAHelper::getViewPath('components.forms.button'), [
+                'text' => 'Import Data',
+                'icon' => 'fa fa-file-import',
+                'color' => 'primary',
+                'size' => 'small',
+                'attributes' => new ComponentAttributeBag([
+                    'onclick' => "window.loadLivewireModal(this, 'import-data-modal', {
+                        manageableModelClass: '".str(static::class)->replace('\\', '\\\\')."'
+                    });"
+                ])
+            ]));
+        }
 
         // Export as CSV
         $browseActions->put(52, view(WRLAHelper::getViewPath('components.forms.button'), [
