@@ -17,6 +17,12 @@
 {{-- Custom JS  --}}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // Livewire browserAlert event
+        Livewire.on('browserAlert', (message) => {
+            alert(message);
+        });
+
+        // Auto focus
         setTimeout(() => {
             // If field exists with "autofocus" attribute, set focus on it
             const autofocusField = document.querySelector('[autofocus]');
