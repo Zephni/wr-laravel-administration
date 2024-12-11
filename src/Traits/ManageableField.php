@@ -199,6 +199,23 @@ trait ManageableField
     }
 
     /**
+     * Should submit method, if false then the form will not submit it's value by setting the form="none" attribute.
+     * 
+     * @param bool $shouldSubmit
+     * @return $this
+     */
+    public function shouldSubmit(bool $shouldSubmit): static
+    {
+        if(!$shouldSubmit) {
+            $this->setAttribute('form', 'none');
+        } else {
+            $this->removeAttribute('form');
+        }
+        
+        return $this;
+    }
+
+    /**
      * Pre validation method, called before validation rules are set.
      *
      * @param ?string $value
