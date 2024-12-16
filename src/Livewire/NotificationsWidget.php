@@ -4,6 +4,7 @@ namespace WebRegulate\LaravelAdministration\Livewire;
 
 use Livewire\Component;
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Facades\Auth;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 use WebRegulate\LaravelAdministration\Models\Notification;
 
@@ -15,20 +16,26 @@ class NotificationsWidget extends Component
         'read' => 'Completed',
         'all' => 'All',
     ];
+    public array $userIds = []; // Set in mount
 
     public function updatedStatusFilter()
     {
         $this->render();
     }
 
-    public function mount()
+    public function mount(array $userIds = ['admin'])
     {
-        
+        $this->userIds = $userIds;
     }
 
     public function render(): View
     {
-        $notifications = Notification::where('user_id', 'admin')
+        $notifications = Notification::where(function ($query) {
+                // Loop through user ids building where / or where's
+                foreach($this->userIds as $userId) {
+                    $query->orWhere('user_id', $userId);
+                }
+            })
             ->when($this->statusFilter === 'unread', function ($query) {
                 return $query->whereNull('read_at');
             })
