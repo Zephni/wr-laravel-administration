@@ -14,7 +14,7 @@
 
     {{-- Notifications widget --}}
     <div>
-        @livewire('wrla.notifications-widget', ['admin'])
+        @livewire('wrla.notifications-widget', ['userIds' => ['admin']])
     </div>
 
     {{-- Customise dashboard by copying this file to /resources/views/vendor/wrla/themes/default/dashboard.blade.php --}}
