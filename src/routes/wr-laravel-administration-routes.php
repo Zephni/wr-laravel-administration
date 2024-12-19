@@ -33,6 +33,9 @@ Route::group(['namespace' => 'WebRegulate\LaravelAdministration\Http\Controllers
             // Dashboard
             Route::get('dashboard', 'index')->name('dashboard');
 
+            // View logs
+            Route::get('logs', 'logs')->name('logs');
+
             // Manage account
             Route::get('manage-account', 'manageAccount')->name('manage-account');
 

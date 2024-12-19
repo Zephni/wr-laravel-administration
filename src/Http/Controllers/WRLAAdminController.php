@@ -239,6 +239,21 @@ class WRLAAdminController extends Controller
     }
 
     /**
+     * View logs
+     * 
+     * @param Request $request
+     * @return View
+     */
+    public function logs(Request $request): View
+    {
+        return view(WRLAHelper::getViewPath('livewire-content'), [
+            'title' => 'View Logs',
+            'livewireComponentAlias' => 'wrla.logs',
+            'livewireComponentData' => []
+        ]);
+    }
+
+    /**
      * Manage account view
      *
      * @param Request $request

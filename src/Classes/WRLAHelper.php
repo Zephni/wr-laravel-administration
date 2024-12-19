@@ -859,6 +859,61 @@ class WRLAHelper
     }
 
     /**
+     * Get directories and files from a given directory
+     * 
+     * @param string $directoryPath The directory to get directories and files from.
+     * @param array $ignoreDirectoriesOrFiles The directories or files to ignore.
+     * @return array The array of directories and files.
+     */
+    public static function getDirectoriesAndFiles(string $directoryPath, array $ignoreDirectoriesOrFiles = ['.gitignore']): array
+    {
+        $logDirectoriesAndFiles = [];
+        $directoriesAndFiles = scandir($directoryPath);
+
+        // Sort directories and files, directories first
+        usort($directoriesAndFiles, function($a, $b) {
+            return is_dir($a) ? (is_dir($b) ? strnatcasecmp($a, $b) : -1) : (is_dir($b) ? 1 : strnatcasecmp($a, $b));
+        });
+        
+        // Loop through each file or directory
+        foreach ($directoriesAndFiles as $fileOrDirectory)
+        {
+            // Skip current and parent directory links, and ignored files or directories
+            if ($fileOrDirectory == '.' || $fileOrDirectory == '..' || in_array($fileOrDirectory, $ignoreDirectoriesOrFiles)) {
+                continue;
+            }
+
+            $fullPath = "$directoryPath/$fileOrDirectory";
+
+            if (is_file($fullPath))
+            {
+                // Add file to the list
+                $logDirectoriesAndFiles[] = $fileOrDirectory;
+            }
+            elseif (is_dir($fullPath) && !is_link($fullPath))
+            {
+                // Recursively get directories and files
+                $logDirectoriesAndFiles[$fileOrDirectory] = self::getDirectoriesAndFiles($fullPath);
+            }
+        }
+
+        // Re-order the array so that directories are first
+        $logDirectoriesAndFiles = collect($logDirectoriesAndFiles);
+        
+        $directories = $logDirectoriesAndFiles->filter(function($value, $key) {
+            return is_array($value);
+        })->sort();
+        
+        $files = $logDirectoriesAndFiles->filter(function($value, $key) {
+            return !is_array($value);
+        })->sort();
+
+        $logDirectoriesAndFiles = $directories->merge($files)->toArray();
+
+        return $logDirectoriesAndFiles;
+    }
+
+    /**
      * Log to WRLA error channel, automatically adds 'user' => user->id if available, shows as 'x' if no user.
      *
      * @param string $message The message to log.
