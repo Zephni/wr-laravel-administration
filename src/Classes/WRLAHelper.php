@@ -914,6 +914,66 @@ class WRLAHelper
     }
 
     /**
+     * Unset nested array by it's value
+     * 
+     * @param array $array The array to unset the nested array from.
+     * @param string $key The dot notation key to search for the value.
+     * @param mixed $value The value to unset.
+     */
+    public static function unsetNestedArrayByKeyAndValue(array &$array, string $key, mixed $value): void
+    {
+        if(empty($key)) {
+            // Just delete by value in base array
+            foreach($array as $innerKey => $innerValue) {
+                if($innerValue === $value) {
+                    unset($array[$innerKey]);
+                }
+            }
+        }
+
+        $keys = explode('.', $key);
+        $temp = &$array;
+    
+        foreach ($keys as $innerKey) {
+            if (!isset($temp[$innerKey])) {
+                return; // Key doesn't exist, exit
+            }
+            $temp = &$temp[$innerKey];
+        }
+
+        // If the value is an array, loop through and unset the value
+        if(is_array($temp)) {
+            foreach($temp as $innerKey => $innerValue) {
+                if($innerValue === $value) {
+                    unset($temp[$innerKey]);
+                }
+            }
+        }
+    }
+
+    /**
+     * Unset nested array with dot notation key
+     * 
+     * @param array $array The array to unset the nested array from.
+     * @param string $key The dot notation key to unset.
+     */
+    public static function unsetNestedArrayByKey(array &$array, string $key): void
+    {
+        $keys = explode('.', $key);
+        $lastKey = array_pop($keys);
+        $temp = &$array;
+
+        foreach ($keys as $innerKey) {
+            if (!isset($temp[$innerKey])) {
+                return; // Key doesn't exist, exit
+            }
+            $temp = &$temp[$innerKey];
+        }
+
+        unset($temp[$lastKey]);
+    }
+
+    /**
      * Log to WRLA error channel, automatically adds 'user' => user->id if available, shows as 'x' if no user.
      *
      * @param string $message The message to log.

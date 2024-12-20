@@ -3,6 +3,7 @@
 namespace WebRegulate\LaravelAdministration\Livewire;
 
 use Livewire\Component;
+use Illuminate\Support\Facades\File;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 
 class Logs extends Component
@@ -56,7 +57,8 @@ class Logs extends Component
             }
         }
         
-        return "File does not exist at path: {$fullPath}";
+        $this->viewingLogFile = null;
+        return '';
     }
 
     public function getFullPath(string $directory, string $file): string
@@ -76,9 +78,9 @@ class Logs extends Component
     {
         // If $directory is .., go up a directory
         if ($directory === '..' && !empty($this->viewingLogsDirectory)) {
-            $this->viewingLogsDirectory = !str($this->viewingLogsDirectory)->contains('/')
+            $this->viewingLogsDirectory = !str($this->viewingLogsDirectory)->contains('.')
                 ? ''
-                : str($this->viewingLogsDirectory)->beforeLast('/');
+                : str($this->viewingLogsDirectory)->beforeLast('.');
             
             $this->selectFirstLogFileInCurrentDirectory();
             return;
@@ -104,12 +106,32 @@ class Logs extends Component
     {
         $fullPath = $this->getFullPath($directoryPath, $logFile);
 
-        if (file_exists($fullPath)) {
-            unlink($fullPath);
+        if(file_exists($fullPath)) {
+            if (is_file($fullPath)) {
+                // Use Laravel file facade to delete file
+                File::delete($fullPath);
+                
+                WRLAHelper::unsetNestedArrayByKeyAndValue(
+                    $this->logDirectoriesAndFiles,
+                    $directoryPath,
+                    $logFile
+                );
+            }
+
+            if(is_dir($fullPath)) {
+                // Use Laravel file facade to delete directory
+                File::deleteDirectory($fullPath);
+
+                WRLAHelper::unsetNestedArrayByKey(
+                    $this->logDirectoriesAndFiles,
+                    $logFile
+                );
+            }
         }
 
-        $this->logDirectoriesAndFiles = WRLAHelper::getDirectoriesAndFiles(storage_path('logs'));
+        $this->viewingLogsDirectory = $directoryPath;
         $this->selectFirstLogFileInCurrentDirectory();
+        $this->render();
     }
 
     public function selectFirstLogFileInCurrentDirectory()

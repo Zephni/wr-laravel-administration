@@ -10,23 +10,47 @@
     <div class="w-full flex flex-col">
         @foreach($currentDirectoriesAndFiles as $key => $directoryOrFile)
             <div
-                @if(is_dir(storage_path('logs/'.$key)))
-                    wire:click="switchDirectory('{{ $key }}')"
-                @else
-                    wire:click="viewLogFile('{{ $viewingLogsDirectory }}', '{{ $directoryOrFile }}')"
-                @endif
-                class="{{ $viewingLogFile !== null && $viewingLogFile == $directoryOrFile ? '!bg-primary-500 !text-white !font-bold' : '' }} w-full grid grid-cols-[32px,1fr] gap-2 items-center px-3 py-2 text-lg bg-gray-100 dark:bg-slate-700 rounded-md cursor-pointer hover:bg-white dark:hover:bg-slate-600 text-slate-700 dark:text-white">
-                @if(is_array($directoryOrFile))
-                    <div class="text-center">
-                        <i class="{{ $viewingLogFile !== null && $viewingLogFile == $directoryOrFile ? '!text-white' : '' }} fas fa-folder text-amber-400 mr-1.5"></i>
-                    </div>
-                    <div class="">{{ $key }}</div>
-                @else
-                    <div class="text-center">
-                        <i class="{{ $viewingLogFile !== null && $viewingLogFile == $directoryOrFile ? '!text-white' : '' }} fas fa-file text-primary-500 mr-1.5"></i>
-                    </div>
-                    <div class="">{{ $directoryOrFile }}</div>
-                @endif
+                class="{{ $viewingLogFile !== null && $viewingLogFile == $directoryOrFile ? '!bg-slate-50 !border-primary-500 !border-2 !font-bold' : '' }} w-full flex justify-between items-center gap-2 px-3 h-12 text-lg bg-gray-100 dark:bg-slate-700 first:rounded-t-md last:rounded-b-md hover:bg-white dark:hover:bg-slate-600 text-slate-700 dark:text-white even:bg-opacity-60">
+                
+                <div
+                    @if($directoryOrFile == '..')
+                        wire:click="switchDirectory('..')"
+                    @elseif(is_array($directoryOrFile))
+                        wire:click="switchDirectory('{{ (empty($viewingLogsDirectory) ? '' : $viewingLogsDirectory.'.').$key }}')"
+                        title="{{ ltrim((empty($viewingLogsDirectory) ? '' : str_replace('.', '/', $viewingLogsDirectory).'/').$key, '/') }}"
+                    @else
+                        wire:click="viewLogFile('{{ $viewingLogsDirectory }}', '{{ $directoryOrFile }}')"
+                        title="{{ ltrim(str_replace('.', '/', $viewingLogsDirectory).'/'.$directoryOrFile, '/') }}"
+                    @endif
+                    class="w-full h-full flex items-center gap-2 cursor-pointer">
+                    @if($directoryOrFile == '..' || is_array($directoryOrFile))
+                        <div class="text-center">
+                            <i class="fas fa-folder text-amber-400 mr-1.5"></i>
+                        </div>
+                        <div class="">{{ $key }} {{ is_array($directoryOrFile) ? '('.count($directoryOrFile).')' : '' }}</div>
+                    @else
+                        <div class="text-center">
+                            <i class="fas fa-file text-primary-500 mr-1.5"></i>
+                        </div>
+                        <div class="">{{ $directoryOrFile }}</div>
+                    @endif
+                </div>
+
+                <div class="flex justify-end items-center gap-2">
+                    @if($directoryOrFile != '..')
+                        {{-- Delete button --}}
+                        @themeComponent('forms.button', [
+                            'type' => 'button',
+                            'size' => 'small',
+                            'color' => 'danger',
+                            'text' => 'Delete',
+                            'icon' => 'fas fa-trash',
+                            'attributes' => new \Illuminate\View\ComponentAttributeBag([
+                                'wire:click' => "deleteLogFile('$viewingLogsDirectory', '".(is_array($directoryOrFile) ? $key : $directoryOrFile)."')",
+                            ])
+                        ])
+                    @endif
+                </div>
             </div>
         @endforeach
     </div>
@@ -50,20 +74,6 @@
                 'wire:click' => '$refresh',
             ])
         ])
-        
-        @if($viewingLogFile !== null)
-            {{-- Delete button --}}
-            @themeComponent('forms.button', [
-                'type' => 'button',
-                'size' => 'small',
-                'color' => 'danger',
-                'text' => 'Delete',
-                'icon' => 'fas fa-trash',
-                'attributes' => new \Illuminate\View\ComponentAttributeBag([
-                    'wire:click' => "deleteLogFile('$viewingLogsDirectory', '$viewingLogFile')",
-                ])
-            ])
-        @endif
     </div>
 
     @if($viewingLogFile !== null)
@@ -80,7 +90,7 @@
         ])->render() !!}
     @else
         <div class="w-full text-center text-lg text-slate-700 dark:text-white">
-            No logs found in this directory.
+            No logs found in: logs/{{ str_replace('.', '/', $viewingLogsDirectory) }}
         </div>
     @endif
 </div>
