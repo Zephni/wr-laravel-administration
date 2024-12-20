@@ -99,7 +99,7 @@ class NavigationItem
     }
 
     /**
-     * Show on condition
+     * Show on condition. If false will be: not shown and disabled
      *
      * @param callable $callback
      * @return $this

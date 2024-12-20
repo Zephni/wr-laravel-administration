@@ -35,7 +35,9 @@ class WRLASettings
             ]),
 
             // View Logs
-            new NavigationItem('wrla.logs', [], 'View Logs', 'fa fa-file-alt'),
+            (new NavigationItem('wrla.logs', [], 'View Logs', 'fa fa-file-alt'))->showOnCondition(function(){
+                return User::current()?->getPermission('master') ?? false;
+            }),
 
             // Divider
             new NavigationItemDivider('My Account', 'fa fa-user mr-1'),
