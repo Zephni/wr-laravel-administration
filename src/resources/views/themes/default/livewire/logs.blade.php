@@ -15,15 +15,15 @@
                 @else
                     wire:click="viewLogFile('{{ $viewingLogsDirectory }}', '{{ $directoryOrFile }}')"
                 @endif
-                class="{{ $viewingLogFile == $directoryOrFile ? '!bg-primary-500 !text-white !font-medium' : '' }} w-full grid grid-cols-[32px,1fr] gap-2 items-center px-3 py-2 text-lg odd:bg-slate-100 even:bg-slate-200 dark:bg-slate-700 dark:even:bg-slate-800 rounded-md cursor-pointer hover:bg-white dark:hover:bg-slate-600 text-slate-700 dark:text-white">
+                class="{{ $viewingLogFile == $directoryOrFile ? '!bg-primary-500 !text-white !font-bold' : '' }} w-full grid grid-cols-[32px,1fr] gap-2 items-center px-3 py-2 text-lg bg-gray-100 dark:bg-slate-700 rounded-md cursor-pointer hover:bg-white dark:hover:bg-slate-600 text-slate-700 dark:text-white">
                 @if(is_array($directoryOrFile))
                     <div class="text-center">
-                        <i class="fas fa-folder mr-1.5"></i>
+                        <i class="{{ $viewingLogFile == $directoryOrFile ? '!text-white' : '' }} fas fa-folder text-amber-400 mr-1.5"></i>
                     </div>
                     <div class="">{{ $key }}</div>
                 @else
                     <div class="text-center">
-                        <i class="fas fa-file  mr-1.5"></i>
+                        <i class="{{ $viewingLogFile == $directoryOrFile ? '!text-white' : '' }} fas fa-file text-primary-500 mr-1.5"></i>
                     </div>
                     <div class="">{{ $directoryOrFile }}</div>
                 @endif
@@ -33,7 +33,34 @@
 
     <div class="block w-full h-6"></div>
 
+    <div class="flex justify-end items-center gap-3">
+        {{-- Loading spinner --}}
+        <div wire:loading.flex class="justify-end items-center gap-2 text-base" style="line-height: 0px;">
+            <i class="fas fa-spinner fa-spin"></i>
+            <span>Loading...</span>
+        </div>
+
+        {{-- Refresh button --}}
+        @themeComponent('forms.button', [
+            'type' => 'button',
+            'size' => 'small',
+            'text' => 'Refresh',
+            'icon' => 'fas fa-sync-alt',
+            'wire:click' => 'render',
+        ])
+    </div>
+
     @if($viewingLogFile !== null)
-        <textarea class="w-full" rows="50">{{ $viewingLogContent }}</textarea>
+        {{-- <textarea class="w-full" rows="50">{{ $viewingLogContent }}</textarea> --}}
+        {{-- Textarea --}}
+        {!! view($WRLAHelper::getViewPath('components.forms.textarea'), [
+            'label' => 'Log Content',
+            'options' => [],
+            'attributes' => new \Illuminate\View\ComponentAttributeBag([
+                'wire:model' => 'viewingLogContent',
+                'name' => 'log_content',
+                'class' => '!bg-slate-100 dark:!bg-slate-800 h-64',
+            ]),
+        ])->render() !!}
     @endif
 </div>

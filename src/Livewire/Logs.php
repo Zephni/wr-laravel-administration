@@ -68,6 +68,16 @@ class Logs extends Component
 
     public function switchDirectory(string $directory)
     {
+        // If $directory is .., go up a directory
+        if ($directory === '..' && !empty($this->viewingLogsDirectory)) {
+            $this->viewingLogsDirectory = !str($this->viewingLogsDirectory)->contains('/')
+                ? ''
+                : str($this->viewingLogsDirectory)->beforeLast('/');
+            
+            $this->selectFirstLogFileInCurrentDirectory();
+            return;
+        }
+
         $this->viewingLogsDirectory = $directory;
         $this->selectFirstLogFileInCurrentDirectory();
         $this->viewLogFile($this->viewingLogsDirectory, $this->viewingLogFile);
