@@ -29,6 +29,12 @@
                 @endif
             </div>
         @endforeach
+
+        @if(empty($currentDirectoriesAndFiles))
+            <div class="w-full text-center text-lg text-slate-700 dark:text-white">
+                No logs found in this directory.
+            </div>
+        @endif
     </div>
 
     <div class="block w-full h-6"></div>

@@ -48,9 +48,15 @@ class Logs extends Component
     {
         $fullPath = storage_path('logs/' . str($logFile)->ltrim('/'));
 
-        return file_exists($fullPath)
-            ? file_get_contents($fullPath)
-            : "Error finding file at path: {$fullPath}";
+        if(file_exists($fullPath)) {
+            if(is_file($fullPath)) {
+                return file_get_contents($fullPath);
+            } else {
+                return "Error: {$fullPath} is not a file";
+            }
+        }
+        
+        return "File does not exist at path: {$fullPath}";
     }
 
     public function getFullPath(string $directory, string $file): string
@@ -83,8 +89,12 @@ class Logs extends Component
         $this->viewLogFile($this->viewingLogsDirectory, $this->viewingLogFile);
     }
 
-    public function viewLogFile(string $directoryPath, string $logFile)
+    public function viewLogFile(string $directoryPath, ?string $logFile)
     {
+        if($logFile === null) {
+            return;
+        }
+
         $this->viewingLogsDirectory = $directoryPath;
         $this->viewingLogFile = $logFile;
         $this->viewingLogContent = $this->getLogContent("{$this->viewingLogsDirectory}/{$this->viewingLogFile}");
@@ -92,15 +102,26 @@ class Logs extends Component
 
     public function selectFirstLogFileInCurrentDirectory()
     {
+        $this->viewingLogFile = null;
+
         $currentDirectoryContents = empty($this->viewingLogsDirectory)
             ? $this->logDirectoriesAndFiles
             : data_get($this->logDirectoriesAndFiles, $this->viewingLogsDirectory, []);
             
         foreach ($currentDirectoryContents as $directory => $directoryOrFile) {
+            // If full path is not a file, skip
+            if (is_array($directoryOrFile)) {
+                continue;
+            }
+
             if (is_string($directoryOrFile)) {
                 $this->viewingLogFile = $directoryOrFile;
                 break;
             }
+        }
+
+        if ($this->viewingLogFile === null) {
+            return;
         }
 
         $this->viewingLogContent = $this->getLogContent("{$this->viewingLogsDirectory}/{$this->viewingLogFile}");
