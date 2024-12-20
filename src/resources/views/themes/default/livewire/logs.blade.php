@@ -6,6 +6,25 @@
         </h1>
         <hr class="border-b border-slate-400 w-80 mt-1 mb-3">
     </div>
+
+    <div class="flex justify-end items-center gap-3 mb-4">
+        {{-- Loading spinner --}}
+        <div wire:loading.flex class="justify-end items-center gap-2 text-base" style="line-height: 0px;">
+            <i class="fas fa-spinner fa-spin"></i>
+            <span>Loading...</span>
+        </div>
+
+        {{-- Refresh button --}}
+        @themeComponent('forms.button', [
+            'type' => 'button',
+            'size' => 'small',
+            'text' => 'Refresh',
+            'icon' => 'fas fa-sync-alt',
+            'attributes' => new \Illuminate\View\ComponentAttributeBag([
+                'wire:click' => 'refresh',
+            ])
+        ])
+    </div>
     
     <div class="w-full flex flex-col">
         @foreach($currentDirectoriesAndFiles as $key => $directoryOrFile)
@@ -57,32 +76,13 @@
 
     <div class="block w-full h-6"></div>
 
-    <div class="flex justify-end items-center gap-3">
-        {{-- Loading spinner --}}
-        <div wire:loading.flex class="justify-end items-center gap-2 text-base" style="line-height: 0px;">
-            <i class="fas fa-spinner fa-spin"></i>
-            <span>Loading...</span>
-        </div>
-
-        {{-- Refresh button --}}
-        @themeComponent('forms.button', [
-            'type' => 'button',
-            'size' => 'small',
-            'text' => 'Refresh',
-            'icon' => 'fas fa-sync-alt',
-            'attributes' => new \Illuminate\View\ComponentAttributeBag([
-                'wire:click' => '$refresh',
-            ])
-        ])
-    </div>
-
     @if($viewingLogFile !== null)
-        {{-- <textarea class="w-full" rows="50">{{ $viewingLogContent }}</textarea> --}}
         {{-- Textarea --}}
         {!! view($WRLAHelper::getViewPath('components.forms.textarea'), [
             'label' => $viewingLogFile,
             'options' => [],
             'attributes' => new \Illuminate\View\ComponentAttributeBag([
+                'readonly' => true,
                 'wire:model' => 'viewingLogContent',
                 'name' => 'log_content',
                 'class' => '!bg-slate-100 dark:!bg-slate-800 h-64',

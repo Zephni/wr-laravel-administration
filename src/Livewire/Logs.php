@@ -19,8 +19,8 @@ class Logs extends Component
     --------------------------------------------------------------------------*/
     public function mount()
     {
-        // Get all log files and directories
-        $this->logDirectoriesAndFiles = WRLAHelper::getDirectoriesAndFiles(storage_path('logs'));
+        // Set all log files and directories
+        $this->setDirectoriesAndFiles();
 
         // Find the first file within found logs and set it as the default viewing log
         $this->selectFirstLogFileInCurrentDirectory();
@@ -45,6 +45,12 @@ class Logs extends Component
     
     /* Methods
     --------------------------------------------------------------------------*/
+    private function setDirectoriesAndFiles()
+    {
+        // Get all log files and directories
+        $this->logDirectoriesAndFiles = WRLAHelper::getDirectoriesAndFiles(storage_path('logs'));
+    }
+
     private function getLogContent(string $logFile): string
     {
         $fullPath = storage_path('logs/' . str($logFile)->ltrim('/'));
@@ -132,6 +138,12 @@ class Logs extends Component
         $this->viewingLogsDirectory = $directoryPath;
         $this->selectFirstLogFileInCurrentDirectory();
         $this->render();
+    }
+
+    public function refresh()
+    {
+        // Set all log files and directories
+        $this->setDirectoriesAndFiles();
     }
 
     public function selectFirstLogFileInCurrentDirectory()
