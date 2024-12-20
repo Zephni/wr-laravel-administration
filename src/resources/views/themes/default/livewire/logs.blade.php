@@ -40,18 +40,18 @@
             <span>Loading...</span>
         </div>
 
-        @if($viewingLogFile !== null)
-            {{-- Refresh button --}}
-            @themeComponent('forms.button', [
-                'type' => 'button',
-                'size' => 'small',
-                'text' => 'Refresh',
-                'icon' => 'fas fa-sync-alt',
-                'attributes' => new \Illuminate\View\ComponentAttributeBag([
-                    'wire:click' => '$refresh',
-                ])
+        {{-- Refresh button --}}
+        @themeComponent('forms.button', [
+            'type' => 'button',
+            'size' => 'small',
+            'text' => 'Refresh',
+            'icon' => 'fas fa-sync-alt',
+            'attributes' => new \Illuminate\View\ComponentAttributeBag([
+                'wire:click' => '$refresh',
             ])
-
+        ])
+        
+        @if($viewingLogFile !== null)
             {{-- Delete button --}}
             @themeComponent('forms.button', [
                 'type' => 'button',
