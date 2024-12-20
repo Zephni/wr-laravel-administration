@@ -29,12 +29,6 @@
                 @endif
             </div>
         @endforeach
-
-        @if(empty($currentDirectoriesAndFiles))
-            <div class="w-full text-center text-lg text-slate-700 dark:text-white">
-                No logs found in this directory.
-            </div>
-        @endif
     </div>
 
     <div class="block w-full h-6"></div>
@@ -60,7 +54,7 @@
         {{-- <textarea class="w-full" rows="50">{{ $viewingLogContent }}</textarea> --}}
         {{-- Textarea --}}
         {!! view($WRLAHelper::getViewPath('components.forms.textarea'), [
-            'label' => 'Log Content',
+            'label' => $viewingLogFile,
             'options' => [],
             'attributes' => new \Illuminate\View\ComponentAttributeBag([
                 'wire:model' => 'viewingLogContent',
@@ -68,5 +62,9 @@
                 'class' => '!bg-slate-100 dark:!bg-slate-800 h-64',
             ]),
         ])->render() !!}
+    @else
+        <div class="w-full text-center text-lg text-slate-700 dark:text-white">
+            No logs found in this directory.
+        </div>
     @endif
 </div>
