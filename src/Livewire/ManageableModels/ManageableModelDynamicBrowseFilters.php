@@ -108,35 +108,45 @@ class ManageableModelDynamicBrowseFilters extends Component
                     'data-lpignore' => 'true',
                 ]),
             function(Builder $query, $table, $columns, $value) use($item) {
-                // Split value by commas and search for each value
-                $values = explode(',', $value);
+                // Split value by | for OR condition
+                $orValues = explode('|', $value);
 
-                foreach($values as $delimitedValue) {
-                    $delimitedValue = trim($delimitedValue);
+                $query->where(function($query) use ($orValues, $table, $item) {
+                    foreach($orValues as $orValue) {
+                        $orValue = trim($orValue);
+                        // Split value by , for AND condition
+                        $andValues = explode(',', $orValue);
 
-                    // If like or not like operator and value is empty, skip
-                    if(($item['operator'] == 'like' || $item['operator'] == 'not like') && empty($delimitedValue)) continue;
+                        $query->orWhere(function($query) use ($andValues, $table, $item) {
+                            foreach($andValues as $andValue) {
+                                $andValue = trim($andValue);
 
-                    // Safely match operator
-                    $operator = match($item['operator']) {
-                        'like' => 'like',
-                        'not like' => 'not like',
-                        '=' => '=',
-                        '!=' => '!=',
-                        '>' => '>',
-                        '<' => '<',
-                        '>=' => '>=',
-                        '<=' => '<=',
-                        default => '=',
-                    };
+                                // If like or not like operator and value is empty, skip
+                                if(($item['operator'] == 'like' || $item['operator'] == 'not like') && empty($andValue)) continue;
 
-                    // If operator is like or not like, wrap value with %value%
-                    if($operator == 'like' || $operator == 'not like') {
-                        $delimitedValue = '%'.$delimitedValue.'%';
+                                // Safely match operator
+                                $operator = match($item['operator']) {
+                                    'like' => 'like',
+                                    'not like' => 'not like',
+                                    '=' => '=',
+                                    '!=' => '!=',
+                                    '>' => '>',
+                                    '<' => '<',
+                                    '>=' => '>=',
+                                    '<=' => '<=',
+                                    default => '=',
+                                };
+
+                                // If operator is like or not like, wrap value with %value%
+                                if($operator == 'like' || $operator == 'not like') {
+                                    $andValue = '%'.$andValue.'%';
+                                }
+
+                                $query->where($table.'.'.$item['field'], $operator, $andValue);
+                            }
+                        });
                     }
-
-                    $query->where($table.'.'.$item['field'], $operator, $delimitedValue);
-                }
+                });
 
                 return $query;
             }
