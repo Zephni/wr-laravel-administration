@@ -15,15 +15,15 @@
                 @else
                     wire:click="viewLogFile('{{ $viewingLogsDirectory }}', '{{ $directoryOrFile }}')"
                 @endif
-                class="{{ $viewingLogFile == $directoryOrFile ? '!bg-primary-500 !text-white !font-bold' : '' }} w-full grid grid-cols-[32px,1fr] gap-2 items-center px-3 py-2 text-lg bg-gray-100 dark:bg-slate-700 rounded-md cursor-pointer hover:bg-white dark:hover:bg-slate-600 text-slate-700 dark:text-white">
+                class="{{ $viewingLogFile !== null && $viewingLogFile == $directoryOrFile ? '!bg-primary-500 !text-white !font-bold' : '' }} w-full grid grid-cols-[32px,1fr] gap-2 items-center px-3 py-2 text-lg bg-gray-100 dark:bg-slate-700 rounded-md cursor-pointer hover:bg-white dark:hover:bg-slate-600 text-slate-700 dark:text-white">
                 @if(is_array($directoryOrFile))
                     <div class="text-center">
-                        <i class="{{ $viewingLogFile == $directoryOrFile ? '!text-white' : '' }} fas fa-folder text-amber-400 mr-1.5"></i>
+                        <i class="{{ $viewingLogFile !== null && $viewingLogFile == $directoryOrFile ? '!text-white' : '' }} fas fa-folder text-amber-400 mr-1.5"></i>
                     </div>
                     <div class="">{{ $key }}</div>
                 @else
                     <div class="text-center">
-                        <i class="{{ $viewingLogFile == $directoryOrFile ? '!text-white' : '' }} fas fa-file text-primary-500 mr-1.5"></i>
+                        <i class="{{ $viewingLogFile !== null && $viewingLogFile == $directoryOrFile ? '!text-white' : '' }} fas fa-file text-primary-500 mr-1.5"></i>
                     </div>
                     <div class="">{{ $directoryOrFile }}</div>
                 @endif
@@ -40,14 +40,30 @@
             <span>Loading...</span>
         </div>
 
-        {{-- Refresh button --}}
-        @themeComponent('forms.button', [
-            'type' => 'button',
-            'size' => 'small',
-            'text' => 'Refresh',
-            'icon' => 'fas fa-sync-alt',
-            'wire:click' => 'render',
-        ])
+        @if($viewingLogFile !== null)
+            {{-- Refresh button --}}
+            @themeComponent('forms.button', [
+                'type' => 'button',
+                'size' => 'small',
+                'text' => 'Refresh',
+                'icon' => 'fas fa-sync-alt',
+                'attributes' => new \Illuminate\View\ComponentAttributeBag([
+                    'wire:click' => '$refresh',
+                ])
+            ])
+
+            {{-- Delete button --}}
+            @themeComponent('forms.button', [
+                'type' => 'button',
+                'size' => 'small',
+                'color' => 'danger',
+                'text' => 'Delete',
+                'icon' => 'fas fa-trash',
+                'attributes' => new \Illuminate\View\ComponentAttributeBag([
+                    'wire:click' => "deleteLogFile('$viewingLogsDirectory', '$viewingLogFile')",
+                ])
+            ])
+        @endif
     </div>
 
     @if($viewingLogFile !== null)

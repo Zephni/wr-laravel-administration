@@ -63,13 +63,13 @@ class Logs extends Component
     {
         // If directory is empty, just pass the file
         if (empty($directory)) {
-            return storage_path('logs/' . $file);
+            return str_replace('\\', '/', storage_path('logs/' . $file));
         }
 
         // Swap .'s for /'s
         $directory = str_replace('.', '/', $directory);
 
-        return storage_path('logs/' . $directory . '/' . $file);
+        return str_replace('\\', '/', storage_path('logs/' . $directory . '/' . $file));
     }
 
     public function switchDirectory(string $directory)
@@ -98,6 +98,18 @@ class Logs extends Component
         $this->viewingLogsDirectory = $directoryPath;
         $this->viewingLogFile = $logFile;
         $this->viewingLogContent = $this->getLogContent("{$this->viewingLogsDirectory}/{$this->viewingLogFile}");
+    }
+
+    public function deleteLogFile(string $directoryPath, string $logFile)
+    {
+        $fullPath = $this->getFullPath($directoryPath, $logFile);
+
+        if (file_exists($fullPath)) {
+            unlink($fullPath);
+        }
+
+        $this->logDirectoriesAndFiles = WRLAHelper::getDirectoriesAndFiles(storage_path('logs'));
+        $this->selectFirstLogFileInCurrentDirectory();
     }
 
     public function selectFirstLogFileInCurrentDirectory()
