@@ -60,7 +60,7 @@ class EmailTemplate extends Model
         $mappings = json_decode(!empty($this->mappings) ? $this->mappings : '{"user": {
     "id": null,
     "name": null,
-    "email": null,
+    "email": null
 }}', true);
 
         // if ($mappings == null) {
