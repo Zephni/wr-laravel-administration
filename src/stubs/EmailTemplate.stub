@@ -172,6 +172,17 @@ class EmailTemplate extends ManageableModel
                 ],
             ]);
 
+            // If mappings include any which aren't set above, then make random words for any missing
+            $keyMappings = $emailTemplate->getKeyMappings();
+            foreach($keyMappings as $key => $value) {
+                if(!isset($emailTemplate->dataArray[$key])) {
+                    $emailTemplate->dataArray[$key] = [];
+                    foreach($value as $subKey => $subValue) {
+                        $emailTemplate->dataArray[$key][$subKey] = "($key.$subKey here)";
+                    }
+                }
+            }
+
             $emailTemplate->subject = ManageableModel::getLivewireField('subject');
             $emailTemplate->body = ManageableModel::getLivewireField('body');
 
