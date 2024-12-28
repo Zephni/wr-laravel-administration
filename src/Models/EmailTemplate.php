@@ -61,11 +61,11 @@ class EmailTemplate extends Model
     "email": null,
 }}', true);
 
-        if ($mappings == null) {
-            throw new \Exception('Email template key mappings can not be null. (Perhaps issue with JSON formatting?)');
-        }
+        // if ($mappings == null) {
+        //     throw new \Exception('Email template key mappings can not be null. (Perhaps issue with JSON formatting?)');
+        // }
 
-        return $mappings;
+        return $mappings ?? [];
     }
 
     /**
