@@ -59,8 +59,6 @@ class EmailTemplate extends ManageableModel
                     ->setItems([
                         'all' => 'All',
                         'transactional' => 'Transactional',
-                        'marketing' => 'Marketing',
-                        'notification' => 'Notification',
                     ])
                     ->setOption('containerClass', 'w-1/4'),
 
