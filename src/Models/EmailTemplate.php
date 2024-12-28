@@ -62,13 +62,38 @@ class EmailTemplate extends Model
 
     /**
      * Set data from models.
-     * 
+     *
      * @param array $models
      * @return self
      */
     public function setDataFromModels(array $models): self
     {
         $this->dataArray = $this->buildDataArrayFromModels($models);
+        return $this;
+    }
+
+    /**
+     * Fill missing data in data array with (key.subkey here) placeholders.
+     *
+     * @return self
+     */
+    public function fillMissingDataWithPlaceholders(): self
+    {
+        $data = $this->getKeyMappings();
+
+        // Loop through key mappings and set each value based on model attributes
+        foreach ($data as $key => $model) {
+            if(!isset($this->dataArray[$key])) {
+                $this->dataArray[$key] = [];
+            }
+
+            foreach ($model as $modelKey => $modelValue) {
+                if(!isset($this->dataArray[$key][$modelKey])) {
+                    $this->dataArray[$key][$modelKey] = "($key.$modelKey here)";
+                }
+            }
+        }
+
         return $this;
     }
 
