@@ -1,0 +1,79 @@
+<?php
+
+namespace App\Mail\WRLA;
+
+use Illuminate\Bus\Queueable;
+use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Address;
+use Illuminate\Mail\Mailables\Content;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Mail\Mailables\Envelope;
+use WebRegulate\LaravelAdministration\Models\EmailTemplate;
+
+class EmailTemplateMail extends Mailable
+{
+    use Queueable, SerializesModels;
+
+    /**
+     * Create a new message instance.
+     *
+     * @param EmailTemplate $emailTemplate
+     * @param string|array $toAddresses ['email@domain.com', ...], note if multiple passed, the rest will be cc addresses
+     * @param ?array<int, \Illuminate\Mail\Mailables\Attachment> $passedAttachments
+     */
+    public function __construct(
+        public EmailTemplate $emailTemplate,
+        public string|array $toAddresses,
+        public ?array $passedAttachments = null,
+    ) {
+
+    }
+
+    /**
+     * Get the message envelope.
+     */
+    public function envelope(): Envelope
+    {
+        // If toAddresses is a string, convert to array
+        if(is_string($this->toAddresses)) {
+            $this->toAddresses = [$this->toAddresses];
+        }
+
+        // Remove any empty values or values without @ symbol
+        $this->toAddresses = array_filter($this->toAddresses, fn($toAddress) => !empty($toAddress) && str($toAddress)->contains('@'));
+
+        // Get first toAddress as the to addresses
+        $toAddress = $this->toAddresses[0];
+
+        // Get the rest as cc addresses if there are any, also remove any empty values or values without @ symbol from these
+        $ccAddresses = array_slice($this->toAddresses, 1);
+        $ccAddresses = array_filter($ccAddresses, fn($ccAddress) => !empty($ccAddress) && str($ccAddress)->contains('@'));
+
+        return new Envelope(
+            from: new Address(env('MAIL_FROM_ADDRESS'), env('MAIL_FROM_NAME')),
+            to: $toAddress,
+            cc: $ccAddresses,
+            subject: $this->emailTemplate->getFinalSubject(),
+        );
+    }
+
+    /**
+     * Get the message content definition.
+     */
+    public function content(): Content
+    {
+        return new Content(
+            markdown: 'email.email-template-mail',
+        );
+    }
+
+    /**
+     * Get the attachments for the message.
+     *
+     * @return array<int, \Illuminate\Mail\Mailables\Attachment>
+     */
+    public function attachments(): array
+    {
+        return $this->passedAttachments ?? [];
+    }
+}
