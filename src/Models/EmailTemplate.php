@@ -35,10 +35,9 @@ class EmailTemplate extends Model
      *
      * @param string $category
      * @param string $alias
-     * @param array $models key value array, eg ['user' => User::find(1), ...]
      * @return ?self
      */
-    public static function findByAlias(string $category, string $alias, array $models): ?self
+    public static function findByAlias(string $category, string $alias): ?self
     {
         $emailTemplate = once(fn() => self::where('category', $category)->where('alias', 'like', $alias)->first());
 
@@ -46,8 +45,31 @@ class EmailTemplate extends Model
             throw new \Exception('Email template not found with alias: ' . $alias);
         }
 
-        $emailTemplate->buildDataArrayFromModels($models);
         return $emailTemplate;
+    }
+
+    /**
+     * Set data array.
+     *
+     * @param array $dataArray
+     * @return self
+     */
+    public function setDataArray(array $dataArray): self
+    {
+        $this->dataArray = $dataArray;
+        return $this;
+    }
+
+    /**
+     * Set data from models.
+     * 
+     * @param array $models
+     * @return self
+     */
+    public function setDataFromModels(array $models): self
+    {
+        $this->dataArray = $this->buildDataArrayFromModels($models);
+        return $this;
     }
 
     /**
@@ -117,18 +139,6 @@ class EmailTemplate extends Model
         if($user !== null) {
             $this->dataArray = ['user' => $user->only(array_keys($this->getKeyMappings()['user']))];
         }
-    }
-
-    /**
-     * Set data array.
-     *
-     * @param array $dataArray
-     * @return self
-     */
-    public function setDataArray(array $dataArray): self
-    {
-        $this->dataArray = $dataArray;
-        return $this;
     }
 
     /**
