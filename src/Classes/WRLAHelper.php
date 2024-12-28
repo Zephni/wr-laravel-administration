@@ -871,9 +871,9 @@ class WRLAHelper
         $directoriesAndFiles = scandir($directoryPath);
 
         // Sort directories and files, directories first
-        usort($directoriesAndFiles, function($a, $b) {
-            return is_dir($a) ? (is_dir($b) ? strnatcasecmp($a, $b) : -1) : (is_dir($b) ? 1 : strnatcasecmp($a, $b));
-        });
+        // usort($directoriesAndFiles, function($a, $b) {
+        //     return is_dir($a) ? (is_dir($b) ? strnatcasecmp($a, $b) : -1) : (is_dir($b) ? 1 : strnatcasecmp($a, $b));
+        // });
         
         // Loop through each file or directory
         foreach ($directoriesAndFiles as $fileOrDirectory)
@@ -906,7 +906,9 @@ class WRLAHelper
         
         $files = $logDirectoriesAndFiles->filter(function($value, $key) {
             return !is_array($value);
-        })->sort();
+        })->sort(function($a, $b) use ($directoryPath) {
+            return filemtime("$directoryPath/$a") < filemtime("$directoryPath/$b");
+        });
 
         $logDirectoriesAndFiles = $directories->merge($files)->toArray();
 
