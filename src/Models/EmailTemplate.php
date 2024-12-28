@@ -2,7 +2,6 @@
 
 namespace WebRegulate\LaravelAdministration\Models;
 
-use App\Traits\Cacheable;
 use App\Mail\WRLA\EmailTemplateMail;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -11,7 +10,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class EmailTemplate extends Model
 {
-    use SoftDeletes, Cacheable;
+    use SoftDeletes;
 
     const RENDER_MODE_BLADE = 'blade';
     const RENDER_MODE_EMAIL = 'email';
