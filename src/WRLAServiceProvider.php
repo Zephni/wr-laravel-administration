@@ -38,13 +38,6 @@ class WRLAServiceProvider extends ServiceProvider
     {
         // Merge config
         $this->mergeConfigFrom(__DIR__ . '/config/wr-laravel-administration.php', 'wr-laravel-administration');
-
-        // Custom logging channels
-        $this->app->make('config')->set('logging.channels.smtp', [
-            'driver' => 'daily',
-            'path' => storage_path('logs/smtp/smtp.log'),
-            'level' => 'debug',
-        ]);
         
         // Register Livewire
         $this->app->register(\Livewire\LivewireServiceProvider::class);
@@ -111,6 +104,13 @@ class WRLAServiceProvider extends ServiceProvider
             CreateUserCommand::class,
             WikiCommand::class,
             RebuildUser::class,
+        ]);
+
+        // Custom logging channels
+        app('config')->set('logging.channels.smtp', [
+            'driver' => 'daily',
+            'path' => storage_path('logs/smtp/smtp.log'),
+            'level' => 'debug',
         ]);
 
         // Load migrations
