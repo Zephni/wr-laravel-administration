@@ -119,6 +119,13 @@ class WRLAServiceProvider extends ServiceProvider
             RebuildUser::class,
         ]);
 
+        // Custom logging channels
+        $this->app->make('config')->set('logging.channels.smtp', [
+            'driver' => 'daily',
+            'path' => storage_path('logs/smtp/smtp.log'),
+            'level' => 'debug',
+        ]);
+
         // Load migrations
         $this->loadMigrationsFrom(__DIR__ . '/database/migrations');
 
