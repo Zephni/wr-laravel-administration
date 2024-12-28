@@ -1,0 +1,11 @@
+@component('mail::message')
+# {!! $emailTemplate->getFinalSubject() !!}
+
+@component('mail::panel')
+{!! $emailTemplate->getFinalBody() !!}
+@endcomponent
+
+<br>
+Thanks,<br>
+{{ config('app.name') }}
+@endcomponent

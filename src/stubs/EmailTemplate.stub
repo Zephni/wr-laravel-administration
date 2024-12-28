@@ -1,0 +1,222 @@
+<?php
+
+namespace App\WRLA;
+
+use App\Models\User;
+use Illuminate\Support\Str;
+use Illuminate\Support\Collection;
+use Illuminate\Database\Eloquent\Builder;
+use WebRegulate\LaravelAdministration\Enums\PageType;
+use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
+use WebRegulate\LaravelAdministration\Classes\BrowseFilter;
+use WebRegulate\LaravelAdministration\Classes\ManageableModel;
+use WebRegulate\LaravelAdministration\Classes\ManageableFields\Json;
+use WebRegulate\LaravelAdministration\Classes\ManageableFields\Text;
+use WebRegulate\LaravelAdministration\Classes\ManageableFields\Select;
+use WebRegulate\LaravelAdministration\Classes\ManageableFields\TextArea;
+use WebRegulate\LaravelAdministration\Classes\ManageableFields\BladeElement;
+
+class EmailTemplate extends ManageableModel
+{
+    /**
+     * Setup the main properties of the model.
+     *
+     * @return void
+     */
+    public final static function mainSetup(): void
+    {
+        static::setBaseModelClass(\WebRegulate\LaravelAdministration\Models\EmailTemplate::class);
+        static::setDisplayName();
+        static::setUrlAlias('email-template');
+        static::setIcon('fas fa-palette');
+    }
+
+    /**
+     * Setup global properties of this manageable model.
+     *
+     * @return void
+     */
+    public final static function globalSetup(): void
+    {
+        // Navigation
+        static::setChildNavigationItems(parent::getDefaultChildNavigationItems());
+    }
+
+    /**
+     * Setup brwose properties of this manageable model.
+     *
+     * @return void
+     */
+    public final static function browseSetup(): void
+    {
+        // Browse filters
+        static::setBrowseFilters(static::getDefaultBrowseFilters()->prepend(
+            // Training course filter
+            new BrowseFilter(
+                // Field
+                Select::makeBrowseFilter('categoryFilter')
+                    ->setLabel('Category', 'fas fa-tag text-slate-400 !mr-1')
+                    ->setItems([
+                        'all' => 'All',
+                        'transactional' => 'Transactional',
+                        'marketing' => 'Marketing',
+                        'notification' => 'Notification',
+                    ])
+                    ->setOption('containerClass', 'w-1/4'),
+
+                // Apply filter
+                function(Builder $query, $table, $columns, $value) {
+                    if($value != 'all') {
+                        $query->where('category', $value);
+                    }
+                    return $query;
+                }
+            ), 'categoryFilter'
+        ));
+
+        // Browse actions
+        static::setBrowseActions(static::getDefaultBrowseActions());
+
+        // Order by
+        static::setOrderBy('category', 'desc');
+    }
+
+    /**
+     * Provide an array of columns to display in the browse view.
+     *
+     * @return array
+     */
+    public final function getBrowseColumns(): array
+    {
+        return [
+            'category' => 'Category',
+            'alias' => 'Alias',
+        ];
+    }
+
+    /**
+     * Provide an array of manageable fields to display in the upsert view.
+     *
+     * @return array
+     */
+    public final function getManageableFields(): array
+    {
+        $isCraig = User::current()->email == 'craig.dennis@webregulate.co.uk';
+
+        return [
+            Text::make($this, 'alias')
+                ->required()
+                ->validation('string|min:5|max:255')
+                ->setAttributes([
+                    (WRLAHelper::getCurrentPageType() == PageType::EDIT ? 'readonly' : 'donothing') => 'true',
+                    'class' => WRLAHelper::getCurrentPageType() == PageType::EDIT ? 'opacity-50' : '',
+                ])
+                ->notes('Minimum 5 characters. After set and in use, do not change this value.'),
+
+            // Hidden mappings field (Only shows for craig.dennis@webregulate.co.uk)
+            Json::make($this, 'mappings')->setLabel(!$isCraig ? null : 'Mappings (Shows for Craig only)')
+                ->hideContainingBraces()
+                ->default('"user": {
+        "id": null,
+        "name": null,
+        "email": null
+}')
+                ->setAttributes([
+                    'autocorrect' => 'false',
+                    'spellcheck' => 'false',
+                    'style' => !$isCraig ? 'display: none !important;' : '',
+                ]),
+
+            Text::make($this, 'description')->setLabel('Short description')
+                ->setAttributes([
+                    'autocorrect' => 'false',
+                    'spellcheck' => 'false',
+                ]),
+
+            Select::make($this, 'category')
+                ->required()
+                ->setItems([
+                    'marketing' => 'Marketing',
+                    'training_courses' => 'Training Courses',
+                    'transactional' => 'Transactional',
+                ]),
+
+            Text::make($this, 'subject')
+                ->setLivewireModel('live.debounce.500ms')
+                ->default('Subject text')
+                ->required(),
+
+            TextArea::make($this, 'body')
+                ->setLivewireModel('live.debounce.500ms')
+                ->setAttributes([
+                    'autocorrect' => 'false',
+                    'spellcheck' => 'false',
+                    (WRLAHelper::getCurrentPageType() == PageType::EDIT ? 'autofocus' : 'donothing') => 'true',
+                    'x-ref' => 'bodyTextArea',
+                    'rows' => 20,
+                ])
+                ->default('Body text')
+                ->required(),
+
+            EmailTemplate::buildEmailTemplateBladeElement($this, $this->getModelInstance()),
+        ];
+    }
+
+    public static function buildEmailTemplateBladeElement(ManageableModel $manageableModel, \WebRegulate\LaravelAdministration\Models\EmailTemplate|callable $emailTemplate): BladeElement
+    {
+        return BladeElement::make($manageableModel, null, function($bladeElement) use ($emailTemplate) {
+            if(is_callable($emailTemplate)) {
+                $emailTemplate = $emailTemplate();
+            }
+
+            // Set up the email template example data
+            $emailTemplate->setDataArray([
+                'user' => [
+                    'id' => 1,
+                    'name' => 'John Doe',
+                    'email' => 'john.doe@domain.com',
+                ],
+            ]);
+
+            $emailTemplate->subject = ManageableModel::getLivewireField('subject');
+            $emailTemplate->body = ManageableModel::getLivewireField('body');
+
+            // Inject variables into the blade variables
+            $subject = $emailTemplate->getFinalSubject($emailTemplate::RENDER_MODE_BLADE);
+            $body = Str::markdown($emailTemplate->getFinalBody($emailTemplate::RENDER_MODE_BLADE));
+            $mappingsList = $emailTemplate->getMappingsListFormattedHTML();
+
+            // Return the blade element
+            return <<<HTML
+                <div class="relative w-full" style="top: -22px;">
+                    <div class="border border-slate-300 mt-2 p-3">
+                        <b class="font-medium">Available key mappings (click to inject):</b><br />
+                        $mappingsList
+                    </div>
+                    <div class="relative border border-slate-300 mt-2 p-3">
+                        <div wire:loading class="absolute top-2 right-4 flex justify-end items-center gap-2 font-medium text-slate-600 text-sm">
+                            <i class="fas fa-spinner fa-spin"></i>
+                            <span style="padding-left: 4px;">Loading...</span>
+                        </div>
+                        <b class="font-medium">Preview:</b><br />
+                        <p class="pb-2"><span class="font-light">$subject</span></p>
+                        <div class="px-3 py-2 bg-slate-200 dark:bg-slate-800 bg-opacity-80 rounded-lg">
+                            <div class="font-light [&_a]:underline">$body</div>
+                        </div>
+                    </div>
+                </div>
+            HTML;
+        });
+    }
+
+    /**
+     * Provide the model instance actions.
+     *
+     * @param Collection $instanceActions default instance actions (edit, delete)
+     * @return Collection
+     */
+    public final function getInstanceActions(Collection $instanceActions): Collection
+    {
+        return $instanceActions;
+    }
+}

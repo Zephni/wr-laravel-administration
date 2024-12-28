@@ -31,6 +31,7 @@ class WRLASettings
             // Import manageable model nav items - If array is empty, all manageable models will be imported
             NavigationItemsManageableModels::import([
                 // \App\WRLA\User::class,
+                // \App\WRLA\EmailTemplate::class,
                 // ...
             ]),
 
