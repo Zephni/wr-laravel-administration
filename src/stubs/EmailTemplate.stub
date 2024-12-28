@@ -147,7 +147,7 @@ class EmailTemplate extends ManageableModel
                     'spellcheck' => 'false',
                     (WRLAHelper::getCurrentPageType() == PageType::EDIT ? 'autofocus' : 'donothing') => 'true',
                     'x-ref' => 'bodyTextArea',
-                    'rows' => 20,
+                    'rows' => 10,
                 ])
                 ->default('Body text')
                 ->required(),
