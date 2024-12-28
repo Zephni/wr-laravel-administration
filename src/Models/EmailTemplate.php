@@ -12,6 +12,8 @@ class EmailTemplate extends Model
 {
     use SoftDeletes;
 
+    protected $table = 'wrla_email_templates';
+
     const RENDER_MODE_BLADE = 'blade';
     const RENDER_MODE_EMAIL = 'email';
 
