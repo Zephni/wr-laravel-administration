@@ -268,7 +268,8 @@ class EmailTemplate extends Model
         }
 
         // Send as seperate emails mode
-        if($sendSeperateEmails) {
+        if($sendSeperateEmails)
+        {
             if(is_string($toAddresses)) {
                 $toAddresses = [$toAddresses];
             }
@@ -293,6 +294,10 @@ class EmailTemplate extends Model
             }
 
             return true;
+        }
+        else
+        {
+            Log::channel('smtp')->info("Sending {$this->alias} email template", ['to' => $toAddresses]);
         }
 
         // Send as one email with first as to, and rest as cc mode
