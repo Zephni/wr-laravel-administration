@@ -113,8 +113,12 @@ class Image
         // New, we now use Intervention
         $imageManager = new ImageManager(new Driver());
         $image = $imageManager->read($file);
-        $manipulateImageFunction = $this->manipulateImageFunction;
-        $image = $manipulateImageFunction($image);
+
+        if($this->manipulateImageFunction !== null) {
+            $manipulateImageFunction = $this->manipulateImageFunction;
+            $image = $manipulateImageFunction($image);
+        }
+
         $image->save(public_path($path) . '/' . $filename);
 
         return '/'.rtrim(ltrim($path, '/'), '/') . '/' . $filename;
