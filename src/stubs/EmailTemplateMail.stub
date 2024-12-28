@@ -63,7 +63,7 @@ class EmailTemplateMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            markdown: 'email.email-template-mail',
+            markdown: 'email.wrla.email-template-mail',
         );
     }
 
