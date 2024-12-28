@@ -101,8 +101,6 @@ class EmailTemplate extends ManageableModel
      */
     public final function getManageableFields(): array
     {
-        $isCraig = User::current()->email == 'craig.dennis@webregulate.co.uk';
-
         return [
             Text::make($this, 'alias')
                 ->required()
