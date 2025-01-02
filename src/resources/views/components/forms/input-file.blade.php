@@ -18,7 +18,9 @@
     ])->render() !!}
 @endif
 
-<div class="relative">
+<div
+    x-data="{ displayText: '{{ $chooseFileText }}' }"
+    class="relative">
     <input
         wire:key="{{ rand() }}"
         wire:loading.attr="disabled"
@@ -26,7 +28,9 @@
         id="{{ $id }}"
         class="absolute z-0 inset-0 opacity-0 w-0 h-0 !cursor-pointer"
         {{ $attributes->merge(['class' => '']) }}
-        onchange="document.getElementById('{{ $id }}-filename').innerText = this.files.length ? this.files[0].name : '{{ $chooseFileText }}';" />
+        x-on:change="
+            displayText = $el.files.length ? $el.files[0].name : '{{ $chooseFileText }}';
+        "/>
     <label for="{{ $id }}" class="group z-40 flex justify-start items-center p-1.5 gap-2 border border-slate-300 dark:border-slate-600 bg-slate-100 dark:bg-slate-800 rounded-lg cursor-pointer">
         <div type="button" class="z-50 px-3 py-1.5 text-white bg-primary-600 hover:bg-primary-500 font-medium rounded-lg group-hover:bg-primary-500">
             Browse
@@ -35,7 +39,7 @@
             <i class="fas fa-spinner fa-spin"></i>
             <span>Uploading file, please wait this can take some time...</span>
         </div>
-        <span wire:loading.remove id="{{ $id }}-filename" class="ml-2">{{ $chooseFileText }}</span>
+        <span wire:loading.remove id="{{ $id }}-filename" class="ml-2" x-text="displayText"></span>
     </label>
 </div>
 
@@ -44,10 +48,8 @@
     @themeComponent('forms.field-notes', ['notes' => $options['notes']])
 @endif
 
-@if($options['showError'] ?? true)
-    @error($attributes->get('name'))
-        @themeComponent('alert', ['type' => 'error', 'message' => $message, 'class' => 'mt-2'])
-    @enderror
-@endif
+@error($attributes->get('name'))
+    @themeComponent('alert', ['type' => 'error', 'message' => $message, 'class' => 'mt-2'])
+@enderror
 
 </div>
