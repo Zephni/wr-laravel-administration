@@ -61,6 +61,18 @@ class EmailTemplate extends Model
     }
 
     /**
+     * Merge data array.
+     *
+     * @param array $dataArray
+     * @return self
+     */
+    public function mergeDataArray(array $dataArray): self
+    {
+        $this->dataArray = array_merge($this->dataArray ?? [], $dataArray);
+        return $this;
+    }
+
+    /**
      * Set data from models.
      *
      * @param array $models
@@ -69,6 +81,18 @@ class EmailTemplate extends Model
     public function setDataFromModels(array $models): self
     {
         $this->dataArray = $this->buildDataArrayFromModels($models);
+        return $this;
+    }
+
+    /**
+     * Merge data from models.
+     *
+     * @param array $models
+     * @return self
+     */
+    public function mergeDataFromModels(array $models): self
+    {
+        $this->dataArray = array_merge($this->dataArray ?? [], $this->buildDataArrayFromModels($models));
         return $this;
     }
 
