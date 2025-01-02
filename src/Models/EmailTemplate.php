@@ -27,7 +27,7 @@ class EmailTemplate extends Model
         'requires_attachment',
     ];
 
-    private ?array $dataArray = null;
+    public ?array $dataArray = null;
     private bool $errorFound = false;
 
     /**
@@ -154,22 +154,17 @@ class EmailTemplate extends Model
         //     return $this->dataArray;
         // }
 
-        $data = $this->getKeyMappings();
+        $data = [];
 
-        try {
-            // Loop through key mappings and set each value based on model attributes
-            foreach ($data as $key => $model) {
-                if(!isset($models[$key])) {
-                    continue;
-                }
+        // Apply models to data if key mappings exist
+        foreach($models as $key => $model) {
+            $keyMappings = $this->getKeyMappings();
 
-                $modelData = $models[$key]->only(array_keys($model));
-                $data[$key] = $modelData;
+            if(!isset($keyMappings[$key])) {
+                continue;
             }
 
-            $this->dataArray = $data;
-        } catch (\Exception $e) {
-            $this->errorFound = true;
+            $data[$key] = $model->only(array_keys($keyMappings[$key]));
         }
 
         return $data;
@@ -208,7 +203,7 @@ class EmailTemplate extends Model
             // Loop through each data array and inject into string
             foreach ($this->dataArray as $key => $model) {
                 foreach ($model as $modelKey => $modelValue) {
-                    $buildString = str_replace('{{ ' . $key . '.' . $modelKey . ' }}', $modelValue, $buildString);
+                    $buildString = str_replace('{{ ' . $key . '.' . $modelKey . ' }}', $modelValue ?? '', $buildString);
                 }
             }
 
