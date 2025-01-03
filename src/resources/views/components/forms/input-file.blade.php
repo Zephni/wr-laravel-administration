@@ -35,11 +35,11 @@
         <div type="button" class="px-3 py-1.5 text-white bg-primary-600 hover:bg-primary-500 font-medium rounded-lg group-hover:bg-primary-500">
             Browse
         </div>
-        <div wire:loading class="ml-2 flex gap-3">
+        <div wire:loading wire:target="livewireData.{{ $attributes->get('name') }}" class="ml-2 flex gap-3">
             <i class="fas fa-spinner fa-spin"></i>
             <span>Uploading file, please wait this can take some time...</span>
         </div>
-        <span wire:loading.remove id="{{ $id }}-filename" class="ml-2" x-text="displayText"></span>
+        <span wire:loading.remove wire:target="livewireData.{{ $attributes->get('name') }}" id="{{ $id }}-filename" class="ml-2" x-text="displayText"></span>
     </label>
 </div>
 
