@@ -156,9 +156,9 @@ class EmailTemplate extends ManageableModel
         ];
     }
 
-    public static function buildEmailTemplateBladeElement(ManageableModel $manageableModel, \WebRegulate\LaravelAdministration\Models\EmailTemplate|callable $emailTemplate): BladeElement
+    public static function buildEmailTemplateBladeElement(ManageableModel $manageableModel, \WebRegulate\LaravelAdministration\Models\EmailTemplate|callable $emailTemplate, ?array $mergeExampleModels = null, ?array $mergeExampleData = null): BladeElement
     {
-        return BladeElement::make($manageableModel, null, function($bladeElement) use ($emailTemplate) {
+        return BladeElement::make($manageableModel, null, function($bladeElement) use ($emailTemplate, $mergeExampleModels, $mergeExampleData) {
             if(is_callable($emailTemplate)) {
                 $emailTemplate = $emailTemplate();
             }
@@ -171,6 +171,16 @@ class EmailTemplate extends ManageableModel
                     'email' => 'john.doe@domain.com',
                 ],
             ]);
+
+            // If $mergeExampleModels is not empty, then merge with the example data
+            if(!empty($mergeExampleModels)) {
+                $emailTemplate->mergeDataFromModels($mergeExampleModels);
+            }
+
+            // If $mergeExampleData is not empty, then merge with the example data
+            if(!empty($mergeExampleData)) {
+                $emailTemplate->mergeDataArray($mergeExampleData);
+            }
 
             // If mappings include any which aren't set above, then fill with placeholders
             $emailTemplate->fillMissingDataWithPlaceholders();
