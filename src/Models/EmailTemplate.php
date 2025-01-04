@@ -286,6 +286,9 @@ class EmailTemplate extends Model
             return false;
         }
 
+        // Get current smtp host from config
+        $smtpHost = config('mail.mailers.smtp.host');
+
         // Send as seperate emails mode
         if($sendSeperateEmails)
         {
@@ -297,7 +300,7 @@ class EmailTemplate extends Model
             $toAddresses = array_filter($toAddresses, fn($toAddress) => !empty($toAddress) && str($toAddress)->contains('@'));
 
             foreach($toAddresses as $toAddress) {
-                Log::channel('smtp')->info("Sending {$this->alias} email template", ['to' => $toAddress]);
+                Log::channel('smtp')->info("Sending {$this->alias} email template ({$smtpHost})", ['to' => $toAddress]);
 
                 $mail = Mail::send(new EmailTemplateMail(
                     $this,
@@ -314,10 +317,8 @@ class EmailTemplate extends Model
 
             return true;
         }
-        else
-        {
-            Log::channel('smtp')->info("Sending {$this->alias} email template", ['to' => $toAddresses]);
-        }
+
+        Log::channel('smtp')->info("Sending {$this->alias} email template ({$smtpHost})", ['to' => $toAddresses]);
 
         // Send as one email with first as to, and rest as cc mode
         $mail = Mail::send(new EmailTemplateMail(
