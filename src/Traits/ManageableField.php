@@ -3,6 +3,7 @@
 namespace WebRegulate\LaravelAdministration\Traits;
 
 use Illuminate\Http\Request;
+use WebRegulate\LaravelAdministration\Classes\BrowseFilter;
 use WebRegulate\LaravelAdministration\Enums\PageType;
 use WebRegulate\LaravelAdministration\Classes\ManageableModel;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
@@ -49,6 +50,13 @@ trait ManageableField
      * @var array
      */
     public array $inlineValidationRules = [];
+
+    /**
+     * Filter key values
+     *
+     * @var array
+     */
+    public static array $browseFilterValues = [];
 
     /**
      * Show on pages
@@ -158,19 +166,57 @@ trait ManageableField
      * Make browse.filter version of the form component.
      *
      * @param string $filterAlias Must be the same as the BrowseFilter key
+     * @param string $filterLabel
+     * @param string $filterIcon
+     * @param bool $useLivewire
      * @return static
      */
-    public static function makeBrowseFilter(?string $filterAlias = null): static
+    public static function makeBrowseFilter(?string $filterAlias = null, ?string $filterLabel = null, ?string $filterIcon = null, bool $reRenderOnFiltersChange = false): static
     {
         return static::make(null, $filterAlias)
             ->setOptions([
                 'newRow' => false,
                 'containerClass' => '',
                 'labelClass' => 'font-thin',
+                'reRenderOnFiltersChange' => $reRenderOnFiltersChange,
             ])
+            ->setLabel($filterLabel, !empty($filterIcon) ? "$filterIcon text-slate-400 mr-1" : null)
             ->setAttributes([
                 'wire:model.live' => 'filters.'.$filterAlias,
             ]);
+    }
+
+    /**
+     * Make browse.filter version of the form component.
+     *
+     * @param callable $callback Takes $query, $table, $columns, $value
+     * @return BrowseFilter
+     */
+    public function browseFilterApply(callable $callback): BrowseFilter
+    {
+        return new BrowseFilter(
+            // Field
+            !$this->getOption('reRenderOnFiltersChange')
+                ?   $this
+                :   function($browseFilterValues) {
+                        ManageableField::$browseFilterValues = $browseFilterValues;
+                        return $this;
+                    },
+
+            // Apply browse filter
+            $callback
+        );
+    }
+
+    /**
+     * Get filter value.
+     *
+     * @param string $filterAlias
+     * @return mixed
+     */
+    public function getBrowseFilterValue(string $filterAlias): mixed
+    {
+        return ManageableField::$browseFilterValues[$filterAlias] ?? null;
     }
 
     /**
@@ -200,7 +246,7 @@ trait ManageableField
 
     /**
      * Should submit method, if false then the form will not submit it's value by setting the form="none" attribute.
-     * 
+     *
      * @param bool $shouldSubmit
      * @return $this
      */
@@ -211,7 +257,7 @@ trait ManageableField
         } else {
             $this->removeAttribute('form');
         }
-        
+
         return $this;
     }
 
@@ -282,7 +328,7 @@ trait ManageableField
 
     /**
      * Begin group
-     * 
+     *
      * @return $this
      */
     public function beginGroup(): static
@@ -293,7 +339,7 @@ trait ManageableField
 
     /**
      * End group
-     * 
+     *
      * @return $this
      */
     public function endGroup(): static
@@ -378,7 +424,7 @@ trait ManageableField
 
     /**
      * Remove attribute
-     * 
+     *
      * @param string $key
      * @return $this
      */
@@ -528,7 +574,7 @@ trait ManageableField
 
     /**
      * Get label from field name
-     * 
+     *
      * @return string
      */
     public static function getLabelFromFieldName(string $fieldName): string
@@ -694,19 +740,19 @@ trait ManageableField
             $modelInstance = $this->manageableModel->getModelInstance();
             $fieldName = str($this->htmlAttributes['name'])->replace(WRLAHelper::WRLA_REL_DOT, '.');
             $relationshipParts = WRLAHelper::parseBrowseColumnRelationship($fieldName);
-    
-            
+
+
             if($modelInstance == null) {
                 dd($modelInstance, $fieldName, $relationshipParts);
             }
-    
+
             // Reload and get relationship instance
             $modelInstance->load($relationshipParts[0]);
             $relationshipInstance = $modelInstance->{$relationshipParts[0]};
-    
+
             // If relationship instance is not null, return it
             if($relationshipInstance != null) return $relationshipInstance;
-    
+
             // Get model class from relationship and return new instance
             $relationship = $modelInstance->{$relationshipParts[0]}();
             $relationshipClass = get_class($relationship->getRelated());

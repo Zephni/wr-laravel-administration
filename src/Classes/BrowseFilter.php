@@ -14,13 +14,13 @@ class BrowseFilter
      * @var ManageableField|callable
      */
     public mixed $field;
-    
+
     /**
      * The applicable filter. Must take parameters:
      * Eloquent/Builder $query
      * Collection $columns
      * mixed $value
-     * 
+     *
      * Return the Builder with filtered results.
      *
      * @var callable
@@ -40,21 +40,34 @@ class BrowseFilter
     }
 
     /**
+     * Get key from field's attribute name.
+     *
+     * @param array $filterKeyValues
+     * @return string
+     */
+    public function getKey($filterKeyValues): string
+    {
+        return $this->getField($filterKeyValues)->getAttribute('name');
+    }
+
+    /**
      * Get field.
-     * 
+     *
      * @param array $filterKeyValues
      * @return ManageableField
      */
     public function getField($filterKeyValues)
     {
-        return !is_callable($this->field)
-            ? $this->field
-            : call_user_func($this->field, $filterKeyValues);
+        return once(fn() =>
+            !is_callable($this->field)
+                ? $this->field
+                : call_user_func($this->field, $filterKeyValues)
+        );
     }
 
     /**
      * Render the filter.
-     * 
+     *
      * @param array $filterKeyValues
      * @return string
      */
@@ -76,7 +89,7 @@ class BrowseFilter
 
     /**
      * Apply to query builder.
-     * 
+     *
      * @param Builder $query
      * @param string $table
      * @param Collection $columns

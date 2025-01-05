@@ -51,7 +51,7 @@ class ManageableModelBrowse extends Component
 
     /**
      * Dynamic filter inputs
-     * 
+     *
      * @var array
      */
     public array $dynamicFilterInputs = [];
@@ -92,8 +92,15 @@ class ManageableModelBrowse extends Component
     public ?string $debugMessage = null;
 
     /**
+     * Renders
+     *
+     * @var int
+     */
+    public int $renders = 0;
+
+    /**
      * Listeners
-     * 
+     *
      * @var array
      */
     protected $listeners = [
@@ -105,14 +112,14 @@ class ManageableModelBrowse extends Component
 
     /**
      * Filters updated outside
-     * 
+     *
      * @param array $dynamicFilterInputs
      * @param array $filters
      */
     public function filtersUpdatedOutside(array $dynamicFilterInputs): void
     {
         $this->dynamicFilterInputs = $dynamicFilterInputs;
-        
+
         // foreach($dynamicFilterInputs as $item) {
         //     $this->filters[$item['field']] = $item['value'];
         // }
@@ -120,7 +127,7 @@ class ManageableModelBrowse extends Component
 
     /**
      * Updates fields
-     * 
+     *
      * @param string $field
      * @return void
      */
@@ -130,7 +137,7 @@ class ManageableModelBrowse extends Component
     }
 
     /**
-     * 
+     *
      */
 
     /**
@@ -158,7 +165,7 @@ class ManageableModelBrowse extends Component
         }
 
         // Run browse setup method
-        $this->manageableModelClass::browseSetup();
+        $this->manageableModelClass::browseSetupFinal($this->filters);
 
         // Build parent columns from manageable model
         $columns = $manageableModelInstance->getBrowseColumns();
@@ -169,8 +176,8 @@ class ManageableModelBrowse extends Component
         // Get manageable model filter keys from collection
         $manageableModelFilters = $manageableModelClass::getBrowseFilters();
 
-        foreach($manageableModelFilters as $key => $browseFilter) {
-            $this->filters[$key] = $browseFilter->getField($this->filters)->getValue();
+        foreach($manageableModelFilters as $browseFilter) {
+            $this->filters[$browseFilter->getKey($this->filters)] = $browseFilter->getField($this->filters)->getValue();
         }
 
         // Check the pre filters and override default browse filters if so
@@ -247,6 +254,7 @@ class ManageableModelBrowse extends Component
      */
     public function render()
     {
+        $this->renders++;
         $models = $this->browseModels();
 
         return view(WRLAHelper::getViewPath('livewire.manageable-models.browse'), [
@@ -307,7 +315,9 @@ class ManageableModelBrowse extends Component
         $baseModelInstance = new $baseModelClass;
 
         // Run browse setup method
-        $this->manageableModelClass::browseSetup();
+        if($this->renders > 1) {
+            $this->manageableModelClass::browseSetupFinal($this->filters);
+        }
 
         // Get connection and table name
         $tableName = $baseModelInstance->getTable();
@@ -359,7 +369,7 @@ class ManageableModelBrowse extends Component
                 }
 
                 $eloquent = $eloquent->leftJoinRelation($relationshipMethod);
-                
+
                 // Add to joins made (And check for any joins added by the relationship's joins)
                 $joinsMade[] = $relationTable;
                 foreach($eloquent->getQuery()->joins as $join) {
@@ -391,17 +401,19 @@ class ManageableModelBrowse extends Component
 
         // Now we loop through the filterable fields and apply them to the query
         $manageableModelFilters = [];
-        
+
         if(empty($this->dynamicFilterInputs))
         {
-            $manageableModelFilters = $this->manageableModelClass::getBrowseFilters();
+            $manageableModelFilters = $this->manageableModelClass::getBrowseFilters($this->filters);
 
-            foreach($manageableModelFilters as $key => $browseFilter) {
+            foreach($manageableModelFilters as $browseFilter) {
+                $key = $browseFilter->getKey($this->filters);
+
                 if(empty($this->dynamicFilterInputs)) {
                     if(empty($this->filters[$key])) {
                         continue;
                     }
-    
+
                     $eloquent = $browseFilter->apply($eloquent, $tableName, $this->columns, $this->filters[$key]);
                 }
             }
@@ -528,13 +540,10 @@ class ManageableModelBrowse extends Component
             return true;
         }
 
-        // Get the manageable model filters
-        $manageableModelFilters = $this->manageableModelClass::getBrowseFilters();
-
         // Loop through the filters and compare their values with the default values
-        foreach($this->filters as $key => $value) {
-            // Return true If any filter value is different from the default value
-            if($value != $manageableModelFilters[$key]) {
+        foreach($this->filters as $value) {
+            // Return true If any filter value is not null
+            if($value != null) {
                 return true;
             }
         }

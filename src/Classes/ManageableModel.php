@@ -44,6 +44,13 @@ abstract class ManageableModel
     public static array $livewireFields = [];
 
     /**
+     * Browse filter fields
+     *
+     * @var array
+     */
+    public static array $browseFilterFields = [];
+
+    /**
      * Uses wysiwyg editor
      *
      * @var bool
@@ -138,6 +145,29 @@ abstract class ManageableModel
      * @return void
      */
     public abstract static function browseSetup(): void;
+
+    /**
+     * Browse setup.
+     *
+     * @return void
+     */
+    public static function browseSetupFinal($browseFilterFields) {
+        once(function() use($browseFilterFields) {
+            self::$browseFilterFields = $browseFilterFields;
+            static::browseSetup();
+        });
+    }
+
+    /**
+     * Get browse filter value.
+     *
+     * @param string $key
+     * @return mixed
+     */
+    public static function getBrowseFilterValue(string $key): mixed
+    {
+        return self::$browseFilterFields[$key] ?? null;
+    }
 
     /**
      * Abstract: Get manageable fields method.
@@ -1186,7 +1216,7 @@ abstract class ManageableModel
 
     /**
      * Get table columns
-     * 
+     *
      * @return array
      */
     public static function getTableColumns(): array
