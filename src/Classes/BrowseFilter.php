@@ -11,9 +11,9 @@ class BrowseFilter
     /**
      * The field to filter by.
      *
-     * @var ManageableField|callable
+     * @var ManageableField
      */
-    public mixed $field;
+    public ManageableField $field;
 
     /**
      * The applicable filter. Must take parameters:
@@ -42,39 +42,32 @@ class BrowseFilter
     /**
      * Get key from field's attribute name.
      *
-     * @param array $filterKeyValues
      * @return string
      */
-    public function getKey($filterKeyValues): string
+    public function getKey(): string
     {
-        return $this->getField($filterKeyValues)->getAttribute('name');
+        return $this->getField()->getAttribute('name');
     }
 
     /**
      * Get field.
      *
-     * @param array $filterKeyValues
      * @return ManageableField
      */
-    public function getField($filterKeyValues)
+    public function getField()
     {
-        return once(fn() =>
-            !is_callable($this->field)
-                ? $this->field
-                : call_user_func($this->field, $filterKeyValues)
-        );
+        return $this->field;
     }
 
     /**
      * Render the filter.
      *
-     * @param array $filterKeyValues
      * @return string
      */
-    public function render(array $filterKeyValues): string
+    public function render(): string
     {
         // Get field
-        $field = $this->getField($filterKeyValues);
+        $field = $this->getField();
 
         // Build HTML
         $prependHTML = '';

@@ -43,9 +43,7 @@
                     ])
 
                     {{-- Value input --}}
-                    {{-- NOTE: We may want to pass the existing filters through here by just getting the values of all the browseFilters --}}
-                    {{-- {!! $browseFilter->render($filters) !!} --}}
-                    {!! $browseFilter->render([]) !!}
+                    {!! $browseFilter->render() !!}
 
                     {{-- Remove filter button --}}
                     <button type="button" wire:click="removeFilterAction({{ $key }})" class="flex items-center justify-center w-8 h-8 border border-slate-500 text-slate-500 hover:border-rose-500 hover:text-rose-500 rounded-full">

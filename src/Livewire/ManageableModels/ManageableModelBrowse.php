@@ -177,7 +177,7 @@ class ManageableModelBrowse extends Component
         $manageableModelFilters = $manageableModelClass::getBrowseFilters();
 
         foreach($manageableModelFilters as $browseFilter) {
-            $this->filters[$browseFilter->getKey($this->filters)] = $browseFilter->getField($this->filters)->getValue();
+            $this->filters[$browseFilter->getKey()] = $browseFilter->getField()->getValue();
         }
 
         // Check the pre filters and override default browse filters if so
@@ -407,7 +407,7 @@ class ManageableModelBrowse extends Component
             $manageableModelFilters = $this->manageableModelClass::getBrowseFilters($this->filters);
 
             foreach($manageableModelFilters as $browseFilter) {
-                $key = $browseFilter->getKey($this->filters);
+                $key = $browseFilter->getKey();
 
                 if(empty($this->dynamicFilterInputs)) {
                     if(empty($this->filters[$key])) {
