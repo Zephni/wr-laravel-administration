@@ -168,17 +168,16 @@ trait ManageableField
      * @param string $filterAlias Must be the same as the BrowseFilter key
      * @param string $filterLabel
      * @param string $filterIcon
-     * @param bool $useLivewire
+     * @param string $containerClass
      * @return static
      */
-    public static function makeBrowseFilter(?string $filterAlias = null, ?string $filterLabel = null, ?string $filterIcon = null, bool $reRenderOnFiltersChange = false): static
+    public static function makeBrowseFilter(?string $filterAlias = null, ?string $filterLabel = null, ?string $filterIcon = null, string $containerClass = 'flex-1'): static
     {
         return static::make(null, $filterAlias)
             ->setOptions([
                 'newRow' => false,
-                'containerClass' => '',
-                'labelClass' => 'font-thin',
-                'reRenderOnFiltersChange' => $reRenderOnFiltersChange,
+                'containerClass' => $containerClass,
+                'labelClass' => 'font-thin mb-1',
             ])
             ->setLabel($filterLabel, !empty($filterIcon) ? "$filterIcon text-slate-400 mr-1" : null)
             ->setAttributes([
@@ -195,13 +194,7 @@ trait ManageableField
     public function browseFilterApply(callable $callback): BrowseFilter
     {
         return new BrowseFilter(
-            // Field
-            !$this->getOption('reRenderOnFiltersChange')
-                ?   $this
-                :   function($browseFilterValues) {
-                        ManageableField::$browseFilterValues = $browseFilterValues;
-                        return $this;
-                    },
+            $this,
 
             // Apply browse filter
             $callback

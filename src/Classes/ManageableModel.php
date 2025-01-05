@@ -743,7 +743,6 @@ abstract class ManageableModel
         return collect([
             'searchFilter' =>
                 Text::makeBrowseFilter('searchFilter', 'Search', 'fas fa-search text-slate-400')
-                    ->setOption('containerClass', 'w-1/3')
                     ->setAttributes([
                         'autofocus' => true,
                         'placeholder' => 'Search filter...'
