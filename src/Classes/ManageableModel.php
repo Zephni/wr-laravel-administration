@@ -741,49 +741,44 @@ abstract class ManageableModel
      */
     public static function getDefaultBrowseFilters(): Collection {
         return collect([
-            'searchFilter' => new BrowseFilter(
-                // Field
-                Text::makeBrowseFilter('searchFilter')
-                    ->setLabel('Search', 'fas fa-search text-slate-400')
+            'searchFilter' =>
+                Text::makeBrowseFilter('searchFilter', 'Search', 'fas fa-search text-slate-400')
                     ->setOption('containerClass', 'w-1/3')
                     ->setAttributes([
                         'autofocus' => true,
                         'placeholder' => 'Search filter...'
-                    ]),
+                    ])
+                    ->browseFilterApply(function(Builder $query, $table, $columns, $value) {
+                        return $query->where(function($query) use($table, $columns, $value) {
+                            $whereIndex = 0;
 
-                // Apply filter
-                function(Builder $query, $table, $columns, $value) {
-                    return $query->where(function($query) use($table, $columns, $value) {
-                        $whereIndex = 0;
+                            foreach($columns as $column => $label) {
+                                // If column is relationship, then modify the column to be the related column
+                                if((WRLAHelper::isBrowseColumnRelationship($column))) {
+                                    $relationshipParts = WRLAHelper::parseBrowseColumnRelationship($column);
 
-                        foreach($columns as $column => $label) {
-                            // If column is relationship, then modify the column to be the related column
-                            if((WRLAHelper::isBrowseColumnRelationship($column))) {
-                                $relationshipParts = WRLAHelper::parseBrowseColumnRelationship($column);
+                                    $baseModelClass = self::getBaseModelClass();
+                                    $relationship = (new $baseModelClass)->{$relationshipParts[0]}();
+                                    $relationshipTableName = $relationship->getRelated()->getTable();
+                                    $foreignColumn = $relationship->getForeignKeyName();
 
-                                $baseModelClass = self::getBaseModelClass();
-                                $relationship = (new $baseModelClass)->{$relationshipParts[0]}();
-                                $relationshipTableName = $relationship->getRelated()->getTable();
-                                $foreignColumn = $relationship->getForeignKeyName();
+                                    // If relationship connection is not empty, generate the SQL to inject it
+                                    if(!empty($relationshipConnection)) $relationshipConnection = "`$relationshipConnection`.";
 
-                                // If relationship connection is not empty, generate the SQL to inject it
-                                if(!empty($relationshipConnection)) $relationshipConnection = "`$relationshipConnection`.";
+                                    $whereIndex++;
 
-                                $whereIndex++;
-
-                                // Safely escape value
-                                $query->orWhereRelation($relationshipParts[0], "{$relationshipTableName}.{$relationshipParts[1]}", 'like', "%{$value}%");
-                            // Otherwise just use the table and column
-                            } else {
-                                $column = "$table.$column";
-                                $query->orWhere($column, 'like', "%{$value}%");
+                                    // Safely escape value
+                                    $query->orWhereRelation($relationshipParts[0], "{$relationshipTableName}.{$relationshipParts[1]}", 'like', "%{$value}%");
+                                // Otherwise just use the table and column
+                                } else {
+                                    $column = "$table.$column";
+                                    $query->orWhere($column, 'like', "%{$value}%");
+                                }
                             }
-                        }
-                    });
-                }
-            ),
-            'softDeletedFilter' => new BrowseFilter(
-                // Field
+                        });
+                    }),
+
+            'softDeletedFilter' =>
                 Select::makeBrowseFilter('softDeletedFilter')
                     ->setLabel('Status', 'fas fa-heartbeat text-slate-400 !mr-1')
                     ->setItems([
@@ -792,20 +787,17 @@ abstract class ManageableModel
                         'all' => 'All',
                     ])
                     ->setOption('containerClass', 'w-1/6')
-                    ->validation('required|in:all,trashed,not_trashed'),
-
-                // Apply filter
-                function(Builder $query, $table, $columns, $value) {
-                    if($value === 'not_trashed') {
+                    ->validation('required|in:all,trashed,not_trashed')
+                    ->browseFilterApply(function(Builder $query, $table, $columns, $value) {
+                        if($value === 'not_trashed') {
+                            return $query;
+                        } else if($value === 'trashed') {
+                            return $query->onlyTrashed();
+                        } else if($value == 'all') {
+                            return $query->withTrashed();
+                        }
                         return $query;
-                    } else if($value === 'trashed') {
-                        return $query->onlyTrashed();
-                    } else if($value == 'all') {
-                        return $query->withTrashed();
-                    }
-                    return $query;
-                }
-            )
+                    }),
         ]);
     }
 

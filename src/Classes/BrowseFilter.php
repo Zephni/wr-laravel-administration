@@ -13,7 +13,7 @@ class BrowseFilter
      *
      * @var ManageableField
      */
-    public ManageableField $field;
+    public mixed $field;
 
     /**
      * The applicable filter. Must take parameters:
