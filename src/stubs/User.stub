@@ -65,21 +65,20 @@ class User extends ManageableModel
     {
         // Browse filters
         static::setBrowseFilters(static::getDefaultBrowseFilters()->merge([
-            'userTypeFilter' => new BrowseFilter(
-                Select::makeBrowseFilter('userTypeFilter')
-                    ->setLabel('User Type', 'fas fa-user-cog text-slate-400')
-                    ->setItems([
-                        'all' => 'All users',
-                        'admins_only' => 'Admins only',
-                        'non_admins_only' => 'Non admins only',
-                    ]),
-                function(Builder $query, $table, $columns, $value) {
-                    if($value !== 'all') {
-                        return $query->where('permissions->admin', $value === 'admins_only' ? true : false);
-                    }
+            Select::makeBrowseFilter('userTypeFilter', 'User Type', 'fas fa-user-cog text-slate-400')
+                ->setItems([
+                    'all' => 'All users',
+                    'admins_only' => 'Admins only',
+                    'non_admins_only' => 'Non admins only',
+                ])
+                ->browseFilterApply(function(Builder $query, $table, $columns, $value) {
+                    if($value == 'admins_only') return $query->where('permissions->admin', true);
+                    else if($value == 'non_admins_only') return $query->where(function($query) {
+                        $query->whereNull('permissions->admin')->orWhere('permissions->admin', false);
+                    });
+
                     return $query;
-                }
-            )
+                })
         ]));
 
         // Browse actions (Remove import action #51)
