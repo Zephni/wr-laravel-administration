@@ -51,25 +51,16 @@ class EmailTemplate extends ManageableModel
     {
         // Browse filters
         static::setBrowseFilters(static::getDefaultBrowseFilters()->prepend(
-            // Training course filter
-            new BrowseFilter(
-                // Field
-                Select::makeBrowseFilter('categoryFilter')
-                    ->setLabel('Category', 'fas fa-tag text-slate-400 !mr-1')
-                    ->setItems([
-                        'all' => 'All',
-                        'transactional' => 'Transactional',
-                    ])
-                    ->setOption('containerClass', 'w-1/4'),
-
-                // Apply filter
-                function(Builder $query, $table, $columns, $value) {
-                    if($value != 'all') {
-                        $query->where('category', $value);
-                    }
+            Select::makeBrowseFilter('categoryFilter', 'Category', 'fas fa-tag text-slate-400 !mr-1')
+                ->setOption('containerClass', 'w-1/4')
+                ->setItems([
+                    'all' => 'All',
+                    'transactional' => 'Transactional',
+                ])
+                ->browseFilterApply(function(Builder $query, $table, $columns, $value) {
+                    if($value != 'all') $query->where('category', $value);
                     return $query;
-                }
-            ), 'categoryFilter'
+                }),
         ));
 
         // Browse actions
