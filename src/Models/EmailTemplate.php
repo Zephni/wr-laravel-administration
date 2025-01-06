@@ -296,8 +296,8 @@ class EmailTemplate extends Model
 
         // If smtpData does not have from.address or from.name, set them to the default values
         if(!isset($smtpData['from']['address']) || !isset($smtpData['from']['name'])) {
-            $smtpData['from']['address'] = config('from.address');
-            $smtpData['from']['name'] = config('from.name');
+            $smtpData['from']['address'] = config('mail.from.address');
+            $smtpData['from']['name'] = config('mail.from.name');
         }
 
         // Send as seperate emails mode
