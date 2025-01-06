@@ -15,6 +15,7 @@
 
     // Set colour classes
     if($color == 'primary') $colorClasses = 'bg-teal-600 dark:bg-teal-800 dark:text-slate-200 hover:brightness-110 border-teal-500 dark:border-teal-600 shadow-lg shadow-slate-400 dark:shadow-slate-700 text-white dark:text-gray-800';
+    else if($color == 'secondary') $colorClasses = 'bg-slate-700 dark:bg-slate-700 dark:text-slate-200 hover:brightness-110 border-slate-700 dark:border-slate-500 shadow-lg shadow-slate-400 dark:shadow-slate-700 text-white dark:text-gray-800';
     else if($color == 'muted') $colorClasses = 'bg-slate-500 dark:bg-slate-600 dark:text-slate-200 hover:brightness-110 border-slate-700 dark:border-slate-500 shadow-lg shadow-slate-400 dark:shadow-slate-700 text-white dark:text-gray-800';
     else if($color == 'danger') $colorClasses = 'bg-rose-500 dark:bg-rose-700 dark:text-rose-100 hover:brightness-110 border-rose-500 shadow-lg shadow-slate-400 dark:shadow-slate-700 text-white dark:text-gray-800';
 @endphp
