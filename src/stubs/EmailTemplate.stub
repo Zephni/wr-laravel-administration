@@ -1,374 +1,278 @@
 <?php
 
-namespace WebRegulate\LaravelAdministration\Models;
+namespace App\WRLA;
 
-use App\Mail\WRLA\EmailTemplateMail;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Models\User;
+use Illuminate\Support\Str;
+use Illuminate\Support\Collection;
+use Illuminate\Database\Eloquent\Builder;
+use WebRegulate\LaravelAdministration\Enums\PageType;
+use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
+use WebRegulate\LaravelAdministration\Classes\BrowseFilter;
+use WebRegulate\LaravelAdministration\Classes\ManageableModel;
+use WebRegulate\LaravelAdministration\Classes\ManageableFields\Json;
+use WebRegulate\LaravelAdministration\Classes\ManageableFields\Text;
+use WebRegulate\LaravelAdministration\Classes\ManageableFields\Select;
+use WebRegulate\LaravelAdministration\Classes\ManageableFields\TextArea;
+use WebRegulate\LaravelAdministration\Classes\ManageableFields\BladeElement;
+use WebRegulate\LaravelAdministration\Classes\ManageableFields\SearchableValue;
 
-class EmailTemplate extends Model
+class EmailTemplate extends ManageableModel
 {
-    use SoftDeletes;
-
-    protected $table = 'wrla_email_templates';
-
-    const RENDER_MODE_BLADE = 'blade';
-    const RENDER_MODE_EMAIL = 'email';
-
-    protected $fillable = [
-        'category',
-        'alias',
-        'subject',
-        'body',
-        'mappings',
-        'description',
-        'requires_attachment',
-    ];
-
-    public array $usingSMTPConfig = [];
-
-    public ?array $dataArray = null;
-
-    private bool $errorFound = false;
-
     /**
-     * Find by alias.
+     * Setup the main properties of the model.
      *
-     * @param string $category
-     * @param string $alias
-     * @return ?self
-     */
-    public static function findByAlias(string $category, string $alias): ?self
-    {
-        $emailTemplate = once(fn() => self::where('category', $category)->where('alias', 'like', $alias)->first());
-
-        if($emailTemplate == null) {
-            throw new \Exception('Email template not found with alias: ' . $alias);
-        }
-
-        return $emailTemplate;
-    }
-
-    /**
-     * Set data array.
-     *
-     * @param array $dataArray
-     * @return self
-     */
-    public function setDataArray(array $dataArray): self
-    {
-        $this->dataArray = $dataArray;
-        return $this;
-    }
-
-    /**
-     * Merge data array.
-     *
-     * @param array $dataArray
-     * @return self
-     */
-    public function mergeDataArray(array $dataArray): self
-    {
-        $this->dataArray = array_merge($this->dataArray ?? [], $dataArray);
-        return $this;
-    }
-
-    /**
-     * Set data from models.
-     *
-     * @param array $models
-     * @return self
-     */
-    public function setDataFromModels(array $models): self
-    {
-        $this->dataArray = $this->buildDataArrayFromModels($models);
-        return $this;
-    }
-
-    /**
-     * Merge data from models.
-     *
-     * @param array $models
-     * @return self
-     */
-    public function mergeDataFromModels(array $models): self
-    {
-        $this->dataArray = array_merge($this->dataArray ?? [], $this->buildDataArrayFromModels($models));
-        return $this;
-    }
-
-    /**
-     * Fill missing data in data array with (key.subkey here) placeholders.
-     *
-     * @return self
-     */
-    public function fillMissingDataWithPlaceholders(): self
-    {
-        $data = $this->getKeyMappings();
-
-        // Loop through key mappings and set each value based on model attributes
-        foreach ($data as $key => $model) {
-            if(!isset($this->dataArray[$key])) {
-                $this->dataArray[$key] = [];
-            }
-
-            foreach ($model as $modelKey => $modelValue) {
-                if(!isset($this->dataArray[$key][$modelKey])) {
-                    $this->dataArray[$key][$modelKey] = "($key.$modelKey here)";
-                }
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * Get available key mappings.
-     *
-     * @return array
-     */
-    public function getKeyMappings(): array
-    {
-        $mappings = json_decode(!empty($this->mappings) ? $this->mappings : '{"user": {
-    "id": null,
-    "name": null,
-    "email": null
-}}', true);
-
-        // if ($mappings == null) {
-        //     throw new \Exception('Email template key mappings can not be null. (Perhaps issue with JSON formatting?)');
-        // }
-
-        return $mappings ?? [];
-    }
-
-    /**
-     * Build data array for email template from models (but only the attributes available in key mappings).
-     *
-     * @param array $keyValueModels eg. ['user' => User::find(1), ...]
-     * @return array
-     */
-    public function buildDataArrayFromModels(array $models): array
-    {
-        // For some reason the below caching style was returning the dataArray from the previous emailTemplate... not sure why
-        // if ($this->dataArray) {
-        //     return $this->dataArray;
-        // }
-
-        $data = [];
-
-        // Apply models to data if key mappings exist
-        foreach($models as $key => $model) {
-            $keyMappings = $this->getKeyMappings();
-
-            if(!isset($keyMappings[$key])) {
-                continue;
-            }
-
-            $data[$key] = $model->only(array_keys($keyMappings[$key]));
-        }
-
-        return $data;
-    }
-
-    /**
-     * Set user data from email if exists. Note this also updates the SMTP config.
-     *
-     * @param string $email
      * @return void
      */
-    public function setUserDataFromEmail(string $email): void
+    public final static function mainSetup(): void
     {
-        $user = User::where('email', $email)->first();
-
-        if($user !== null) {
-            $this->dataArray = ['user' => $user->only(array_keys($this->getKeyMappings()['user']))];
-        }
+        static::setBaseModelClass(\WebRegulate\LaravelAdministration\Models\EmailTemplate::class);
+        static::setDisplayName();
+        static::setUrlAlias('email-template');
+        static::setIcon('fas fa-palette');
     }
 
     /**
-     * Inject template variables (set in email key mappings config) into string. Eg. Hello {{ user.name }}.
+     * Setup global properties of this manageable model.
      *
-     * @param string $string
-     * @return string
+     * @return void
      */
-    public function injectVariablesIntoString(string $string, string $renderMode = self::RENDER_MODE_EMAIL): string
+    public final static function globalSetup(): void
     {
-        $buildString = $string;
-
-        if($this->errorFound) {
-            return $buildString;
-        }
-
-        try {
-            // Loop through each data array and inject into string
-            foreach ($this->dataArray as $key => $model) {
-                foreach ($model as $modelKey => $modelValue) {
-                    $buildString = str_replace('{{ ' . $key . '.' . $modelKey . ' }}', $modelValue ?? '', $buildString);
-                }
-            }
-
-            // Render mode escaping
-            if($this->renderMode == self::RENDER_MODE_BLADE) {
-                $buildString = str_replace(['{', '}'], ['(', ')'], $buildString);
-                $buildString = str_replace('@', "{{ '@' }}", $buildString);
-                $buildString = str_replace('$', "{{ '$' }}", $buildString);
-                $buildString = htmlspecialchars($buildString);
-            } else {
-                $buildString = htmlspecialchars($buildString);
-                $buildString = str_replace(['{', '}'], ['&#123;', '&#125;'], $buildString);
-                $buildString = str_replace('$', '&#36;', $buildString);
-            }
-
-            // Replace new lines with <br> tags
-            $buildString = nl2br($buildString);
-        } catch (\Exception $e) {
-            $this->errorFound = true;
-        }
-
-        return $buildString;
+        // Navigation
+        static::setChildNavigationItems(parent::getDefaultChildNavigationItems());
     }
 
     /**
-     * Set subject template.
+     * Setup brwose properties of this manageable model.
      *
-     * @param string $subject
-     * @return self
+     * @return void
      */
-    public function setSubject(string $subject): self
+    public final static function browseSetup(): void
     {
-        $this->subject = $subject;
-        return $this;
-    }
-
-    /**
-     * Set body template.
-     *
-     * @param string $body
-     * @return self
-     */
-    public function setBody(string $body): self
-    {
-        $this->body = $body;
-        return $this;
-    }
-
-    /**
-     * Get final subject
-     *
-     * @return string
-     */
-    public function getFinalSubject(string $renderMode = self::RENDER_MODE_EMAIL): string
-    {
-        return $this->injectVariablesIntoString($this->subject ?? '', $renderMode);
-    }
-
-    /**
-     * Get final body
-     *
-     * @return string
-     */
-    public function getFinalBody(string $renderMode = self::RENDER_MODE_EMAIL): string
-    {
-        return $this->injectVariablesIntoString($this->body ?? '', $renderMode);
-    }
-
-    /**
-     * Send email to addresses with this template.
-     *
-     * @param string|array $toAddresses
-     * @param ?array $attachments
-     * @param bool $sendSeperateEmails
-     * @param string $smtpKey
-     * @return $success
-     */
-    public function sendEmail(string|array $toAddresses, ?array $attachments = null, bool $sendSeperateEmails = true, string $smtpKey = 'smtp'): bool
-    {
-        if($this->errorFound) {
-            return false;
-        }
-
-        // Get current smtp and host from config
-        $smtpData = config("mail.mailers.$smtpKey");
-        $smtpHost = $smtpData['host'];
-
-        // If smtpData does not have from.address or from.name, set them to the default values
-        if(!isset($smtpData['from']['address']) || !isset($smtpData['from']['name'])) {
-            $smtpData['from']['address'] = config('mail.from.address');
-            $smtpData['from']['name'] = config('mail.from.name');
-        }
-
-        // Send as seperate emails mode
-        if($sendSeperateEmails)
-        {
-            if(is_string($toAddresses)) {
-                $toAddresses = [$toAddresses];
-            }
-
-            // Remove any empty values or values without @ symbol
-            $toAddresses = array_filter($toAddresses, fn($toAddress) => !empty($toAddress) && str($toAddress)->contains('@'));
-
-            foreach($toAddresses as $toAddress) {
-                Log::channel('smtp')->info("Sending {$this->alias} email template ({$smtpHost})", ['to' => $toAddress]);
-
-                $mail = Mail::mailer($smtpKey)
-                            ->send(new EmailTemplateMail(
-                                $this,
-                                $toAddress,
-                                $attachments,
-                                $smtpData
-                            ));
-
-                // If not null, log it
-                if($mail === null) {
-                    Log::channel('smtp')->error('Email failed to send', ['to' => $toAddress]);
-                    continue;
-                }
-            }
-
-            return true;
-        }
-
-        Log::channel('smtp')->info("Sending {$this->alias} email template ({$smtpHost})", ['to' => $toAddresses]);
-
-        // Send as one email with first as to, and rest as cc mode
-        $mail = Mail::mailer($smtpKey)->send(new EmailTemplateMail(
-            $this,
-            $toAddresses,
-            $attachments,
-            $smtpData
+        // Browse filters
+        static::setBrowseFilters(static::getDefaultBrowseFilters()->prepend(
+            Select::makeBrowseFilter('categoryFilter', 'Category', 'fas fa-tag text-slate-400 !mr-1')
+                ->setOption('containerClass', 'w-1/4')
+                ->setItems([
+                    'all' => 'All',
+                    'transactional' => 'Transactional',
+                    'marketing' => 'Marketing',
+                    'training_courses' => 'Training Courses',
+                ])
+                ->browseFilterApply(function(Builder $query, $table, $columns, $value) {
+                    if($value != 'all') $query->where('category', $value);
+                    return $query;
+                }),
         ));
 
-        // If not null, we assume success
-        return $mail !== null;
+        // Browse actions
+        static::setBrowseActions(static::getDefaultBrowseActions());
+
+        // Order by
+        static::setOrderBy('category', 'desc');
     }
 
     /**
-     * Get available mappings list as formatted HTML
+     * Provide an array of columns to display in the browse view.
      *
-     * @return string
+     * @return array
      */
-    public function getMappingsListFormattedHTML(): string
+    public final function getBrowseColumns(): array
     {
-        $mappings = $this->getKeyMappings();
-        $html = '<ul class="list-disc list-inside">';
-        foreach ($mappings as $key => $mapping) {
-            // Build a list like this: key.mapping[0], key.mapping[1], key.mapping[2]...
-            if (is_array($mapping)) {
-                $html .= "<li>$key: &nbsp;";
-                $html .= implode(', ', array_map(function ($item) use ($key) {
-                    return <<<HTML
-                        <span onclick="
-                            window.wrlaInsertTextAtCursor('@{{ $key.$item }}');
-                        " class="select-none cursor-pointer text-primary-700 font-medium">$key.$item</span>
-                    HTML;
-                }, array_keys($mapping)));
-                $html .= '</li>';
+        return [
+            'category' => 'Category',
+            'alias' => 'Alias',
+        ];
+    }
+    public $contactExample;
+
+    /**
+     * Provide an array of manageable fields to display in the upsert view.
+     *
+     * @return array
+     */
+    public final function getManageableFields(): array
+    {
+        $isCraig = User::current()->email == 'craig.dennis@webregulate.co.uk';
+
+        return [
+            Text::make($this, 'alias')
+                ->required()
+                ->validation('string|min:3|max:255')
+                // ->setAttributes([
+                //     (WRLAHelper::getCurrentPageType() == PageType::EDIT ? 'readonly' : 'donothing') => 'true',
+                //     'class' => WRLAHelper::getCurrentPageType() == PageType::EDIT ? 'opacity-50' : '',
+                // ])
+                ->notes('Minimum 3 characters. After set and in use, do not change this value.'),
+
+            // Hidden mappings field (Only shows for craig.dennis@webregulate.co.uk)
+            Json::make($this, 'mappings')->setLabel(!$isCraig ? null : 'Mappings (Shows for Craig only)')
+                ->hideContainingBraces()
+                ->default('"contact": {
+        "id": null,
+        "first_name": null,
+        "last_name": null,
+        "email": null,
+        "company": null
+}')
+                ->setAttributes([
+                    'autocorrect' => 'false',
+                    'spellcheck' => 'false',
+                    'style' => !$isCraig ? 'display: none !important;' : '',
+                ]),
+
+            Text::make($this, 'description')->setLabel('Short description')
+                ->setAttributes([
+                    'autocorrect' => 'false',
+                    'spellcheck' => 'false',
+                ]),
+
+            Select::make($this, 'category')
+                ->required()
+                ->setItems([
+                    'marketing' => 'Marketing',
+                    'training_courses' => 'Training Courses',
+                    'transactional' => 'Transactional',
+                ]),
+
+            Text::make($this, 'subject')
+                ->setLivewireModel('live.debounce.500ms')
+                ->default('Subject text')
+                ->required(),
+
+            TextArea::make($this, 'body')
+                ->setLivewireModel('live.debounce.500ms')
+                ->setAttributes([
+                    'autocorrect' => 'false',
+                    'spellcheck' => 'false',
+                    (WRLAHelper::getCurrentPageType() == PageType::EDIT ? 'autofocus' : 'donothing') => 'true',
+                    'x-ref' => 'bodyTextArea',
+                    'rows' => 20,
+                ])
+                ->default('Body text')
+                ->required(),
+
+            SearchableValue::make($this, 'contact_example_id')
+                ->shouldSubmit(false)
+                ->setLabel('Dummy contact')
+                ->default(\App\Models\Contact::inRandomOrder()->first()->id)
+                ->dynamicItemsFromModel(\App\Models\Contact::class, function(Builder $query, mixed $searchValue) {
+                    return $query->where('first_name', 'like', "%$searchValue%")
+                        ->orWhere('last_name', 'like', "%$searchValue%")
+                        ->orWhere('company', 'like', "%$searchValue%")
+                        ->orWhere('email', 'like', "%$searchValue%")
+                        ->limit(100);
+                }, function($contact) {
+                    return "$contact->email - $contact->first_name $contact->last_name";
+                }),
+
+            EmailTemplate::buildEmailTemplateBladeElement($this, $this->getModelInstance()),
+        ];
+    }
+
+    public static function buildEmailTemplateBladeElement(ManageableModel $manageableModel, \WebRegulate\LaravelAdministration\Models\EmailTemplate|callable $emailTemplate, ?array $mergeExampleModels = null, ?array $mergeExampleData = null): BladeElement
+    {
+        return BladeElement::make($manageableModel, null, function($bladeElement) use ($emailTemplate, $mergeExampleModels, $mergeExampleData) {
+            if(is_callable($emailTemplate)) {
+                $emailTemplate = $emailTemplate();
             }
-        }
-        $html .= '</ul>';
-        return $html;
+
+            $contactExampleId = ManageableModel::getLivewireField('contact_example_id');
+            $contactExample = \App\Models\Contact::find($contactExampleId) ?? (object) [
+                'id' => 127436,
+                'first_name' => 'Nathan',
+                'last_name' => 'Burges',
+                'company' => 'EBIS-HSE',
+                "email" => "nathan@ebis-hse.com",
+            ];
+
+            // Set up the email template example data
+            $emailTemplate->setDataArray([
+                'user' => [
+                    'id' => 1,
+                    'name' => 'John Doe',
+                ],
+                'data' => [
+                    'name' => 'John Doe',
+                    'email' => 'john.doe@domain.com',
+                    'subject' => 'Contact form submission',
+                    'message' => 'Hello, I would like to enquire about your services.',
+                ],
+                'contact' => [
+                    'id' => $contactExample->id,
+                    'first_name' => $contactExample->first_name,
+                    'last_name' => $contactExample->last_name,
+                    'company' => $contactExample->company,
+                    "email" => $contactExample->email,
+                ],
+                'training_course' => [
+                    'code' => 'ABC123',
+                    'title' => 'Work Equipment & Machinery Safety'
+                ],
+                'training_course_date' => [
+                    'date' => '14/02/2025',
+                    'location' => 'Unit 5, Acme Inc. HQ'
+                ],
+                'invoice' => [
+                    'invoice_number' => 'INV-12345',
+                    'status' => 'Paid',
+                    'total' => '£100.00'
+                ]
+            ]);
+
+            // If $mergeExampleModels is not empty, then merge with the example data
+            if(!empty($mergeExampleModels)) {
+                $emailTemplate->mergeDataFromModels($mergeExampleModels);
+            }
+
+            // If $mergeExampleData is not empty, then merge with the example data
+            if(!empty($mergeExampleData)) {
+                $emailTemplate->mergeDataArray($mergeExampleData);
+            }
+
+            // If mappings include any which aren't set above, then fill with placeholders
+            $emailTemplate->fillMissingDataWithPlaceholders();
+
+            $emailTemplate->subject = ManageableModel::getLivewireField('subject');
+            $emailTemplate->body = ManageableModel::getLivewireField('body');
+
+            // Inject variables into the blade variables
+            $subject = $emailTemplate->getFinalSubject($emailTemplate::RENDER_MODE_BLADE);
+            $body = Str::markdown($emailTemplate->getFinalBody($emailTemplate::RENDER_MODE_BLADE));
+            $mappingsList = $emailTemplate->getMappingsListFormattedHTML();
+
+            // Return the blade element
+            return <<<HTML
+                <div class="relative w-full" style="top: -22px;">
+                    <div class="border border-slate-300 mt-2 p-3">
+                        <b class="font-medium">Available key mappings (click to inject):</b><br />
+                        $mappingsList
+                    </div>
+                    <div class="relative border border-slate-300 mt-2 p-3">
+                        <div wire:loading class="absolute top-2 right-4 flex justify-end items-center gap-2 font-medium text-slate-600 text-sm">
+                            <i class="fas fa-spinner fa-spin"></i>
+                            <span style="padding-left: 4px;">Loading...</span>
+                        </div>
+                        <b class="font-medium">Preview:</b><br />
+                        <p class="pb-2"><span class="font-light">$subject</span></p>
+                        <div class="px-3 py-2 bg-slate-200 dark:bg-slate-800 bg-opacity-80 rounded-lg">
+                            <div class="font-light [&_a]:underline">$body</div>
+                        </div>
+                    </div>
+                </div>
+            HTML;
+        });
+    }
+
+    /**
+     * Provide the model instance actions.
+     *
+     * @param Collection $instanceActions default instance actions (edit, delete)
+     * @return Collection
+     */
+    public final function getInstanceActions(Collection $instanceActions): Collection
+    {
+        return $instanceActions;
     }
 }
