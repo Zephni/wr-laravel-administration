@@ -27,7 +27,10 @@ class EmailTemplate extends Model
         'requires_attachment',
     ];
 
+    public array $usingSMTPConfig = [];
+
     public ?array $dataArray = null;
+
     private bool $errorFound = false;
 
     /**
@@ -278,16 +281,24 @@ class EmailTemplate extends Model
      * @param string|array $toAddresses
      * @param ?array $attachments
      * @param bool $sendSeperateEmails
+     * @param string $smtpKey
      * @return $success
      */
-    public function sendEmail(string|array $toAddresses, ?array $attachments = null, bool $sendSeperateEmails = true): bool
+    public function sendEmail(string|array $toAddresses, ?array $attachments = null, bool $sendSeperateEmails = true, string $smtpKey = 'smtp'): bool
     {
         if($this->errorFound) {
             return false;
         }
 
-        // Get current smtp host from config
-        $smtpHost = config('mail.mailers.smtp.host');
+        // Get current smtp and host from config
+        $smtpData = config("mail.mailers.$smtpKey");
+        $smtpHost = $smtpData['host'];
+
+        // If smtpData does not have from.address or from.name, set them to the default values
+        if(!isset($smtpData['from']['address']) || !isset($smtpData['from']['name'])) {
+            $smtpData['from']['address'] = config('from.address');
+            $smtpData['from']['name'] = config('from.name');
+        }
 
         // Send as seperate emails mode
         if($sendSeperateEmails)
@@ -302,11 +313,13 @@ class EmailTemplate extends Model
             foreach($toAddresses as $toAddress) {
                 Log::channel('smtp')->info("Sending {$this->alias} email template ({$smtpHost})", ['to' => $toAddress]);
 
-                $mail = Mail::send(new EmailTemplateMail(
-                    $this,
-                    $toAddress,
-                    $attachments
-                ));
+                $mail = Mail::mailer($smtpKey)
+                            ->send(new EmailTemplateMail(
+                                $this,
+                                $toAddress,
+                                $attachments,
+                                $smtpData
+                            ));
 
                 // If not null, log it
                 if($mail === null) {
@@ -321,10 +334,11 @@ class EmailTemplate extends Model
         Log::channel('smtp')->info("Sending {$this->alias} email template ({$smtpHost})", ['to' => $toAddresses]);
 
         // Send as one email with first as to, and rest as cc mode
-        $mail = Mail::send(new EmailTemplateMail(
+        $mail = Mail::mailer($smtpKey)->send(new EmailTemplateMail(
             $this,
             $toAddresses,
-            $attachments
+            $attachments,
+            $smtpData
         ));
 
         // If not null, we assume success
