@@ -64,7 +64,7 @@
                                 'label' => $header,
                                 'items' => $data['tableColumns'],
                                 'options' => [
-                                    
+
                                 ],
                                 'attributes' => new \Illuminate\View\ComponentAttributeBag([
                                     'wire:model.live' => "headersMappedToColumns.$headerIndex",
@@ -210,7 +210,7 @@
                     'text' => 'Close and refresh',
                     'icon' => 'fas fa-times',
                     'size' => 'medium',
-                    'color' => 'muted',
+                    'color' => 'secondary',
                     'attributes' => new \Illuminate\View\ComponentAttributeBag([
                         'wire:click' => 'closeAndRefresh',
                         'wire:loading.attr' => 'disabled',

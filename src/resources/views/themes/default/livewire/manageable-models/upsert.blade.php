@@ -40,7 +40,7 @@
         method="POST"
         class="w-full">
         @csrf
-        
+
         <div class="flex flex-wrap gap-6 mt-4 p-4 bg-slate-100 dark:bg-slate-700 shadow-slate-300 dark:shadow-slate-850 rounded-lg shadow-lg">
             @foreach($manageableFields as $manageableField)
                 {!! $manageableField->renderParent($upsertType, $livewireData) !!}
@@ -60,13 +60,13 @@
                 'href' => route('wrla.manageable-models.browse', ['modelUrlAlias' => $manageableModel->getUrlAlias()]),
                 'text' => 'Cancel',
                 'size' => 'medium',
-                'color' => 'muted',
+                'color' => 'secondary',
                 'icon' => 'fa fa-times',
             ])
         </div>
 
     </form>
-    
+
     @if($WRLAUser->getSetting('debug') == true)
         <div class="border border-slate-300 rounded-md p-2 mt-10 text-slate-500">
             <p class=" text-sm font-semibold">Debug Information:</p>
