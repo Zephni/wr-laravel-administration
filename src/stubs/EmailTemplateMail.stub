@@ -20,11 +20,13 @@ class EmailTemplateMail extends Mailable
      * @param EmailTemplate $emailTemplate
      * @param string|array $toAddresses ['email@domain.com', ...], note if multiple passed, the rest will be cc addresses
      * @param ?array<int, \Illuminate\Mail\Mailables\Attachment> $passedAttachments
+     * @param array $smtpData
      */
     public function __construct(
         public EmailTemplate $emailTemplate,
         public string|array $toAddresses,
         public ?array $passedAttachments = null,
+        public array $smtpData = []
     ) {
 
     }
@@ -50,7 +52,10 @@ class EmailTemplateMail extends Mailable
         $ccAddresses = array_filter($ccAddresses, fn($ccAddress) => !empty($ccAddress) && str($ccAddress)->contains('@'));
 
         return new Envelope(
-            from: new Address(env('MAIL_FROM_ADDRESS'), env('MAIL_FROM_NAME')),
+            from: new Address(
+                $this->smtpData['from']['address'],
+                $this->smtpData['from']['name']
+            ),
             to: $toAddress,
             cc: $ccAddresses,
             subject: $this->emailTemplate->getFinalSubject(),
