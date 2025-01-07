@@ -231,7 +231,7 @@ class ManageableModelBrowse extends Component
     public function exportAsCSVAction(): StreamedResponse
     {
         // Get current data set
-        $models = $this->browseModels();
+        $models = collect($this->browseModels()->all());
 
         // Get all headings (array of all column names)
         $headings = array_keys($models->first()->toArray());
@@ -306,9 +306,9 @@ class ManageableModelBrowse extends Component
     /**
      * Browse the models.
      *
-     * @return LengthAwarePaginator | Collection
+     * @return LengthAwarePaginator
      */
-    protected function browseModels()
+    protected function browseModels(): LengthAwarePaginator
     {
         // get base model class and instance
         $baseModelClass = $this->manageableModelClass::getBaseModelClass();
