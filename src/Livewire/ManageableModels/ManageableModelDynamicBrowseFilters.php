@@ -49,7 +49,7 @@ class ManageableModelDynamicBrowseFilters extends Component
             }
 
             if(!isset($item['operator'])) {
-                $this->browseFilterInputs[$key]['operator'] = 'like';
+                $this->browseFilterInputs[$key]['operator'] = 'contains';
             }
         }
     }
@@ -197,7 +197,7 @@ class ManageableModelDynamicBrowseFilters extends Component
         $this->browseFilterInputs[] = [
             'field' => $nextAvailableColumn,
             'type' => 'Text',
-            'operator' => 'like',
+            'operator' => 'contains',
             'value' => '',
         ];
     }
