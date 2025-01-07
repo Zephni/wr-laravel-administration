@@ -126,20 +126,23 @@ class ManageableModelDynamicBrowseFilters extends Component
 
                                 // Safely match operator
                                 $operator = match($item['operator']) {
+                                    'contains' => 'contains',
+                                    'not contains' => 'not contains',
                                     'like' => 'like',
                                     'not like' => 'not like',
-                                    '=' => 'like',
-                                    '!=' => 'not like',
+                                    '=' => '=',
+                                    '!=' => '!=',
                                     '>' => '>',
                                     '<' => '<',
                                     '>=' => '>=',
                                     '<=' => '<=',
-                                    default => 'like',
+                                    default => '=',
                                 };
 
                                 // If operator is like or not like, wrap value with %value%
-                                if($operator == 'like' || $operator == 'not like') {
+                                if($operator == 'contains' || $operator == 'not contains') {
                                     $andValue = '%'.$andValue.'%';
+                                    $operator = $operator == 'contains' ? 'like' : 'not like';
                                 }
 
                                 $query->where($table.'.'.$item['field'], $operator, $andValue);
