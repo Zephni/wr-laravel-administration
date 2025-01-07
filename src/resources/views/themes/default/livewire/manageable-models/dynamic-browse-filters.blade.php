@@ -33,6 +33,8 @@
                             '<' => 'Less than',
                             '>=' => 'Greater or equal to',
                             '<=' => 'Less or equal to',
+                            'starts_with' => 'Starts with',
+                            'ends_with' => 'Ends with',
                         ],
                         'options' => [
                             'containerClass' => '!w-44',

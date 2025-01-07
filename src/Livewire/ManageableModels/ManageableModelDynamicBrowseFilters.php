@@ -13,18 +13,18 @@ class ManageableModelDynamicBrowseFilters extends Component
 {
     /**
      * Manageable model class
-     * 
+     *
      * @var string
      */
     public string $manageableModelClass;
 
     /**
      * Browse filter inputs
-     * 
+     *
      * @var array
      */
     public array $browseFilterInputs = [
-        
+
     ];
 
     public function updatedBrowseFilterInputs()
@@ -34,7 +34,7 @@ class ManageableModelDynamicBrowseFilters extends Component
 
     /**
      * Mount the browse filters for the passed manageable model class
-     * 
+     *
      * @param string $manageableModel
      */
     public function mount(string $manageableModelClass)
@@ -72,7 +72,7 @@ class ManageableModelDynamicBrowseFilters extends Component
 
     /**
      * Get dnyamic browse filters
-     * 
+     *
      * @return array
      */
     public function getDynamicBrowseFilters(): array
@@ -90,7 +90,7 @@ class ManageableModelDynamicBrowseFilters extends Component
 
     /**
      * Build browse filter
-     * 
+     *
      * @param string $field
      * @var array $item
      */
@@ -128,13 +128,13 @@ class ManageableModelDynamicBrowseFilters extends Component
                                 $operator = match($item['operator']) {
                                     'like' => 'like',
                                     'not like' => 'not like',
-                                    '=' => '=',
-                                    '!=' => '!=',
+                                    '=' => 'like',
+                                    '!=' => 'not like',
                                     '>' => '>',
                                     '<' => '<',
                                     '>=' => '>=',
                                     '<=' => '<=',
-                                    default => '=',
+                                    default => 'like',
                                 };
 
                                 // If operator is like or not like, wrap value with %value%
@@ -155,13 +155,13 @@ class ManageableModelDynamicBrowseFilters extends Component
 
     /**
      * Apply filter
-     * 
+     *
      * @return QueryBuilder
      */
 
     /**
      * Get next available column (one that isn't being used)
-     * 
+     *
      * @return string
      */
     public function getNextAvailableColumn(): string
@@ -184,7 +184,7 @@ class ManageableModelDynamicBrowseFilters extends Component
 
     /**
      * Add filter action
-     * 
+     *
      * @return void
      */
     public function addFilterAction()
@@ -201,7 +201,7 @@ class ManageableModelDynamicBrowseFilters extends Component
 
     /**
      * Remove filter action
-     * 
+     *
      * @param int $index
      * @return void
      */
