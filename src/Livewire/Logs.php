@@ -42,7 +42,7 @@ class Logs extends Component
             'currentDirectoriesAndFiles' => $currentDirectoriesAndFiles,
         ]);
     }
-    
+
     /* Methods
     --------------------------------------------------------------------------*/
     private function setDirectoriesAndFiles()
@@ -62,7 +62,7 @@ class Logs extends Component
                 return "Error: {$fullPath} is not a file";
             }
         }
-        
+
         $this->viewingLogFile = null;
         return '';
     }
@@ -87,7 +87,7 @@ class Logs extends Component
             $this->viewingLogsDirectory = !str($this->viewingLogsDirectory)->contains('.')
                 ? ''
                 : str($this->viewingLogsDirectory)->beforeLast('.');
-            
+
             $this->selectFirstLogFileInCurrentDirectory();
             return;
         }
@@ -116,7 +116,7 @@ class Logs extends Component
             if (is_file($fullPath)) {
                 // Use Laravel file facade to delete file
                 File::delete($fullPath);
-                
+
                 WRLAHelper::unsetNestedArrayByKeyAndValue(
                     $this->logDirectoriesAndFiles,
                     $directoryPath,
@@ -144,6 +144,9 @@ class Logs extends Component
     {
         // Set all log files and directories
         $this->setDirectoriesAndFiles();
+
+        // Update current selected log content
+        $this->viewLogFile($this->viewingLogsDirectory, $this->viewingLogFile);
     }
 
     public function selectFirstLogFileInCurrentDirectory()
@@ -153,7 +156,7 @@ class Logs extends Component
         $currentDirectoryContents = empty($this->viewingLogsDirectory)
             ? $this->logDirectoriesAndFiles
             : data_get($this->logDirectoriesAndFiles, $this->viewingLogsDirectory, []);
-            
+
         foreach ($currentDirectoryContents as $directory => $directoryOrFile) {
             // If full path is not a file, skip
             if (is_array($directoryOrFile)) {
