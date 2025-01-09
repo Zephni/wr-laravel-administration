@@ -57,7 +57,7 @@ class User extends ManageableModel
     }
 
     /**
-     * Setup brwose properties of this manageable model.
+     * Setup browse properties of this manageable model.
      *
      * @return void
      */

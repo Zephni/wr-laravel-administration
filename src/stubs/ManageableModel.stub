@@ -13,7 +13,7 @@ class {{ $MODEL }} extends ManageableModel
 {
     /**
      * Setup the main properties of the model.
-     * 
+     *
      * @return void
      */
     public final static function mainSetup(): void
@@ -30,7 +30,7 @@ class {{ $MODEL }} extends ManageableModel
 
     /**
      * Setup global properties of this manageable model.
-     * 
+     *
      * @return void
      */
     public final static function globalSetup(): void
@@ -40,7 +40,7 @@ class {{ $MODEL }} extends ManageableModel
     }
 
     /**
-     * Setup brwose properties of this manageable model.
+     * Setup browse properties of this manageable model.
      *
      * @return void
      */
