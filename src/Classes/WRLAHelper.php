@@ -129,7 +129,7 @@ class WRLAHelper
 
     /**
      * Get currently active manageable model
-     * 
+     *
      * @return ?string
      */
     public static function getCurrentActiveManageableModelClass(): ?string
@@ -374,7 +374,7 @@ class WRLAHelper
         $manageableModels = [];
         $directory = app_path('WRLA');
         $files = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($directory));
-        
+
         foreach($files as $file) {
             // If file is directory or does not end with .php then continue
             if($file->isDir() || $file->getExtension() !== 'php') {
@@ -397,7 +397,7 @@ class WRLAHelper
 
         // dd(self::$globalManageableModelData);
     }
-    
+
     /**
      * Is the current route the given route name, and has the given parameters.
      *
@@ -406,7 +406,7 @@ class WRLAHelper
      * @return bool
      */
     public static function isCurrentRouteWithParameters(?string $routeName, ?array $parameters): bool
-    {        
+    {
         // First check if name is true
         if(request()->route()->getName() !== $routeName) {
             return false;
@@ -548,7 +548,7 @@ class WRLAHelper
 
     /**
      * Is JSON
-     * 
+     *
      * @param string $string The string to check if is json.
      * @return bool
      */
@@ -637,7 +637,7 @@ class WRLAHelper
     /**
      * Get wrla column json notation parts from a key.
      *
-     * @param string $key The key to get the json notation parts from.
+     * @param string $key The key to get the json notation parts from using field->nested->key format.
      */
     public static function parseJsonNotation(string $key): array
     {
@@ -795,7 +795,7 @@ class WRLAHelper
 
     /**
      * Is current route allowed (Based on NavigationItem show and enabled conditions)
-     * 
+     *
      * @return bool|string
      */
     public static function isCurrentRouteAllowed(): bool|string
@@ -860,7 +860,7 @@ class WRLAHelper
 
     /**
      * Get directories and files from a given directory
-     * 
+     *
      * @param string $directoryPath The directory to get directories and files from.
      * @param array $ignoreDirectoriesOrFiles The directories or files to ignore.
      * @return array The array of directories and files.
@@ -869,7 +869,7 @@ class WRLAHelper
     {
         $logDirectoriesAndFiles = [];
         $directoriesAndFiles = scandir($directoryPath);
-        
+
         // Loop through each file or directory
         foreach ($directoriesAndFiles as $fileOrDirectory)
         {
@@ -894,11 +894,11 @@ class WRLAHelper
 
         // Re-order the array so that directories are first
         $logDirectoriesAndFiles = collect($logDirectoriesAndFiles);
-        
+
         $directories = $logDirectoriesAndFiles->filter(function($value, $key) {
             return is_array($value);
         })->sort();
-        
+
         $files = $logDirectoriesAndFiles->filter(function($value, $key) {
             return !is_array($value);
         })->sort(function($a, $b) use ($directoryPath) {
@@ -912,7 +912,7 @@ class WRLAHelper
 
     /**
      * Unset nested array by it's value
-     * 
+     *
      * @param array $array The array to unset the nested array from.
      * @param string $key The dot notation key to search for the value.
      * @param mixed $value The value to unset.
@@ -930,7 +930,7 @@ class WRLAHelper
 
         $keys = explode('.', $key);
         $temp = &$array;
-    
+
         foreach ($keys as $innerKey) {
             if (!isset($temp[$innerKey])) {
                 return; // Key doesn't exist, exit
@@ -950,7 +950,7 @@ class WRLAHelper
 
     /**
      * Unset nested array with dot notation key
-     * 
+     *
      * @param array $array The array to unset the nested array from.
      * @param string $key The dot notation key to unset.
      */

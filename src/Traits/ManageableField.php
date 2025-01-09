@@ -690,7 +690,15 @@ trait ManageableField
      */
     public function isRelationshipField(): bool
     {
-        return str($this->htmlAttributes['name'])->contains('.') || str($this->htmlAttributes['name'])->contains(WRLAHelper::WRLA_REL_DOT);
+        if(str($this->htmlAttributes['name'])->contains('->')) {
+            return false;
+        }
+
+        if(str($this->htmlAttributes['name'])->contains('.') || str($this->htmlAttributes['name'])->contains(WRLAHelper::WRLA_REL_DOT)) {
+            return true;
+        }
+
+        return false;
     }
 
     /**

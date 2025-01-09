@@ -108,16 +108,22 @@ class EmailTemplate extends Model
     {
         $data = $this->getKeyMappings();
 
+        // dd($data);
+
         // Loop through key mappings and set each value based on model attributes
         foreach ($data as $key => $model) {
-            if(!isset($this->dataArray[$key])) {
-                $this->dataArray[$key] = [];
-            }
-
-            foreach ($model as $modelKey => $modelValue) {
-                if(!isset($this->dataArray[$key][$modelKey])) {
-                    $this->dataArray[$key][$modelKey] = "($key.$modelKey here)";
+            try {
+                if(!isset($this->dataArray[$key])) {
+                    $this->dataArray[$key] = [];
                 }
+
+                foreach ($model as $modelKey => $modelValue) {
+                    if(!isset($this->dataArray[$key][$modelKey])) {
+                        $this->dataArray[$key][$modelKey] = "($key.$modelKey here)";
+                    }
+                }
+            } catch (\Exception $e) {
+                // dd($e->getMessage(), $key, $model);
             }
         }
 

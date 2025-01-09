@@ -1020,6 +1020,8 @@ abstract class ManageableModel
         $manageableFields = $this->getManageableFieldsFinal();
         $formComponents = collect($formComponents);
 
+        // dd($manageableFields, $formComponents, $formKeyValues);
+
         // First do a loop through to check for any field names that use -> notation for nested json, if
         // we find any we put these last in the loop so that their values can be applied after everything else
         // $manageableFields = $manageableFields->sortBy(function ($manageableField) {
@@ -1029,6 +1031,7 @@ abstract class ManageableModel
         // Iterate over each manageable field
         foreach ($manageableFields as $manageableField) {
             $fieldName = $manageableField->getAttribute('name');
+
             $relationshipInstance = null;
 
             // If doesn't exist in form key values, then skip
@@ -1060,13 +1063,22 @@ abstract class ManageableModel
 
             $fieldValue = '';
 
-            if (!$isUsingNestedJson) {
+            // Standard field value
+            if (!$isUsingNestedJson)
+            {
                 // Apply the value to the form component and get the field value
                 $fieldValue = $formComponent->applySubmittedValue($request, $formKeyValues[$fieldName]);
-            } else {
+            }
+            // JSON notation
+            else
+            {
                 // If is relation, get current field value from relationship instance
                 if($relationshipInstance != null) {
                     $fieldValue = json_decode($relationshipInstance->{$manageableField->getRelationshipFieldName()});
+                }
+                // Otherwise, get the perhaps updated value from the model instance (we may be updating the same field with different JSON notation)
+                else {
+                    $fieldValue = json_decode($this->modelInstance->{$fieldName});
                 }
 
                 // Apply the value to the form component and get the new value
@@ -1079,6 +1091,8 @@ abstract class ManageableModel
 
                 // Set the new value using dot notation on the field value
                 data_set($fieldValue, $jsonNotation, $newValue);
+
+                // dd($fieldName, $jsonNotation, $fieldValue, $newValue);
 
                 // Convert the field value to JSON
                 if($newValue instanceof MessageBag) {
