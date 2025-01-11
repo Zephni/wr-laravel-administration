@@ -859,6 +859,25 @@ abstract class ManageableModel
         // Simply remove any null values from the manageable fields
         $manageableFields = array_filter($this->getManageableFields());
 
+        // If any values are arrays themselves, we "unpack" them into the main array
+        foreach($manageableFields as $key => $value) {
+            if(is_array($value)) {
+                unset($manageableFields[$key]);
+
+                // Set beginGroup and endGroup on first and last item respectively
+                $value[0]->beginGroup();
+                $value[count($value) - 1]->endGroup();
+
+                // Inject them at the same index within the array
+                $manageableFields = array_merge(
+                    array_slice($manageableFields, 0, $key),
+                    $value,
+                    array_slice($manageableFields, $key)
+                );
+            }
+        }
+
+
         foreach($manageableFields as $manageableField) {
             if($manageableField->getType() == 'Wysiwyg') {
                 $this->usesWysiwygEditor = true;

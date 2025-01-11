@@ -326,7 +326,8 @@ class ManageableModelBrowse extends Component
         if(!WRLAHelper::tableExists($baseModelInstance, $tableName)) {
             session()->flash('error', 'Table `' . $tableName . '` does not exist in the database.');
             $this->redirectRoute('wrla.dashboard');
-            return collect([]); // We have to return a collection so that the view does not error
+            // We have to return an empty paginator so that the view does not error
+            return new LengthAwarePaginator([], 0, 18);
         }
 
         // Get all types of columns
