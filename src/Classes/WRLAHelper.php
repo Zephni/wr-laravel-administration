@@ -547,6 +547,30 @@ class WRLAHelper
     }
 
     /**
+     * Get interpret user / groups array
+     *  - Replaces '@self' with the current user id within the given array
+     *
+     * @param array $array The array to interpret.
+     * @return array The interpreted array.
+     */
+    public static function interpretUserGroupsArray(array $array): array
+    {
+        // If array is empty then return it
+        if(empty($array)) {
+            return $array;
+        }
+
+        // Loop through each item and replace '@self' with the current user id
+        foreach($array as $key => $value) {
+            if($value === '@self') {
+                $array[$key] = User::current()->id;
+            }
+        }
+
+        return $array;
+    }
+
+    /**
      * Is JSON
      *
      * @param string $string The string to check if is json.

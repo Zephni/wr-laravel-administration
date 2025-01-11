@@ -88,6 +88,13 @@ return [
     //     return $user->profile_image;
     // },
 
+    // Dashboard display notifications for users / groups, use '@self' for the user's own notifications
+    'dashboard' => [
+        'notifications' => [
+            'user_groups' => ['@self', 'admin'],
+        ],
+    ],
+
     // Rate limiting for wrla. routes
     // Note: each key is bound to middleware 'throttle:route_name' in routes automatically (Within WRLAServicesProvider.php)
     'rate_limiting' => [

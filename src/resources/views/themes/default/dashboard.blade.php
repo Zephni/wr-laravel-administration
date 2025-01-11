@@ -14,7 +14,11 @@
 
     {{-- Notifications widget --}}
     <div>
-        @livewire('wrla.notifications-widget', ['userIds' => ['admin']])
+        @livewire('wrla.notifications-widget', [
+            'userIds' => $WRLAHelper::interpretUserGroupsArray(
+                config('wr-laravel-administration.dashboard.notifications.user_groups')
+            ),
+        ])
     </div>
 
     {{-- Customise dashboard by copying this file to /resources/views/vendor/wrla/themes/default/dashboard.blade.php --}}
