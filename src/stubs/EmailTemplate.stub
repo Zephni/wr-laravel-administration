@@ -94,32 +94,25 @@ class EmailTemplate extends ManageableModel
      */
     public final function getManageableFields(): array
     {
-        $isCraig = User::current()->email == 'craig.dennis@webregulate.co.uk';
-
         return [
             Text::make($this, 'alias')
                 ->required()
                 ->validation('string|min:3|max:255')
-                // ->setAttributes([
-                //     (WRLAHelper::getCurrentPageType() == PageType::EDIT ? 'readonly' : 'donothing') => 'true',
-                //     'class' => WRLAHelper::getCurrentPageType() == PageType::EDIT ? 'opacity-50' : '',
-                // ])
                 ->notes('Minimum 3 characters. After set and in use, do not change this value.'),
 
             // Hidden mappings field (Only shows for craig.dennis@webregulate.co.uk)
-            Json::make($this, 'mappings')->setLabel(!$isCraig ? null : 'Mappings (Shows for Craig only)')
+            Json::make($this, 'mappings')->setLabel('Mappings')
                 ->hideContainingBraces()
-                ->default('"contact": {
-        "id": null,
-        "first_name": null,
-        "last_name": null,
-        "email": null,
-        "company": null
-}')
+                ->default(json_encode([
+                    'user' => [
+                        'id' => null,
+                        'name' => null,
+                        'email' => null,
+                    ],
+                ]))
                 ->setAttributes([
                     'autocorrect' => 'false',
                     'spellcheck' => 'false',
-                    'style' => !$isCraig ? 'display: none !important;' : '',
                 ]),
 
             Text::make($this, 'description')->setLabel('Short description')
@@ -153,20 +146,6 @@ class EmailTemplate extends ManageableModel
                 ->default('Body text')
                 ->required(),
 
-            SearchableValue::make($this, 'contact_example_id')
-                ->shouldSubmit(false)
-                ->setLabel('Dummy contact')
-                ->default(\App\Models\Contact::inRandomOrder()->first()->id)
-                ->dynamicItemsFromModel(\App\Models\Contact::class, function(Builder $query, mixed $searchValue) {
-                    return $query->where('first_name', 'like', "%$searchValue%")
-                        ->orWhere('last_name', 'like', "%$searchValue%")
-                        ->orWhere('company', 'like', "%$searchValue%")
-                        ->orWhere('email', 'like', "%$searchValue%")
-                        ->limit(100);
-                }, function($contact) {
-                    return "$contact->email - $contact->first_name $contact->last_name";
-                }),
-
             EmailTemplate::buildEmailTemplateBladeElement($this, $this->getModelInstance()),
         ];
     }
@@ -178,47 +157,13 @@ class EmailTemplate extends ManageableModel
                 $emailTemplate = $emailTemplate();
             }
 
-            $contactExampleId = ManageableModel::getLivewireField('contact_example_id');
-            $contactExample = \App\Models\Contact::find($contactExampleId) ?? (object) [
-                'id' => 127436,
-                'first_name' => 'Nathan',
-                'last_name' => 'Burges',
-                'company' => 'EBIS-HSE',
-                "email" => "nathan@ebis-hse.com",
-            ];
-
             // Set up the email template example data
             $emailTemplate->setDataArray([
                 'user' => [
                     'id' => 1,
                     'name' => 'John Doe',
-                ],
-                'data' => [
-                    'name' => 'John Doe',
                     'email' => 'john.doe@domain.com',
-                    'subject' => 'Contact form submission',
-                    'message' => 'Hello, I would like to enquire about your services.',
                 ],
-                'contact' => [
-                    'id' => $contactExample->id,
-                    'first_name' => $contactExample->first_name,
-                    'last_name' => $contactExample->last_name,
-                    'company' => $contactExample->company,
-                    "email" => $contactExample->email,
-                ],
-                'training_course' => [
-                    'code' => 'ABC123',
-                    'title' => 'Work Equipment & Machinery Safety'
-                ],
-                'training_course_date' => [
-                    'date' => '14/02/2025',
-                    'location' => 'Unit 5, Acme Inc. HQ'
-                ],
-                'invoice' => [
-                    'invoice_number' => 'INV-12345',
-                    'status' => 'Paid',
-                    'total' => '£100.00'
-                ]
             ]);
 
             // If $mergeExampleModels is not empty, then merge with the example data
