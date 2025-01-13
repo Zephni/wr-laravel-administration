@@ -19,7 +19,7 @@ class IsAdmin
     public function handle(Request $request, Closure $next): Response
     {
         // Get current user
-        $user = \WebRegulate\LaravelAdministration\Models\User::current();
+        $user = WRLAHelper::getWRLAUser();
 
         // Check if not logged in or not admin
         if ($user == null || $user->getPermission('admin') == false) {
@@ -42,7 +42,7 @@ class IsAdmin
             $message = is_string($isRouteAllowed)
                 ? "Cannot access requested route: $isRouteAllowed"
                 : 'The current route is not enabled or does not exist.';
-                
+
             return redirect()->route('wrla.dashboard')->with('error', $message);
         }
 

@@ -15,7 +15,7 @@ return new class extends Migration {
             $table->id();
 
             // User ID (foreign key to users table)
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->bigInteger('user_id');
 
             // Avatar
             $table->string('avatar')->nullable()->default(null);

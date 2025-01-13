@@ -5,6 +5,7 @@ namespace WebRegulate\LaravelAdministration\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
+use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 
 class IsNotAdmin
 {
@@ -16,7 +17,7 @@ class IsNotAdmin
     public function handle(Request $request, Closure $next): Response
     {
         // Get current user
-        $user = \WebRegulate\LaravelAdministration\Models\User::current();
+        $user = WRLAHelper::getWRLAUser();
 
         // If logged in and admin, redirect to dashboard
         if ($user != null && $user->getPermission('admin') == true) {

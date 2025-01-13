@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 
 class User extends Authenticatable implements CanResetPassword
 {
@@ -70,6 +71,24 @@ class User extends Authenticatable implements CanResetPassword
         $user->password = $this->password;
 
         return $user;
+    }
+
+    /**
+     * Attempt login
+     *
+     * @param string $identifier
+     * @param string $password
+     * @param bool $remember
+     * @return true
+     */
+    public static function attemptLogin(string $identifier, string $password, bool $remember = true)
+    {
+        $success = Auth::attempt([
+            'email' => $identifier,
+            'password' => $password
+        ], $remember);
+
+        return $success;
     }
 
     /**
@@ -148,7 +167,7 @@ class User extends Authenticatable implements CanResetPassword
                 return null;
             }
 
-            return User::find($user->id);
+            return User::find($user->id)->first();
         }
     }
 

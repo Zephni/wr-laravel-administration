@@ -8,16 +8,13 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Builder;
 use WebRegulate\LaravelAdministration\Models\UserData;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
-use WebRegulate\LaravelAdministration\Classes\BrowseFilter;
 use \WebRegulate\LaravelAdministration\Classes\ManageableModel;
-use \WebRegulate\LaravelAdministration\Models\User as WRLAUser;
 use WebRegulate\LaravelAdministration\Classes\ManageableFields\Json;
 use \WebRegulate\LaravelAdministration\Classes\ManageableFields\Text;
 use WebRegulate\LaravelAdministration\Classes\ManageableFields\Image;
 use WebRegulate\LaravelAdministration\Classes\ManageableFields\Select;
 use \WebRegulate\LaravelAdministration\Classes\ManageableFields\Password;
 use WebRegulate\LaravelAdministration\Classes\BrowseColumns\BrowseColumn;
-use WebRegulate\LaravelAdministration\Enums\ManageableModelPermissions;
 
 class User extends ManageableModel
 {
@@ -36,13 +33,13 @@ class User extends ManageableModel
     public final static function mainSetup(): void
     {
         // Main
-        static::setBaseModelClass(WRLAUser::class);
+        static::setBaseModelClass(WRLAHelper::getWRLAUserModelClass());
         static::setDisplayName();
         static::setUrlAlias('user');
         static::setIcon('fa fa-user');
 
         // Permissions
-        static::setPermission(self::IMPERSONATE, function() { return WRLAUser::current()->isMaster(); });
+        static::setPermission(self::IMPERSONATE, function() { return WRLAHelper::getWRLAUser()->isMaster(); });
     }
 
     /**
@@ -72,13 +69,11 @@ class User extends ManageableModel
                     'non_admins_only' => 'Non admins only',
                 ])
                 ->browseFilterApply(function(Builder $query, $table, $columns, $value) {
-                    if($value == 'admins_only') return $query->where('permissions->admin', true);
-                    else if($value == 'non_admins_only') return $query->where(function($query) {
-                        $query->whereNull('permissions->admin')->orWhere('permissions->admin', false);
-                    });
-
+                    if($value !== 'all') {
+                        return $query->where('permissions->admin', $value === 'admins_only' ? true : false);
+                    }
                     return $query;
-                })
+                }),
         ]));
 
         // Browse actions (Remove import action #51)
@@ -136,7 +131,7 @@ class User extends ManageableModel
 
             Password::make($this, 'password'),
 
-            Image::make($this, 'wrlaUserData.avatar', 'storage/images/avatars', '{id}-avatar-{time}.jpg')
+            Image::make($this, 'wrlaUserData.data->profile->avatar', 'storage/images/avatars', '{id}-avatar-{time}.jpg')
                 ->defaultImage($modelInstance->getProfileAvatar())
                 ->aspect('1/1')
                 ->rounded('full')
@@ -229,7 +224,7 @@ class User extends ManageableModel
      */
     public static function current(): User {
         return new User(
-            WRLAUser::current()
+            WRLAHelper::getWRLAUser()
         );
     }
 

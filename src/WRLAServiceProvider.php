@@ -10,7 +10,6 @@ use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Validator;
-use WebRegulate\LaravelAdministration\Models\User;
 use WebRegulate\LaravelAdministration\Livewire\Logs;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 use WebRegulate\LaravelAdministration\Commands\RebuildUser;
@@ -38,7 +37,7 @@ class WRLAServiceProvider extends ServiceProvider
     {
         // Merge config
         $this->mergeConfigFrom(__DIR__ . '/config/wr-laravel-administration.php', 'wr-laravel-administration');
-        
+
         // Register Livewire
         $this->app->register(\Livewire\LivewireServiceProvider::class);
     }
@@ -202,7 +201,7 @@ class WRLAServiceProvider extends ServiceProvider
      */
     protected function defineGates(): void
     {
-        Gate::define('wrla-admin', function (User $user) {
+        Gate::define('wrla-admin', function (mixed $user) {
             return $user->isAdmin();
         });
     }
@@ -258,7 +257,7 @@ class WRLAServiceProvider extends ServiceProvider
         // Share variables with all views within this package
         view()->composer(['wr-laravel-administration::*', '*wrla.*'], function ($view) {
             // Current user
-            $view->with('WRLAUser', User::current());
+            $view->with('WRLAUser', WRLAHelper::getWRLAUser());
 
             // Theme data
             $view->with('WRLAThemeData', (object)WRLAHelper::getCurrentThemeData());

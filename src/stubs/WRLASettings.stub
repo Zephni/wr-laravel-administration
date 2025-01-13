@@ -3,7 +3,6 @@
 namespace App\WRLA;
 
 use Illuminate\Support\Collection;
-use WebRegulate\LaravelAdministration\Models\User;
 use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItem;
 use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItemDivider;
 use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItemsManageableModels;
@@ -37,7 +36,7 @@ class WRLASettings
 
             // View Logs
             (new NavigationItem('wrla.logs', [], 'View Logs', 'fa fa-file-alt'))->showOnCondition(function(){
-                return User::current()?->getPermission('master') ?? false;
+                return WRLAHelper::getWRLAUser()?->getPermission('master') ?? false;
             }),
 
             // Divider
@@ -60,12 +59,12 @@ class WRLASettings
     {
         if($key == 'admin')
         {
-            return User::whereHas('wrlaUserData', function($query) {
+            return WRLAHelper::getWRLAUserModelClass()::whereHas('wrlaUserData', function($query) {
                 $query->whereJsonContains('permissions', ['admin' => true]);
             })->get();
         }
 
-        return collect([User::find($key)]);
+        return collect([WRLAHelper::getWRLAUserModelClass()::find($key)]);
     }
 
     /**

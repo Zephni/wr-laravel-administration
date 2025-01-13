@@ -13,7 +13,6 @@ use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\RateLimiter;
-use WebRegulate\LaravelAdministration\Models\User;
 use WebRegulate\LaravelAdministration\Enums\PageType;
 use WebRegulate\LaravelAdministration\Enums\ManageableModelPermissions;
 use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItem;
@@ -64,6 +63,26 @@ class WRLAHelper
     public static function getDocumentationUrl(): string
     {
         return 'https://github.com/Zephni/wr-laravel-administration/wiki';
+    }
+
+    /**
+     * Get wrla user model class
+     *
+     * @return string
+     */
+    public static function getWRLAUserModelClass(): string
+    {
+        return config('wr-laravel-administration.wrla_user_model');
+    }
+
+    /**
+     * Get current wrla user
+     *
+     * @return mixed
+     */
+    public static function getWRLAUser(): mixed
+    {
+        return WRLAHelper::getWRLAUserModelClass()::current();
     }
 
     /**
@@ -146,7 +165,7 @@ class WRLAHelper
     public static function getCurrentThemeData(?string $keyDotNotation = null): mixed
     {
         // Get user's current selected theme.
-        $currentTheme = User::current()?->getCurrentThemeKey();
+        $currentTheme = WRLAHelper::getWRLAUser()?->getCurrentThemeKey();
 
         // If current theme is empty then fall back to the config default_theme.
         if(empty($currentTheme)) {
@@ -563,7 +582,7 @@ class WRLAHelper
         // Loop through each item and replace '@self' with the current user id
         foreach($array as $key => $value) {
             if($value === '@self') {
-                $array[$key] = User::current()->id;
+                $array[$key] = WRLAHelper::getWRLAUser()->id;
             }
         }
 
@@ -752,11 +771,11 @@ class WRLAHelper
     /**
      * Get original user while impersonating
      *
-     * @return User|null
+     * @return mixed
      */
-    public static function getImpersonatingOriginalUser(): ?User
+    public static function getImpersonatingOriginalUser(): mixed
     {
-        return User::find(session('wrla_impersonating_user'));
+        return WRLAHelper::getWRLAUserModelClass()::find(session('wrla_impersonating_user'));
     }
 
     /**
@@ -1003,7 +1022,7 @@ class WRLAHelper
     public static function logError(string $message, array $context = []): void
     {
         $data = array_merge([
-            'user' => User::current()?->id ?? 'x',
+            'user' => WRLAHelper::getWRLAUser()?->id ?? 'x',
         ], $context);
 
         Log::channel('wrla-error')->error($message, $data);
@@ -1018,7 +1037,7 @@ class WRLAHelper
     public static function logInfo(string $message, array $context = []): void
     {
         $data = array_merge([
-            'user' => User::current()?->id ?? 'x',
+            'user' => WRLAHelper::getWRLAUser()?->id ?? 'x',
         ], $context);
 
         Log::channel('wrla-info')->info($message, $data);

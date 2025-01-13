@@ -7,7 +7,6 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
-use WebRegulate\LaravelAdministration\Models\User;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 
 class WRLAAuthController extends Controller
@@ -40,8 +39,8 @@ class WRLAAuthController extends Controller
         // Auth::login($user);
         // return redirect()->route('wrla.dashboard');
 
-        // Attempt login - OLD
-        if (Auth::attempt($request->only('email', 'password'), $request->has('remember'))) {
+        // Attempt login
+        if (WRLAHelper::getWRLAUserModelClass()::attemptLogin($request->get('email'), $request->get('password'), $request->has('remember'))) {
             // If wrla_impersonating_user is in session, forget it
             if($request->session()->has('wrla_impersonating_user')) {
                 $request->session()->forget('wrla_impersonating_user');
@@ -62,10 +61,10 @@ class WRLAAuthController extends Controller
     public function impersonateLoginAs(Request $request, int $userId)
     {
         // Get current user id
-        $origionalUserId = User::current()->id;
+        $origionalUserId = WRLAHelper::getWRLAUser()->id;
 
         // Get user by id
-        $user = User::find($userId);
+        $user = WRLAHelper::getWRLAUserModelClass()::find($userId);
 
         // Check has impersonate permission
         if(!\App\WRLA\User::getPermission(\App\WRLA\User::IMPERSONATE)) {
