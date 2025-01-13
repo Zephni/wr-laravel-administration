@@ -84,7 +84,7 @@
         </div>
         <div class="flex flex-col text-sm">
             <div class="flex flex-col pb-1">
-                <span class="text-sm">{{ $WRLAUser->name }}</span>
+                <span class="text-sm">{{ $WRLAUser->getFullName() }}</span>
                 <span class="text-xs font-semibold text-slate-400">{{ $WRLAUser->getRole() }}</span>
             </div>
             <span class="flex justify-start items-center gap-2 text-xs">

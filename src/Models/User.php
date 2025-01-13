@@ -131,13 +131,24 @@ class User extends Authenticatable implements CanResetPassword
         }
 
         // If name is empty, use U
-        $name = !empty($this->name) ? $this->name : 'U';
+        $fullName = $this->getFullName();
+        $fullName = !empty($this->fullName) ? $this->fullName : 'U';
 
         // Get just the first characters of all the words
-        $name = preg_replace('/\b(\w)|./', '$1', $name);
+        $name = preg_replace('/\b(\w)|./', '$1', $fullName);
 
         // Otherwise return default
         return 'https://ui-avatars.com/api/?name=' . urlencode($name) . '&color=EBF4FF&background=00BFA0&size=128&font-size=0.5&rounded=true';
+    }
+
+    /**
+     * Get full name
+     *
+     * @return string
+     */
+    public function getFullName(): string
+    {
+        return $this->name;
     }
 
     /* Static methods
