@@ -8,6 +8,14 @@ return [
     // WRLA User model
     'wrla_user_model' => \WebRegulate\LaravelAdministration\Models\User::class,
 
+    // WRLA user data connection and table
+    // NOTE: Do not change the table name iteself, but a different prefix database can be prepended if the relationship
+    // between your user table and user_data table crosses databases, eg. 'database_name.wrla_user_data')
+    'wrla_user_data' => [
+        'connection' => 'mysql',
+        'table' => 'wrla_user_data',
+    ],
+
     // How the page title should be displayed
     'title_template' => '{page_title} - WebRegulate Admin',
 

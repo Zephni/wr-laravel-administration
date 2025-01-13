@@ -6,8 +6,6 @@ use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 
 class UserData extends Model
 {
-    protected $connection = 'mysql';
-    protected $table = 'wrla_user_data';
     public $timestamps = false;
 
     protected $fillable = [
@@ -17,6 +15,17 @@ class UserData extends Model
         'data',
     ];
 
+    public function getConnectionName()
+    {
+        return config('wr-laravel-administration.wrla_user_data.connection');
+    }
+
+    public function getTable()
+    {
+        return config('wr-laravel-administration.wrla_user_data.table');
+    }
+
+    // Relationships
     public function user()
     {
         return $this->belongsTo(WRLAHelper::getWRLAUserModelClass());
