@@ -13,10 +13,10 @@ use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 class Password
 {
     use ManageableField;
-    
+
     /**
      * Post constructed method, called after name and value attributes are set.
-     * 
+     *
      * @return $this
      */
     public function postConstructed(): static
@@ -37,10 +37,8 @@ class Password
      */
     public function applySubmittedValue(Request $request, mixed $value): mixed
     {
-        // First hash the password
-        $value = Hash::make($value);
-
-        return $value;
+        // Hash the password and return
+        return Hash::make($value);
     }
 
     /**
@@ -71,9 +69,12 @@ class Password
                 ])),
             ])->render();
 
+            // Flex container
+            $HTML .= '<div class="flex flex-col gap-2">';
+
             // Checkbox to show/enable password field
             $HTML .= view(WRLAHelper::getViewPath('components.forms.input-checkbox'), [
-                'label' => 'Change ' . Str::title(str_replace('_', ' ', $this->getAttribute('name'))),
+                'label' => 'Change ' . Str::title(str_replace('_', ' ', $this->getLabel())),
                 'attributes' => new ComponentAttributeBag(array_merge($this->htmlAttributes, [
                     'name' => 'wrla_show_' . $this->getAttribute('name'),
                     'value' => $wrla_show == 'true',
@@ -105,12 +106,15 @@ class Password
                 'name' => $this->getAttribute('name').'_confirmation',
                 'value' => '',
                 'type' => 'password',
-                'placeholder' => 'Confirm ' . str(str_replace('_', ' ', $this->getAttribute('name')))->title(),
+                'placeholder' => 'Confirm ' . strtolower($this->getLabel()),
             ], $pageType == PageType::EDIT ? [
                 'x-show' => 'userWantsToChange',
                 'x-bind:disabled' => '!userWantsToChange',
             ] : [])),
         ])->render();
+
+        // End flex container
+        $HTML .= '</div>';
 
         if($pageType == PageType::EDIT) {
             // Close parent div

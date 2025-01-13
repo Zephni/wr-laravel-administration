@@ -1009,7 +1009,7 @@ abstract class ManageableModel
     public function updateModelInstanceProperties(Request $request, array $formComponents, array $formKeyValues): bool|MessageBag
     {
         // Perform any necessary actions before updating the model instance
-        $this->preUpdateModelInstance($request);
+        $request = $this->preUpdateModelInstance($request);
 
         // Check id request has any values that start with wrla_remove_ and apply to formKeyValues if so
         if (count($request->all()) > 0) {
@@ -1079,7 +1079,7 @@ abstract class ManageableModel
             if (!$isUsingNestedJson)
             {
                 // Apply the value to the form component and get the field value
-                $fieldValue = $formComponent->applySubmittedValue($request, $formKeyValues[$fieldName]);
+                $fieldValue = $formComponent->applySubmittedValueFinal($request, $formKeyValues[$fieldName]);
             }
             // JSON notation
             else
@@ -1094,7 +1094,7 @@ abstract class ManageableModel
                 }
 
                 // Apply the value to the form component and get the new value
-                $newValue = $formComponent->applySubmittedValue($request, $newValue);
+                $newValue = $formComponent->applySubmittedValueFinal($request, $newValue);
 
                 // If $newValue is valid JSON, we convert it to an array
                 if (is_string($newValue) && WRLAHelper::isJson($newValue)) {
@@ -1144,11 +1144,12 @@ abstract class ManageableModel
      * Pre update model instance hook. Note that this is called after validation but before the model is updated and saved.
      *
      * @param Request $request The HTTP request object.
-     * @return void
+     * @return Request
      */
-    public function preUpdateModelInstance(Request $request): void
+    public function preUpdateModelInstance(Request $request): Request
     {
         // Override this method in your model to add custom logic before updating the model instance
+        return $request;
     }
 
     /**

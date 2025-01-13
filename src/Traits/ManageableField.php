@@ -77,6 +77,13 @@ trait ManageableField
     public ?ManageableModel $manageableModel = null;
 
     /**
+     * Callable to apply submitted value. May be overriden in special cases, such as when applying a hash to a password.
+     *
+     * @var mixed
+     */
+    private mixed $applySubmittedValueCallable = null;
+
+    /**
      * FormComponent constructor.
      *
      * @param ?string $name
@@ -627,6 +634,37 @@ trait ManageableField
         }
 
         return $value;
+    }
+
+    /**
+     * The callable must take Request $request, and mixed $value, and return the value to be set.
+     * If callable is set, it will be called instead of the default applySubmittedValue method.
+     *
+     * @param callable
+     * @return mixed
+     */
+    public function overrideApplySubmittedValue(callable $callable): mixed
+    {
+        $this->applySubmittedValueCallable = $callable;
+        return $this;
+    }
+
+    /**
+     * Apply submitted value final.
+     *
+     * @param Request $request
+     * @param mixed $value
+     * @return mixed
+     */
+    public function applySubmittedValueFinal(Request $request, mixed $value): mixed
+    {
+        // If callable is set then run it
+        if($this->applySubmittedValueCallable !== null) {
+            return call_user_func($this->applySubmittedValueCallable, $request, $value);
+        }
+
+        // Otherwise run the default applySubmittedValue method
+        return $this->applySubmittedValue($request, $value);
     }
 
     /**
