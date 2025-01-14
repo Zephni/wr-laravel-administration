@@ -2,7 +2,6 @@
 
 namespace App\WRLA;
 
-use App\Models\User;
 use Illuminate\Support\Str;
 use Illuminate\Support\Collection;
 use Illuminate\Database\Eloquent\Builder;
@@ -15,7 +14,6 @@ use WebRegulate\LaravelAdministration\Classes\ManageableFields\Text;
 use WebRegulate\LaravelAdministration\Classes\ManageableFields\Select;
 use WebRegulate\LaravelAdministration\Classes\ManageableFields\TextArea;
 use WebRegulate\LaravelAdministration\Classes\ManageableFields\BladeElement;
-use WebRegulate\LaravelAdministration\Classes\ManageableFields\SearchableValue;
 
 class EmailTemplate extends ManageableModel
 {
@@ -57,11 +55,11 @@ class EmailTemplate extends ManageableModel
                 ->setItems([
                     'all' => 'All',
                     'transactional' => 'Transactional',
-                    'marketing' => 'Marketing',
-                    'training_courses' => 'Training Courses',
                 ])
                 ->browseFilterApply(function(Builder $query, $table, $columns, $value) {
-                    if($value != 'all') $query->where('category', $value);
+                    if($value != 'all') {
+                        $query->where('category', $value);
+                    }
                     return $query;
                 }),
         ));
@@ -85,7 +83,6 @@ class EmailTemplate extends ManageableModel
             'alias' => 'Alias',
         ];
     }
-    public $contactExample;
 
     /**
      * Provide an array of manageable fields to display in the upsert view.
@@ -98,18 +95,15 @@ class EmailTemplate extends ManageableModel
             Text::make($this, 'alias')
                 ->required()
                 ->validation('string|min:3|max:255')
-                ->notes('Minimum 3 characters. After set and in use, do not change this value.'),
+                ->notes('Minimum 5 characters. After set and in use, do not change this value.'),
 
-            // Hidden mappings field (Only shows for craig.dennis@webregulate.co.uk)
             Json::make($this, 'mappings')->setLabel('Mappings')
                 ->hideContainingBraces()
-                ->default(json_encode([
-                    'user' => [
-                        'id' => null,
-                        'name' => null,
-                        'email' => null,
-                    ],
-                ]))
+                ->default('"user": {
+        "id": null,
+        "name": null,
+        "email": null
+}')
                 ->setAttributes([
                     'autocorrect' => 'false',
                     'spellcheck' => 'false',
@@ -141,7 +135,7 @@ class EmailTemplate extends ManageableModel
                     'spellcheck' => 'false',
                     (WRLAHelper::getCurrentPageType() == PageType::EDIT ? 'autofocus' : 'donothing') => 'true',
                     'x-ref' => 'bodyTextArea',
-                    'rows' => 20,
+                    'rows' => 10,
                 ])
                 ->default('Body text')
                 ->required(),
@@ -150,9 +144,9 @@ class EmailTemplate extends ManageableModel
         ];
     }
 
-    public static function buildEmailTemplateBladeElement(ManageableModel $manageableModel, \WebRegulate\LaravelAdministration\Models\EmailTemplate|callable $emailTemplate, ?array $mergeExampleModels = null, ?array $mergeExampleData = null): BladeElement
+    public static function buildEmailTemplateBladeElement(ManageableModel $manageableModel, \WebRegulate\LaravelAdministration\Models\EmailTemplate|callable $emailTemplate): BladeElement
     {
-        return BladeElement::make($manageableModel, null, function($bladeElement) use ($emailTemplate, $mergeExampleModels, $mergeExampleData) {
+        return BladeElement::make($manageableModel, null, function($bladeElement) use ($emailTemplate) {
             if(is_callable($emailTemplate)) {
                 $emailTemplate = $emailTemplate();
             }
@@ -164,17 +158,10 @@ class EmailTemplate extends ManageableModel
                     'name' => 'John Doe',
                     'email' => 'john.doe@domain.com',
                 ],
+                'client' => [
+                    'name' => \App\Models\DairyData\Client::current()->name,
+                ]
             ]);
-
-            // If $mergeExampleModels is not empty, then merge with the example data
-            if(!empty($mergeExampleModels)) {
-                $emailTemplate->mergeDataFromModels($mergeExampleModels);
-            }
-
-            // If $mergeExampleData is not empty, then merge with the example data
-            if(!empty($mergeExampleData)) {
-                $emailTemplate->mergeDataArray($mergeExampleData);
-            }
 
             // If mappings include any which aren't set above, then fill with placeholders
             $emailTemplate->fillMissingDataWithPlaceholders();
