@@ -110,7 +110,7 @@ class WRLAAuthController extends Controller
         Auth::logout();
 
         // Login as original user
-        Auth::login(User::find($origionalUserId));
+        Auth::login(WRLAHelper::getWRLAUserModelClass()::find($origionalUserId));
 
         // Forget wrla_impersonating_user from session
         $request->session()->forget('wrla_impersonating_user');
