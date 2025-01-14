@@ -698,7 +698,7 @@ abstract class ManageableModel
         $model = $this->getModelInstance();
 
         // If model doesn't have soft deletes and not trashed
-        if(!static::isSoftDeletable() || $model->deleted_at == null) {
+        if(!WRLAHelper::isSoftDeletable(static::getBaseModelClass()) || $model->deleted_at == null) {
             // Check has edit permission
             if(static::getPermission(ManageableModelPermissions::EDIT)) {
                 $browseActions->put('edit', view(WRLAHelper::getViewPath('components.browse-actions.edit-button'), [
@@ -740,7 +740,7 @@ abstract class ManageableModel
      * @return Collection
      */
     public static function getDefaultBrowseFilters(): Collection {
-        return collect([
+        $browseFilters = [
             'searchFilter' =>
                 Text::makeBrowseFilter('searchFilter', 'Search', 'fas fa-search text-slate-400')
                     ->setAttributes([
@@ -776,8 +776,10 @@ abstract class ManageableModel
                             }
                         });
                     }),
+        ];
 
-            'softDeletedFilter' =>
+        if(WRLAHelper::isSoftDeletable(static::getBaseModelClass())) {
+            $browseFilters['softDeletedFilter'] =
                 Select::makeBrowseFilter('softDeletedFilter')
                     ->setLabel('Status', 'fas fa-heartbeat text-slate-400 !mr-1')
                     ->setItems([
@@ -796,8 +798,10 @@ abstract class ManageableModel
                             return $query->withTrashed();
                         }
                         return $query;
-                    }),
-        ]);
+                    });
+        }
+
+        return collect($browseFilters);
     }
 
     /**
@@ -1187,19 +1191,6 @@ abstract class ManageableModel
     public function postDeleteModelInstance(Request $request, int $oldId, bool $soft): void
     {
         // Override this method in your model to add custom logic after deleting the model instance
-    }
-
-    /**
-     * Is model soft deletable
-     *
-     * @return bool
-     */
-    public static function isSoftDeletable(): bool
-    {
-        // Get whether base model has SoftDeletes trait
-        return once(function(){
-            return in_array('Illuminate\Database\Eloquent\SoftDeletes', class_uses(static::getBaseModelClass())) ?? false;
-        });
     }
 
     /**

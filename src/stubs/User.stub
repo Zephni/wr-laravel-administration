@@ -205,19 +205,6 @@ class User extends ManageableModel
     }
 
     /**
-     * Is model soft deletable
-     *
-     * @return bool
-     */
-    public static function isSoftDeletable(): bool
-    {
-        // Get whether base model has SoftDeletes trait
-        return once(function(){
-            return in_array('Illuminate\Database\Eloquent\SoftDeletes', class_uses(\App\Models\User::class)) ?? false;
-        });
-    }
-
-    /**
      * Get current user manageable model
      *
      * @return User

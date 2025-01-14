@@ -779,6 +779,19 @@ class WRLAHelper
     }
 
     /**
+     * Is model soft deletable
+     *
+     * @return bool
+     */
+    public static function isSoftDeletable(string $class): bool
+    {
+        // Get whether base model has SoftDeletes trait
+        return once(function() use ($class){
+            return in_array('Illuminate\Database\Eloquent\SoftDeletes', class_uses($class)) ?? false;
+        });
+    }
+
+    /**
      * Remove a rule from a validation string
      *
      * @param string|array $rule The rule/s to remove.
