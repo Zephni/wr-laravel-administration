@@ -148,7 +148,7 @@ class User extends Authenticatable implements CanResetPassword
      */
     public function getFullName(): string
     {
-        return $this->name;
+        return $this->name ?? 'User';
     }
 
     /* Static methods
