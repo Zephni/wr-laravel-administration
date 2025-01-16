@@ -38,14 +38,21 @@ class EmailTemplate extends Model
      *
      * @param string $category
      * @param string $alias
+     * @param array $dataOrModels
      * @return ?self
      */
-    public static function findByAlias(string $category, string $alias): ?self
+    public static function findByAlias(string $category, string $alias, array $dataOrModels = []): ?self
     {
+        // Cache the email template for this request
         $emailTemplate = once(fn() => self::where('category', $category)->where('alias', 'like', $alias)->first());
 
         if($emailTemplate == null) {
             throw new \Exception('Email template not found with alias: ' . $alias);
+        }
+
+        // Set data array
+        if(!empty($dataOrModels)) {
+            $emailTemplate->setDataArray($dataOrModels);
         }
 
         return $emailTemplate;
@@ -54,48 +61,24 @@ class EmailTemplate extends Model
     /**
      * Set data array.
      *
-     * @param array $dataArray
+     * @param array $dataArray Can be key => data, key => model,... etc
      * @return self
      */
     public function setDataArray(array $dataArray): self
     {
-        $this->dataArray = $dataArray;
+        $this->dataArray = $this->buildDataArrayFromDataOrModels($dataArray);
         return $this;
     }
 
     /**
-     * Merge data array.
+     * Merge data array
      *
-     * @param array $dataArray
+     * @param array $dataArray Can be key => data, key => model,... etc
      * @return self
      */
     public function mergeDataArray(array $dataArray): self
     {
-        $this->dataArray = array_merge($this->dataArray ?? [], $dataArray);
-        return $this;
-    }
-
-    /**
-     * Set data from models.
-     *
-     * @param array $models
-     * @return self
-     */
-    public function setDataFromModels(array $models): self
-    {
-        $this->dataArray = $this->buildDataArrayFromModels($models);
-        return $this;
-    }
-
-    /**
-     * Merge data from models.
-     *
-     * @param array $models
-     * @return self
-     */
-    public function mergeDataFromModels(array $models): self
-    {
-        $this->dataArray = array_merge($this->dataArray ?? [], $this->buildDataArrayFromModels($models));
+        $this->dataArray = array_merge($this->dataArray ?? [], $this->buildDataArrayFromDataOrModels($dataArray));
         return $this;
     }
 
@@ -153,10 +136,10 @@ class EmailTemplate extends Model
     /**
      * Build data array for email template from models (but only the attributes available in key mappings).
      *
-     * @param array $keyValueModels eg. ['user' => User::find(1), ...]
+     * @param array $modelsOrData eg. ['data' => ['key' => 'value',... ], 'user' => User::find(1), ...]
      * @return array
      */
-    public function buildDataArrayFromModels(array $models): array
+    public function buildDataArrayFromDataOrModels(array $modelsOrData): array
     {
         // For some reason the below caching style was returning the dataArray from the previous emailTemplate... not sure why
         // if ($this->dataArray) {
@@ -165,15 +148,27 @@ class EmailTemplate extends Model
 
         $data = [];
 
-        // Apply models to data if key mappings exist
-        foreach($models as $key => $model) {
+        // Apply data/models to data if key mappings exist
+        foreach($modelsOrData as $key => $dataOrModel) {
             $keyMappings = $this->getKeyMappings();
 
             if(!isset($keyMappings[$key])) {
                 continue;
             }
 
-            $data[$key] = $model->only(array_keys($keyMappings[$key]));
+            // If data is Model, get only the attributes that are in the key mappings
+            if($dataOrModel instanceof Model) {
+                $data[$key] = $dataOrModel->only(array_keys($keyMappings[$key]));
+                continue;
+            }
+
+            // If data is an array, just use it
+            if(is_array($dataOrModel)) {
+                $data[$key] = $dataOrModel;
+                continue;
+            }
+
+            // Otherwise, do nothing
         }
 
         return $data;

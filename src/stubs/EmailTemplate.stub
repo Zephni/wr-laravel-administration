@@ -157,9 +157,6 @@ class EmailTemplate extends ManageableModel
                     'id' => 1,
                     'name' => 'John Doe',
                     'email' => 'john.doe@domain.com',
-                ],
-                'client' => [
-                    'name' => \App\Models\DairyData\Client::current()->name,
                 ]
             ]);
 
