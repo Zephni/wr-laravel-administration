@@ -117,7 +117,6 @@
             <!-- Body -->
             @foreach ($models as $k => $model)
                 @php
-                    $rowLoop = $loop;
                     $manageableModel = $manageableModelClass::make($model);
                 @endphp
                 <div class="contents odd:bg-slate-100 dark:odd:bg-slate-800">

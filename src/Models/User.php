@@ -130,9 +130,9 @@ class User extends Authenticatable implements CanResetPassword
             return '/'.ltrim("storage/images/avatars/$avatar", '/');
         }
 
-        // If name is empty, use U
+        // Get full name, if empty use 'U'
         $fullName = $this->getFullName();
-        $fullName = !empty($this->fullName) ? $this->fullName : 'U';
+        $fullName = !empty($fullName) ? $fullName : 'U';
 
         // Get just the first characters of all the words
         $name = preg_replace('/\b(\w)|./', '$1', $fullName);

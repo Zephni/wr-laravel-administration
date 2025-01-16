@@ -213,7 +213,7 @@ class BrowseColumnBase
 
         // dd($model, $column, $this->getOption('value'), $useColumn, $model->{$column});
 
-        if($this->overrideRenderValue)
+        if($this->overrideRenderValue !== null)
         {
             return $this->renderFinalStringValue(call_user_func($this->overrideRenderValue, $value, $model));
         }
