@@ -8,13 +8,16 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Builder;
 use WebRegulate\LaravelAdministration\Models\UserData;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
+use WebRegulate\LaravelAdministration\Classes\BrowseFilter;
 use \WebRegulate\LaravelAdministration\Classes\ManageableModel;
+use \WebRegulate\LaravelAdministration\Models\User as WRLAUser;
 use WebRegulate\LaravelAdministration\Classes\ManageableFields\Json;
 use \WebRegulate\LaravelAdministration\Classes\ManageableFields\Text;
 use WebRegulate\LaravelAdministration\Classes\ManageableFields\Image;
 use WebRegulate\LaravelAdministration\Classes\ManageableFields\Select;
 use \WebRegulate\LaravelAdministration\Classes\ManageableFields\Password;
 use WebRegulate\LaravelAdministration\Classes\BrowseColumns\BrowseColumn;
+use WebRegulate\LaravelAdministration\Enums\ManageableModelPermissions;
 
 class User extends ManageableModel
 {
@@ -33,13 +36,13 @@ class User extends ManageableModel
     public final static function mainSetup(): void
     {
         // Main
-        static::setBaseModelClass(WRLAHelper::getWRLAUserModelClass());
+        static::setBaseModelClass(WRLAUser::class);
         static::setDisplayName();
         static::setUrlAlias('user');
         static::setIcon('fa fa-user');
 
         // Permissions
-        static::setPermission(self::IMPERSONATE, function() { return WRLAHelper::getWRLAUser()->isMaster(); });
+        static::setPermission(self::IMPERSONATE, function() { return WRLAUser::current()->isMaster(); });
     }
 
     /**
@@ -61,20 +64,22 @@ class User extends ManageableModel
     public final static function browseSetup(): void
     {
         // Browse filters
-        static::setBrowseFilters(static::getDefaultBrowseFilters()->merge([
-            Select::makeBrowseFilter('userTypeFilter', 'User Type', 'fas fa-user-cog text-slate-400')
+        static::setBrowseFilters([
+            Select::makeBrowseFilter('userTypeFilter', 'User Type', 'fas fa-user-cog text-slate-400', 'w-1/5')
                 ->setItems([
                     'all' => 'All users',
                     'admins_only' => 'Admins only',
                     'non_admins_only' => 'Non admins only',
                 ])
                 ->browseFilterApply(function(Builder $query, $table, $columns, $value) {
-                    if($value !== 'all') {
-                        return $query->where('permissions->admin', $value === 'admins_only' ? true : false);
-                    }
+                    if($value == 'admins_only') return $query->where('permissions->admin', true);
+                    else if($value == 'non_admins_only') return $query->where(function($query) {
+                        $query->whereNull('permissions->admin')->orWhere('permissions->admin', false);
+                    });
+
                     return $query;
-                }),
-        ]));
+                })
+        ] + static::getDefaultBrowseFilters());
 
         // Browse actions (Remove import action #51)
         static::setBrowseActions(static::getDefaultBrowseActions()->forget(51));
@@ -131,7 +136,7 @@ class User extends ManageableModel
 
             Password::make($this, 'password'),
 
-            Image::make($this, 'wrlaUserData.data->profile->avatar', 'storage/images/avatars', '{id}-avatar-{time}.jpg')
+            Image::make($this, 'wrlaUserData.avatar', 'storage/images/avatars', '{id}-avatar-{time}.jpg')
                 ->defaultImage($modelInstance->getProfileAvatar())
                 ->aspect('1/1')
                 ->rounded('full')
@@ -205,13 +210,26 @@ class User extends ManageableModel
     }
 
     /**
+     * Is model soft deletable
+     *
+     * @return bool
+     */
+    public static function isSoftDeletable(): bool
+    {
+        // Get whether base model has SoftDeletes trait
+        return once(function(){
+            return in_array('Illuminate\Database\Eloquent\SoftDeletes', class_uses(\App\Models\User::class)) ?? false;
+        });
+    }
+
+    /**
      * Get current user manageable model
      *
      * @return User
      */
     public static function current(): User {
         return new User(
-            WRLAHelper::getWRLAUser()
+            WRLAUser::current()
         );
     }
 

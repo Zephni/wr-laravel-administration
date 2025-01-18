@@ -737,9 +737,9 @@ abstract class ManageableModel
     /**
      * Get browse filters (Applies to browse page)
      *
-     * @return Collection
+     * @return array
      */
-    public static function getDefaultBrowseFilters(): Collection {
+    public static function getDefaultBrowseFilters(): array {
         $browseFilters = [
             'searchFilter' =>
                 Text::makeBrowseFilter('searchFilter', 'Search', 'fas fa-search text-slate-400')
@@ -801,7 +801,7 @@ abstract class ManageableModel
                     });
         }
 
-        return collect($browseFilters);
+        return $browseFilters;
     }
 
     /**
