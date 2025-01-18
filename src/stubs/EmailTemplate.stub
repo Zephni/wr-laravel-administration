@@ -49,20 +49,20 @@ class EmailTemplate extends ManageableModel
     public final static function browseSetup(): void
     {
         // Browse filters
-        static::setBrowseFilters(static::getDefaultBrowseFilters()->prepend(
-            Select::makeBrowseFilter('categoryFilter', 'Category', 'fas fa-tag text-slate-400 !mr-1')
+        static::setBrowseFilters([
+            Select::makeBrowseFilter('categoryFilter', 'Category', 'fas fa-tag')
                 ->setOption('containerClass', 'w-1/4')
                 ->setItems([
                     'all' => 'All',
                     'transactional' => 'Transactional',
+                    'marketing' => 'Marketing',
+                    'training_courses' => 'Training Courses',
                 ])
                 ->browseFilterApply(function(Builder $query, $table, $columns, $value) {
-                    if($value != 'all') {
-                        $query->where('category', $value);
-                    }
+                    if($value != 'all') $query->where('category', $value);
                     return $query;
                 }),
-        ));
+        ] + static::getDefaultBrowseFilters());
 
         // Browse actions
         static::setBrowseActions(static::getDefaultBrowseActions());
