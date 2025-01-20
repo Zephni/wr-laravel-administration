@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('wrla_email_templates', function (Blueprint $table) {
             $table->id();
-            $table->enum('category', ['marketing', 'training_courses', 'transactional'])->default('marketing');
+            $table->string('category')->default('transactional');
             $table->string('alias')->unique();
             $table->string('subject')->nullable();
             $table->text('body')->nullable();

@@ -55,8 +55,6 @@ class EmailTemplate extends ManageableModel
                 ->setItems([
                     'all' => 'All',
                     'transactional' => 'Transactional',
-                    'marketing' => 'Marketing',
-                    'training_courses' => 'Training Courses',
                 ])
                 ->browseFilterApply(function(Builder $query, $table, $columns, $value) {
                     if($value != 'all') $query->where('category', $value);
@@ -118,8 +116,6 @@ class EmailTemplate extends ManageableModel
             Select::make($this, 'category')
                 ->required()
                 ->setItems([
-                    'marketing' => 'Marketing',
-                    'training_courses' => 'Training Courses',
                     'transactional' => 'Transactional',
                 ]),
 
