@@ -4,12 +4,14 @@ namespace WebRegulate\LaravelAdministration\Livewire;
 
 use Livewire\Component;
 use Illuminate\Contracts\View\View;
-use Illuminate\Support\Facades\Auth;
+use Livewire\WithPagination;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 use WebRegulate\LaravelAdministration\Models\Notification;
 
 class NotificationsWidget extends Component
 {
+    use WithPagination;
+
     public string $statusFilter = 'unread';
     public array $statusFilterOptions = [
         'unread' => 'Outstanding',
@@ -44,7 +46,7 @@ class NotificationsWidget extends Component
             })
             ->orderBy('created_at', 'desc')
             ->paginate(15);
-            
+
         return view(WRLAHelper::getViewPath('livewire.notifications-widget'), [
             'notifications' => $notifications
         ]);
