@@ -50,14 +50,6 @@ class InstallCommand extends Command
             $configContents = file_get_contents($configFile);
             $configContents = str_replace("'connection' => 'mysql',", "'connection' => '$envConnection',", $configContents);
             file_put_contents($configFile, $configContents);
-
-            // UserData model file
-            $userDataFile = app_path('WRLA/UserData.php');
-            $userDataContents = file_get_contents($userDataFile);
-            $userDataContents = str_replace("public \$connection = 'mysql';", "public \$connection = '$envConnection';", $userDataContents);
-            $wrlaUserTable = config('wr-laravel-administration.wrla_user_data.table');
-            $userDataContents = str_replace("public \$table = 'wrla_user_data';", "public \$table = '$wrlaUserTable';", $userDataContents);
-            file_put_contents($userDataFile, $userDataContents);
         }
 
         // First clear config cache

@@ -6,8 +6,6 @@ use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 
 class UserData extends Model
 {
-    public $connection = 'mysql';
-    public $table = 'wrla_user_data';
     public $timestamps = false;
 
     protected $fillable = [
