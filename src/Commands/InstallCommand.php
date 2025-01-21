@@ -30,6 +30,9 @@ class InstallCommand extends Command
      */
     public function handle()
     {
+        // First clear config cache
+        $this->call('config:clear');
+
         // Publish the config files
         $this->call('vendor:publish', [
             '--provider' => 'WebRegulate\LaravelAdministration\WRLAServiceProvider',
