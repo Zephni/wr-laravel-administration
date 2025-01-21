@@ -42,13 +42,22 @@ class InstallCommand extends Command
             '--tag' => 'wrla-assets',
         ]);
 
-        // If .env DB_CONNECTION is not mysql, replace in config file
+        // If .env DB_CONNECTION is not mysql, replace in config and UserData model file
         $envConnection = env('DB_CONNECTION', 'mysql');
         if($envConnection !== 'mysql') {
+            // Config file
             $configFile = config_path('wr-laravel-administration.php');
             $configContents = file_get_contents($configFile);
             $configContents = str_replace("'connection' => 'mysql',", "'connection' => '$envConnection',", $configContents);
             file_put_contents($configFile, $configContents);
+
+            // UserData model file
+            $userDataFile = app_path('WRLA/UserData.php');
+            $userDataContents = file_get_contents($userDataFile);
+            $userDataContents = str_replace("public \$connection = 'mysql';", "public \$connection = '$envConnection';", $userDataContents);
+            $wrlaUserTable = config('wr-laravel-administration.wrla_user_data.table');
+            $userDataContents = str_replace("public \$table = 'wrla_user_data';", "public \$table = '$wrlaUserTable';", $userDataContents);
+            file_put_contents($userDataFile, $userDataContents);
         }
 
         // First clear config cache
