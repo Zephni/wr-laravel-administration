@@ -196,7 +196,7 @@ class User extends ManageableModel
         // If not current user
         if($model->id !== Auth::id()) {
             // If not soft deleted and has impersonate permission, add login as browse action
-            if(!$model->trashed() && static::getPermission(self::IMPERSONATE)) {
+            if(method_exists($model, 'trashed') && !$model->trashed() && static::getPermission(self::IMPERSONATE)) {
                 $instanceActions->prepend(view(WRLAHelper::getViewPath('components.browse-actions.login-as'), [
                     'modelInstance' => $model
                 ]), 'login_as');
