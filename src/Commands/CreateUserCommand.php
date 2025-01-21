@@ -87,8 +87,9 @@ class CreateUserCommand extends Command
         $user->password = Hash::make($password);
         $user->save();
 
-        // Create WRLA user data record
+        // Create WRLA user data record, set connection to config
         $wrlaUserData = new UserData();
+        $wrlaUserData->setConnection(config('wr-laravel-administration.wrla_user_data.connection'));
         $wrlaUserData->user_id = $user->id;
         $wrlaUserData->permissions = json_encode([
             "master" => $master,
