@@ -30,9 +30,6 @@ class InstallCommand extends Command
      */
     public function handle()
     {
-        // First clear config cache
-        $this->call('config:clear');
-
         // Publish the config files
         $this->call('vendor:publish', [
             '--provider' => 'WebRegulate\LaravelAdministration\WRLAServiceProvider',
@@ -53,6 +50,9 @@ class InstallCommand extends Command
             $configContents = str_replace("'connection' => 'mysql',", "'connection' => '$envConnection',", $configContents);
             file_put_contents($configFile, $configContents);
         }
+
+        // First clear config cache
+        $this->call('optimize:clear');
 
         // Create user manageable model
         $createdUserAt = WRLAHelper::generateFileFromStub(
