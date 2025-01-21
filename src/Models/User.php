@@ -9,11 +9,11 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 
 class User extends Authenticatable implements CanResetPassword
 {
-    use HasFactory, Notifiable, SoftDeletes;
+    // Add SoftDeletes trait below if needed...
+    use HasFactory, Notifiable;
 
     protected $table = 'users';
 

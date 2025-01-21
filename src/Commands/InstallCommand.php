@@ -30,7 +30,7 @@ class InstallCommand extends Command
      */
     public function handle()
     {
-        // Publish the config file
+        // Publish the config files
         $this->call('vendor:publish', [
             '--provider' => 'WebRegulate\LaravelAdministration\WRLAServiceProvider',
             '--tag' => 'wrla-config',
@@ -41,6 +41,15 @@ class InstallCommand extends Command
             '--provider' => 'WebRegulate\LaravelAdministration\WRLAServiceProvider',
             '--tag' => 'wrla-assets',
         ]);
+
+        // If .env DB_CONNECTION is not mysql, replace in config file
+        $envConnection = env('DB_CONNECTION', 'mysql');
+        if($envConnection !== 'mysql') {
+            $configFile = config_path('wr-laravel-administration.php');
+            $configContents = file_get_contents($configFile);
+            $configContents = str_replace("'connection' => 'mysql',", "'connection' => '$envConnection',", $configContents);
+            file_put_contents($configFile, $configContents);
+        }
 
         // Create user manageable model
         $createdUserAt = WRLAHelper::generateFileFromStub(
