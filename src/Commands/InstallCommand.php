@@ -42,6 +42,9 @@ class InstallCommand extends Command
             '--tag' => 'wrla-assets',
         ]);
 
+        // First clear config cache
+        $this->call('optimize:clear');
+
         // If .env DB_CONNECTION is not mysql, replace in config and UserData model file
         $envConnection = env('DB_CONNECTION', 'mysql');
         if($envConnection !== 'mysql') {
@@ -50,10 +53,10 @@ class InstallCommand extends Command
             $configContents = file_get_contents($configFile);
             $configContents = str_replace("'connection' => 'mysql',", "'connection' => '$envConnection',", $configContents);
             file_put_contents($configFile, $configContents);
-        }
 
-        // First clear config cache
-        $this->call('optimize:clear');
+            // Show message
+            $this->info(" - Changed 'wrla_user_data.connection' in config to '$envConnection'");
+        }
 
         // Create user manageable model
         $createdUserAt = WRLAHelper::generateFileFromStub(

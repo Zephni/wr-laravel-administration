@@ -80,6 +80,9 @@ class CreateUserCommand extends Command
         $defaultPassword = $defaults['password'];
         $password = $this->ask('Enter the password for the '.$userText->lower(), $defaultPassword);
 
+        // Clear config cache
+        $this->call('optimize:clear');
+
         // Create a standard user
         $user = new User();
         $user->name = $name;
