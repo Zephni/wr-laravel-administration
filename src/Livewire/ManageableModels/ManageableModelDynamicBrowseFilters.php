@@ -141,11 +141,20 @@ class ManageableModelDynamicBrowseFilters extends Component
 
                                 // If operator is like or not like, wrap value with %value%
                                 if($operator == 'contains' || $operator == 'not contains') {
-                                    $andValue = '%'.$andValue.'%';
                                     $operator = $operator == 'contains' ? 'like' : 'not like';
+                                    $andValue = '%'.$andValue.'%';
                                 }
 
-                                $query->where($table.'.'.$item['field'], $operator, $andValue);
+                                // If not like, we need to also check for null values
+                                if($operator == 'not like') {
+                                    $query->where(function($query) use ($table, $item, $andValue) {
+                                        $query->where($table.'.'.$item['field'], 'not like', $andValue)
+                                            ->orWhereNull($table.'.'.$item['field']);
+                                    });
+                                // Otherwise just apply the operator
+                                } else {
+                                    $query->where($table.'.'.$item['field'], $operator, $andValue);
+                                }
                             }
                         });
                     }

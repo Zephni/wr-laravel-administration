@@ -9,7 +9,7 @@ return [
     'wrla_user_model' => \WebRegulate\LaravelAdministration\Models\User::class,
 
     // WRLA user data connection and table
-    // NOTE: Do not change the table name iteself, but a different prefix database can be prepended if the relationship
+    // NOTE: Do not change the table name itself, but a different prefix database can be prepended if the relationship
     // between your user table and user_data table crosses databases, eg. 'database_name.wrla_user_data')
     'wrla_user_data' => [
         'connection' => 'mysql',
