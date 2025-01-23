@@ -117,7 +117,7 @@ class ManageableModelDynamicBrowseFilters extends Component
 
                             $query->orWhere(function($query) use ($andValues, $table, $item) {
                                 // If $andValues is empty, pass array with empty string
-                                if(count($andValues) === 1 && empty($andValues[0])) $andValues = ['1'];
+                                if(count($andValues) === 1 && empty($andValues[0])) $andValues = [''];
 
                                 // Loop through each value
                                 foreach($andValues as $andValue) {
@@ -137,7 +137,7 @@ class ManageableModelDynamicBrowseFilters extends Component
                                         '<=' => '<=',
                                         'empty' => 'empty',
                                         'not empty' => 'not empty',
-                                        default => '=',
+                                        default => 'contains',
                                     };
 
                                     // If empty or not empty, apply and skip
@@ -156,14 +156,14 @@ class ManageableModelDynamicBrowseFilters extends Component
                                         return;
                                     }
 
+                                    // If value empty, skip
+                                    if(empty($andValue)) return;
+
                                     // If operator is 'contains' or 'not contains', modify operator and wrap value with %value%
                                     if($operator == 'contains' || $operator == 'not contains') {
                                         $operator = $operator == 'contains' ? 'like' : 'not like';
                                         $andValue = '%'.$andValue.'%';
                                     }
-
-                                    // If like or not like operator and value is empty, skip
-                                    if(empty($andValue) && ($item['operator'] == 'like' || $item['operator'] == 'not like')) continue;
 
                                     // If not like, we need to also check for null values and skip
                                     if($operator == 'not like')
