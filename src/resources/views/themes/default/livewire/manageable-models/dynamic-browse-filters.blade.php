@@ -47,11 +47,11 @@
                     ])
 
                     {{-- Value input --}}
-                    {{-- @if($browseFilterInputs[$key]['operator'] !== 'empty' && $browseFilterInputs[$key]['operator'] !== 'not empty') --}}
+                    @if($browseFilterInputs[$key]['operator'] !== 'empty' && $browseFilterInputs[$key]['operator'] !== 'not empty')
                         {!! $browseFilter->render() !!}
-                    {{-- @else
+                    @else
                         <div class="flex-1"></div>
-                    @endif --}}
+                    @endif
 
                     {{-- Remove filter button --}}
                     <button type="button" wire:click="removeFilterAction({{ $key }})" class="flex items-center justify-center w-8 h-8 border border-slate-500 text-slate-500 hover:border-rose-500 hover:text-rose-500 rounded-full">
