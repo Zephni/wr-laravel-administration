@@ -35,6 +35,8 @@
                             '<' => 'Less than',
                             '>=' => 'Greater or equal to',
                             '<=' => 'Less or equal to',
+                            'empty' => 'Is empty',
+                            'not empty' => 'Is not empty',
                         ],
                         'options' => [
                             'containerClass' => '!w-44',
@@ -45,7 +47,11 @@
                     ])
 
                     {{-- Value input --}}
-                    {!! $browseFilter->render() !!}
+                    @if($browseFilterInputs[$key]['operator'] !== 'empty' && $browseFilterInputs[$key]['operator'] !== 'not empty')
+                        {!! $browseFilter->render() !!}
+                    @else
+                        <div class="flex-1"></div>
+                    @endif
 
                     {{-- Remove filter button --}}
                     <button type="button" wire:click="removeFilterAction({{ $key }})" class="flex items-center justify-center w-8 h-8 border border-slate-500 text-slate-500 hover:border-rose-500 hover:text-rose-500 rounded-full">

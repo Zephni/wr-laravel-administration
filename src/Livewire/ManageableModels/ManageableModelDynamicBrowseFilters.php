@@ -23,9 +23,7 @@ class ManageableModelDynamicBrowseFilters extends Component
      *
      * @var array
      */
-    public array $browseFilterInputs = [
-
-    ];
+    public array $browseFilterInputs = [];
 
     public function updatedBrowseFilterInputs()
     {
@@ -96,8 +94,7 @@ class ManageableModelDynamicBrowseFilters extends Component
      */
     public static function buildBrowseFilter(array $item): BrowseFilter
     {
-        return new BrowseFilter(
-            Text::makeBrowseFilter($item['field'])
+        return Text::makeBrowseFilter($item['field'])
                 ->setLabel('')
                 ->setOptions(['containerClass' => 'flex-1', 'labelClass' => ''])
                 ->setAttributes([
@@ -106,63 +103,88 @@ class ManageableModelDynamicBrowseFilters extends Component
                     'autocorrect' => 'off',
                     'spellcheck' => 'false',
                     'data-lpignore' => 'true',
-                ]),
-            function(Builder $query, $table, $columns, $value) use($item) {
-                // Split value by | for OR condition
-                $orValues = explode('|', $value);
+                ])
+                ->browseFilterApply(function(Builder $query, $table, $columns, $value) use($item) {
+                    // Split value by | for OR condition
+                    $orValues = explode('|', $value);
 
-                $query->where(function($query) use ($orValues, $table, $item) {
-                    foreach($orValues as $orValue) {
-                        $orValue = trim($orValue);
-                        // Split value by , for AND condition
-                        $andValues = explode(',', $orValue);
+                    $query->where(function($query) use ($orValues, $table, $item) {
+                        foreach($orValues as $orValue) {
+                            $orValue = trim($orValue ?? '');
 
-                        $query->orWhere(function($query) use ($andValues, $table, $item) {
-                            foreach($andValues as $andValue) {
-                                $andValue = trim($andValue);
+                            // Split value by , for AND condition
+                            $andValues = explode(',', $orValue);
 
-                                // If like or not like operator and value is empty, skip
-                                if(($item['operator'] == 'like' || $item['operator'] == 'not like') && empty($andValue)) continue;
+                            $query->orWhere(function($query) use ($andValues, $table, $item) {
+                                // If $andValues is empty, pass array with empty string
+                                if(count($andValues) === 1 && empty($andValues[0])) $andValues = ['1'];
 
-                                // Safely match operator
-                                $operator = match($item['operator']) {
-                                    'contains' => 'contains',
-                                    'not contains' => 'not contains',
-                                    'like' => 'like',
-                                    'not like' => 'not like',
-                                    '=' => '=',
-                                    '!=' => '!=',
-                                    '>' => '>',
-                                    '<' => '<',
-                                    '>=' => '>=',
-                                    '<=' => '<=',
-                                    default => '=',
-                                };
+                                // Loop through each value
+                                foreach($andValues as $andValue) {
+                                    $andValue = trim($andValue);
 
-                                // If operator is like or not like, wrap value with %value%
-                                if($operator == 'contains' || $operator == 'not contains') {
-                                    $operator = $operator == 'contains' ? 'like' : 'not like';
-                                    $andValue = '%'.$andValue.'%';
-                                }
+                                    // Safely match operator
+                                    $operator = match($item['operator']) {
+                                        'contains' => 'contains',
+                                        'not contains' => 'not contains',
+                                        'like' => 'like',
+                                        'not like' => 'not like',
+                                        '=' => '=',
+                                        '!=' => '!=',
+                                        '>' => '>',
+                                        '<' => '<',
+                                        '>=' => '>=',
+                                        '<=' => '<=',
+                                        'empty' => 'empty',
+                                        'not empty' => 'not empty',
+                                        default => '=',
+                                    };
 
-                                // If not like, we need to also check for null values
-                                if($operator == 'not like') {
-                                    $query->where(function($query) use ($table, $item, $andValue) {
-                                        $query->where($table.'.'.$item['field'], 'not like', $andValue)
-                                            ->orWhereNull($table.'.'.$item['field']);
-                                    });
-                                // Otherwise just apply the operator
-                                } else {
+                                    // If empty or not empty, apply and skip
+                                    if($operator == 'empty' || $operator == 'not empty')
+                                    {
+                                        $query->where(function($query) use ($table, $item, $operator) {
+                                            if($operator == 'empty') {
+                                                $query->whereNull($table.'.'.$item['field'])
+                                                    ->orWhere($table.'.'.$item['field'], '=', '');
+                                            } else {
+                                                $query->whereNotNull($table.'.'.$item['field'])
+                                                    ->where($table.'.'.$item['field'], '!=', '');
+                                            }
+                                        });
+
+                                        return;
+                                    }
+
+                                    // If operator is 'contains' or 'not contains', modify operator and wrap value with %value%
+                                    if($operator == 'contains' || $operator == 'not contains') {
+                                        $operator = $operator == 'contains' ? 'like' : 'not like';
+                                        $andValue = '%'.$andValue.'%';
+                                    }
+
+                                    // If like or not like operator and value is empty, skip
+                                    if(empty($andValue) && ($item['operator'] == 'like' || $item['operator'] == 'not like')) continue;
+
+                                    // If not like, we need to also check for null values and skip
+                                    if($operator == 'not like')
+                                    {
+                                        $query->where(function($query) use ($table, $item, $andValue) {
+                                            $query->where($table.'.'.$item['field'], 'not like', $andValue)
+                                                ->orWhereNull($table.'.'.$item['field']);
+                                        });
+
+                                        return;
+                                    }
+
+                                    // Otherwise just apply the operator
                                     $query->where($table.'.'.$item['field'], $operator, $andValue);
                                 }
-                            }
-                        });
-                    }
-                });
+                            });
+                        }
+                    });
 
-                return $query;
-            }
-        );
+                    return $query;
+                });
     }
 
     /**
