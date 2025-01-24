@@ -335,16 +335,13 @@ class ManageableModelBrowse extends Component
         $standardColumns = $this->getStandardColumns();
         $relationshipColumns = $this->getRelationshipColumns();
         $jsonReferenceColumns = $this->getJsonReferenceColumns();
+        $orderByIsRelationship = WRLAHelper::isBrowseColumnRelationship($this->orderBy);
 
         // Start eloquent query
         $eloquent = $baseModelClass::query();
 
         // Select any fields that aren't relationships or json references
         $eloquent = $eloquent->addSelect("$tableName.*");
-        // $eloquent = $eloquent->addSelect("$tableName.id");
-        // foreach($standardColumns as $column => $label) {
-        //     $eloquent = $eloquent->addSelect("$tableName.$column");
-        // }
 
         // Relationship named columns look like this relationship->remote_column, so we need to split them
         // and add left joins and selects to the query
@@ -356,11 +353,14 @@ class ManageableModelBrowse extends Component
                 // Get the relationship method and remote column
                 [$relationshipMethod, $remoteColumn] = WRLAHelper::parseBrowseColumnRelationship($relationshipKey);
 
+                // Get relation information
+                $relation = $eloquent->getRelation($relationshipMethod);
+                if($relation === null) continue;
+
                 // With relationship
                 $eloquent->with($relationshipMethod);
 
-                // Get relation information
-                $relation = $eloquent->getRelation($relationshipMethod);
+                // Get related data
                 $related = $relation->getRelated();
                 $relationTable = $related->getTable();
 
@@ -385,6 +385,7 @@ class ManageableModelBrowse extends Component
             foreach($jsonReferenceColumns as $column => $label) {
                 [$relationshipMethod, $remoteColumn] = WRLAHelper::parseBrowseColumnRelationship($column);
                 $relation = $eloquent->getRelation($relationshipMethod);
+                if($relation === null) continue;
                 $related = $relation->getRelated();
 
                 // If in relationship columns
@@ -433,7 +434,7 @@ class ManageableModelBrowse extends Component
 
         // Order by
         // If orderBy is standard column, order by that column
-        if(!$relationshipColumns->has($this->orderBy)) {
+        if(!$orderByIsRelationship) {
             $eloquent = $eloquent->orderBy("$tableName.$this->orderBy", $this->orderDirection);
         // If orderBy is a relationship column, order by the relationship column
         } else {
@@ -442,17 +443,21 @@ class ManageableModelBrowse extends Component
 
             // Get relation information
             $relation = $eloquent->getRelation($relationshipMethod);
-            $related = $relation->getRelated();
-            $relationTable = $related->getTable();
 
-            // Apply join for relationship and order by relationship column (if not already joined)
-            if(!in_array($relationTable, $joinsMade)) {
-                $eloquent = $eloquent->leftJoinRelation($relationshipMethod);
-                $joinsMade[] = $relationTable;
+            // TODO: This needs fixing as we cannot currently order by through style relationships eg. $this->relationship->belongsTo()
+            if($relation !== null) {
+                $related = $relation->getRelated();
+                $relationTable = $related->getTable();
+
+                // Apply join for relationship and order by relationship column (if not already joined)
+                if(!in_array($relationTable, $joinsMade)) {
+                    $eloquent = $eloquent->leftJoinRelation($relationshipMethod);
+                    $joinsMade[] = $relationTable;
+                }
+
+                // Order by relationship column
+                $eloquent = $eloquent->orderBy("$relationTable.$remoteColumn", $this->orderDirection);
             }
-
-            // Order by relationship column
-            $eloquent = $eloquent->orderBy("$relationTable.$remoteColumn", $this->orderDirection);
         }
 
         $this->debugMessage = $eloquent->toRawSql();

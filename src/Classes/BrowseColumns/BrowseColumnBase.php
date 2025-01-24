@@ -263,7 +263,11 @@ class BrowseColumnBase
             $relationshipParts = WRLAHelper::parseBrowseColumnRelationship($column);
 
             // If relationship row doesn't exist, return empty string
-            if(!$model->{$relationshipParts[0]}) {
+            try {
+                if(!$model->{$relationshipParts[0]}) {
+                    return '';
+                }
+            } catch (\Exception $e) {
                 return '';
             }
 
