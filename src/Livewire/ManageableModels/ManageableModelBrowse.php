@@ -361,7 +361,7 @@ class ManageableModelBrowse extends Component
 
                 // Get relation information
                 $relation = $eloquent->getRelation($relationshipMethod);
-                if(!method_exists($relation, 'getRelation')) continue;
+                if($relation === null) continue;
                 $related = $relation->getRelated();
                 $relationTable = $related->getTable();
 
@@ -386,7 +386,7 @@ class ManageableModelBrowse extends Component
             foreach($jsonReferenceColumns as $column => $label) {
                 [$relationshipMethod, $remoteColumn] = WRLAHelper::parseBrowseColumnRelationship($column);
                 $relation = $eloquent->getRelation($relationshipMethod);
-                if(!method_exists($relation, 'getRelation')) continue;
+                if($relation === null) continue;
                 $related = $relation->getRelated();
 
                 // If in relationship columns
@@ -444,7 +444,7 @@ class ManageableModelBrowse extends Component
 
             // Get relation information
             $relation = $eloquent->getRelation($relationshipMethod);
-            if(method_exists($relation, 'getRelation')) {
+            if($relation !== null) {
                 $related = $relation->getRelated();
                 $relationTable = $related->getTable();
 
