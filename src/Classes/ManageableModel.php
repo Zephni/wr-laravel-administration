@@ -4,6 +4,7 @@ namespace WebRegulate\LaravelAdministration\Classes;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\MessageBag;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Eloquent\Model;
@@ -1000,6 +1001,36 @@ abstract class ManageableModel
         }
 
         return empty($messageBag) ? true : $messageBag;
+    }
+
+    /**
+     * Fill empty instance property values with default values from the table
+     *
+     * @return void
+     */
+    public function fillEmptyInstanceAttributesWithDefaults(): void
+    {
+        $manageableModel = $this;
+
+        once(function() use($manageableModel) {
+            // Get the table data for each column
+            $tableData = DB::select("SHOW COLUMNS FROM {$manageableModel->getModelInstance()->getTable()}");
+
+            // Loop through (other than the specified ones and set all the default values)
+            foreach($tableData as $columnData) {
+                $columnName = $columnData->Field;
+
+                // If the column is 'id' or 'created_at' or 'updated_at' or 'deleted_at' then skip
+                if(in_array($columnName, ['id', 'created_at', 'updated_at', 'deleted_at'])) {
+                    continue;
+                }
+
+                // If the column is not set on the instance, then set the default value
+                if(!$manageableModel->getModelInstance()->hasAttribute($columnName)) {
+                    $manageableModel->getModelInstance()->setAttribute($columnName, $columnData->Default);
+                }
+            }
+        });
     }
 
     /**

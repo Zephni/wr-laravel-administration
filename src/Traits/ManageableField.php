@@ -115,6 +115,9 @@ trait ManageableField
         // Handle livewire setup (if applicable)
         $this->handleLivewireSetup();
 
+        // Set manageable models attributes if applicable
+        $this->setManageableModelValue();
+
         // Run post constructed method
         $this->postConstructed();
     }
@@ -129,6 +132,32 @@ trait ManageableField
     private static function buildNameAttribute(string $name): string
     {
         return str_replace('.', WRLAHelper::WRLA_REL_DOT, $name);
+    }
+
+    /**
+     * If manageable model is not null and manageable model has an attribute with this
+     * field's name, set the manageable models attribute to the value
+     *
+     * @return void
+     */
+    public function setManageableModelValue(): void
+    {
+        // If manageable model is null, return
+        if($this->manageableModel === null) return;
+
+        // Get name to test with against manageable model
+        $name = $this->getName();
+
+        // If attribute does not exist, get all column names from table and fill out empty values
+        if(!property_exists($this->manageableModel->getModelInstance(), $name)) {
+            $this->manageableModel->fillEmptyInstanceAttributesWithDefaults();
+        }
+
+        // If attribute still does not exist, return
+        if(!$this->manageableModel->getModelInstance()->hasAttribute($name)) return;
+
+        // Set manageable model property value
+        $this->manageableModel->getModelInstance()->setAttribute($name, $this->getValue());
     }
 
     /**
@@ -232,6 +261,16 @@ trait ManageableField
         }
 
         return old($this->htmlAttributes['name'], $this->htmlAttributes['value']) ?? '';
+    }
+
+    /**
+     * Get name attribute.
+     *
+     * @return string
+     */
+    public function getName(): string
+    {
+        return $this->htmlAttributes['name'];
     }
 
     /**
@@ -527,6 +566,7 @@ trait ManageableField
         }
 
         $this->htmlAttributes['value'] = $value;
+        $this->setManageableModelValue();
 
         return $this;
     }
