@@ -11,7 +11,7 @@ class BrowseFilter
     /**
      * The field to filter by.
      *
-     * @var ManageableField|callable
+     * @var ManageableField
      */
     public mixed $field;
 
@@ -56,10 +56,6 @@ class BrowseFilter
      */
     public function getField()
     {
-        if(is_callable($this->field)) {
-            return call_user_func($this->field);
-        }
-
         return $this->field;
     }
 
