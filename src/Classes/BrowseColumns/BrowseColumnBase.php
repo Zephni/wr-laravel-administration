@@ -262,20 +262,26 @@ class BrowseColumnBase
         if(WRLAHelper::isBrowseColumnRelationship($column)) {
             $relationshipParts = WRLAHelper::parseBrowseColumnRelationship($column);
 
-            // If relationship row doesn't exist, return empty string
-            if(!$model->{$relationshipParts[0]}) {
-                return '';
+            // Because the column may be any number of relationships deep, we need to keep digging until we find the final value
+            $finalRelationshipValue = $model;
+
+            foreach($relationshipParts as $relationshipIndex => $relationshipValue) {
+                $finalRelationshipValue = $finalRelationshipValue->{$relationshipValue};
+
+                // If any part of the relationship parts do not exist on the previous object, return an empty string
+                if(!$model->{$relationshipParts[0]}) {
+                    return '';
+                }
             }
 
             // If relationship parts [1] has -> then it's a json column so we dig for the value
-            if(str($relationshipParts[1])->contains('->')) {
-                $dotNotationParts = explode('->', $relationshipParts[1]);
-                $jsonField = $model->{$relationshipParts[0]}->{$dotNotationParts[0]};
-                return data_get(json_decode($jsonField), implode('.', array_slice($dotNotationParts, 1)));
+            if(str($finalRelationshipValue)->contains('->')) {
+                $dotNotationParts = explode('->',  $finalRelationshipValue);
+                return data_get(json_decode($finalRelationshipValue), implode('.', array_slice($dotNotationParts, 1)));
             }
 
             // Otherwise, just return the relationship value
-            return $model->{$relationshipParts[0]}?->{$relationshipParts[1]} ?? '';
+            return $finalRelationshipValue ?? '';
         }
 
         // Otherwise, just return the column value
