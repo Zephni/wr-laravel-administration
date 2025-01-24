@@ -750,29 +750,20 @@ abstract class ManageableModel
                     ])
                     ->browseFilterApply(function(Builder $query, $table, $columns, $value) {
                         return $query->where(function($query) use($table, $columns, $value) {
-                            $whereIndex = 0;
-
                             foreach($columns as $column => $label) {
-                                // If column is relationship, then modify the column to be the related column
-                                if((WRLAHelper::isBrowseColumnRelationship($column))) {
-                                    $relationshipParts = WRLAHelper::parseBrowseColumnRelationship($column);
-
-                                    $baseModelClass = self::getBaseModelClass();
-                                    $relationship = (new $baseModelClass)->{$relationshipParts[0]}();
-                                    $relationshipTableName = $relationship->getRelated()->getTable();
-                                    $foreignColumn = $relationship->getForeignKeyName();
-
-                                    // If relationship connection is not empty, generate the SQL to inject it
-                                    if(!empty($relationshipConnection)) $relationshipConnection = "`$relationshipConnection`.";
-
-                                    $whereIndex++;
-
-                                    // Safely escape value
-                                    $query->orWhereRelation($relationshipParts[0], "{$relationshipTableName}.{$relationshipParts[1]}", 'like', "%{$value}%");
-                                // Otherwise just use the table and column
-                                } else {
-                                    $column = "$table.$column";
+                                if(!WRLAHelper::isBrowseColumnRelationship($column))
+                                {
                                     $query->orWhere($column, 'like', "%{$value}%");
+                                }else
+                                {
+                                    // Get the relationship method and remote column
+                                    $relationChain = WRLAHelper::parseBrowseColumnRelationship($column);
+
+                                    // Unset last item (which is the remote column)
+                                    $remoteColumn = array_pop($relationChain);
+
+                                    // With relationship
+                                    $query = $query->orWhereRelation(implode('.', $relationChain), $remoteColumn, 'like', "%{$value}%");
                                 }
                             }
                         });

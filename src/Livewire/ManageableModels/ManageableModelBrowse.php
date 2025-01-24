@@ -6,12 +6,11 @@ use Livewire\Component;
 use Livewire\WithPagination;
 use Illuminate\Support\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Livewire\Attributes\Modelable;
-use Livewire\Attributes\Reactive;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+use WebRegulate\LaravelAdministration\Classes\CSVHelper;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 use WebRegulate\LaravelAdministration\Classes\ManageableModel;
-use WebRegulate\LaravelAdministration\Classes\CSVHelper;
 use WebRegulate\LaravelAdministration\Enums\ManageableModelPermissions;
 use WebRegulate\LaravelAdministration\Classes\BrowseColumns\BrowseColumnBase;
 
@@ -335,56 +334,34 @@ class ManageableModelBrowse extends Component
         $standardColumns = $this->getStandardColumns();
         $relationshipColumns = $this->getRelationshipColumns();
         $jsonReferenceColumns = $this->getJsonReferenceColumns();
+        $orderByIsRelationship = WRLAHelper::isBrowseColumnRelationship($this->orderBy);
 
         // Start eloquent query
         $eloquent = $baseModelClass::query();
 
-        // Select any fields that aren't relationships or json references
-        $eloquent = $eloquent->addSelect("$tableName.*");
-        // $eloquent = $eloquent->addSelect("$tableName.id");
-        // foreach($standardColumns as $column => $label) {
-        //     $eloquent = $eloquent->addSelect("$tableName.$column");
-        // }
-
-        // Relationship named columns look like this relationship->remote_column, so we need to split them
-        // and add left joins and selects to the query
-        $joinsMade = [];
+        // Relationships use relationship.column, or relationship.relationship2.etc.column format
+        // so here we add the with() method for each relationship
         if($relationshipColumns->count() > 0) {
-            // We used to use localcolumn::relationship_table.remote_column, but now we use relationship_method->remote_column
-            // So we can just use the relationship method to get the relationship
             foreach($relationshipColumns as $relationshipKey => $label) {
                 // Get the relationship method and remote column
-                [$relationshipMethod, $remoteColumn] = WRLAHelper::parseBrowseColumnRelationship($relationshipKey);
+                $relationshipParts = WRLAHelper::parseBrowseColumnRelationship($relationshipKey);
+
+                // Unset last item (which is the remote column)
+                $remoteColumn = array_pop($relationshipParts);
 
                 // With relationship
-                $eloquent->with($relationshipMethod);
-
-                // Get relation information
-                $relation = $eloquent->getRelation($relationshipMethod);
-                $related = $relation->getRelated();
-                $relationTable = $related->getTable();
-
-                // If join already made, skip
-                if(in_array($relationTable, $joinsMade)) {
-                    continue;
-                }
-
-                $eloquent = $eloquent->leftJoinRelation($relationshipMethod);
-
-                // Add to joins made (And check for any joins added by the relationship's joins)
-                $joinsMade[] = $relationTable;
-                foreach($eloquent->getQuery()->joins as $join) {
-                    if(in_array($join->table, $joinsMade)) continue;
-                    $joinsMade[] = $join->table;
-                }
+                $eloquent = $eloquent->with(implode('.', $relationshipParts));
             }
         }
 
         // If Json reference columns exist, add them to the query
         if($jsonReferenceColumns->count() > 0) {
             foreach($jsonReferenceColumns as $column => $label) {
-                [$relationshipMethod, $remoteColumn] = WRLAHelper::parseBrowseColumnRelationship($column);
-                $relation = $eloquent->getRelation($relationshipMethod);
+                // TODO: THIS NEEDS LOOKING INTO FOR NESTED RELATIONSHIPS, MUCH LIKE ABOVE WAS ACHIEVED AND SIMPLIFIED
+                $relationshipParts = WRLAHelper::parseBrowseColumnRelationship($column);
+                $remoteColumn = array_pop($relationshipParts);
+
+                $relation = $eloquent->getRelation($relationshipParts[0]);
                 $related = $relation->getRelated();
 
                 // If in relationship columns
@@ -432,27 +409,39 @@ class ManageableModelBrowse extends Component
 
 
         // Order by
-        // If orderBy is standard column, order by that column
-        if(!$relationshipColumns->has($this->orderBy)) {
-            $eloquent = $eloquent->orderBy("$tableName.$this->orderBy", $this->orderDirection);
-        // If orderBy is a relationship column, order by the relationship column
+        if(!$orderByIsRelationship) {
+            $eloquent = $eloquent->orderBy($this->orderBy, $this->orderDirection);
         } else {
-            // Get relationship method and remote column
-            [$relationshipMethod, $remoteColumn] = WRLAHelper::parseBrowseColumnRelationship($this->orderBy);
+            $relationParts = WRLAHelper::parseBrowseColumnRelationship($this->orderBy);
+            $remoteColumn = array_pop($relationParts);
+            $currentModel = $eloquent->getModel();
+            $joins = []; // Track performed joins for efficiency
 
-            // Get relation information
-            $relation = $eloquent->getRelation($relationshipMethod);
-            $related = $relation->getRelated();
-            $relationTable = $related->getTable();
+            foreach ($relationParts as $relationPart) {
+                $relation = $currentModel->{$relationPart}();
 
-            // Apply join for relationship and order by relationship column (if not already joined)
-            if(!in_array($relationTable, $joinsMade)) {
-                $eloquent = $eloquent->leftJoinRelation($relationshipMethod);
-                $joinsMade[] = $relationTable;
+                if (!$relation instanceof Relation) {
+                    // Handle cases where the relation is not defined or is invalid
+                    throw new \Exception("Invalid relationship: " . $relationPart . " on model " . get_class($currentModel));
+                }
+
+                $relatedTable = $relation->getRelated()->getTable();
+                $foreignKey = $relation->getForeignKeyName();
+
+                // Check if the join has already been performed to avoid redundant joins
+                $joinKey = $relatedTable . '.' . $foreignKey . '=' . $currentModel->getTable() . '.' . (method_exists($relation, 'getOwnerKeyName') ? $relation->getOwnerKeyName() : 'id');
+                if (!in_array($joinKey, $joins)) {
+                    $eloquent->leftJoin($relatedTable, $currentModel->getTable() . '.' . $foreignKey, '=', $relatedTable . '.' . (method_exists($relation, 'getOwnerKeyName') ? $relation->getOwnerKeyName() : 'id'));
+                    $joins[] = $joinKey; // Add the join key to the tracker
+                }
+
+                $currentModel = $relation->getRelated();
             }
 
-            // Order by relationship column
-            $eloquent = $eloquent->orderBy("$relationTable.$remoteColumn", $this->orderDirection);
+            $relatedModel = $currentModel;
+            $qualifiedRemoteColumn = $relatedModel->getTable() . '.' . $remoteColumn;
+
+            $eloquent->orderBy($qualifiedRemoteColumn, $this->orderDirection);
         }
 
         $this->debugMessage = $eloquent->toRawSql();
