@@ -14,11 +14,15 @@ class Logs extends Component
     public array $logDirectoriesAndFiles = [];
     public ?string $viewingLogFile = null;
     public string $viewingLogContent = 'No content 1';
+    public int $viewLogMaxCharacters = 0;
 
     /* Livewire Methods / Hooks
     --------------------------------------------------------------------------*/
     public function mount()
     {
+        // Config
+        $this->viewLogMaxCharacters = config('wr-laravel-administration.logs.max_characters', 200000);
+
         // Set all log files and directories
         $this->setDirectoriesAndFiles();
 
@@ -57,7 +61,7 @@ class Logs extends Component
 
         if(file_exists($fullPath)) {
             if(is_file($fullPath)) {
-                return file_get_contents($fullPath);
+                return str(file_get_contents($fullPath))->limit($this->viewLogMaxCharacters, '... (truncated)');
             } else {
                 return "Error: {$fullPath} is not a file";
             }

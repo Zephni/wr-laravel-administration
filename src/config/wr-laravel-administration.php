@@ -106,6 +106,11 @@ return [
         ],
     ],
 
+    // Logs
+    'logs' => [
+        'max_characters' => 20000,
+    ],
+
     // Rate limiting for wrla. routes
     // Note: each key is bound to middleware 'throttle:route_name' in routes automatically (Within WRLAServicesProvider.php)
     'rate_limiting' => [
