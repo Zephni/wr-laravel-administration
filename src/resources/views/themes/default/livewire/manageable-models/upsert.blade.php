@@ -9,6 +9,11 @@
 
     <br />
 
+    {{-- Generic error message --}}
+    @error('error')
+        @themeComponent('alert', ['type' => 'error', 'message' => $message])
+    @enderror
+
     {{-- Heading --}}
     <div class="flex justify-between">
         <div class="text-xl font-semibold">

@@ -6,8 +6,6 @@ use Livewire\Component;
 use Livewire\WithPagination;
 use Illuminate\Support\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Livewire\Attributes\Modelable;
-use Livewire\Attributes\Reactive;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 use WebRegulate\LaravelAdministration\Classes\ManageableModel;
@@ -105,6 +103,7 @@ class ManageableModelBrowse extends Component
      */
     protected $listeners = [
         'filtersUpdatedOutside' => 'filtersUpdatedOutside',
+        'deleteModel' => 'deleteModel',
     ];
 
     /* Livewire Methods / Hooks
@@ -193,11 +192,6 @@ class ManageableModelBrowse extends Component
         $orderByData = $manageableModelClass::getDefaultOrderBy();
         $this->orderBy = $orderByData->get('column');
         $this->orderDirection = $orderByData->get('direction');
-
-        // If ?delete is passed to the URL, delete the model
-        if(request()->has('delete')) {
-            $this->deleteModel(request()->input('delete'));
-        }
     }
 
     /**
@@ -473,47 +467,27 @@ class ManageableModelBrowse extends Component
      * @param string $modelUrlAlias The URL alias of the model to delete.
      * @param int $id The ID of the model to delete.
      */
-    public function deleteModel(int $id)
+    public function deleteModel(string $modelUrlAlias, int $id)
     {
         // Get manageable model instance
-        $manageableModel = new $this->manageableModelClass($id);
+        $manageableModel = new $this->{'manageableModelClass'}($id);
 
-        // Check has delete permission
-        if(!$this->manageableModelClass::getPermission(ManageableModelPermissions::DELETE)) {
-            $this->errorMessage = 'You do not have permission to delete this model.';
+        // Check that model URL alias matches the manageable model class URL alias
+        if($modelUrlAlias != $this->manageableModelClass::getUrlAlias()) {
+            $this->errorMessage = 'Model URL alias does not match the manageable model class URL alias.';
             return;
         }
 
-        // Check that model URL alias matches the manageable model class URL alias
-        // if($modelUrlAlias != $this->manageableModelClass::getUrlAlias()) {
-        //     return;
-        // }
+        // Delete the model and deconstruct the response
+        [$success, $message] = WRLAHelper::deleteModel($manageableModel, $id);
 
-        // Get base model class
-        $baseModelClass = $this->manageableModelClass::getStaticOption($this->manageableModelClass, 'baseModelClass');
-
-        // If model is not trashed already, find
-        $model = $baseModelClass::find($id);
-
-        // Set permanent check to false
-        $permanent = 0;
-
-        // If model found, soft delete
-        if($model !== null) {
-            $model = $baseModelClass::find($id);
-            $model->delete();
-            $manageableModel->postDeleteModelInstance(request(), $id, true);
-        // Otherwise try finding with trashed and permanently delete
+        if($success) {
+            $this->successMessage = $message;
+            $this->errorMessage = null;
         } else {
-            $model = $baseModelClass::withTrashed()->find($id);
-            $model->forceDelete();
-            $permanent = 1;
-            $manageableModel->postDeleteModelInstance(request(), $id, false);
+            $this->errorMessage = $message;
+            $this->successMessage = null;
         }
-
-        $this->successMessage = $this->manageableModelClass::getDisplayName()
-            . ' #' . $id
-            . ' '. ($permanent == 1 ? ' permanently deleted.' : ' deleted.');
     }
 
     /**

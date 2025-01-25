@@ -1027,6 +1027,52 @@ class WRLAHelper
     }
 
     /**
+     * Delete a model.
+     *
+     * @param ManageableModel $manageableModel Manageable model instance
+     * @param int $id The ID of the model to delete.
+     * @return array [Success boolean, Message]
+     */
+    public static function deleteModel(ManageableModel $manageableModel, int $id): array
+    {
+        // Get manageable model class
+        $manageableModelClass = get_class($manageableModel);
+
+        // Check has delete permission
+        if(!$manageableModelClass::getPermission(ManageableModelPermissions::DELETE)) {
+            return [false, 'You do not have permission to delete this model.'];
+        }
+
+        // Get base model class
+        $baseModelClass = $manageableModel::getBaseModelClass();
+
+        // If model is not trashed already, find
+        $model = $baseModelClass::find($id);
+
+        // Set permanent check to false
+        $permanent = 0;
+
+        try {
+            // If model found, soft delete
+            if($model !== null) {
+                $model = $baseModelClass::find($id);
+                $model->delete();
+                $manageableModel->postDeleteModelInstance(request(), $id, true);
+            // Otherwise try finding with trashed and permanently delete
+            } else {
+                $model = $baseModelClass::withTrashed()->find($id);
+                $model->forceDelete();
+                $permanent = 1;
+                $manageableModel->postDeleteModelInstance(request(), $id, false);
+            }
+        } catch (\Exception $e) {
+            return [false, 'An error occurred while trying to delete the model: '.$e->getMessage()];
+        }
+
+        return [true, $manageableModelClass::getDisplayName() . ' #' . $id . ' '. ($permanent == 1 ? ' permanently deleted.' : ' deleted.')];
+    }
+
+    /**
      * Log to WRLA error channel, automatically adds 'user' => user->id if available, shows as 'x' if no user.
      *
      * @param string $message The message to log.

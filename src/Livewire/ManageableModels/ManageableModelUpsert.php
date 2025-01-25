@@ -70,7 +70,8 @@ class ManageableModelUpsert extends Component
     --------------------------------------------------------------------------*/
 
     public $listeners = [
-        'wrla_upsert_refresh' => '$refresh'
+        'wrla_upsert_refresh' => '$refresh',
+        'deleteModel' => 'deleteModel',
     ];
 
     /**
@@ -176,6 +177,39 @@ class ManageableModelUpsert extends Component
             'manageableFields' => $manageableFields,
             'numberOfRenders' => $this->numberOfRenders,
             'overrideTitle' => $this->overrideTitle
+        ]);
+    }
+
+    /**
+     * Delete a model.
+     *
+     * @param string $modelUrlAlias The URL alias of the model to delete.
+     * @param int $id The ID of the model to delete.
+     */
+    public function deleteModel(string $modelUrlAlias, int $id)
+    {
+        // Get manageable model instance
+        $manageableModel = new $this->{'manageableModelClass'}($id);
+
+        // Check that model URL alias matches the manageable model class URL alias
+        if($modelUrlAlias != $this->manageableModelClass::getUrlAlias()) {
+            $this->addError('error', 'Model URL alias does not match manageable model class URL alias.');
+            return;
+        }
+
+        // Delete the model and deconstruct the response
+        [$success, $message] = WRLAHelper::deleteModel($manageableModel, $id);
+
+        // If model failed to delete, add an error
+        if(!$success) {
+            $this->addError('error', $message);
+            return;
+        }
+
+        // Otherwise the model was deleted successfully, redirect to browse page for the model
+        session()->flash('success', $message);
+        return redirect()->route('wrla.manageable-models.browse', [
+            'modelUrlAlias' => $this->manageableModelClass::getUrlAlias()
         ]);
     }
 
