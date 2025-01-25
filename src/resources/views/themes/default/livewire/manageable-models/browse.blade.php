@@ -51,25 +51,24 @@
     @endphp
 
     {{-- Main data table --}}
-    <div class="rounded-md overflow-hidden shadow-lg shadow-slate-300 dark:shadow-slate-850">
-        <table class="w-full text-left border-collapse">
+    <div class="w-full block overflow-x-auto rounded-md shadow-lg shadow-slate-300 dark:shadow-slate-850">
+        <table class="w-full table-auto text-left border-collapse" style="table-layout: auto /* fixed */;">
             <colgroup>
                 @foreach ($browseColumns as $column => $browseColumn)
-                    @continue($browseColumn === null)
-                    @php
-                        $width = $browseColumn->getOption('width');
-                        $minWidth = $browseColumn->getOption('minWidth');
-                        $minWidth = is_int($minWidth) ? "{$minWidth}px" : $minWidth;
-                        $maxWidth = $browseColumn->getOption('maxWidth');
-                        $maxWidth = is_int($maxWidth) ? "{$maxWidth}px" : $maxWidth;
-                    @endphp
-                    <col @if($width)
-                        style="width:{{ is_numeric($width) ? $width . 'px' : $width }};"
+                    @if($browseColumn === null)
+                        <col style="width: auto;" />
                     @else
-                        style="@if($minWidth)min-width:{{ $minWidth }};@endif @if($maxWidth)max-width:{{ $maxWidth }};@endif"
-                    @endif/>
+                        @php
+                            $width = $browseColumn->getOption('width') ?? 'auto';
+                            $minWidth = $browseColumn->getOption('minWidth') ?? 0;
+                            $minWidth = (is_int($browseColumn->getOption('minWidth')) ? "{$minWidth}px" : $minWidth) ?? 'auto';
+                            $maxWidth = $browseColumn->getOption('maxWidth');
+                            $maxWidth = (is_int($maxWidth) ? "{$maxWidth}px" : $maxWidth) ?? 'none';
+                        @endphp
+                        <col style="width: {{ $width }}; min-width: {{ $minWidth }}; max-width: {{ $maxWidth }};" />
+                    @endif
                 @endforeach
-                <col style="width:auto;">
+                <col style="width: auto;" />
             </colgroup>
             <thead>
                 <tr>
@@ -113,9 +112,13 @@
                     <tr class="odd:bg-slate-100 dark:odd:bg-slate-800">
                         @foreach ($manageableModel->getBrowseColumnsFinal() as $column => $browseColumn)
                             @continue($browseColumn === null)
-                            <td class="px-3 py-2 whitespace-nowrap bg-inherit">
-                                <div class="text-ellipsis truncate text-sm">
-                                    {!! $browseColumn->renderValue($model, $column) !!}
+                            @php $value = str($browseColumn->renderValue($model, $column))->limit(300); @endphp
+                            <td class="px-3 py-2 bg-inherit text-sm">
+                                <div class="relative flex w-full h-[22px] items-center overflow-hidden">
+                                    <span style="color: transparent;">{!! $value !!}</span>
+                                    <div class="absolute top-0 left-0 w-full h-full whitespace-nowrap overflow-ellipsis truncate">
+                                        {!! $value !!}
+                                    </div>
                                 </div>
                             </td>
                         @endforeach
