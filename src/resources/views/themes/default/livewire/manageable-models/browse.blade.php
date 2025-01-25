@@ -170,7 +170,7 @@
     @endif
 
     @if ($WRLAUser->getSetting('debug') == true)
-        <div class="border border-slate-300 rounded-md p-2 mt-10 text-slate-500">
+        <div class="flex-1 border border-slate-300 rounded-md p-2 mt-10 text-slate-500 overflow-auto">
             <p class=" text-sm font-semibold">Debug Information:</p>
             <hr class="my-1 border-slate-300">
             {{ $debugMessage }}
