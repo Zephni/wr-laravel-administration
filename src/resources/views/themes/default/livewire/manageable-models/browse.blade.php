@@ -46,99 +46,90 @@
         </div>
     </div>
 
-    {{-- Main data table --}}
     @php
-        $columns = $manageableModelClass::make()->getBrowseColumnsFinal();
-        $columnWidths = collect($columns)
-            ->map(function ($browseColumn) {
-                if ($browseColumn === null) {
-                    return 'auto';
-                }
-
-                if($browseColumn->getOption('width') !== null) {
-                    $width = $browseColumn->getOption('width');
-                    return is_numeric($width) ? $width . 'px' : $width;
-                }
-
-                $minWidth = '0px';
-                if($browseColumn->getOption('minWidth') !== null) {
-                    $minWidth = $browseColumn->getOption('minWidth');
-                    $minWidth = is_int($minWidth) ? "{$minWidth}px" : $minWidth;
-                }
-
-                $maxWidth = '1fr';
-                if($browseColumn->getOption('maxWidth') !== null) {
-                    $maxWidth = $browseColumn->getOption('maxWidth');
-                    $maxWidth = is_int($maxWidth) ? "{$maxWidth}px" : $maxWidth;
-                }
-
-                return "minmax($minWidth, $maxWidth)";
-            })
-            ->toArray();
-        // Append 'auto' for the actions column
-        $columnWidths[] = 'auto';
-        $gridTemplateColumns = implode(' ', $columnWidths);
+        $browseColumns = $manageableModelClass::make()->getBrowseColumnsFinal();
     @endphp
-    <div class="rounded-md overflow-hidden shadow-lg shadow-slate-300 dark:shadow-slate-850">
-        <div class="grid" style="grid-template-columns: {{ $gridTemplateColumns }};">
-            <!-- Header -->
-            <div class="contents">
-                @foreach ($columns as $column => $browseColumn)
-                    @continue($browseColumn === null)
-                    <div @if ($browseColumn->getOption('allowOrdering')) title="Order by {{ $column }} {{ $orderDirection == 'asc' ? 'descending' : 'ascending' }}" @endif
-                        class="text-left whitespace-nowrap px-3 py-2 bg-slate-700 dark:bg-slate-700 text-slate-100 dark:text-slate-300 border-b border-slate-400 dark:border-slate-600 @if ($browseColumn->getOption('allowOrdering')) group hover:text-primary-500 @endif @if ($orderBy == $column) text-primary-500 @endif"
-                    >
-                        <div class="w-full text-ellipsis truncate text-sm font-bold">
-                            @if ($browseColumn->getOption('allowOrdering'))
-                                <button class="flex items-center gap-3 w-full text-left text-ellipsis truncate"
-                                    wire:click="reOrderAction('{{ $column }}', '{{ $orderDirection == 'asc' ? 'desc' : 'asc' }}')">
-                                    {{ $browseColumn->renderDisplayName() }}
-                                    @if ($orderBy == $column)
-                                        <i class="relative fas fa-sort-{{ $orderDirection == 'asc' ? 'up' : 'down' }} text-primary-500"
-                                            style="{{ $orderDirection == 'asc' ? 'top: 3px;' : 'top: -3px;' }}"></i>
-                                    @else
-                                        <i class="fas fa-sort text-slate-400 group-hover:text-primary-500 dark:group-hover:text-slate-700"
-                                            title="Order ascending"></i>
-                                    @endif
-                                </button>
-                            @else
-                                <div class="flex items-center gap-3">
-                                    {{ $browseColumn->renderDisplayName() }}
-                                </div>
-                            @endif
-                        </div>
-                    </div>
-                @endforeach
-                <!-- Actions Header Placeholder -->
-                <div class="px-3 py-2 bg-slate-700 dark:bg-slate-700 border-b border-slate-400 dark:border-slate-600">
-                </div>
-            </div>
 
-            <!-- Body -->
-            @foreach ($models as $k => $model)
-                @php
-                    $manageableModel = $manageableModelClass::make($model);
-                @endphp
-                <div class="contents odd:bg-slate-100 dark:odd:bg-slate-800">
-                    @foreach ($manageableModel->getBrowseColumnsFinal() as $column => $browseColumn)
+    {{-- Main data table --}}
+    <div class="rounded-md overflow-hidden shadow-lg shadow-slate-300 dark:shadow-slate-850">
+        <table class="w-full text-left border-collapse">
+            <colgroup>
+                @foreach ($browseColumns as $column => $browseColumn)
+                    @continue($browseColumn === null)
+                    @php
+                        $width = $browseColumn->getOption('width');
+                        $minWidth = $browseColumn->getOption('minWidth');
+                        $minWidth = is_int($minWidth) ? "{$minWidth}px" : $minWidth;
+                        $maxWidth = $browseColumn->getOption('maxWidth');
+                        $maxWidth = is_int($maxWidth) ? "{$maxWidth}px" : $maxWidth;
+                    @endphp
+                    <col @if($width)
+                        style="width:{{ is_numeric($width) ? $width . 'px' : $width }};"
+                    @else
+                        style="@if($minWidth)min-width:{{ $minWidth }};@endif @if($maxWidth)max-width:{{ $maxWidth }};@endif"
+                    @endif/>
+                @endforeach
+                <col style="width:auto;">
+            </colgroup>
+            <thead>
+                <tr>
+                    @foreach ($browseColumns as $column => $browseColumn)
                         @continue($browseColumn === null)
-                        <div class="grid grid-cols-1 items-center w-full h-full px-3 py-2 whitespace-nowrap bg-inherit">
-                            <div class="text-ellipsis truncate text-sm">
-                                {!! $browseColumn->renderValue($model, $column) !!}
+                        <th @if ($browseColumn->getOption('allowOrdering'))
+                                title="Order by {{ $column }} {{ $orderDirection == 'asc' ? 'descending' : 'ascending' }}"
+                            @endif
+                            class="px-3 py-2 bg-slate-700 dark:bg-slate-700 text-slate-100 dark:text-slate-300 border-b border-slate-400 dark:border-slate-600 @if ($browseColumn->getOption('allowOrdering')) group hover:text-primary-500 @endif @if ($orderBy == $column) text-primary-500 @endif"
+                            scope="col"
+                        >
+                            <div class="w-full text-ellipsis truncate text-sm font-bold">
+                                @if ($browseColumn->getOption('allowOrdering'))
+                                    <button class="flex items-center gap-3 w-full text-left text-ellipsis truncate"
+                                        wire:click="reOrderAction('{{ $column }}', '{{ $orderDirection == 'asc' ? 'desc' : 'asc' }}')">
+                                        {{ $browseColumn->renderDisplayName() }}
+                                        @if ($orderBy == $column)
+                                            <i class="relative fas fa-sort-{{ $orderDirection == 'asc' ? 'up' : 'down' }} text-primary-500"
+                                                style="{{ $orderDirection == 'asc' ? 'top: 3px;' : 'top: -3px;' }}"></i>
+                                        @else
+                                            <i class="fas fa-sort text-slate-400 group-hover:text-primary-500 dark:group-hover:text-slate-700"
+                                                title="Order ascending"></i>
+                                        @endif
+                                    </button>
+                                @else
+                                    <div class="flex items-center gap-3">
+                                        {{ $browseColumn->renderDisplayName() }}
+                                    </div>
+                                @endif
                             </div>
-                        </div>
+                        </th>
                     @endforeach
-                    <!-- Actions Column -->
-                    <div class="grid grid-cols-1 items-center w-full h-full px-3 py-2 bg-inherit">
-                        <div class="flex justify-end gap-2 text-sm">
-                            @foreach ($manageableModel->getInstanceActionsFinal() as $browseAction)
-                                {!! $browseAction->render() !!}
-                            @endforeach
-                        </div>
-                    </div>
-                </div>
-            @endforeach
-        </div>
+                    <th class="px-3 py-2 bg-slate-700 dark:bg-slate-700 border-b border-slate-400 dark:border-slate-600"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach ($models as $k => $model)
+                    @php
+                        $manageableModel = $manageableModelClass::make($model);
+                    @endphp
+                    <tr class="odd:bg-slate-100 dark:odd:bg-slate-800">
+                        @foreach ($manageableModel->getBrowseColumnsFinal() as $column => $browseColumn)
+                            @continue($browseColumn === null)
+                            <td class="px-3 py-2 whitespace-nowrap bg-inherit">
+                                <div class="text-ellipsis truncate text-sm">
+                                    {!! $browseColumn->renderValue($model, $column) !!}
+                                </div>
+                            </td>
+                        @endforeach
+                        <td class="px-3 py-2 bg-inherit">
+                            <div class="flex justify-end gap-2 text-sm">
+                                @foreach ($manageableModel->getInstanceActionsFinal() as $browseAction)
+                                    {!! $browseAction->render() !!}
+                                @endforeach
+                            </div>
+                        </td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
     </div>
 
     {{-- If empty, show message and link to create new model --}}
