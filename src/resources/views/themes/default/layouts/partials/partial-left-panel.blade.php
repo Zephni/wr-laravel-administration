@@ -15,9 +15,9 @@
     {{-- Collapse button (Use collapse icon from fontawesome) --}}
     <button
         @click="leftPanelOpen = !leftPanelOpen; dragging = false;"
-        x-bind:style="leftPanelOpen ? 'right: 0;' : 'right: -20px;'"
+        x-bind:style="leftPanelOpen ? 'right: 0;' : 'right: -31px;'"
         x-bind:class="leftPanelOpen ? 'rounded-bl border-l' : 'rounded-br border-r';"
-        class="absolute z-10 top-0 pt-1 w-5 opacity-60 text-sm flex justify-center items-center border-b bg-slate-800 text-slate-400 shadow-md dark:shadow-slate-900 dark:border-slate-400 cursor-pointer">
+        class="absolute z-10 top-0 pt-1 w-7 h-[34px] opacity-60 text-sm flex justify-center items-center border-b bg-slate-800 text-slate-400 shadow-md dark:shadow-slate-900 dark:border-slate-400 cursor-pointer">
         <div class="relative">
             <i x-bind:class="{'fas fa-chevron-left': leftPanelOpen, 'fas fa-chevron-right': !leftPanelOpen}" class="relative -top-0.5"></i>
         </div>
