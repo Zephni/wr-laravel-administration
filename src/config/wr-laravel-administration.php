@@ -108,7 +108,7 @@ return [
 
     // Logs
     'logs' => [
-        'max_characters' => 20000,
+        'max_characters' => 100000,
     ],
 
     // Rate limiting for wrla. routes
