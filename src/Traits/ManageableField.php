@@ -249,6 +249,16 @@ trait ManageableField
     }
 
     /**
+     * Set value.
+     *
+     * @param mixed $value
+     */
+    public function setValue(mixed $value): void
+    {
+        $this->htmlAttributes['value'] = $value;
+    }
+
+    /**
      * Get value, if option ignoreOld is set then return the value attribute, otherwise return
      * the old value if it exists in the request.
      *

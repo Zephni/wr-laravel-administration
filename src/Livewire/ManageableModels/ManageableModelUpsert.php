@@ -26,21 +26,21 @@ class ManageableModelUpsert extends Component
 
     /**
      * Livewire fields, attach with manageable model ->setAttribute('wire:model.live', 'livewireData.key')
-     * 
+     *
      * @var array
      */
     public array $livewireData = [];
 
     /**
      * Number of renders counter
-     * 
+     *
      * @var int
      */
     public int $numberOfRenders = 0;
 
     /**
      * Refresh manageable field values
-     * 
+     *
      * @var bool
      */
     public bool $refreshManageableFields = false;
@@ -54,14 +54,14 @@ class ManageableModelUpsert extends Component
 
     /**
      * Model id, null if creating a new model.
-     * 
+     *
      * @var ?int
      */
     public ?int $modelId = null;
 
     /**
      * Override title
-     * 
+     *
      * @var ?string
      */
     public ?string $overrideTitle = null;
@@ -107,7 +107,7 @@ class ManageableModelUpsert extends Component
 
     /**
      * Set field value (Livewire method)
-     * 
+     *
      * @param string $field Field name
      * @param mixed $value Field value
      */
@@ -118,7 +118,7 @@ class ManageableModelUpsert extends Component
 
     /**
      * Set field values (Livewire method)
-     * 
+     *
      * @param array $fieldKeyValues Field key values
      */
     public function setFieldValues(array $fieldKeyValues) {
@@ -144,6 +144,7 @@ class ManageableModelUpsert extends Component
         if($this->numberOfRenders === 0) {
             foreach($manageableFields as $manageableField) {
                 if($manageableField->isModeledWithLivewire()) {
+                    $manageableField->render(); // This allows for fields like JSON that modify the rendered value
                     $this->livewireData[$manageableField->getAttribute('name')] = $manageableField->getValue();
                     $usesLivewireFields = true;
                 }
@@ -183,7 +184,7 @@ class ManageableModelUpsert extends Component
 
     /**
      * Get manageable model instance
-     * 
+     *
      * @return ManageableModel
      */
     public function getModelInstance(): ManageableModel {

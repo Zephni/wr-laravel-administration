@@ -4,13 +4,12 @@ namespace WebRegulate\LaravelAdministration\Classes\ManageableFields;
 
 use WebRegulate\LaravelAdministration\Traits\ManageableField;
 use Illuminate\View\ComponentAttributeBag;
-use WebRegulate\LaravelAdministration\Enums\PageType;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 
 class Json
 {
     use ManageableField;
-    
+
     /**
      * Option to hide containing braces.
      */
@@ -18,7 +17,7 @@ class Json
 
     /**
      * Default key values to merge with nested.key values.
-     * 
+     *
      * @var array
      */
     protected array $defaultKeyValues = [];
@@ -37,7 +36,7 @@ class Json
 
     /**
      * Pre validation method, called before validation rules are set.
-     * 
+     *
      * @param ?string $value
      * @return bool Return true if we have changed the value and want to force merge into request input
      */
@@ -82,7 +81,7 @@ class Json
 
     /**
      * Merge default keys and nested.key values before render.
-     * 
+     *
      * @param array $defaultKeyValues
      * @return $this
      */
@@ -94,7 +93,7 @@ class Json
 
     /**
      * Hide containing braces.
-     * 
+     *
      * @param bool $hide
      * @return $this
      */
@@ -106,7 +105,7 @@ class Json
 
     /**
      * Json format validation. Accepts a list of keys or nested.keys and their validation rules.
-     * 
+     *
      * @param array $rules
      * @return $this
      */
@@ -121,7 +120,7 @@ class Json
 
     /**
      * Calculated value
-     * 
+     *
      * @param mixed $value
      * @return string
      */
@@ -174,7 +173,7 @@ class Json
             $value = str_replace("\n    ", "\n", $value);
         }
 
-        return $value;
+        return trim($value);
     }
 
     /**
@@ -194,6 +193,7 @@ class Json
 
         // Apply calculated value, which will apply default key values and pretty print json
         $value = $this->calculatedValue($value);
+        $this->setValue($value);
 
         return view(WRLAHelper::getViewPath('components.forms.textarea'), [
             'label' => $this->getLabel(),
