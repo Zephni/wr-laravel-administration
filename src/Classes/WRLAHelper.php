@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\RateLimiter;
 use WebRegulate\LaravelAdministration\Enums\PageType;
+use WebRegulate\LaravelAdministration\Models\UserData;
 use WebRegulate\LaravelAdministration\Enums\ManageableModelPermissions;
 use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItem;
 
@@ -70,19 +71,39 @@ class WRLAHelper
      *
      * @return string
      */
-    public static function getWRLAUserModelClass(): string
+    public static function getUserModelClass(): string
     {
-        return config('wr-laravel-administration.wrla_user_model');
+        return config('wr-laravel-administration.models.user');
     }
 
     /**
-     * Get current wrla user
+     * Get wrla user model class
+     *
+     * @return string
+     */
+    public static function getUserDataModelClass(): string
+    {
+        return config('wr-laravel-administration.models.wrla_user_data');
+    }
+
+    /**
+     * Get current user
      *
      * @return mixed
      */
-    public static function getWRLAUser(): mixed
+    public static function getCurrentUser(): mixed
     {
-        return WRLAHelper::getWRLAUserModelClass()::current();
+        return UserData::getCurrentUser();
+    }
+
+    /**
+     * Get current user data
+     *
+     * @return mixed
+     */
+    public static function getCurrentUserData(): mixed
+    {
+        return UserData::getCurrentUserData();
     }
 
     /**
@@ -165,7 +186,7 @@ class WRLAHelper
     public static function getCurrentThemeData(?string $keyDotNotation = null): mixed
     {
         // Get user's current selected theme.
-        $currentTheme = WRLAHelper::getWRLAUser()?->getCurrentThemeKey();
+        $currentTheme = WRLAHelper::getCurrentUserData()?->getCurrentThemeKey();
 
         // If current theme is empty then fall back to the config default_theme.
         if(empty($currentTheme)) {
@@ -582,7 +603,7 @@ class WRLAHelper
         // Loop through each item and replace '@self' with the current user id
         foreach($array as $key => $value) {
             if($value === '@self') {
-                $array[$key] = WRLAHelper::getWRLAUser()->id;
+                $array[$key] = WRLAHelper::getCurrentUser()->id;
             }
         }
 
@@ -775,7 +796,7 @@ class WRLAHelper
      */
     public static function getImpersonatingOriginalUser(): mixed
     {
-        return WRLAHelper::getWRLAUserModelClass()::find(session('wrla_impersonating_user'));
+        return WRLAHelper::getUserDataModelClass()::find(session('wrla_impersonating_user'));
     }
 
     /**
@@ -1081,7 +1102,7 @@ class WRLAHelper
     public static function logError(string $message, array $context = []): void
     {
         $data = array_merge([
-            'user' => WRLAHelper::getWRLAUser()?->id ?? 'x',
+            'user' => WRLAHelper::getCurrentUser()?->id ?? 'x',
         ], $context);
 
         Log::channel('wrla-error')->error($message, $data);
@@ -1096,7 +1117,7 @@ class WRLAHelper
     public static function logInfo(string $message, array $context = []): void
     {
         $data = array_merge([
-            'user' => WRLAHelper::getWRLAUser()?->id ?? 'x',
+            'user' => WRLAHelper::getCurrentUser()?->id ?? 'x',
         ], $context);
 
         Log::channel('wrla-info')->info($message, $data);

@@ -77,15 +77,15 @@
         class="flex w-full justify-start items-center gap-4 px-5 py-4 bg-slate-800 text-slate-200 overflow-hidden">
         <div class="w-full min-w-14 max-w-16">
             @themeComponent('forced-aspect-image', [
-                'src' => $WRLAUser->getProfileAvatar(),
+                'src' => $WRLAUserData->getProfileAvatar(),
                 'class' => 'rounded-full !border-slate-600',
                 'aspect' => '1/1',
             ])
         </div>
         <div class="flex flex-col text-sm">
             <div class="flex flex-col pb-1">
-                <span class="text-sm">{{ $WRLAUser->getFullName() }}</span>
-                <span class="text-xs font-semibold text-slate-400">{{ $WRLAUser->getRole() }}</span>
+                <span class="text-sm">{{ $WRLAUserData->getFullName() }}</span>
+                <span class="text-xs font-semibold text-slate-400">{{ $WRLAUserData->getRole() }}</span>
             </div>
             <span class="flex justify-start items-center gap-2 text-xs">
                 <i class="fa fa-circle text-primary-500" style="font-size: 8px;"></i>

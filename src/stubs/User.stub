@@ -6,11 +6,9 @@ use \Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Builder;
-use WebRegulate\LaravelAdministration\Models\UserData;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 use WebRegulate\LaravelAdministration\Classes\BrowseFilter;
 use \WebRegulate\LaravelAdministration\Classes\ManageableModel;
-use \WebRegulate\LaravelAdministration\Models\User as WRLAUser;
 use WebRegulate\LaravelAdministration\Classes\ManageableFields\Json;
 use \WebRegulate\LaravelAdministration\Classes\ManageableFields\Text;
 use WebRegulate\LaravelAdministration\Classes\ManageableFields\Image;
@@ -36,13 +34,13 @@ class User extends ManageableModel
     public final static function mainSetup(): void
     {
         // Main
-        static::setBaseModelClass(WRLAUser::class);
+        static::setBaseModelClass(WRLAHelper::getUserModelClass());
         static::setDisplayName();
         static::setUrlAlias('user');
         static::setIcon('fa fa-user');
 
         // Permissions
-        static::setPermission(self::IMPERSONATE, function() { return WRLAUser::current()->isMaster(); });
+        static::setPermission(self::IMPERSONATE, function() { return WRLAHelper::getUserDataModelClass()::getCurrentUser()->isMaster(); });
     }
 
     /**
@@ -118,7 +116,7 @@ class User extends ManageableModel
      */
     public final function getManageableFields(): array
     {
-        $currentUser = User::current()->getModelInstance();
+        $currentUserData = WRLAHelper::getCurrentUserData();
         $modelInstance = $this->getModelInstance();
 
         return [
@@ -155,8 +153,8 @@ class User extends ManageableModel
                     'admin' => false
                 ])
                 ->jsonFormatValidation([
-                    'master' => 'boolean'.(($currentUser?->id == $modelInstance?->id) ? "|wrla_no_change:wrla_user_data,{$modelInstance->wrlaUserData?->id},permissions->master" : ''),
-                    'admin' => 'boolean'.(($currentUser?->id == $modelInstance?->id) ? "|wrla_no_change:wrla_user_data,{$modelInstance->wrlaUserData?->id},permissions->admin" : ''),
+                    'master' => 'boolean'.(($currentUserData?->user_id == $modelInstance?->id) ? "|wrla_no_change:wrla_user_data,{$currentUserData?->id},permissions->master" : ''),
+                    'admin' => 'boolean'.(($currentUserData?->user_id == $modelInstance?->id) ? "|wrla_no_change:wrla_user_data,{$currentUserData?->id},permissions->admin" : ''),
                 ])
                 ->hideContainingBraces()
                 ->setAttributes(['placeholder' => 'JSON Data', 'rows' => 4]),
@@ -218,7 +216,7 @@ class User extends ManageableModel
     {
         // Get whether base model has SoftDeletes trait
         return once(function(){
-            return in_array('Illuminate\Database\Eloquent\SoftDeletes', class_uses(\App\Models\User::class)) ?? false;
+            return in_array('Illuminate\Database\Eloquent\SoftDeletes', class_uses(WRLAHelper::getUserModelClass())) ?? false;
         });
     }
 
@@ -229,7 +227,7 @@ class User extends ManageableModel
      */
     public static function current(): User {
         return new User(
-            WRLAUser::current()
+            WRLAHelper::getCurrentUser()
         );
     }
 
@@ -284,7 +282,7 @@ class User extends ManageableModel
     {
         // If not soft delete then delete user data record
         if(!$soft) {
-            UserData::where('user_id', $oldId)->delete();
+            WRLAHelper::getUserDataModelClass()::where('user_id', $oldId)->delete();
         }
     }
 

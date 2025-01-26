@@ -6,7 +6,7 @@ use Faker;
 use App\Models\User;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Hash;
-use WebRegulate\LaravelAdministration\Models\UserData;
+use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 
 class CreateUserCommand extends Command
 {
@@ -88,7 +88,7 @@ class CreateUserCommand extends Command
         $user->save();
 
         // Create WRLA user data record, set connection to config
-        $wrlaUserData = new UserData();
+        $wrlaUserData = new (WRLAHelper::getUserDataModelClass());
         $wrlaUserData->setConnection(config('wr-laravel-administration.wrla_user_data.connection'));
         $wrlaUserData->user_id = $user->id;
         $wrlaUserData->permissions = json_encode([

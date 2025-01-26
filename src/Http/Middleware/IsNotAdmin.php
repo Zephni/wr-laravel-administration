@@ -17,10 +17,10 @@ class IsNotAdmin
     public function handle(Request $request, Closure $next): Response
     {
         // Get current user
-        $user = WRLAHelper::getWRLAUser();
+        $userData = WRLAHelper::getCurrentUserData();
 
         // If logged in and admin, redirect to dashboard
-        if ($user != null && $user->getPermission('admin') == true) {
+        if ($userData != null && $userData->getPermission('admin') == true) {
             return redirect()->route('wrla.dashboard');
         }
 

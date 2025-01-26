@@ -40,7 +40,7 @@ class WRLAAuthController extends Controller
         // return redirect()->route('wrla.dashboard');
 
         // Attempt login
-        if (WRLAHelper::getWRLAUserModelClass()::attemptLogin($request->get('email'), $request->get('password'), $request->has('remember'))) {
+        if (WRLAHelper::getUserDataModelClass()::attemptLogin($request->get('email'), $request->get('password'), $request->has('remember'))) {
             // If wrla_impersonating_user is in session, forget it
             if($request->session()->has('wrla_impersonating_user')) {
                 $request->session()->forget('wrla_impersonating_user');
@@ -60,11 +60,12 @@ class WRLAAuthController extends Controller
      */
     public function impersonateLoginAs(Request $request, int $userId)
     {
-        // Get current user id
-        $origionalUserId = WRLAHelper::getWRLAUser()->id;
+        // Get current user data and user id
+        $origionalUserId = WRLAHelper::getCurrentUser()->id;
 
-        // Get user by id
-        $user = WRLAHelper::getWRLAUserModelClass()::find($userId);
+        // Get user and user data by id
+        $user = WRLAHelper::getUserModelClass()::find($userId);
+        $userData = WRLAHelper::getUserDataModelClass()::where('user_id', $userId)->first();
 
         // Check has impersonate permission
         if(!\App\WRLA\User::getPermission(\App\WRLA\User::IMPERSONATE)) {
@@ -83,7 +84,7 @@ class WRLAAuthController extends Controller
         session()->put('wrla_impersonating_user', $origionalUserId);
 
         // If user has admin privilege redirect to dashboard, otherwise redirect to frontend
-        if($user->isAdmin()) {
+        if($userData !== null && $userData->isAdmin()) {
             return redirect()->route('wrla.dashboard');
         } else {
             return redirect('/');
@@ -110,7 +111,7 @@ class WRLAAuthController extends Controller
         Auth::logout();
 
         // Login as original user
-        Auth::login(WRLAHelper::getWRLAUserModelClass()::find($origionalUserId));
+        Auth::login(WRLAHelper::getUserModelClass()::find($origionalUserId));
 
         // Forget wrla_impersonating_user from session
         $request->session()->forget('wrla_impersonating_user');
@@ -151,7 +152,7 @@ class WRLAAuthController extends Controller
         ]);
 
         // Get user
-        $user = User::where('email', $request->input('email'))->first();
+        $user = WRLAHelper::getUserModelClass()::where('email', $request->input('email'))->first();
 
         // Check user
         if (!$user) {
@@ -175,7 +176,7 @@ class WRLAAuthController extends Controller
     public function resetPassword(Request $request, $email, $token)
     {
         // Get user by email
-        $user = User::where('email', $email)->first();
+        $user = WRLAHelper::getUserModelClass()::where('email', $email)->first();
 
         // Check if token is valid
         if (!Password::tokenExists($user, $token)) {
@@ -211,7 +212,7 @@ class WRLAAuthController extends Controller
         ]);
 
         // Get user
-        $user = User::where('email', $request->input('email'))->first();
+        $user = WRLAHelper::getUserModelClass()::where('email', $request->input('email'))->first();
 
         // Check user
         if (!$user) {

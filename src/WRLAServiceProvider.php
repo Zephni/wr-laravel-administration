@@ -86,7 +86,7 @@ class WRLAServiceProvider extends ServiceProvider
 
         // Publish models
         $this->publishes([
-            __DIR__ . '/app/WRLA' => app_path('WRLA'),
+            __DIR__ . '/Models/UserData.php' => app_path('Models/UserData.php'),
         ], 'wrla-models');
     }
 
@@ -256,8 +256,8 @@ class WRLAServiceProvider extends ServiceProvider
     {
         // Share variables with all views within this package
         view()->composer(['wr-laravel-administration::*', '*wrla.*'], function ($view) {
-            // Current user
-            $view->with('WRLAUser', WRLAHelper::getWRLAUser());
+            // Current user data (which has relationship with current ->user)
+            $view->with('WRLAUserData', app('wrla_user_data'));
 
             // Theme data
             $view->with('WRLAThemeData', (object)WRLAHelper::getCurrentThemeData());

@@ -30,13 +30,19 @@ class InstallCommand extends Command
      */
     public function handle()
     {
-        // Publish the config files
+        // Publish config
         $this->call('vendor:publish', [
             '--provider' => 'WebRegulate\LaravelAdministration\WRLAServiceProvider',
             '--tag' => 'wrla-config',
         ]);
 
-        // Publish the assets
+        // Publish assets
+        $this->call('vendor:publish', [
+            '--provider' => 'WebRegulate\LaravelAdministration\WRLAServiceProvider',
+            '--tag' => 'wrla-assets',
+        ]);
+
+        // Publish models
         $this->call('vendor:publish', [
             '--provider' => 'WebRegulate\LaravelAdministration\WRLAServiceProvider',
             '--tag' => 'wrla-assets',

@@ -19,15 +19,18 @@ class IsAdmin
     public function handle(Request $request, Closure $next): Response
     {
         // Get current user
-        $user = WRLAHelper::getWRLAUser();
+        $userData = WRLAHelper::getCurrentUserData();
 
         // Check if not logged in or not admin
-        if ($user == null || $user->getPermission('admin') == false) {
+        if ($userData == null || $userData->getPermission('admin') == false) {
             return redirect()->route('wrla.login')->with(
                 'error',
                 'You do not have permission to access this page.'
             );
         }
+
+        // Put userdata and user in service container
+        app()->instance('wrla_user_data', $userData);
 
         // Handle WRLASettings
         if(class_exists('\App\WRLA\WRLASettings')) {

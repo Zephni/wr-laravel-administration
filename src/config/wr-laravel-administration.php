@@ -5,15 +5,10 @@ return [
     // Base URL for the administration panel, e.g. 'wr-admin' will result in 'http://example.com/wr-admin'
     'base_url' => 'wr-admin',
 
-    // WRLA User model
-    'wrla_user_model' => \WebRegulate\LaravelAdministration\Models\User::class,
-
-    // WRLA user data connection and table
-    // NOTE: Do not change the table name itself, but a different prefix database can be prepended if the relationship
-    // between your user table and user_data table crosses databases, eg. 'database_name.wrla_user_data')
-    'wrla_user_data' => [
-        'connection' => 'mysql',
-        'table' => 'wrla_user_data',
+    // Model definitions
+    'models' => [
+        'user' => \App\Models\User::class,
+        'wrla_user_data' => \WebRegulate\LaravelAdministration\Models\UserData::class,
     ],
 
     // How the page title should be displayed

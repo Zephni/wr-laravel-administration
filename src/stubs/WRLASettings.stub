@@ -36,7 +36,7 @@ class WRLASettings
 
             // View Logs
             (new NavigationItem('wrla.logs', [], 'View Logs', 'fa fa-file-alt'))->showOnCondition(function(){
-                return WRLAHelper::getWRLAUser()?->getPermission('master') ?? false;
+                return WRLAHelper::getCurrentUserData()?->getPermission('master') ?? false;
             }),
 
             // Divider
@@ -59,12 +59,15 @@ class WRLASettings
     {
         if($key == 'admin')
         {
-            return WRLAHelper::getWRLAUserModelClass()::whereHas('wrlaUserData', function($query) {
-                $query->whereJsonContains('permissions', ['admin' => true]);
-            })->get();
+            return WRLAHelper::getUserModelClass()::whereIn('id',
+                    WRLAHelper::getUserDataModelClass()
+                        ::whereJsonContains('permissions', ['admin' => true])
+                        ->get()
+                        ->pluck('user_id')
+                )->get();
         }
 
-        return collect([WRLAHelper::getWRLAUserModelClass()::find($key)]);
+        return collect([WRLAHelper::getUserModelClass()::find($key)]);
     }
 
     /**
