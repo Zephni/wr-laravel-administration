@@ -148,6 +148,25 @@ class InstallCommand extends Command
             $this->warn(' - email-template-mail.blade.php already exists at ' . WRLAHelper::removeBasePath(resource_path('views/email/wrla/email-template-mail.blade.php')) . '. To replace it delete the file and run again.');
         }
 
+        // Let user know we are about to add a relationship to the User model, we use confirmation to gurantree they are aware
+        $this->confirm('Adding wrlaUserData relationship to end of '.config('wr-laravel-administration.models.user').' model', true);
+
+        // Get current frontend user model (which uses config('wr-laravel-administration.models.user') namespace app path)
+        // and add the wrlaUserData relationship to the end of the model
+        $userModelPath = app_path(str(config('wr-laravel-administration.models.user'))->ltrim('\\App')->replace('\\', '/')->ltrim('/').'.php');
+        $userModelContents = file_get_contents($userModelPath);
+        // Find last } in file and add the relationship before it
+        $lastBracePosition = strrpos($userModelContents, '}');
+        $userModelContents = substr_replace($userModelContents, '    /**
+     * Get User data
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function wrlaUserData(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(\WebRegulate\LaravelAdministration\Classes\WRLAHelper::getUserDataModelClass());
+    }', $lastBracePosition, 0);
+
         // Success message
         $this->line('');
         $this->info('WRLA installed successfully.');
