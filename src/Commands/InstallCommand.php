@@ -156,22 +156,32 @@ class InstallCommand extends Command
 
         // Check if file already has the relationship
         if (strpos($userModelContents, 'function wrlaUserData()') !== false) {
-            $this->info(' - wrlaUserData relationship already exists in '.config('wr-laravel-administration.models.user').' model. To replace it delete the relationship and run again.');
+            $this->warn(' - wrlaUserData relationship already exists in '.config('wr-laravel-administration.models.user').' model. To replace it delete the relationship and run again.');
         } else {
             // Let user know we are about to add a relationship to the User model, we use confirmation to gurantree they are aware
-            $this->confirm('Adding wrlaUserData relationship to end of '.config('wr-laravel-administration.models.user').' model', true);
+            $confirm = $this->confirm('IMPORTANT: Adding wrlaUserData relationship to end of '.config('wr-laravel-administration.models.user').' model. This is nessesary for managing user\'s with WRLA', true);
 
-            // Find last } in file and add the relationship before it
-            $lastBracePosition = strrpos($userModelContents, '}');
-            $userModelContents = substr_replace($userModelContents, '    /**
-    * Get User data
-    *
-    * @return \Illuminate\Database\Eloquent\Relations\HasOne
-    */
+            if($confirm) {
+                // Find last } in file and add the relationship before it
+                $lastBracePosition = strrpos($userModelContents, '}');
+                $userModelContents = substr_replace($userModelContents, '
+    /**
+     * Get User data
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
     public function wrlaUserData(): \Illuminate\Database\Eloquent\Relations\HasOne
     {
         return $this->hasOne(\WebRegulate\LaravelAdministration\Classes\WRLAHelper::getUserDataModelClass());
-    }', $lastBracePosition, 0);
+    }
+', $lastBracePosition, 0);
+
+            // Save the file
+            file_put_contents($userModelPath, $userModelContents);
+
+            // Show message
+            $this->info(' - wrlaUserData relationship added to '.config('wr-laravel-administration.models.user').' model');
+            }
         }
         /* --- /Add relationship to frontend user model --- */
 
