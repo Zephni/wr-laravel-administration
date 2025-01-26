@@ -29,9 +29,6 @@ class IsAdmin
             );
         }
 
-        // Put userdata and user in service container
-        app()->instance('wrla_user_data', $userData);
-
         // Handle WRLASettings
         if(class_exists('\App\WRLA\WRLASettings')) {
             // Set navigation items (if App\WRLA\WRLASettings exists)

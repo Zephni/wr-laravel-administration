@@ -48,6 +48,7 @@
 
     @php
         $browseColumns = $manageableModelClass::make()->getBrowseColumnsFinal();
+        $allowRowHeightAuto = false;
     @endphp
 
     {{-- Main data table --}}
@@ -55,13 +56,17 @@
         <table class="w-full table-auto text-left border-collapse" style="table-layout: auto /* fixed */;">
             <colgroup>
                 @foreach ($browseColumns as $column => $browseColumn)
+                    @if($browseColumn->type == 'image')
+                        @php $allowRowHeightAuto = true; @endphp
+                    @endif
                     @if($browseColumn === null)
                         <col style="width: auto;" />
                     @else
                         @php
                             $width = $browseColumn->getOption('width') ?? 'auto';
+                            $width = (is_int($width) ? "{$width}px" : $width) ?? 'auto';
                             $minWidth = $browseColumn->getOption('minWidth') ?? 0;
-                            $minWidth = (is_int($browseColumn->getOption('minWidth')) ? "{$minWidth}px" : $minWidth) ?? 'auto';
+                            $minWidth = (is_int($minWidth) ? "{$minWidth}px" : $minWidth) ?? 'auto';
                             $maxWidth = $browseColumn->getOption('maxWidth');
                             $maxWidth = (is_int($maxWidth) ? "{$maxWidth}px" : $maxWidth) ?? 'none';
                         @endphp
@@ -114,7 +119,7 @@
                             @continue($browseColumn === null)
                             @php $value = str($browseColumn->renderValue($model, $column))->limit(300); @endphp
                             <td class="px-3 py-2 bg-inherit text-sm">
-                                <div class="relative flex w-full h-[22px] items-center overflow-hidden">
+                                <div class="relative flex w-full @if(!$allowRowHeightAuto) h-[22px] @endif items-center overflow-hidden">
                                     <span style="color: transparent;">{!! $value !!}</span>
                                     <div class="absolute top-0 left-0 w-full h-full whitespace-nowrap overflow-ellipsis truncate">
                                         {!! $value !!}

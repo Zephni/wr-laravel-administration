@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Validator;
 use WebRegulate\LaravelAdministration\Livewire\Logs;
+use WebRegulate\LaravelAdministration\Models\UserData;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 use WebRegulate\LaravelAdministration\Commands\RebuildUser;
 use WebRegulate\LaravelAdministration\Commands\WikiCommand;
@@ -256,14 +257,17 @@ class WRLAServiceProvider extends ServiceProvider
     {
         // Share variables with all views within this package
         view()->composer(['wr-laravel-administration::*', '*wrla.*'], function ($view) {
-            // Current user data (which has relationship with current ->user)
-            $view->with('WRLAUserData', app('wrla_user_data'));
-
             // Theme data
             $view->with('WRLAThemeData', (object)WRLAHelper::getCurrentThemeData());
 
             // Share WRLAHelper class
             $view->with('WRLAHelper', WRLAHelper::class);
+        });
+
+        // Share variables with all views (including frontend)
+        view()->composer('*', function ($view) {
+            // Current user data (which has relationship with current ->user)
+            $view->with('WRLAUserData', once(fn() => UserData::getCurrentUserData()));
         });
     }
 

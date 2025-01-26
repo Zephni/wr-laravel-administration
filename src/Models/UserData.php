@@ -25,7 +25,7 @@ class UserData extends Model
 
     public static function getCurrentUserData()
     {
-        return UserData::where('user_id', UserData::getCurrentUser()?->id)->first();
+        return once(fn() => UserData::where('user_id', UserData::getCurrentUser()?->id)->first());
     }
 
     /**
@@ -80,7 +80,7 @@ class UserData extends Model
         }
 
         // If has avatar, return it
-        $avatar = $this->getData('profile.avatar');
+        $avatar = $this->avatar;
         if (!empty($avatar)) {
             return '/'.ltrim("storage/images/avatars/$avatar", '/');
         }

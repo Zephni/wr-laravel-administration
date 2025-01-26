@@ -40,7 +40,7 @@ class User extends ManageableModel
         static::setIcon('fa fa-user');
 
         // Permissions
-        static::setPermission(self::IMPERSONATE, function() { return WRLAHelper::getUserDataModelClass()::getCurrentUser()->isMaster(); });
+        static::setPermission(self::IMPERSONATE, function() { return WRLAHelper::getCurrentUserData()->isMaster(); });
     }
 
     /**
@@ -98,7 +98,7 @@ class User extends ManageableModel
                 'width' => 80,
                 'aspect' => '1/1',
                 'class' => 'rounded-full',
-                'value' => $this->getModelInstance()->getProfileAvatar()
+                'value' => $this->getModelInstance()->wrlaUserData?->getProfileAvatar()
             ]),
             'name' => 'Name',
             'email' => 'Email',
@@ -135,7 +135,7 @@ class User extends ManageableModel
             Password::make($this, 'password'),
 
             Image::make($this, 'wrlaUserData.avatar', 'storage/images/avatars', '{id}-avatar-{time}.jpg')
-                ->defaultImage($modelInstance->getProfileAvatar())
+                ->defaultImage($modelInstance->wrlaUserData->getProfileAvatar())
                 ->aspect('1/1')
                 ->rounded('full')
                 ->manipulateImage(function($image) {
