@@ -20,11 +20,10 @@ class IsAdmin
     public function handle(Request $request, Closure $next): Response
     {
         // Get current user and check if they are an admin
-        $user = Auth::user();
-        $userIsAdmin = $user->wrlaUserData?->getPermission('admin') ?? false;
+        $wrlaUserData = Auth::user()?->wrlaUserData;
 
         // Check if not logged in or not admin
-        if ($user?->wrlaUserData == null || $userIsAdmin !== true) {
+        if ($wrlaUserData == null || ($wrlaUserData?->getPermission('admin') ?? false) !== true) {
             return redirect()->route('wrla.login')->with(
                 'error',
                 'You do not have permission to access this page.'
