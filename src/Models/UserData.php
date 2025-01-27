@@ -20,7 +20,7 @@ class UserData extends Model
 
     public static function getCurrentUser()
     {
-        return WRLAHelper::getUserModelClass()::find(Auth::id())?->first();
+        return once(fn() => WRLAHelper::getUserModelClass()::find(Auth::id())?->first());
     }
 
     public static function getCurrentUserData()
