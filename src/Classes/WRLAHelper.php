@@ -795,7 +795,7 @@ class WRLAHelper
      */
     public static function getImpersonatingOriginalUser(): mixed
     {
-        return WRLAHelper::getUserDataModelClass()::find(session('wrla_impersonating_user'));
+        return WRLAHelper::getUserModelClass()::find(session('wrla_impersonating_user'));
     }
 
     /**
