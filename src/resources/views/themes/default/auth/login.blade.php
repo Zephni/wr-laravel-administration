@@ -52,7 +52,7 @@
                     'label' => 'Remember me',
                     'attributes' => new \Illuminate\View\ComponentAttributeBag([
                         'name' => 'remember',
-                        'checked' => old('remember'),
+                        'checked' => old('remember') ?? true,
                     ])
                 ])
 

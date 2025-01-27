@@ -14,7 +14,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\RateLimiter;
 use WebRegulate\LaravelAdministration\Enums\PageType;
-use WebRegulate\LaravelAdministration\Models\UserData;
 use WebRegulate\LaravelAdministration\Enums\ManageableModelPermissions;
 use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItem;
 
@@ -93,7 +92,7 @@ class WRLAHelper
      */
     public static function getCurrentUser(): mixed
     {
-        return UserData::getCurrentUser();
+        return WRLAHelper::getUserDataModelClass()::getCurrentUser();
     }
 
     /**
@@ -103,7 +102,7 @@ class WRLAHelper
      */
     public static function getCurrentUserData(): mixed
     {
-        return UserData::getCurrentUserData();
+        return WRLAHelper::getUserDataModelClass()::getCurrentUserData();
     }
 
     /**
