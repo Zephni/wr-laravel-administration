@@ -62,7 +62,7 @@
                             $width = $browseColumn->getOption('width') ?? 'auto';
                             $width = (is_int($width) ? "{$width}px" : $width) ?? 'auto';
                             $minWidth = $browseColumn->getOption('minWidth') ?? 0;
-                            $minWidth = (is_int($minWidth) ? "{$minWidth}px" : $minWidth) ?? 'auto';
+                            $minWidth = (is_int($minWidth) ? "{$minWidth}px" : $minWidth) ?? '110px';
                             $maxWidth = $browseColumn->getOption('maxWidth');
                             $maxWidth = (is_int($maxWidth) ? "{$maxWidth}px" : $maxWidth) ?? 'none';
                         @endphp
