@@ -60,11 +60,11 @@
                     @else
                         @php
                             $width = $browseColumn->getOption('width') ?? 'auto';
-                            $width = (is_int($width) ? "{$width}px" : $width) ?? 'auto';
-                            $minWidth = $browseColumn->getOption('minWidth') ?? 0;
-                            $minWidth = (is_int($minWidth) ? "{$minWidth}px" : $minWidth) ?? '110px';
-                            $maxWidth = $browseColumn->getOption('maxWidth');
-                            $maxWidth = (is_int($maxWidth) ? "{$maxWidth}px" : $maxWidth) ?? 'none';
+                            $width = (is_int($width) ? "{$width}px" : $width);
+                            $minWidth = $browseColumn->getOption('minWidth') ?? 110;
+                            $minWidth = (is_int($minWidth) ? "{$minWidth}px" : $minWidth);
+                            $maxWidth = $browseColumn->getOption('maxWidth') ?? 'none';
+                            $maxWidth = (is_int($maxWidth) ? "{$maxWidth}px" : $maxWidth);
                         @endphp
                         <col style="width: {{ $width }}; min-width: {{ $minWidth }}; max-width: {{ $maxWidth }};" />
                     @endif

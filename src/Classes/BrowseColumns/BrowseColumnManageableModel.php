@@ -28,7 +28,8 @@ class BrowseColumnManageableModel extends BrowseColumnBase
                     'id' => data_get($model, $relatedIdColumn),
                 ]),
                 'text' => $value,
-                'icon' => $manageableModel::getIcon().' text-xs'
+                'icon' => $manageableModel::getIcon().' text-xs',
+                'class' => 'max-w-[300px] whitespace-nowrap truncate font-medium',
             ];
         })->renderHtml(true);
     }
