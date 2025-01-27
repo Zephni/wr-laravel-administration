@@ -753,6 +753,11 @@ abstract class ManageableModel
                             $whereIndex = 0;
 
                             foreach($columns as $column => $label) {
+                                // If column is int or begins with !, skip
+                                if(is_int($column) || str_starts_with($column, '!')) {
+                                    continue;
+                                }
+
                                 // If column is relationship, then modify the column to be the related column
                                 if((WRLAHelper::isBrowseColumnRelationship($column))) {
                                     $relationshipParts = WRLAHelper::parseBrowseColumnRelationship($column);
@@ -1014,7 +1019,8 @@ abstract class ManageableModel
 
         once(function() use($manageableModel) {
             // Get the table data for each column
-            $tableData = DB::select("SHOW COLUMNS FROM {$manageableModel->getModelInstance()->getTable()}");
+            $tableData = $manageableModel->getModelInstance()->getConnection()
+                            ->select("SHOW COLUMNS FROM {$manageableModel->getModelInstance()->getTable()}");
 
             // Loop through (other than the specified ones and set all the default values)
             foreach($tableData as $columnData) {
