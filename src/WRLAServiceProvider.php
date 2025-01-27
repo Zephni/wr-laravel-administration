@@ -11,7 +11,6 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Validator;
 use WebRegulate\LaravelAdministration\Livewire\Logs;
-use WebRegulate\LaravelAdministration\Models\UserData;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 use WebRegulate\LaravelAdministration\Commands\RebuildUser;
 use WebRegulate\LaravelAdministration\Commands\WikiCommand;
@@ -21,7 +20,6 @@ use WebRegulate\LaravelAdministration\Livewire\ImportDataModal;
 use WebRegulate\LaravelAdministration\Commands\CreateUserCommand;
 use WebRegulate\LaravelAdministration\Http\Middleware\IsNotAdmin;
 use WebRegulate\LaravelAdministration\Livewire\NotificationsWidget;
-use WebRegulate\LaravelAdministration\Http\Controllers\WRLAAdminController;
 use WebRegulate\LaravelAdministration\Commands\CreateManageableModelCommand;
 use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItem;
 use WebRegulate\LaravelAdministration\Classes\ManageableFields\SearchableValue;
@@ -267,7 +265,7 @@ class WRLAServiceProvider extends ServiceProvider
         // Share variables with all views (including frontend)
         view()->composer('*', function ($view) {
             // Current user data (which has relationship with current ->user)
-            $view->with('WRLAUserData', once(fn() => UserData::getCurrentUserData()));
+            $view->with('WRLAUserData', once(fn() => WRLAHelper::getUserDataModelClass()::getCurrentUserData()));
         });
     }
 

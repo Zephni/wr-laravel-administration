@@ -20,12 +20,12 @@ class UserData extends Model
 
     public static function getCurrentUser()
     {
-        return WRLAHelper::getUserModelClass()::find(Auth::id())->first();
+        return WRLAHelper::getUserModelClass()::find(Auth::id())?->first();
     }
 
     public static function getCurrentUserData()
     {
-        return once(fn() => UserData::where('user_id', UserData::getCurrentUser()?->id)->first());
+        return once(fn() => UserData::where('user_id', UserData::getCurrentUser()?->id)?->first());
     }
 
     /**
