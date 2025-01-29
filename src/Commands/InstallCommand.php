@@ -59,6 +59,11 @@ class InstallCommand extends Command
                 "protected \$connection = '$envConnection';",
                 $userDataContents
             );
+            $userDataContents = str_replace(
+                "namespace WebRegulate\LaravelAdministration\Models;",
+                "namespace App\Models;",
+                $userDataContents
+            );
             file_put_contents($userDataFile, $userDataContents);
 
             // Show message
