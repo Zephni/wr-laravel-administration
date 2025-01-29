@@ -45,7 +45,7 @@ class InstallCommand extends Command
         // Publish models
         $this->call('vendor:publish', [
             '--provider' => 'WebRegulate\LaravelAdministration\WRLAServiceProvider',
-            '--tag' => 'wrla-assets',
+            '--tag' => 'wrla-models',
         ]);
 
         // First clear config cache
