@@ -1018,9 +1018,13 @@ abstract class ManageableModel
         $manageableModel = $this;
 
         once(function() use($manageableModel) {
-            // Get the table data for each column
-            $tableData = $manageableModel->getModelInstance()->getConnection()
-                            ->select("SHOW COLUMNS FROM {$manageableModel->getModelInstance()->getTable()}");
+            // Get the table data for each column, allow for failure in case where this isn't a mysql database
+            try {
+                $tableData = $manageableModel->getModelInstance()->getConnection()
+                                ->select("SHOW COLUMNS FROM {$manageableModel->getModelInstance()->getTable()}");
+            } catch(\Exception $e) {
+                return;
+            }
 
             // Loop through (other than the specified ones and set all the default values)
             foreach($tableData as $columnData) {
