@@ -8,7 +8,7 @@ return [
     // Model definitions
     'models' => [
         'user' => \App\Models\User::class,
-        'wrla_user_data' => \WebRegulate\LaravelAdministration\Models\UserData::class,
+        'wrla_user_data' => \App\Models\UserData::class,
     ],
 
     // How the page title should be displayed
