@@ -178,7 +178,10 @@ class InstallCommand extends Command
      */
     public function wrlaUserData(): \Illuminate\Database\Eloquent\Relations\HasOne
     {
-        return $this->hasOne(\WebRegulate\LaravelAdministration\Classes\WRLAHelper::getUserDataModelClass());
+        return $this->hasOne(\WebRegulate\LaravelAdministration\Classes\WRLAHelper::getUserDataModelClass())
+            ->withDefault([
+                \'permissions\' => json_encode([\'master\' => false, \'admin\' => false]),
+            ]);
     }
 ', $lastBracePosition, 0);
 
