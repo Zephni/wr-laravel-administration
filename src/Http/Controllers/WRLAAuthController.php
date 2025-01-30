@@ -61,7 +61,12 @@ class WRLAAuthController extends Controller
     public function impersonateLoginAs(Request $request, int $userId)
     {
         // Get current user data and user id
-        $origionalUserId = WRLAHelper::getCurrentUser()->id;
+        $origionalUserId = WRLAHelper::getCurrentUser()?->id;
+
+        // If null, redirect to login
+        if($origionalUserId === null) {
+            return redirect()->route('wrla.login');
+        }
 
         // Get user and user data by id
         $user = WRLAHelper::getUserModelClass()::find($userId);
