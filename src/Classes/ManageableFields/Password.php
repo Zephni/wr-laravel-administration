@@ -113,9 +113,6 @@ class Password
             ] : [])),
         ])->render();
 
-        // End flex container
-        $HTML .= '</div>';
-
         if($pageType == PageType::EDIT) {
             // Close parent div
             $HTML .= <<<HTML
