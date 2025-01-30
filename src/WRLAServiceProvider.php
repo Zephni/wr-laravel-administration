@@ -267,7 +267,7 @@ class WRLAServiceProvider extends ServiceProvider
             // Current user data (which has relationship with current ->user)
             $view->with('user', once(function() {
                 $user = WRLAHelper::getUserDataModelClass()::getCurrentUser();
-                $user->wrlaUserData->attachUser($user);
+                $user?->wrlaUserData?->attachUser($user);
                 return $user;
             }));
         });
