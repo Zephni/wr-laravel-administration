@@ -14,7 +14,7 @@
                 <span class="absolute right-4 text-sm text-slate-600 dark:text-slate-300 whitespace-nowrap">
                     <span class="text-slate-500 dark:text-slate-400">Logged in as</span>
                     <i class="fas fa-user text-sm mx-1"></i>
-                    {{ $WRLAUserData->getFullName() }}
+                    {{ $user->wrlaUserData?->getFullName() }}
                 </span>
             </div>
             <button @click="darkMode = !darkMode" class="flex w-[40px] h-full justify-center items-center border-l border-slate-300 dark:border-slate-700 bg-slate-50 text-slate-800 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-900 dark:text-slate-400">
