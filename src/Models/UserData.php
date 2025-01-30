@@ -1,5 +1,5 @@
 <?php
-namespace WebRegulate\LaravelAdministration\Models;
+namespace App\Models;
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Model;
@@ -10,7 +10,6 @@ class UserData extends Model
     protected $connection = 'mysql';
     protected $table = 'wrla_user_data';
     public $timestamps = false;
-
     protected $fillable = [
         'user_id',
         'permissions',
@@ -18,14 +17,37 @@ class UserData extends Model
         'data',
     ];
 
+    /**
+     * Get current logged in user
+     *
+     * @return mixed
+     */
     public static function getCurrentUser()
     {
         return Auth::user();
     }
 
+    /**
+     * Get current logged in user -> user data
+     *
+     * @return mixed
+     */
     public static function getCurrentUserData()
     {
         return once(fn() => UserData::where('user_id', UserData::getCurrentUser()?->id)?->first());
+    }
+
+    /**
+     * Attach user to the model
+     *
+     * @param mixed $user
+     * @return static
+     */
+    public function attachUser(mixed $user): static
+    {
+        $this->user = $user;
+        $this->user_id = $user->id;
+        return $this;
     }
 
     /**
