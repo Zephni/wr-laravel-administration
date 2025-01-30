@@ -1,5 +1,5 @@
 <?php
-namespace App\Models;
+namespace WebRegulate\LaravelAdministration\Models;
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Model;

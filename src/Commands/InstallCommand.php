@@ -51,19 +51,24 @@ class InstallCommand extends Command
         // If .env DB_CONNECTION is not mysql, replace $connection in UserData model file
         $envConnection = env('DB_CONNECTION', 'mysql');
         if($envConnection !== 'mysql') {
-            // UserData file
+            // Get user data contents
             $userDataFile = app_path('Models/UserData.php');
             $userDataContents = file_get_contents($userDataFile);
+
+            // Update connection
             $userDataContents = str_replace(
                 "protected \$connection = 'mysql';",
                 "protected \$connection = '$envConnection';",
                 $userDataContents
             );
+
+            // Update namespace
             $userDataContents = str_replace(
                 "namespace WebRegulate\LaravelAdministration\Models;",
                 "namespace App\Models;",
                 $userDataContents
             );
+
             file_put_contents($userDataFile, $userDataContents);
 
             // Show message
