@@ -49,7 +49,7 @@ class WRLAAdminController extends Controller
 
         // Get the manageable model class by its URL alias
         $manageableModelClass = ManageableModel::getByUrlAlias($modelUrlAlias);
-        
+
         // If the manageable model is null, redirect to the dashboard with error
         if (is_null($manageableModelClass)) {
             return redirect()->route('wrla.dashboard')->with('error', "Manageable model with url alias `$modelUrlAlias` not found.");
@@ -100,7 +100,7 @@ class WRLAAdminController extends Controller
         }
 
         return view(WRLAHelper::getViewPath('livewire-content'), [
-            'title' => $upsertType->value . ' ' . $manageableModelClass::getDisplayName(),
+            'title' => str($upsertType->value)->lower()->title()->toString() . ' ' . $manageableModelClass::getDisplayName(),
             'livewireComponentAlias' => 'wrla.manageable-models.upsert',
             'livewireComponentData' => [
                 'manageableModelClass' => $manageableModelClass,
@@ -150,7 +150,7 @@ class WRLAAdminController extends Controller
         // Get manageable fields (we need to get these first and set the livewire fields, and then get them again so
         // we can make sure all the correct fields and values are exactly as they were prior to submitting the form.
         $manageableFields = $manageableModel->getManageableFieldsFinal();
-        
+
         $usesLivewireFields = false;
         foreach($manageableFields as $manageableField) {
             if($manageableField->isModeledWithLivewire()) {
@@ -240,7 +240,7 @@ class WRLAAdminController extends Controller
 
     /**
      * View logs
-     * 
+     *
      * @param Request $request
      * @return View
      */
