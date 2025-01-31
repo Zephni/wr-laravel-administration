@@ -134,7 +134,7 @@ class User extends ManageableModel
 
             Password::make($this, 'password'),
 
-            Image::make($this, 'wrlaUserData.avatar', 'storage/images/avatars', '{id}-avatar-{time}.jpg')
+            Image::make($this, 'wrlaUserData.avatar', 'images/avatars', '{id}-avatar-{time}.jpg')
                 ->defaultImage($modelInstance->wrlaUserData?->getProfileAvatar())
                 ->aspect('1/1')
                 ->rounded('full')
