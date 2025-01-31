@@ -116,6 +116,7 @@ class Password
         if($pageType == PageType::EDIT) {
             // Close parent div
             $HTML .= <<<HTML
+                    </div>
                 </div>
             HTML;
         }
