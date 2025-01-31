@@ -24,7 +24,7 @@ class NotificationBase
 
     public function getUserGroup(): ?Collection
     {
-        return is_int($this->userId) ? collect([$this->user]) : WRLASettings::getUserGroup($this->userId);
+        return is_int($this->userId) ? collect([$this->user]) : WRLAHelper::getUserGroup($this->userId);
     }
 
     public function optionEqualTo(?array $options, string $key, mixed $value): bool

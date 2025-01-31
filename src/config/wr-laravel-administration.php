@@ -1,5 +1,7 @@
 <?php
 
+use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
+
 return [
 
     // Base URL for the administration panel, e.g. 'wr-admin' will result in 'http://example.com/wr-admin'
@@ -93,6 +95,18 @@ return [
     // 'user_avatar' => function(\App\Models\User $user) {
     //     return $user->profile_image;
     // },
+
+    // User groups, each must be a function that returns a Collection of users
+    'user_groups' => [
+        'admin' => function() {
+            return WRLAHelper::getUserModelClass()::whereIn('id',
+                WRLAHelper::getUserDataModelClass()
+                    ::whereJsonContains('permissions', ['admin' => true])
+                    ->get()
+                    ->pluck('user_id')
+            )->get();
+        }
+    ],
 
     // Dashboard display notifications for users / groups, use '@self' for the user's own notifications
     'dashboard' => [

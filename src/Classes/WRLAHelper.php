@@ -4,6 +4,7 @@ namespace WebRegulate\LaravelAdministration\Classes;
 
 use Livewire\Livewire;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\File;
@@ -607,6 +608,32 @@ class WRLAHelper
         }
 
         return $array;
+    }
+
+    /**
+     * Get user group, must pass a tag that is defined in user_groups config, or an integer for user id.
+     *
+     * @param string|int $key The key to get the user group from.
+     * @return ?Collection The collection of users. Returns null if the key is not found or user does not exist.
+     */
+    public static function getUserGroup(string|int $key): ?Collection
+    {
+        // If key is an integer then return the user with that id as a collection, or null if not found
+        if(is_int($key)) {
+            $user = WRLAHelper::getUserModelClass()::where('id', $key)->get();
+            return $user === null ? null : collect([$user]);
+        }
+
+        // Get user group config
+        $userGroupConfig = config("wr-laravel-administration.user_groups.$key");
+
+        // If key is not found or not callable in user_groups config then return null
+        if(empty($userGroupConfig) || !is_callable($userGroupConfig)) {
+            return null;
+        }
+
+        // Return invoked user group config
+        return call_user_func($userGroupConfig);
     }
 
     /**

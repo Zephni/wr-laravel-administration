@@ -51,26 +51,6 @@ class WRLASettings
     }
 
     /**
-    * Define user group tags
-    *
-    * @return ?Collection
-    */
-    public static function getUserGroup(string $key): ?Collection
-    {
-        if($key == 'admin')
-        {
-            return WRLAHelper::getUserModelClass()::whereIn('id',
-                    WRLAHelper::getUserDataModelClass()
-                        ::whereJsonContains('permissions', ['admin' => true])
-                        ->get()
-                        ->pluck('user_id')
-                )->get();
-        }
-
-        return collect([WRLAHelper::getUserModelClass()::find($key)]);
-    }
-
-    /**
      * Build custom routes. It is recommended to prefix all custom route names with 'wrla.'
      *
      * @return void
