@@ -632,7 +632,7 @@ trait ManageableField
         // If name is based on a relation on json column (eg has a . or -> in it) we get the last part of the name
         $label = str_replace(WRLAHelper::WRLA_REL_DOT, '.', $fieldName);
         $label = str($label)->afterLast('.')->afterLast('->');
-        $label = $label->replace('_', ' ')->ucfirst();
+        $label = $label->replace('_', ' ')->trim(' ')->ucfirst();
         return $label;
     }
 
