@@ -764,6 +764,7 @@ abstract class ManageableModel
 
                                     $baseModelClass = self::getBaseModelClass();
                                     $relationship = (new $baseModelClass)->{$relationshipParts[0]}();
+                                    if($relationship?->getRelated() == null) continue;
                                     $relationshipTableName = $relationship->getRelated()->getTable();
                                     $foreignColumn = $relationship->getForeignKeyName();
 
