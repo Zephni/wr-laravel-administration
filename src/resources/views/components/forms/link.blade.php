@@ -2,10 +2,10 @@
 
 <a href="{{ $href }}"
     {{ $attributes->merge([
-        'class' => ""
+        'class' => "no-underline"
     ]) }}>
     @if(!empty($icon))
         <i class="{{ $icon }} mr-1"></i>
     @endif
-    <div class="inline">{!! $text !!}</div>
+    <span class="inline underline">{!! $text !!}</span>
 </a>
