@@ -629,6 +629,11 @@ trait ManageableField
      */
     public static function getLabelFromFieldName(string $fieldName): string
     {
+        // If if ends with _id, remove it
+        if(str($fieldName)->endsWith('_id')) {
+            $fieldName = str($fieldName)->beforeLast('_id');
+        }
+
         // If name is based on a relation on json column (eg has a . or -> in it) we get the last part of the name
         $label = str_replace(WRLAHelper::WRLA_REL_DOT, '.', $fieldName);
         $label = str($label)->afterLast('.')->afterLast('->');
