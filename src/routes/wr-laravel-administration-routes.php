@@ -10,7 +10,7 @@ Route::group(['namespace' => 'WebRegulate\LaravelAdministration\Http\Controllers
     Route::prefix(config('wr-laravel-administration.base_url', 'wr-admin'))->name('wrla.')->group(function () {
 
         // Auth controller
-        Route::group(['controller' => WRLAAuthController::class, 'middleware' => ['is_not_admin']], function () {
+        Route::group(['controller' => WRLAAuthController::class, 'middleware' => ['wrla_is_not_admin']], function () {
             // Base Url if not logged in
             Route::get('', function () { return redirect()->route('wrla.login'); });
 
@@ -26,7 +26,7 @@ Route::group(['namespace' => 'WebRegulate\LaravelAdministration\Http\Controllers
         });
 
         // Administration controller
-        Route::group(['controller' => WRLAAdminController::class, 'middleware' => ['is_admin']], function () {
+        Route::group(['controller' => WRLAAdminController::class, 'middleware' => ['wrla_is_admin']], function () {
             // Base Url if logged in
             Route::get('', function () { return redirect()->route('wrla.dashboard'); });
 

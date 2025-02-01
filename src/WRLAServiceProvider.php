@@ -115,8 +115,8 @@ class WRLAServiceProvider extends ServiceProvider
         $this->loadMigrationsFrom(__DIR__ . '/database/migrations');
 
         // Load middleware
-        $this->app['router']->aliasMiddleware('is_admin', IsAdmin::class);
-        $this->app['router']->aliasMiddleware('is_not_admin', IsNotAdmin::class);
+        $this->app['router']->aliasMiddleware('wrla_is_admin', IsAdmin::class);
+        $this->app['router']->aliasMiddleware('wrla_is_not_admin', IsNotAdmin::class);
 
         // Define gates
         $this->defineGates();
@@ -128,7 +128,7 @@ class WRLAServiceProvider extends ServiceProvider
             // Load custom routes from WRLASettings if exists
             if(class_exists('\App\WRLA\WRLASettings') && method_exists('\App\WRLA\WRLASettings', 'buildCustomRoutes')) {
                 Route::prefix(config('wr-laravel-administration.base_url', 'wr-admin'))->group(function () {
-                    Route::group(['middleware' => ['is_admin']], function () {
+                    Route::group(['middleware' => ['wrla_is_admin']], function () {
                         \App\WRLA\WRLASettings::buildCustomRoutes();
                     });
                 });
