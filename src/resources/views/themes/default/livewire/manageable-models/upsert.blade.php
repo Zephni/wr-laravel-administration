@@ -47,9 +47,19 @@
         @csrf
 
         <div class="flex flex-wrap gap-6 mt-4 p-4 bg-slate-100 dark:bg-slate-700 shadow-slate-300 dark:shadow-slate-850 rounded-lg shadow-lg">
-            @foreach($manageableFields as $manageableField)
-                {!! $manageableField->renderParent($upsertType, $livewireData) !!}
-            @endforeach
+            @if(!empty($manageableFields))
+                @foreach($manageableFields as $manageableField)
+                    {!! $manageableField->renderParent($upsertType, $livewireData) !!}
+                @endforeach
+            @else
+                <div class="text-slate-600 my-3" style="line-height: 2rem;">
+                    <b class="font-medium text-primary-600">
+                        <i class="fa fa-info-circle mr-0.5"></i>
+                        No Manageable Fields found
+                    </b><br />
+                    Add Manageable Fields for this model in the <b class="font-medium text-primary-600">{{ $manageableModel::class }} -> getManageableFields()</b> method
+                </div>
+            @endif
         </div>
 
         <div class="flex justify-center gap-4 mt-10">
