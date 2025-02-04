@@ -21,7 +21,7 @@ class Notification extends Model
 
     /**
      * Make a new notification.
-     * 
+     *
      * @param string $notificationDefinitionClass
      * @param string $userId
      * @param array $data
@@ -43,7 +43,7 @@ class Notification extends Model
 
     /**
      * Get notification definition instance.
-     * 
+     *
      * @return NotificationBase
      */
     public function getDefinition(): NotificationBase
@@ -51,12 +51,12 @@ class Notification extends Model
         // Now we use cache instead
         return cache()->remember("notification.{$this->id}.definition", now()->addMinutes(5), function() {
             $notificationClass = $this->type;
-    
+
             // If doesn't start with \, prepend it
             if (str_starts_with($notificationClass, '\\') === false) {
                 $notificationClass = '\\' . $notificationClass;
             }
-    
+
             return new $notificationClass($this->user_id, json_decode($this->data, true));
         });
     }
@@ -100,7 +100,7 @@ class Notification extends Model
 
     /**
      * Flip notification as read.
-     * 
+     *
      * @return void
      */
     public function flipMarkedAsRead(): void
