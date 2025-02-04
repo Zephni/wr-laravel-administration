@@ -3,9 +3,9 @@
 namespace WebRegulate\LaravelAdministration\Classes;
 
 use App\Models\User;
-use App\WRLA\WRLASettings;
 use Illuminate\Support\Str;
 use Illuminate\Support\Collection;
+use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 use WebRegulate\LaravelAdministration\Models\Notification;
 
 class NotificationBase
