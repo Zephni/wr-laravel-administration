@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 
 class EmailTemplate extends Model
 {
@@ -182,7 +183,7 @@ class EmailTemplate extends Model
      */
     public function setUserDataFromEmail(string $email): void
     {
-        $user = User::where('email', $email)->first();
+        $user = WRLAHelper::getUserModelClass()::where('email', $email)->first();
 
         if($user !== null) {
             $this->dataArray = ['user' => $user->only(array_keys($this->getKeyMappings()['user']))];
