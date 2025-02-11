@@ -60,10 +60,15 @@ class Logs extends Component
         $fullPath = storage_path('logs/' . str($logFile)->ltrim('/'));
 
         if(file_exists($fullPath)) {
-            if(is_file($fullPath)) {
-                return str(file_get_contents($fullPath))->limit($this->viewLogMaxCharacters, '... (truncated)');
-            } else {
+            // If not file
+            if(!is_file($fullPath)) {
                 return "Error: {$fullPath} is not a file";
+            // If is .gz file
+            } elseif(str($fullPath)->endsWith('.gz')) {
+                return "Cannot view .gz files";
+            // Valid
+            } else {
+                return str(file_get_contents($fullPath))->limit($this->viewLogMaxCharacters, '... (truncated)');
             }
         }
 
