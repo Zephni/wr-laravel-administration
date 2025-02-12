@@ -10,7 +10,7 @@
     :class="(leftPanelOpen ? 'min-w-44 max-w-[100%] ' : 'min-w-0 max-w-0 border-none ') + (!dragging ? 'transition-all' : '')"
     id="left-panel"
     style="z-index: 6;"
-    class="sticky whitespace-nowrap md:flex top-0 flex flex-col justify-start items-start h-full border-r-2 border-slate-300 dark:border-slate-950 bg-slate-700 dark:bg-slate-700 shadow-lg shadow-slate-500 dark:shadow-slate-950 z-10">
+    class="sticky whitespace-nowrap md:flex top-0 flex flex-col justify-start items-start h-full border-r-2 border-slate-300 dark:border-slate-950 bg-slate-800 dark:bg-slate-700 shadow-lg shadow-slate-500 dark:shadow-slate-950 z-10">
 
     {{-- Collapse button (Use collapse icon from fontawesome) --}}
     <button
@@ -52,13 +52,15 @@
     ></div>
 
     {{-- Logo --}}
-    <div class="w-3/4 max-w-48 mx-auto pt-4 pb-4">
-        {{-- <img src="{{ asset(config('wr-laravel-administration.logo.light')) }}" title="Light Logo" alt="Light Logo" class="dark:hidden w-full" /> --}}
-        <img src="{{ asset(config('wr-laravel-administration.logo.dark')) }}" title="Dark Logo" alt="Dark Logo" class="w-full" />
+    <div class="w-full">
+        <div class="w-3/4 max-w-48 mx-auto pt-4 pb-4">
+            {{-- <img src="{{ asset(config('wr-laravel-administration.logo.light')) }}" title="Light Logo" alt="Light Logo" class="dark:hidden w-full" /> --}}
+            <img src="{{ asset(config('wr-laravel-administration.logo.dark')) }}" title="Dark Logo" alt="Dark Logo" class="w-full" />
+        </div>
     </div>
 
     {{-- Divider --}}
-    <div class="w-full border-t border-slate-600"></div>
+    <div class="w-full border-t border-slate-700"></div>
 
     {{-- Impersonating user bar --}}
     @if($WRLAHelper::isImpersonatingUser())
@@ -102,7 +104,7 @@
     <div class="flex flex-col justify-start items-start w-full h-full overflow-y-auto">
 
         {{-- Navigation --}}
-        <div class="flex flex-col gap-1 w-full border-t border-slate-600 pt-1 select-none">
+        <div class="flex flex-col gap-1 w-full pb-0.5 bg-slate-700 border-t border-slate-600 select-none">
             @include('wr-laravel-administration::themes.default.layouts.partials.partial-navigation')
         </div>
 
