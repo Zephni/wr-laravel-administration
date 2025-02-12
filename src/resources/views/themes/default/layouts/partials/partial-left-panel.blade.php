@@ -10,7 +10,7 @@
     :class="(leftPanelOpen ? 'min-w-44 max-w-[100%] ' : 'min-w-0 max-w-0 border-none ') + (!dragging ? 'transition-all' : '')"
     id="left-panel"
     style="z-index: 6;"
-    class="sticky whitespace-nowrap md:flex top-0 flex flex-col justify-start items-start h-full border-r-2 border-slate-300 dark:border-slate-950 bg-slate-800 dark:bg-slate-700 shadow-lg shadow-slate-500 dark:shadow-slate-950 z-10">
+    class="sticky whitespace-nowrap md:flex top-0 flex flex-col justify-start items-start h-full border-r-2 border-slate-300 dark:border-slate-950 bg-slate-700 dark:bg-slate-700 shadow-lg shadow-slate-500 dark:shadow-slate-950 z-10">
 
     {{-- Collapse button (Use collapse icon from fontawesome) --}}
     <button
@@ -104,7 +104,7 @@
     <div class="flex flex-col justify-start items-start w-full h-full overflow-y-auto">
 
         {{-- Navigation --}}
-        <div class="flex flex-col gap-1 w-full pb-0.5 bg-slate-700 border-t border-slate-600 select-none">
+        <div class="flex flex-col gap-1 w-full pb-0.5 border-t border-slate-600 select-none">
             @include('wr-laravel-administration::themes.default.layouts.partials.partial-navigation')
         </div>
 
