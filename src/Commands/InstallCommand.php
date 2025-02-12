@@ -221,6 +221,15 @@ class InstallCommand extends Command
             $this->call('migrate');
         }
 
+        // Add symlink for storage (if doesn't already exist)
+        if (!file_exists(public_path('storage'))) {
+            if ($this->confirm('Would you like to create a symlink for the storage folder?', true)) {
+                $this->call('storage:link');
+            }
+        } else {
+            $this->warn(' - storage symlink already exists');
+        }
+
         // If ran migrations or database connection exists, ask user if wants to create a master user
         if($runMigrations || $databaseConnectionExists) {
             // Check to see if there are any users exist in the database already
