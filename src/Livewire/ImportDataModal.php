@@ -21,14 +21,14 @@ class ImportDataModal extends ModalComponent
 
     /**
      * The class name of the manageable model.
-     * 
+     *
      * @var string
      */
     public $manageableModelClass;
 
     /**
      * The uploaded file.
-     * 
+     *
      * @var mixed
      */
     #[Rule(['required', 'file', 'mimes:csv', 'max:5120'])]
@@ -36,14 +36,14 @@ class ImportDataModal extends ModalComponent
 
     /**
      * Headers mapped to columns
-     * 
+     *
      * @var array
      */
     public array $headersMappedToColumns = [];
 
     /**
      * Data related to the CSV file.
-     * 
+     *
      * @var array
      */
     public array $data = [
@@ -63,14 +63,14 @@ class ImportDataModal extends ModalComponent
 
     /**
      * Debug information.
-     * 
+     *
      * @var array
      */
     public array $debugInfo;
 
     /**
      * Listen for the process-next-batch event.
-     * 
+     *
      * @return void
      */
     protected $listeners = ['process-next-batch' => 'processBatch'];
@@ -78,9 +78,11 @@ class ImportDataModal extends ModalComponent
     // Modal config
     public static function modalMaxWidth(): string { return '7xl'; }
 
+    public bool $listenForFileUpdates = true;
+
     /**
      * Hook that runs after the file attribute is validated.
-     * 
+     *
      * @return void
      */
     public function updatedFile()
@@ -94,13 +96,18 @@ class ImportDataModal extends ModalComponent
             return;
         }
 
+        // If listen for file updates is disabled, return
+        if($this->listenForFileUpdates === false) {
+            return;
+        }
+
         // Get the real path of the uploaded file and read its contents
         $filePath = $this->file->getRealPath();
         $fileData = array_map('str_getcsv', file($filePath));
 
         // Clean the extracted data and seperate headers from rows
         [$origionalHeaders, $originalRows] = $this->cleanAllFileData($fileData);
-        
+
         // Extract headers and rows from the CSV file
         $this->data['origionalHeaders'] = $origionalHeaders;
         $this->data['origionalRows'] = $originalRows;
@@ -125,7 +132,7 @@ class ImportDataModal extends ModalComponent
 
     /**
      * Hook that runs after mapping header to a columns field is updated.
-     * 
+     *
      * @return void
      */
     public function updatedHeadersMappedToColumns()
@@ -135,7 +142,7 @@ class ImportDataModal extends ModalComponent
 
     /**
      * Align rows with mapped columns
-     * 
+     *
      * @return void
      */
     public function alignHeadersAndRowsWithMappedColumns()
@@ -174,7 +181,7 @@ class ImportDataModal extends ModalComponent
 
     /**
      * Initializes the component with the given manageable model class.
-     * 
+     *
      * @param string $manageableModelClass
      * @return void
      */
@@ -187,7 +194,7 @@ class ImportDataModal extends ModalComponent
 
     /**
      * Renders the view for the component.
-     * 
+     *
      * @return \Illuminate\View\View
      */
     public function render()
@@ -200,7 +207,7 @@ class ImportDataModal extends ModalComponent
 
     /**
      * Go to step X
-     * 
+     *
      * @param int $step
      * @return void
      */
@@ -211,25 +218,29 @@ class ImportDataModal extends ModalComponent
 
     /**
      * Import data
-     * 
+     *
      * @return void
      */
     public function importData(): void
     {
         $this->data['totalImported'] = 0;
         $this->data['currentStep'] = 'processing';
-        $this->processBatch();
+
+        // Temp
+        $this->dispatch('process-next-batch');
     }
 
     /**
      * Process a batch of data.
-     * 
+     *
      * @return void
      */
     public function processBatch(): void
     {
         $modelClass = (new $this->manageableModelClass)->getBaseModelClass();
         $batchSize = 100;
+
+        // Note that the array_splice function will modify the original array (passed by reference)
         $batchData = array_splice($this->data['rows'], 0, $batchSize);
 
         if (!empty($batchData)) {
@@ -241,9 +252,11 @@ class ImportDataModal extends ModalComponent
                         $rowData[$column] = $row[$index];
                     }
                 }
+
                 $formattedBatchData[] = $rowData;
             }
 
+            // Insert batch and update total imported
             $this->insertBatch($modelClass, $formattedBatchData);
             $this->data['totalImported'] += count($formattedBatchData);
 
@@ -269,21 +282,21 @@ class ImportDataModal extends ModalComponent
 
     /**
      * Close and refresh
-     * 
+     *
      * @return void
      */
     public function closeAndRefresh()
     {
         // Close the modal
         $this->closeModal();
-        
+
         // Refresh current URL
-        $this->js('window.location.reload()'); 
+        $this->js('window.location.reload()');
     }
 
     /**
      * Cleans all data (headers and rows) from the provided file data.
-     * 
+     *
      * @param array $fileData
      * @return void
      */
@@ -320,7 +333,7 @@ class ImportDataModal extends ModalComponent
 
     /**
      * Automatically maps headers to columns.
-     * 
+     *
      * @return void
      */
     public function autoMapHeadersToColumns()
