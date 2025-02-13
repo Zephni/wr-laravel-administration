@@ -29,7 +29,7 @@
         class="absolute z-0 inset-0 opacity-0 w-0 h-0 !cursor-pointer"
         {{ $attributes->merge(['class' => '']) }}
         x-on:change="
-            displayText = $el.files.length ? $el.files[0].name : '{{ $chooseFileText }}';
+            displayText = ($el.files.length) ? Array.from($el.files).map(file => file.name).join(', ') : '{{ $chooseFileText }}';
         "/>
     <label for="{{ $id }}" class="group z-40 flex justify-start items-center p-1.5 gap-2 border border-slate-300 dark:border-slate-600 bg-slate-100 dark:bg-slate-800 rounded-lg cursor-pointer">
         <div type="button" class="px-3 py-1.5 text-white bg-primary-600 hover:bg-primary-500 font-medium rounded-lg group-hover:bg-primary-500">
