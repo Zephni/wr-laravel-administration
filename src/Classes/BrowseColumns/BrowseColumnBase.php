@@ -15,13 +15,6 @@ class BrowseColumnBase
     public ?string $label = null;
 
     /**
-     * Type of the column display, defaults to string
-     *
-     * @var string
-     */
-    public string $type = 'string';
-
-    /**
      * Options for the column
      *
      * @var array
@@ -46,17 +39,10 @@ class BrowseColumnBase
      * Constructor
      *
      * @param string|null $label
-     * @param string $type
      */
-    public function __construct(?string $label, string $type)
+    public function __construct(?string $label)
     {
         $this->label = $this->buildLabel($label);
-        $this->type = $type;
-
-        if($type == 'image') {
-            $this->allowOrdering(false);
-            $this->renderHtml(true);
-        }
     }
 
     /**
@@ -213,33 +199,14 @@ class BrowseColumnBase
 
         // dd($model, $column, $this->getOption('value'), $useColumn, $model->{$column});
 
-        if($this->overrideRenderValue !== null)
-        {
+        // If override render value set, return that
+        if($this->overrideRenderValue !== null) {
             return $this->renderFinalStringValue(call_user_func($this->overrideRenderValue, $value, $model));
         }
 
-        if($this->type == 'string')
-        {
-            // Use maxChars option to truncate text
-            if($this->options['maxChars'] != null && strlen($value) > $this->options['maxChars']) {
-                $value = substr($value, 0, $this->options['maxChars']).'...';
-            }
-
-            return $this->renderFinalStringValue($value);
-        }
-        elseif($this->type == 'image')
-        {
-            $renderedView = view(WRLAHelper::getViewPath('components.forced-aspect-image', false), [
-                "src" => $value,
-                "class" => $this->getOption('class') ?? ' border border-slate-400',
-                "aspect" => $this->getOption('aspect')
-            ])->render();
-
-            $value = <<<BLADE
-                <a href="$value" target="_blank">$renderedView</a>
-            BLADE;
-
-            return $this->renderFinalStringValue($value);
+        // Use maxChars option to truncate text
+        if($this->options['maxChars'] != null && strlen($value) > $this->options['maxChars']) {
+            $value = substr($value, 0, $this->options['maxChars']).'...';
         }
 
         return $this->renderFinalStringValue($value);

@@ -31,7 +31,7 @@ class BrowseColumnLink extends BrowseColumnBase
     public static function make(?string $label, callable $linkBuilderCallback): static
     {
         // Create new instance
-        $browseColumnLink = new static($label, 'link');
+        $browseColumnLink = new static($label);
 
         // Set the link builder callback
         $browseColumnLink->linkBuilderCallback = $linkBuilderCallback;
