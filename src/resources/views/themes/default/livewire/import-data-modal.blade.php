@@ -83,7 +83,7 @@
 
                     <div class="flex gap-4 text-base">
                         <span>Columns: <b>{{ count($data['headers']) }}</b></span>
-                        <span>Rows: <b>{{ count($data['rows']) }}</b></span>
+                        <span>Rows: <b>{{ $data['totalRows'] }}</b></span>
                     </div>
                 </div>
 
@@ -114,7 +114,7 @@
                     </table>
                 </div>
 
-                @if(count($data['rows']) > $data['previewRowsMax'])
+                @if((int)$data['totalRows'] > $data['previewRowsMax'])
                     <div class="text-sm text-slate-600 text-center mt-2">
                         <i class="fas fa-info-circle "></i>
                         Showing first {{ $data['previewRowsMax'] }} rows of data.
@@ -131,8 +131,8 @@
             <div class="flex justify-end mt-4">
                 {!! view($WRLAHelper::getViewPath('components.forms.button'), [
                     'text' => '
-                        <span wire:loading.remove wire:target="importData">Import '.count($data['rows']).' rows into '.$manageableModelClass::getDisplayName(true).'</span>
-                        <span wire:loading wire:target="importData">Importing '.count($data['rows']).', please wait...</span>
+                        <span wire:loading.remove wire:target="importData">Import '.$data['totalRows'].' rows into '.$manageableModelClass::getDisplayName(true).'</span>
+                        <span wire:loading wire:target="importData">Importing '.$data['totalRows'].', please wait...</span>
                     ',
                     'icon' => 'fas fa-file-import',
                     'size' => 'medium',

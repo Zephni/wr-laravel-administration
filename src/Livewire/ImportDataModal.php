@@ -47,6 +47,7 @@ class ImportDataModal extends ModalComponent
      * @var array
      */
     public array $data = [
+        'wrlaTmpFilePath' => '',
         'previewRowsMax' => 8,
         'currentStep' => 1, // int or 'completed'
         'origionalHeaders' => [],
@@ -54,6 +55,7 @@ class ImportDataModal extends ModalComponent
         'origionalRows' => [],
         'rows' => [],
         'tableColumns' => [],
+        'totalRows' => 0,
         'successfullImports' => 0,
         'failedImports' => 0,
         'failedReasons' => [],
@@ -78,8 +80,6 @@ class ImportDataModal extends ModalComponent
     // Modal config
     public static function modalMaxWidth(): string { return '7xl'; }
 
-    public bool $listenForFileUpdates = true;
-
     /**
      * Hook that runs after the file attribute is validated.
      *
@@ -96,14 +96,16 @@ class ImportDataModal extends ModalComponent
             return;
         }
 
-        // If listen for file updates is disabled, return
-        if($this->listenForFileUpdates === false) {
-            return;
-        }
+        // Store file (that we will progressivly read and remove rows from later), and remove tmp file
+        // File name should be tablename-import-Y-m-d-H-i-s.csv
+        $fileName = (new ($this->manageableModelClass::getBaseModelClass()))->getTable() . '-import-' . now()->format('Y-m-d-H-i-s') . '.csv';
+        $this->data['wrlaTmpFilePath'] = $this->file->storeAs('wrla-tmp', $fileName);
+        Storage::disk('local')->delete('livewire-tmp/' . $this->file->getFilename());
 
         // Get the real path of the uploaded file and read its contents
-        $filePath = $this->file->getRealPath();
-        $fileData = array_map('str_getcsv', file($filePath));
+        $file = file(storage_path('app/'.$this->data['wrlaTmpFilePath']));
+        $this->data['totalRows'] = count($file) - 1;
+        $fileData = array_map('str_getcsv', array_slice($file, 0, 101));
 
         // Clean the extracted data and seperate headers from rows
         [$origionalHeaders, $originalRows] = $this->cleanAllFileData($fileData);
