@@ -97,14 +97,17 @@
 
 
 @if($usesWysiwyg === true)
+    @php
+        $currentWysiwygEditorSettings = $WRLAHelper::getWysiwygEditorSettings();
+    @endphp
     @push('appendBody')
-        <script src="https://cdn.tiny.cloud/1/126uh4v0nur2ag6fpa5vb60rduwp1skzx02vsmdww39mpva2/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
+        <script src="https://cdn.tiny.cloud/1/{{ $currentWysiwygEditorSettings['apikey'] }}/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
         <script>
             tinymce.init({
                 selector: '.wrla_wysiwyg',
-                plugins: 'anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount code paste fullscreen',
-                menubar: 'edit view insert tools table',
-                toolbar: 'undo redo | bold italic underline | link media table | align | numlist bullist indent | code',
+                plugins: '{{ $currentWysiwygEditorSettings["plugins"] }}',
+                menubar: '{{ $currentWysiwygEditorSettings["menubar"] }}',
+                toolbar: '{{ $currentWysiwygEditorSettings["toolbar"] }}',
                 paste_data_images: true,
                 relative_urls : false,
                 content_style: `{{ config('wr-laravel-administration.wysiwyg_css') }}`,

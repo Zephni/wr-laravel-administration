@@ -76,6 +76,20 @@ return [
         /* Add your custom / override CSS here */
     CSS,
 
+    // Wysiwyg editors
+    'wysiwyg_editors' => [
+        // Only tinymce is currently supported, more coming soon
+        'current' => 'tinymce',
+
+        // TinyMCE
+        'tinymce' => [
+            'apikey' => env('TINYMCE_API_KEY', ''), // Add your TinyMCE API key in your .env file
+            'plugins' => 'anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount code paste fullscreen',
+            'menubar' => 'edit view insert tools table',
+            'toolbar' => 'undo redo | bold italic underline | link media table | align | numlist bullist indent | code',
+        ]
+    ],
+
     // Default theme (key from the 'themes' array below)
     'default_theme' => 'default',
 

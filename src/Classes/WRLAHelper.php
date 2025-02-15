@@ -739,6 +739,18 @@ class WRLAHelper
     }
 
     /**
+     * Get current Wysiwyg editor settings from config
+     *
+     * @return array
+     */
+    public static function getWysiwygEditorSettings(): array
+    {
+        $wysiwygEditorsConfig = config('wr-laravel-administration.wysiwyg_editors');
+
+        return $wysiwygEditorsConfig[$wysiwygEditorsConfig['current']];
+    }
+
+    /**
      * Query builder join callback function
      *
      * @param Builder $query The query builder.
