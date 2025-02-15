@@ -337,7 +337,9 @@ class Image
     {
         $HTML = '';
 
-        $path = ($this->getOption('storeFilenameOnly') == true) ? '/'.ltrim(rtrim($this->getPath(), '/'), '/').'/' : '';
+        $path = ($this->getOption('storeFilenameOnly') == true)
+            ? '/'.$this->getPath()
+            : '';
 
         $HTML .= view(WRLAHelper::getViewPath('components.forms.input-image'), [
             'label' => $this->getLabel(),
