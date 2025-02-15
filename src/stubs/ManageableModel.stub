@@ -68,7 +68,7 @@ class {{ $MODEL }} extends ManageableModel
         return [
             'id' => 'Id',
             // 'name' => 'Name',
-            // 'something_else' => BrowseColumn::make('Something Else')
+            // 'something_else' => BrowseColumn::make('Something Else')->setOptions(['width' => '20%'])
         ];
     }
 
