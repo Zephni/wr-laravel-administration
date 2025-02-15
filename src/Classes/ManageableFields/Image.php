@@ -2,14 +2,15 @@
 
 namespace WebRegulate\LaravelAdministration\Classes\ManageableFields;
 
-use WebRegulate\LaravelAdministration\Traits\ManageableField;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Intervention\Image\ImageManager;
+use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Drivers\Gd\Driver;
 use Illuminate\View\ComponentAttributeBag;
 use WebRegulate\LaravelAdministration\Enums\PageType;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
+use WebRegulate\LaravelAdministration\Traits\ManageableField;
 use WebRegulate\LaravelAdministration\Classes\ManageableModel;
 
 class Image
@@ -32,7 +33,7 @@ class Image
      * @param ?string $filename
      * @return static
      */
-    public static function make(?ManageableModel $manageableModel = null, ?string $column = null, ?string $path = null, ?string $filename = null): static
+    public static function make(?ManageableModel $manageableModel = null, ?string $column = null, ?string $path = null, ?string $filename = null, string $fileSystem = 'public'): static
     {
         // If path is empty, we throw an exception
         if (empty($path)) {
@@ -49,6 +50,7 @@ class Image
             'aspect' => null,
             'storeFilenameOnly' => true,
             'class' => '',
+            'fileSystem' => $fileSystem,
         ]);
         return $imageInstance;
     }
@@ -119,7 +121,13 @@ class Image
             $image = $manipulateImageFunction($image);
         }
 
-        $image->save(public_path($path) . '/' . $filename);
+        $fileSystem = $this->getOption('fileSystem');
+        if($this->getOption('fileSystem') == 'public') {
+            $image->save(public_path($path) . '/' . $filename);
+        } else {
+            $image = $image->stream();
+            Storage::disk($fileSystem)->put("$path/$filename", $image);
+        }
 
         return '/'.rtrim(ltrim($path, '/'), '/') . '/' . $filename;
     }
