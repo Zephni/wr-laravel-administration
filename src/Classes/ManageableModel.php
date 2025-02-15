@@ -852,7 +852,7 @@ abstract class ManageableModel
             $valueIsBrowseColumn = $value instanceof BrowseColumnBase;
 
             // If value is not a BrowseColumn instance, then we convert it into a basic string BrowseColumn
-            return $valueIsBrowseColumn ? $value : BrowseColumn::make($value, 'string');
+            return $valueIsBrowseColumn ? $value : BrowseColumn::make($value);
         });
     }
 

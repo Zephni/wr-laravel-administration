@@ -68,7 +68,7 @@ class {{ $MODEL }} extends ManageableModel
         return [
             'id' => 'Id',
             // 'name' => 'Name',
-            // 'something_else' => BrowseColumn::make('Something Else', 'string')
+            // 'something_else' => BrowseColumn::make('Something Else')
         ];
     }
 
