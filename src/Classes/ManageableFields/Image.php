@@ -126,7 +126,7 @@ class Image
             $image->save(public_path($path) . '/' . $filename);
         } else {
             $image = $image->stream();
-            Storage::disk($fileSystem)->put("$path/$filename", $image);
+            Storage::disk($fileSystem)->put("$path/$filename", $image->__toString());
         }
 
         return '/'.rtrim(ltrim($path, '/'), '/') . '/' . $filename;
