@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\RateLimiter;
 use WebRegulate\LaravelAdministration\Enums\PageType;
@@ -748,6 +749,36 @@ class WRLAHelper
         $wysiwygEditorsConfig = config('wr-laravel-administration.wysiwyg_editors');
 
         return $wysiwygEditorsConfig[$wysiwygEditorsConfig['current']];
+    }
+
+    /**
+     * Get current Wysiwyg editor setup JS
+     *
+     * @return string
+     */
+    public static function getWysiwygEditorSetupJS(): string
+    {
+        if(config('wr-laravel-administration.wysiwyg_editors.current') == 'tinymce')
+        {
+            return Blade::render(<<<HTML
+                <script src="https://cdn.tiny.cloud/1/{{ \$currentWysiwygEditorSettings['apikey'] }}/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
+                <script>
+                    tinymce.init({
+                        selector: '.wrla_wysiwyg',
+                        plugins: '{{ \$currentWysiwygEditorSettings["plugins"] }}',
+                        menubar: '{{ \$currentWysiwygEditorSettings["menubar"] }}',
+                        toolbar: '{{ \$currentWysiwygEditorSettings["toolbar"] }}',
+                        paste_data_images: true,
+                        relative_urls : false,
+                        content_style: `{{ config('wr-laravel-administration.wysiwyg_css') }}`,
+                    });
+                </script>
+            HTML, [
+                'currentWysiwygEditorSettings' => static::getWysiwygEditorSettings()
+            ]);
+        }
+
+        return '';
     }
 
     /**
