@@ -2,6 +2,8 @@
 
 namespace WebRegulate\LaravelAdministration\Classes;
 
+use Intervention\Image\Drivers\Gd\Driver;
+use Intervention\Image\ImageManager;
 use Livewire\Livewire;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -832,16 +834,27 @@ class WRLAHelper
 
                 $image = $request->file('image');
 
-                // Store the image. You can customize the path as needed.
-                // 'public' means it will be accessible from the web.
-                $path = $image->store($wysiwygEditorSettings['image_uploads']['path'], $wysiwygEditorSettings['image_uploads']['filesystem']); //  'images' is the folder name within storage/app/public
+                // Intervention image
+                $interventionImage = new ImageManager(new Driver());
+                $imageInterface = $interventionImage->read($image);
+                if($imageInterface->width() > 1000) $imageInterface = $imageInterface->resizeDown(1000);
+                if($imageInterface->height() > 1000) $imageInterface = $imageInterface->resizeDown(null, 1000);
+                $imageInterface = $imageInterface->toJpeg(100);
 
-                // Return the URL of the uploaded image.  Important! TinyMCE needs this.
-                //  Use asset() for public disk URLs
-                $url = asset('storage/' . $path);
+                // Get path
+                $publicPath = str_replace('\\', '/', public_path($wysiwygEditorSettings['image_uploads']['path']));
+
+                // If directory doesn't exist, create it
+                if (!is_dir($publicPath)) {
+                    mkdir($publicPath, 0777, true);
+                }
+
+                $finalPath = '/' . ltrim($wysiwygEditorSettings['image_uploads']['path'], '/') . '/' . $image->hashName();
+                $finalPathAbsolute = public_path($finalPath);
+                $imageInterface->save($finalPathAbsolute);
 
 
-                return response()->json(['location' => $url]); // MUST return location key!
+                return response()->json(['location' => $finalPath]); // MUST return location key!
             }
 
             return response()->json(['error' => 'No image uploaded.'], 400); // Handle errors
