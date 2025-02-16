@@ -36,7 +36,11 @@ class CSVHelper
 
             // Write the data
             foreach ($data as $row) {
-                fputcsv($csv, (array) $row);
+                try {
+                    fputcsv($csv, (array) $row);
+                } catch(\Exception $e) {
+                    // Skip this row on failure
+                }
             }
 
             // Close CSV file handle
