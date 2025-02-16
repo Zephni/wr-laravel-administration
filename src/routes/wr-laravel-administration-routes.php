@@ -9,6 +9,9 @@ Route::group(['namespace' => 'WebRegulate\LaravelAdministration\Http\Controllers
     // Prefix routes with the base url and name
     Route::prefix(config('wr-laravel-administration.base_url', 'wr-admin'))->name('wrla.')->group(function () {
 
+        // Other
+        Route::post('upload-wysiwyg-image', [WRLAAdminController::class, 'uploadWysiwygImage'])->name('upload-wysiwyg-image');
+
         // Auth controller
         Route::group(['controller' => WRLAAuthController::class, 'middleware' => ['wrla_is_not_admin']], function () {
             // Base Url if not logged in

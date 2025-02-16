@@ -238,6 +238,11 @@ class WRLAAdminController extends Controller
         ])->with('success', $defaultSuccessMessage);
     }
 
+    public function uploadWysiwygImage(Request $request)
+    {
+        return WRLAHelper::uploadWysiwygImage($request);
+    }
+
     /**
      * View logs
      *

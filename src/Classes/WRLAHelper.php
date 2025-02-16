@@ -769,6 +769,39 @@ class WRLAHelper
                         menubar: '{{ \$currentWysiwygEditorSettings["menubar"] }}',
                         toolbar: '{{ \$currentWysiwygEditorSettings["toolbar"] }}',
                         paste_data_images: true,
+                        // images_upload_url: '{{ route("wrla.upload-wysiwyg-image") }}',
+                        images_upload_handler: (blobInfo, progress) => new Promise((resolve, reject) => {
+                            var xhr, formData;
+                            xhr = new XMLHttpRequest();
+                            xhr.withCredentials = false;
+
+                            xhr.open('POST', '{{ route("wrla.upload-wysiwyg-image") }}');
+                            var token = document.head.querySelector("[name=csrf-token]").content;
+                            xhr.setRequestHeader("X-CSRF-Token", token);
+
+                            xhr.onload = function() {
+                                var json;
+
+                                if (xhr.status != 200) {
+                                    reject('HTTP Error: ' + xhr.status + '. ' + xhr.statusText);
+                                    return;
+                                }
+
+                                json = JSON.parse(xhr.responseText);
+
+                                if (!json || typeof json.location != 'string') {
+                                    reject('Invalid JSON: ' + xhr.responseText);
+                                    return;
+                                }
+
+                                resolve(json.location);
+                            };
+
+                            formData = new FormData();
+                            formData.append('image', blobInfo.blob(), blobInfo.filename());
+
+                            xhr.send(formData);
+                        }),
                         relative_urls : false,
                         content_style: `{{ config('wr-laravel-administration.wysiwyg_css') }}`,
                     });
@@ -779,6 +812,42 @@ class WRLAHelper
         }
 
         return '';
+    }
+
+    /**
+     * Upload wysiwyg image
+     *
+     * @param Request $request The request object.
+     * @return mixed JSON response.
+     */
+    public static function uploadWysiwygImage(Request $request): mixed
+    {
+        // Get current wysiwyg editor settings
+        $wysiwygEditorSettings = static::getWysiwygEditorSettings();
+
+        // TinyMCE
+        if(config('wr-laravel-administration.wysiwyg_editors.current') == 'tinymce')
+        {
+            if ($request->hasFile('image')) {  // 'image' is the default name TinyMCE sends
+
+                $image = $request->file('image');
+
+                // Store the image. You can customize the path as needed.
+                // 'public' means it will be accessible from the web.
+                $path = $image->store($wysiwygEditorSettings['image_uploads']['path'], $wysiwygEditorSettings['image_uploads']['filesystem']); //  'images' is the folder name within storage/app/public
+
+                // Return the URL of the uploaded image.  Important! TinyMCE needs this.
+                //  Use asset() for public disk URLs
+                $url = asset('storage/' . $path);
+
+
+                return response()->json(['location' => $url]); // MUST return location key!
+            }
+
+            return response()->json(['error' => 'No image uploaded.'], 400); // Handle errors
+        }
+
+        return response()->json(['error' => 'Wysiwyg editor not set to TinyMCE.'], 400); // Handle errors
     }
 
     /**

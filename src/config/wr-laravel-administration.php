@@ -83,10 +83,14 @@ return [
 
         // TinyMCE
         'tinymce' => [
+            'image_uploads' => [
+                'filesystem' => 'public',
+                'path' => 'images/uploads',
+            ],
             'apikey' => env('TINYMCE_API_KEY', ''), // Add your TinyMCE API key in your .env file
             'plugins' => 'anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount code paste fullscreen',
             'menubar' => 'edit view insert tools table',
-            'toolbar' => 'undo redo | bold italic underline | link media table | align | numlist bullist indent | code',
+            'toolbar' => 'undo redo | bold italic underline | link image media table | align | numlist bullist indent | code',
         ]
     ],
 
