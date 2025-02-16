@@ -837,8 +837,9 @@ class WRLAHelper
                 // Intervention image
                 $interventionImage = new ImageManager(new Driver());
                 $imageInterface = $interventionImage->read($image);
-                if($imageInterface->width() > 1000) $imageInterface = $imageInterface->resizeDown(1000);
-                if($imageInterface->height() > 1000) $imageInterface = $imageInterface->resizeDown(null, 1000);
+                // Limit image to 1000px on either side but keep aspect ratio
+                if($imageInterface->width() > 1000) $imageInterface = $imageInterface->scaleDown(1000, null);
+                if($imageInterface->height() > 1000) $imageInterface = $imageInterface->scaleDown(null, 1000);
                 $imageInterface = $imageInterface->toJpeg(100);
 
                 // Get path
