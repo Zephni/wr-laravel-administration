@@ -837,10 +837,16 @@ class WRLAHelper
                 // Intervention image
                 $interventionImage = new ImageManager(new Driver());
                 $imageInterface = $interventionImage->read($image);
+
+                // If invalid image, return error
+                if($imageInterface === false) {
+                    return response()->json(['error' => 'File must be an image.'], 400); // Handle errors
+                }
+
                 // Limit image to 1000px on either side but keep aspect ratio
                 if($imageInterface->width() > 1000) $imageInterface = $imageInterface->scaleDown(1000, null);
                 if($imageInterface->height() > 1000) $imageInterface = $imageInterface->scaleDown(null, 1000);
-                $imageInterface = $imageInterface->toJpeg(100);
+                $imageInterface = $imageInterface->encode();
 
                 // Get path
                 $publicPath = str_replace('\\', '/', public_path($wysiwygEditorSettings['image_uploads']['path']));
