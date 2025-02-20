@@ -220,22 +220,36 @@ class ManageableModelBrowse extends Component
     /**
      * Export as CSV action
      *
+     * @param ?string $manageableModelStaticExportMethod The static export method to use in place of the standard export, method name must begin with 'export', takes collection of models and optional &$fileName, returns [string filename, array rowData (with keys as headings)]
      * @return StreamedResponse
      */
-    public function exportAsCSVAction(): StreamedResponse
+    public function exportAsCSVAction(?string $manageableModelStaticExportMethod = null): StreamedResponse
     {
+        // File name
+        $fileName = $this->manageableModelClass::getDisplayName(true) . '-' . date('Y-m-d H:i') . '.csv';
+
         // Get current data set
         $models = collect($this->browseModels()->all());
 
-        // Get all headings (array of all column names)
-        $headings = array_keys($models->first()->toArray());
+        // If a static export method is provided, use that
+        if($manageableModelStaticExportMethod !== null) {
+            $models = $this->manageableModelClass::$manageableModelStaticExportMethod($models, $fileName);
+        }
 
-        // Get all row data
-        $rowData = $models->sortBy('id')->values()->toArray();
+        // Get all headings (array of all column names)
+        $headings = array_keys(is_array($models->first()) ? $models->first() : $models->toArray());
+
+        // Sort data
+        if(!is_array($models->first()) && isset($models->first()['id'])) {
+            $rowData = $models->sortBy('id');
+        }
+
+        // Get all values (array of all model values)
+        $rowData = $models->values()->toArray();
 
         // Use CSVHelper to build CSV
         return CSVHelper::build(
-            $this->manageableModelClass::getDisplayName(true) . '-' . date('Y-m-d H:i') . '.csv',
+            $fileName,
             $headings,
             $rowData
         );
