@@ -1,5 +1,4 @@
 <?php
-
 namespace WebRegulate\LaravelAdministration\Classes\NavigationItems;
 
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
@@ -50,6 +49,51 @@ class NavigationItem
 
         // Set index
         $this->index = static::$indexTotal;
+    }
+
+    /**
+     * Make (static constructor)
+     *
+     * @param ?string $route
+     * @param ?array $routeData
+     * @param string $name
+     * @param string $icon
+     * @param array $children
+     * @return static
+     */
+    public static function make(?string $route, ?array $routeData, string $name, string $icon = 'fa fa-question', array $children = []): static
+    {
+        // Replace any classes (strings) by calling getNavigationItem() method on each
+        foreach($children as $key => $child) {
+            if(is_string($child)) {
+                $children[$key] = $children[$key]::getNavigationItem();
+            }
+        }
+
+        return new static($route, $routeData, $name, $icon, $children);
+    }
+
+    /**
+     * Make divider (NavigationItemDivider static constructor)
+     *
+     * @param string $title
+     * @param string $icon
+     * @return NavigationItemDivider
+     */
+    public static function makeDivider(string $title, string $icon = ''): NavigationItemDivider
+    {
+        return new NavigationItemDivider($title, $icon);
+    }
+
+    /**
+     * Make manageable models (NavigationItemsManageableModels static import)
+     *
+     * @param array $models
+     * @return NavigationItem[]
+     */
+    public static function makeManageableModels(array $models): array
+    {
+        return NavigationItemsManageableModels::import($models);
     }
 
     /**

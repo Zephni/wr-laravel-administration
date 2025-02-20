@@ -1,12 +1,8 @@
 <?php
-
 namespace App\WRLA;
 
-use Illuminate\Support\Collection;
-use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItem;
-use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItemDivider;
-use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItemsManageableModels;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
+use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItem;
 
 class WRLASettings
 {
@@ -19,34 +15,34 @@ class WRLASettings
     {
         return [
             // Frontend (Uncomment and set route to frontent to add a frontend link)
-            // (new NavigationItem('home', [], 'Frontend', 'fa fa-globe'))->openInNewTab(true),
+            // (NavigationItem::make('home', [], 'Frontend', 'fa fa-globe'))->openInNewTab(true),
 
             // Dashboard
-            new NavigationItem('wrla.dashboard', [], 'Dashboard', 'fa fa-tachometer-alt'),
+            NavigationItem::make('wrla.dashboard', [], 'Dashboard', 'fa fa-tachometer-alt'),
 
             // Divider
-            new NavigationItemDivider('Site Management', 'fas fa-cog mr-1'),
+            NavigationItem::makeDivider('Site Management', 'fas fa-cog mr-1'),
 
             // Import manageable model nav items - If array is empty, all manageable models will be imported
-            NavigationItemsManageableModels::import([
+            NavigationItem::makeManageableModels([
                 // \App\WRLA\User::class,
                 // \App\WRLA\EmailTemplate::class,
                 // ...
             ]),
 
             // View Logs
-            (new NavigationItem('wrla.logs', [], 'View Logs', 'fa fa-file-alt'))->showOnCondition(function(){
+            NavigationItem::make('wrla.logs', [], 'View Logs', 'fa fa-file-alt')->showOnCondition(function(){
                 return WRLAHelper::getCurrentUserData()?->getPermission('master') ?? false;
             }),
 
             // Divider
-            new NavigationItemDivider('My Account', 'fa fa-user mr-1'),
+            NavigationItem::makeDivider('My Account', 'fa fa-user mr-1'),
 
             // Manage account
-            new NavigationItem('wrla.manage-account', [], 'Manage Account', 'fa fa-user-circle'),
+            NavigationItem::make('wrla.manage-account', [], 'Manage Account', 'fa fa-user-circle'),
 
             // Logout
-            new NavigationItem('wrla.logout', [], 'Logout', 'fa fa-sign-out-alt'),
+            NavigationItem::make('wrla.logout', [], 'Logout', 'fa fa-sign-out-alt'),
         ];
     }
 
