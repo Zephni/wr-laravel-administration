@@ -132,7 +132,7 @@
                                 </div>
                             </td>
                         @endforeach
-                        <td class="px-3 py-2 sticky right-0 z-10 bg-slate-100 dark:bg-slate-800">
+                        <td class="px-3 py-2 sticky right-0 z-10 @if($k % 2 == 0) bg-slate-100 dark:bg-slate-800 @else bg-slate-200 dark:bg-slate-700 @endif">
                             <div class="flex justify-end gap-2 text-sm">
                                 @foreach ($manageableModel->getInstanceActionsFinal() as $browseAction)
                                     {!! $browseAction->render() !!}
