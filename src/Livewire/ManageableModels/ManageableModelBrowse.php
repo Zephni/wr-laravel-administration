@@ -233,6 +233,10 @@ class ManageableModelBrowse extends Component
 
         // If a static export method is provided, use that
         if($manageableModelStaticExportMethod !== null) {
+            // If the method does not exist, or does not start with 'export', dd
+            if(!str($manageableModelStaticExportMethod)->startsWith('export')) dd("Export method name must begin with 'export', $manageableModelStaticExportMethod provided.");
+            if(!method_exists($this->manageableModelClass, $manageableModelStaticExportMethod)) dd("Export method $manageableModelStaticExportMethod does not exist on {$this->manageableModelClass}.");
+
             $models = $this->manageableModelClass::$manageableModelStaticExportMethod($models, $fileName);
         }
 
