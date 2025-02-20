@@ -15,7 +15,7 @@ class WRLASettings
     {
         return [
             // Frontend (Uncomment and set route to frontent to add a frontend link)
-            // (NavigationItem::make('home', [], 'Frontend', 'fa fa-globe'))->openInNewTab(true),
+            // NavigationItem::make('home', [], 'Frontend', 'fa fa-globe')->openInNewTab(true),
 
             // Dashboard
             NavigationItem::make('wrla.dashboard', [], 'Dashboard', 'fa fa-tachometer-alt'),
@@ -23,7 +23,7 @@ class WRLASettings
             // Divider
             NavigationItem::makeDivider('Site Management', 'fas fa-cog mr-1'),
 
-            // Import manageable model nav items - If array is empty, all manageable models will be imported
+            // Import manageable model nav items - If array is empty, all manageable models will be imported here
             NavigationItem::makeManageableModels([
                 // \App\WRLA\User::class,
                 // \App\WRLA\EmailTemplate::class,
