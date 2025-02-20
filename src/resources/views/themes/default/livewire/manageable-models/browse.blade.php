@@ -103,7 +103,7 @@
                             </div>
                         </th>
                     @endforeach
-                    <th class="px-3 py-2 bg-slate-700 dark:bg-slate-700 border-b border-slate-400 dark:border-slate-600"></th>
+                    <th class="px-3 py-2 bg-slate-700 dark:bg-slate-700 border-b border-slate-400 dark:border-slate-600 sticky right-0 z-10"></th>
                 </tr>
             </thead>
             <tbody>
@@ -132,7 +132,7 @@
                                 </div>
                             </td>
                         @endforeach
-                        <td class="px-3 py-2 bg-inherit">
+                        <td class="px-3 py-2 sticky right-0 z-10 bg-slate-100 dark:bg-slate-800">
                             <div class="flex justify-end gap-2 text-sm">
                                 @foreach ($manageableModel->getInstanceActionsFinal() as $browseAction)
                                     {!! $browseAction->render() !!}
