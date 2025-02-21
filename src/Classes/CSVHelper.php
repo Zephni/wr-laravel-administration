@@ -16,14 +16,11 @@ class CSVHelper
      */
     public static function build(string $filename, ?array $columnHeadings, array $data): StreamedResponse
     {
-        // Replace spaces with underscores
-        $filename = str_replace(' ', '_', $filename);
-
         // Build headers
         $headers = [
             'Cache-Control'       => 'must-revalidate, post-check=0, pre-check=0',
             'Content-type'        => 'text/csv',
-            'Content-Disposition' => 'attachment; filename='.$filename,
+            'Content-Disposition' => 'attachment; filename="' . str_replace(' ', '_', $filename) . '"; filename*=UTF-8\'\'' . rawurlencode($filename),
             'Expires'             => '0',
             'Pragma'              => 'public',
         ];

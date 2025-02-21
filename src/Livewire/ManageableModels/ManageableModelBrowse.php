@@ -226,7 +226,7 @@ class ManageableModelBrowse extends Component
     public function exportAsCSVAction(?string $manageableModelStaticExportMethod = null): StreamedResponse
     {
         // File name
-        $fileName = $this->manageableModelClass::getDisplayName(true) . '-' . date('Y-m-d H:i') . '.csv';
+        $fileName = $this->manageableModelClass::getDisplayName(true) . ' ' . date('Y-m-d H:i') . '.csv';
 
         // Get current data set
         $models = collect($this->browseModels()->all());
