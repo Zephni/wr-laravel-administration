@@ -19,6 +19,46 @@ return [
 
 
     /*-------------------------------------------------------------------------
+        SECURITY CONFIGURATION
+    --------------------------------------------------------------------------*/
+
+    // Captcha configuration (used for login and forgot password)
+    'captcha' => [
+        // Use 'turnstile' for CloudFlare Turnstile, or null to disable
+        'current' => null,
+
+        // Turnstile
+        'turnstile' => [
+            'site_key' => env('CLOUDFLARE_TURNSTILE_SITEKEY', ''),
+            'secret_key' => env('CLOUDFLARE_TURNSTILE_SECRET', ''),
+        ],
+    ],
+
+    // Rate limiting for wrla. routes
+    // Note: each key is bound to middleware 'throttle:route_name' in routes automatically (Within WRLAServicesProvider.php)
+    'rate_limiting' => [
+        'login.post' => [
+            'rule' => 'input:email ip',
+            'max_attempts' => 5,
+            'decay_minutes' => 10,
+            'message' => 'Too many login requests. Please try again in :decay_minutes minutes.',
+        ],
+        'forgot-password.post' => [
+            'rule' => 'input:email ip',
+            'max_attempts' => 2,
+            'decay_minutes' => 10,
+            'message' => 'Too many forgot password requests. Please try again in :decay_minutes minutes.',
+        ],
+        'reset-password.post' => [
+            'rule' => 'input:email ip',
+            'max_attempts' => 2,
+            'decay_minutes' => 10,
+            'message' => 'Too many reset password requests. Please try again in :decay_minutes minutes.',
+        ],
+    ],
+
+
+    /*-------------------------------------------------------------------------
         GENERAL CONFIGURATION
     --------------------------------------------------------------------------*/
 
@@ -149,44 +189,4 @@ return [
     'wysiwyg_css' => <<<CSS
         /* Add your custom / override CSS here */
     CSS,
-
-
-    /*-------------------------------------------------------------------------
-        SECURITY CONFIGURATION
-    --------------------------------------------------------------------------*/
-
-    // Captcha configuration (used for login and forgot password)
-    'captcha' => [
-        // Use 'turnstile' for CloudFlare Turnstile, or null to disable
-        'current' => null,
-
-        // Turnstile
-        'turnstile' => [
-            'site_key' => env('CLOUDFLARE_TURNSTILE_SITEKEY', ''),
-            'secret_key' => env('CLOUDFLARE_TURNSTILE_SECRET', ''),
-        ],
-    ],
-
-    // Rate limiting for wrla. routes
-    // Note: each key is bound to middleware 'throttle:route_name' in routes automatically (Within WRLAServicesProvider.php)
-    'rate_limiting' => [
-        'login.post' => [
-            'rule' => 'input:email ip',
-            'max_attempts' => 5,
-            'decay_minutes' => 10,
-            'message' => 'Too many login requests. Please try again in :decay_minutes minutes.',
-        ],
-        'forgot-password.post' => [
-            'rule' => 'input:email ip',
-            'max_attempts' => 2,
-            'decay_minutes' => 10,
-            'message' => 'Too many forgot password requests. Please try again in :decay_minutes minutes.',
-        ],
-        'reset-password.post' => [
-            'rule' => 'input:email ip',
-            'max_attempts' => 2,
-            'decay_minutes' => 10,
-            'message' => 'Too many reset password requests. Please try again in :decay_minutes minutes.',
-        ],
-    ],
 ];
