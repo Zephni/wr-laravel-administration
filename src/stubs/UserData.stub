@@ -115,7 +115,7 @@ class UserData extends Model
         $name = preg_replace('/\b(\w)|./', '$1', $fullName);
 
         // Otherwise return default
-        return 'https://ui-avatars.com/api/?name=' . urlencode($name) . '&color='.ltrim('#', config('wr-laravel-administration.colors.primary.50')).'&background='.ltrim('#', config('wr-laravel-administration.colors.primary.500')).'&size=128&font-size=0.5&rounded=true';
+        return 'https://ui-avatars.com/api/?name=' . urlencode($name) . '&color='.ltrim(config('wr-laravel-administration.colors.primary.50'), '#').'&background='.ltrim(config('wr-laravel-administration.colors.primary.500'), '#').'&size=128&font-size=0.5&rounded=true';
     }
 
     /**
