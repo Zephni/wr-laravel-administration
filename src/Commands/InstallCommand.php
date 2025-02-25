@@ -48,7 +48,7 @@ class InstallCommand extends Command
             'UserData.stub',
             [
                 '{{ NAMESPACE }}' => 'App\Models',
-                '{{ CONNECTION }}' => $envConnection,
+                '{{ CONNECTION }}' => "'$envConnection'",
             ],
             app_path('Models/UserData.php')
         );
