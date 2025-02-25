@@ -2,20 +2,21 @@
 
 namespace WebRegulate\LaravelAdministration\Classes;
 
-use Intervention\Image\Drivers\Gd\Driver;
-use Intervention\Image\ImageManager;
 use Livewire\Livewire;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Http;
+use Intervention\Image\ImageManager;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Validator;
+use Intervention\Image\Drivers\Gd\Driver;
 use Illuminate\Support\Facades\RateLimiter;
 use WebRegulate\LaravelAdministration\Enums\PageType;
 use WebRegulate\LaravelAdministration\Enums\ManageableModelPermissions;
@@ -814,6 +815,70 @@ class WRLAHelper
         }
 
         return '';
+    }
+
+    /**
+     * Get current captcha settings from config
+     *
+     * @return array
+     */
+    public static function getCaptchaSettings(): array
+    {
+        $captchaConfig = config('wr-laravel-administration.captcha');
+
+        return $captchaConfig[$captchaConfig['current']];
+    }
+
+    /**
+     * Get current Wysiwyg editor setup JS
+     *
+     * @return string
+     */
+    public static function getCaptchaHTML(): string
+    {
+        if(config('wr-laravel-administration.captcha.current') ?? null == 'turnstile')
+        {
+            return Blade::render(<<<HTML
+                <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" defer></script>
+
+                <div class="flex justify-center">
+                    <div class="cf-turnstile"
+                        data-sitekey="{{ \$currentCaptchaSettings['site_key'] }}"
+                        data-theme="light"
+                    ></div>
+                </div>
+            HTML, [
+                'currentCaptchaSettings' => static::getCaptchaSettings()
+            ]);
+        }
+
+        return '';
+    }
+
+    /**
+     * Apply captcha check
+     *
+     * @param Request $request The request object.
+     * @return bool
+     */
+    public static function applyCaptchaCheck(Request $request): bool
+    {
+        if(config('wr-laravel-administration.captcha.current') ?? null == 'turnstile')
+        {
+            $ipAddress = $request->ip();
+
+            $data = Http::post('https://challenges.cloudflare.com/turnstile/v0/siteverify', [
+                'secret' => config('wr-laravel-administration.captcha.turnstile.secret_key'),
+                'remoteip' => $ipAddress,
+                'response' => $request->input('cf-turnstile-response')
+            ]);
+
+            $data = $data->json();
+
+            return $data['success'];
+        }
+
+        return true;
     }
 
     /**

@@ -28,6 +28,15 @@ class WRLAAuthController extends Controller
      */
     public function loginPost(Request $request)
     {
+        // Apply captcha validation if enabled
+        $captchaResult = WRLAHelper::applyCaptchaCheck($request);
+        if ($captchaResult !== true) {
+            $request->validate(
+                ['captcha.error' => 'required|captcha'],
+                ['captcha.error' => 'Captcha validation failed. Please try again.']
+            );
+        }
+
         // Validate
         $request->validate([
             'email' => 'required|email',
@@ -142,6 +151,15 @@ class WRLAAuthController extends Controller
      */
     public function forgotPasswordPost(Request $request)
     {
+        // Apply captcha validation if enabled
+        $captchaResult = WRLAHelper::applyCaptchaCheck($request);
+        if ($captchaResult !== true) {
+            $request->validate(
+                ['captcha.error' => 'required|captcha'],
+                ['captcha.error' => 'Captcha validation failed. Please try again.']
+            );
+        }
+
         // Get wrla user instance
         $userInstance = \App\WRLA\User::make();
 

@@ -42,6 +42,12 @@
                 ])
             </div>
 
+            {{-- Captcha --}}
+            @error('captcha.error')
+                @themeComponent('alert', ['type' => 'error', 'message' => $message, 'class' => '!mb-0'])
+            @enderror
+            {!! $WRLAHelper::getCaptchaHTML() !!}
+
             <div>
                 @themeComponent('forms.button', [
                     'size' => 'large',

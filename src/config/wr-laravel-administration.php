@@ -4,6 +4,10 @@ use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 
 return [
 
+    /* ------------------------------------------------------------------------
+        STRUCTURAL CONFIGURATION
+    --------------------------------------------------------------------------*/
+
     // Base URL for the administration panel, e.g. 'wr-admin' will result in 'http://example.com/wr-admin'
     'base_url' => 'wr-admin',
 
@@ -13,6 +17,11 @@ return [
         'wrla_user_data' => \App\Models\UserData::class,
     ],
 
+
+    /*-------------------------------------------------------------------------
+        GENERAL CONFIGURATION
+    --------------------------------------------------------------------------*/
+
     // How the page title should be displayed
     'title_template' => '{page_title} - WebRegulate Admin',
 
@@ -20,6 +29,71 @@ return [
     'logo' => [
         'light' => 'vendor/wr-laravel-administration/images/logo-light.svg',
         'dark' => 'vendor/wr-laravel-administration/images/logo-dark.svg',
+    ],
+
+    // Wysiwyg editors
+    'wysiwyg_editors' => [
+        // Only tinymce is currently supported, more coming soon
+        'current' => 'tinymce',
+
+        // TinyMCE
+        'tinymce' => [
+            'image_uploads' => [
+                'filesystem' => 'public',
+                'path' => 'images/uploads',
+            ],
+            'apikey' => env('TINYMCE_API_KEY', ''), // Add your TinyMCE API key in your .env file
+            'plugins' => 'anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount code paste fullscreen',
+            'menubar' => 'edit view insert tools table',
+            'toolbar' => 'undo redo | bold italic underline | link image media table | align | numlist bullist indent | code',
+        ]
+    ],
+
+    // User avatar, override the default user image path with a callback function that passes the \App\Models\User model as an argument
+    'user_avatar' => null,
+    // 'user_avatar' => fn(\App\Models\User $user) => $user->profile_image,
+
+    // User groups, each must be a function that returns a Collection of users
+    'user_groups' => [
+        'admin' => function() {
+            return WRLAHelper::getUserModelClass()::whereIn('id',
+                WRLAHelper::getUserDataModelClass()
+                    ::whereJsonContains('permissions', ['admin' => true])
+                    ->get()
+                    ->pluck('user_id')
+            )->get();
+        }
+    ],
+
+    // Dashboard display notifications for users / groups, use '@self' for the user's own notifications
+    'dashboard' => [
+        'notifications' => [
+            'user_groups' => ['@self', 'admin'],
+        ],
+    ],
+
+    // Logs
+    'logs' => [
+        'max_characters' => 100000,
+    ],
+
+
+    /*-------------------------------------------------------------------------
+        THEME / STYLING CONFIGURATION
+    --------------------------------------------------------------------------*/
+
+    // Default theme (key from the 'themes' array below)
+    'default_theme' => 'default',
+
+    // Themes
+    'themes' => [
+        // Default
+        'default' => [
+            'name' => 'Default',        // Name of the theme displayed to user (if multiple themes are available)
+            'path' => 'default',        // Path to the theme folder in the 'resources/views/themes/?' directory
+            'default_mode' => 'light',  // Default mode for the theme (dark or light)
+            'no_image_src' => '/vendor/wr-laravel-administration/images/no-image-transparent.svg',
+        ]
     ],
 
     // Colors - These add/override tailwind's available colors in the layouts
@@ -76,66 +150,21 @@ return [
         /* Add your custom / override CSS here */
     CSS,
 
-    // Wysiwyg editors
-    'wysiwyg_editors' => [
-        // Only tinymce is currently supported, more coming soon
-        'current' => 'tinymce',
 
-        // TinyMCE
-        'tinymce' => [
-            'image_uploads' => [
-                'filesystem' => 'public',
-                'path' => 'images/uploads',
-            ],
-            'apikey' => env('TINYMCE_API_KEY', ''), // Add your TinyMCE API key in your .env file
-            'plugins' => 'anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount code paste fullscreen',
-            'menubar' => 'edit view insert tools table',
-            'toolbar' => 'undo redo | bold italic underline | link image media table | align | numlist bullist indent | code',
-        ]
-    ],
+    /*-------------------------------------------------------------------------
+        SECURITY CONFIGURATION
+    --------------------------------------------------------------------------*/
 
-    // Default theme (key from the 'themes' array below)
-    'default_theme' => 'default',
+    // Captcha configuration (used for login and forgot password)
+    'captcha' => [
+        // Use 'turnstile' for CloudFlare Turnstile, or null to disable
+        'current' => null,
 
-    // Themes
-    'themes' => [
-        // Default
-        'default' => [
-            'name' => 'Default',        // Name of the theme displayed to user (if multiple themes are available)
-            'path' => 'default',        // Path to the theme folder in the 'resources/views/themes/?' directory
-            'default_mode' => 'light',  // Default mode for the theme (dark or light)
-            'no_image_src' => '/vendor/wr-laravel-administration/images/no-image-transparent.svg',
-        ]
-    ],
-
-    // User avatar, override the default user image path with a callback function that passes the \App\Models\User model as an argument
-    'user_avatar' => null,
-    // 'user_avatar' => function(\App\Models\User $user) {
-    //     return $user->profile_image;
-    // },
-
-    // User groups, each must be a function that returns a Collection of users
-    'user_groups' => [
-        'admin' => function() {
-            return WRLAHelper::getUserModelClass()::whereIn('id',
-                WRLAHelper::getUserDataModelClass()
-                    ::whereJsonContains('permissions', ['admin' => true])
-                    ->get()
-                    ->pluck('user_id')
-            )->get();
-        }
-    ],
-
-    // Dashboard display notifications for users / groups, use '@self' for the user's own notifications
-    'dashboard' => [
-        'notifications' => [
-            'user_groups' => ['@self', 'admin'],
+        // Turnstile
+        'turnstile' => [
+            'site_key' => env('CLOUDFLARE_TURNSTILE_SITEKEY', ''),
+            'secret_key' => env('CLOUDFLARE_TURNSTILE_SECRET', ''),
         ],
-    ],
-
-    // Logs
-    'logs' => [
-        'max_characters' => 100000,
     ],
 
     // Rate limiting for wrla. routes
