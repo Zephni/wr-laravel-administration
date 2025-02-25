@@ -15,6 +15,7 @@ use WebRegulate\LaravelAdministration\Classes\ManageableFields\Image;
 use WebRegulate\LaravelAdministration\Classes\ManageableFields\Select;
 use \WebRegulate\LaravelAdministration\Classes\ManageableFields\Password;
 use WebRegulate\LaravelAdministration\Classes\BrowseColumns\BrowseColumn;
+use WebRegulate\LaravelAdministration\Classes\BrowseColumns\BrowseColumnImage;
 use WebRegulate\LaravelAdministration\Enums\ManageableModelPermissions;
 
 class User extends ManageableModel
