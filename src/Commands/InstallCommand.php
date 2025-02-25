@@ -42,38 +42,16 @@ class InstallCommand extends Command
             '--tag' => 'wrla-assets',
         ]);
 
-        // Publish models
-        $this->call('vendor:publish', [
-            '--provider' => 'WebRegulate\LaravelAdministration\WRLAServiceProvider',
-            '--tag' => 'wrla-models',
-        ]);
-
-        // If .env DB_CONNECTION is not mysql, replace $connection in UserData model file
+        // Create UserData.php model in app/Models
         $envConnection = env('DB_CONNECTION', 'mysql');
-        if($envConnection !== 'mysql') {
-            // Get user data contents
-            $userDataFile = app_path('Models/UserData.php');
-            $userDataContents = file_get_contents($userDataFile);
-
-            // Update connection
-            $userDataContents = str_replace(
-                "protected \$connection = 'mysql';",
-                "protected \$connection = '$envConnection';",
-                $userDataContents
-            );
-
-            // Update namespace
-            $userDataContents = str_replace(
-                "namespace WebRegulate\LaravelAdministration\Models;",
-                "namespace App\Models;",
-                $userDataContents
-            );
-
-            file_put_contents($userDataFile, $userDataContents);
-
-            // Show message
-            $this->info(" - Updated connection 'app/Models/UserData.php' to '$envConnection'");
-        }
+        WRLAHelper::generateFileFromStub(
+            'UserData.stub',
+            [
+                '{{ NAMESPACE }}' => 'App\Models',
+                '{{ CONNECTION }}' => $envConnection,
+            ],
+            app_path('Models/UserData.php')
+        );
 
         // Create user manageable model
         $createdUserAt = WRLAHelper::generateFileFromStub(

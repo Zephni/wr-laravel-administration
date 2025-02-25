@@ -82,11 +82,6 @@ class WRLAServiceProvider extends ServiceProvider
             __DIR__ . '/resources/images/logo-dark.svg' => public_path('vendor/wr-laravel-administration/images/logo-dark.svg'),
             __DIR__ . '/resources/images/no-image-transparent.svg' => public_path('vendor/wr-laravel-administration/images/no-image-transparent.svg'),
         ], 'wrla-assets');
-
-        // Publish models
-        $this->publishes([
-            __DIR__ . '/Models/UserData.php' => app_path('Models/UserData.php'),
-        ], 'wrla-models');
     }
 
     /**
