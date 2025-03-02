@@ -49,10 +49,10 @@
     }
 }"
 x-init="init()"
-class="overflow-x-auto"
+class="whitespace-nowrap"
 style="width: 100%; max-width: 100%;"
 >
-    <div class="w-full flex items-center gap-1 px-1.5 py-1 border border-slate-400 dark:border-slate-500 bg-slate-200 dark:bg-slate-900
+    <div class="w-full flex items-center overflow-x-auto gap-1 px-1.5 py-1 border border-slate-400 dark:border-slate-500 bg-slate-200 dark:bg-slate-900
         focus:outline-none focus:ring-1 focus:ring-primary-500 dark:focus:ring-primary-500 rounded-md shadow-sm">
         <template x-for="(tag, index) in tags" :key="index">
             <span class="inline-flex items-center px-2 bg-primary-500 bg-opacity-5 border-2 border-primary-500 rounded-md" style="line-height: 20px;">
