@@ -56,7 +56,7 @@ style="width: 100%; max-width: 100%;"
         focus:outline-none focus:ring-1 focus:ring-primary-500 dark:focus:ring-primary-500 rounded-md shadow-sm">
         <template x-for="(tag, index) in tags" :key="index">
             <span class="inline-flex items-center px-2 bg-primary-500 bg-opacity-5 border-2 border-primary-500 rounded-md" style="line-height: 20px;">
-                <span x-text="tag" class="relative font-bold pr-1.5" style="top: -1px;"></span>
+                <span x-text="tag" class="relative font-medium pr-1.5" style="top: -1px;"></span>
                 <button type="button" class="relative top-[-1px] text-primary-600 font-medium" @click="removeTag(index)">x</button>
             </span>
         </template>
