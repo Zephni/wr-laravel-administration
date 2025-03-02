@@ -53,9 +53,9 @@ style="width: 100%; max-width: 100%;"
     <div class="w-full flex items-center gap-1 px-1.5 py-1 border border-slate-400 dark:border-slate-500 bg-slate-200 dark:bg-slate-900
         focus:outline-none focus:ring-1 focus:ring-primary-500 dark:focus:ring-primary-500 rounded-md shadow-sm">
         <template x-for="(tag, index) in tags" :key="index">
-            <span class="inline-flex items-center px-2 border-2 border-primary-500 rounded-md">
-                <span x-text="tag" class="font-medium pr-1.5"></span>
-                <button type="button" class="relative top-[-1px] text-rose-600" @click="removeTag(index)">x</button>
+            <span class="inline-flex items-center px-2 bg-primary-500 bg-opacity-5 border-2 border-primary-500 rounded-md">
+                <span x-text="tag" class="font-bold pr-1.5"></span>
+                <button type="button" class="relative top-[-1px] text-primary-600 font-medium" @click="removeTag(index)">x</button>
             </span>
         </template>
         <input
