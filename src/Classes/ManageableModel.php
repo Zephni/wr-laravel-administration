@@ -459,12 +459,21 @@ abstract class ManageableModel
      *
      * @param Collection|array $childNavigationItems
      */
-    public static function setChildNavigationItems(Collection|array $childNavigationItems): void
+    public static function setChildNavigationItems(...$childNavigationItems): void
     {
         // If collection turn into array
         if($childNavigationItems instanceof Collection) {
             $childNavigationItems = $childNavigationItems->toArray();
         }
+
+        // Unpack child arrays / collections into one array
+        $childNavigationItems = array_reduce($childNavigationItems, function($carry, $item) {
+            if(is_array($item)) {
+                return array_merge($carry, $item);
+            }
+            
+            return array_merge($carry, [$item]);
+        }, []);
 
         static::setStaticOption('navigation.children', $childNavigationItems);
     }
@@ -486,12 +495,21 @@ abstract class ManageableModel
      *
      * @param Collection|array $filters
      */
-    public static function setBrowseFilters(Collection|array $filters)
+    public static function setBrowseFilters(...$filters)
     {
         // If collection turn into array
         if($filters instanceof Collection) {
             $filters = $filters->toArray();
         }
+
+        // Unpack child arrays / collections into one array
+        $filters = array_reduce($filters, function($carry, $item) {
+            if(is_array($item)) {
+                return array_merge($carry, $item);
+            }
+            
+            return array_merge($carry, [$item]);
+        }, []);
 
         static::setStaticOption('browse.filters', $filters);
     }
@@ -511,12 +529,21 @@ abstract class ManageableModel
      *
      * @param Collection|array $actions
      */
-    public static function setBrowseActions(Collection|array $actions)
+    public static function setBrowseActions(...$actions)
     {
         // If collection turn into array
         if($actions instanceof Collection) {
             $actions = $actions->toArray();
         }
+
+        // Unpack child arrays / collections into one array
+        $actions = array_reduce($actions, function($carry, $item) {
+            if(is_array($item)) {
+                return array_merge($carry, $item);
+            }
+            
+            return array_merge($carry, [$item]);
+        }, []);
 
         static::setStaticOption('browse.actions', $actions);
     }
