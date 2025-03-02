@@ -495,21 +495,12 @@ abstract class ManageableModel
      *
      * @param Collection|array $filters
      */
-    public static function setBrowseFilters(...$filters)
+    public static function setBrowseFilters(Collection|array $filters)
     {
         // If collection turn into array
         if($filters instanceof Collection) {
             $filters = $filters->toArray();
         }
-
-        // Unpack child arrays / collections into one array
-        $filters = array_reduce($filters, function($carry, $item) {
-            if(is_array($item)) {
-                return array_merge($carry, $item);
-            }
-            
-            return array_merge($carry, [$item]);
-        }, []);
 
         static::setStaticOption('browse.filters', $filters);
     }
@@ -529,21 +520,12 @@ abstract class ManageableModel
      *
      * @param Collection|array $actions
      */
-    public static function setBrowseActions(...$actions)
+    public static function setBrowseActions(Collection|array $actions)
     {
         // If collection turn into array
         if($actions instanceof Collection) {
             $actions = $actions->toArray();
         }
-
-        // Unpack child arrays / collections into one array
-        $actions = array_reduce($actions, function($carry, $item) {
-            if(is_array($item)) {
-                return array_merge($carry, $item);
-            }
-            
-            return array_merge($carry, [$item]);
-        }, []);
 
         static::setStaticOption('browse.actions', $actions);
     }
