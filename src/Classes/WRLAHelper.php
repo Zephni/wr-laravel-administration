@@ -624,7 +624,7 @@ class WRLAHelper
     {
         // If key is an integer then return the user with that id as a collection, or null if not found
         if(is_int($key)) {
-            $user = WRLAHelper::getUserModelClass()::where('id', $key)->get();
+            $user = WRLAHelper::getUserModelClass()::where('id', $key)->first();
             return $user === null ? null : collect([$user]);
         }
 
