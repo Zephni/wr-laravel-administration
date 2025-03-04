@@ -278,6 +278,17 @@ class EmailTemplate extends Model
     }
 
     /**
+     * Get value by dotted key from data array.
+     * 
+     * @param string $key
+     * @return mixed
+     */
+    public function getValueByKey(string $key): mixed
+    {
+        return data_get($this->dataArray, $key);
+    }
+
+    /**
      * Send email to addresses with this template.
      *
      * @param string|array $toAddresses
