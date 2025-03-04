@@ -41,9 +41,9 @@
         this.$refs.newTagInput.focus();
     },
     handleInput(e) {
-        // Comma, space, or return
-        if ((e.data === ',' || e.data === ' ' || e.data === '\n') || e.inputType === 'insertFromPaste') {
-            const parts = this.newTag.split(/[,\s]+/).map(t => t.trim()).filter(Boolean);
+        // Comma or return
+        if ((e.data === ',' || e.data === '\n') || e.inputType === 'insertFromPaste') {
+            const parts = this.newTag.split(',').map(t => t.trim()).filter(Boolean);
             parts.forEach(t => this.addTag(t));
         }
     }
