@@ -623,7 +623,7 @@ class WRLAHelper
     public static function getUserGroup(string|int $key): ?Collection
     {
         // If key is an integer then return the user with that id as a collection, or null if not found
-        if(is_int($key)) {
+        if(is_numeric($key)) {
             $user = WRLAHelper::getUserModelClass()::where('id', $key)->first();
             return $user === null ? null : collect([$user]);
         }
