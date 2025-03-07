@@ -10,6 +10,7 @@ Route::group(['namespace' => 'WebRegulate\LaravelAdministration\Http\Controllers
     Route::prefix(config('wr-laravel-administration.base_url', 'wr-admin'))->name('wrla.')->group(function () {
 
         // Other
+        Route::get('to-frontend', fn() => redirect('/'))->name('to-frontend');
         Route::post('upload-wysiwyg-image', [WRLAAdminController::class, 'uploadWysiwygImage'])->name('upload-wysiwyg-image');
 
         // Auth controller

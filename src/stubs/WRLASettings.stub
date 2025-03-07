@@ -14,8 +14,8 @@ class WRLASettings
     public static function buildNavigation(): array
     {
         return [
-            // Frontend (Uncomment and set route to frontent to add a frontend link)
-            // NavigationItem::make('home', [], 'Frontend', 'fa fa-globe')->openInNewTab(true),
+            // Frontend, redirects to /
+            NavigationItem::make('wrla.to-frontend', [], 'Frontend', 'fa fa-globe')->openInNewTab(true),
 
             // Dashboard
             NavigationItem::make('wrla.dashboard', [], 'Dashboard', 'fa fa-tachometer-alt'),
