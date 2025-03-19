@@ -244,6 +244,21 @@ class WRLAAdminController extends Controller
     }
 
     /**
+     * View file manager
+     *
+     * @param Request $request
+     * @return View
+     */
+    public function fileManager(Request $request): View
+    {
+        return view(WRLAHelper::getViewPath('livewire-content'), [
+            'title' => 'File Manager',
+            'livewireComponentAlias' => 'wrla.file-manager',
+            'livewireComponentData' => []
+        ]);
+    }
+
+    /**
      * View logs
      *
      * @param Request $request

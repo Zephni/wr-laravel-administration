@@ -112,9 +112,20 @@ return [
         ],
     ],
 
+    // File manager configuration
+    'file_manager' => [
+        'enabled' => true,
+        'max_characters' => 500000,
+        'file_systems' => [
+            'public' => [
+                'enabled' => true,
+            ]
+        ]
+    ],
+
     // Logs
     'logs' => [
-        'max_characters' => 100000,
+        'max_characters' => 500000,
     ],
 
 
