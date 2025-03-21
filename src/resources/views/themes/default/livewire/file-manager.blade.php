@@ -1,10 +1,22 @@
 <div>
-    <div class="pb-6">
+    <div class="relative pb-6">
         <h1 class="text-2xl font-light">
             <i class="fa fa-folder-open text-slate-700 dark:text-white mr-1"></i>
             File Manager 
         </h1>
         <hr class="border-b border-slate-400 w-80 mt-1 mb-3">
+
+        {{-- Refresh button --}}
+        @themeComponent('forms.button', [
+            'type' => 'button',
+            'size' => 'small',
+            'text' => 'Refresh',
+            'icon' => 'fas fa-sync-alt',
+            'attributes' => new \Illuminate\View\ComponentAttributeBag([
+                'class' => 'absolute top-0 right-0 mt-2',
+                'wire:click' => 'refresh',
+            ])
+        ])
     </div>
 
     <div class="flex justify-between items-center gap-3 mb-4">
@@ -31,16 +43,20 @@
                 <span>Loading...</span>
             </div>
 
-            {{-- Refresh button --}}
-            @themeComponent('forms.button', [
-                'type' => 'button',
-                'size' => 'small',
-                'text' => 'Refresh',
-                'icon' => 'fas fa-sync-alt',
-                'attributes' => new \Illuminate\View\ComponentAttributeBag([
-                    'wire:click' => 'refresh',
-                ])
-            ])
+            <label
+                for="fileUpload"
+                x-on:click="$wire.set('uploadFilePath', '{{ trim(str_replace('.', '/', $viewingDirectory), '/') }}')"
+                class="flex justify-center items-center gap-1 w-fit px-2 text-[14px] !h-[22.6px] font-semibold border bg-primary-600 dark:bg-primary-800 text-white dark:text-slate-200 hover:brightness-110 border-teal-500 dark:border-teal-600 shadow-slate-400 dark:shadow-slate-700 rounded-md shadow-sm whitespace-nowrap cursor-pointer"
+            >
+                <i class="fas fa-upload text-xs mr-1"></i>
+                Upload file
+            </label>
+            <input
+                id="fileUpload"
+                type="file"
+                wire:model.live="uploadFile"
+                accept="*/*"
+                class="hidden" />
         </div>
     </div>
     
@@ -49,7 +65,7 @@
         <div class="w-full flex flex-col" style="@if($viewingItemType !== null && $highlightedItem !== null) width: 62%; @endif">
             @foreach($currentDirectoriesAndFiles as $key => $directoryOrFile)
                 <div
-                    class="{{ $highlightedItem !== null && $highlightedItem == $directoryOrFile ? '!bg-slate-50 !border-primary-500 !border-2 !font-bold' : '' }} w-full flex justify-between items-center gap-2 px-3 h-12 text-lg bg-gray-100 dark:bg-slate-700 first:rounded-t-md last:rounded-b-md hover:bg-white dark:hover:bg-slate-600 text-slate-700 dark:text-white even:bg-opacity-60">
+                    class="{{ $highlightedItem !== null && $highlightedItem == $directoryOrFile ? '!bg-slate-50 !border-primary-500 !border-2 !font-bold' : '' }} w-full flex justify-between items-center gap-2 px-3 h-12 text-lg bg-gray-100 dark:bg-slate-700 first:rounded-t-md last:rounded-b-md hover:bg-white dark:hover:bg-slate-600 text-slate-700 dark:text-white even:bg-opacity-60 whitespace-nowrap truncate">
                     
                     <div
                         @if($directoryOrFile == '..')
@@ -71,11 +87,32 @@
                             <div class="text-center">
                                 <i class="fas fa-file text-primary-500 mr-1.5"></i>
                             </div>
-                            <div class="">{{ $directoryOrFile }}</div>
+                            <div>{{ $directoryOrFile }}</div>
                         @endif
                     </div>
     
                     <div class="flex justify-end items-center gap-2">
+                        {{-- Absolute file: rtrim($fileSystemAbsolutePath.trim(str_replace('.', '/', $viewingDirectory), '/').'/'.$directoryOrFile, '/') --}}
+
+                        {{-- If is file --}}
+                        @if($directoryOrFile != '..' && !is_array($directoryOrFile))
+                            <label
+                                for="fileReplace"
+                                x-on:click="$wire.set('replaceFilePath', '{{ trim(trim(str_replace('.', '/', $viewingDirectory), '/').'/'.$directoryOrFile, '/') }}')"
+                                class="flex justify-center items-center gap-1 w-fit px-2 text-[14px] !h-[22.6px] font-semibold border bg-primary-600 dark:bg-primary-800 text-white dark:text-slate-200 hover:brightness-110 border-teal-500 dark:border-teal-600 shadow-slate-400 dark:shadow-slate-700 rounded-md shadow-sm whitespace-nowrap cursor-pointer"
+                            >
+                                <i class="fas fa-upload text-xs mr-1"></i>
+                                Replace
+                            </label>
+                            <input
+                                id="fileReplace"
+                                type="file"
+                                wire:model.live="replaceFile"
+                                accept="*/*"
+                                class="hidden" />
+                        @endif
+
+                        {{-- If is valid directory or file --}}
                         @if($directoryOrFile != '..')
                             {{-- Delete button --}}
                             @themeComponent('forms.button', [
@@ -83,8 +120,10 @@
                                 'size' => 'small',
                                 'color' => 'danger',
                                 'text' => 'Delete',
-                                'icon' => 'fas fa-trash',
+                                'icon' => 'fas fa-trash text-xs leading-0',
                                 'attributes' => new \Illuminate\View\ComponentAttributeBag([
+                                    'title' => 'Delete file',
+                                    'class' => '!py-0 !leading-0 !h-[22.6px]',
                                     'wire:click' => "deleteFile('$viewingDirectory', '".(is_array($directoryOrFile) ? $key : $directoryOrFile)."')",
                                 ])
                             ])
@@ -159,7 +198,6 @@
         </div>
 
     @endif
-
 
     {{-- @dump($debug) --}}
 </div>

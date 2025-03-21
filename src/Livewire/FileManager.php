@@ -6,13 +6,17 @@ use Exception;
 use Livewire\Component;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
+use Livewire\WithFileUploads;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 
 class FileManager extends Component
 {
+    use WithFileUploads;
+
     /* Properties
     --------------------------------------------------------------------------*/
     public ?string $currentFileSystemName = null; // Set on mount
+    public ?string $fileSystemAbsolutePath = null; // Set on mount
     public string $viewingDirectory = '';
     public array $directoriesAndFiles = [];
     public ?string $highlightedItem = null;
@@ -20,6 +24,64 @@ class FileManager extends Component
     public ?string $viewingItemType = null; // null, text, image, video, file (link)
     public int $viewFileMaxCharacters = 0;
     public array $debug = [];
+
+    public $uploadFile; // Modelled, used for file upload
+    public $uploadFilePath; // Absolute path to directory for upload
+    public $replaceFile; // Modelled, used for individual file replacement
+    public $replaceFilePath; // Absolute path to file for replacement
+
+    /* Update fields
+    --------------------------------------------------------------------------*/
+    public function updatedReplaceFile($value)
+    {
+        if ($value && $this->replaceFilePath) {
+            // Get file with absolute path
+            $absoluteFilePath = rtrim($this->fileSystemAbsolutePath, '/') .'/'. ltrim($this->replaceFilePath, '/');
+            // dd($absoluteFilePath);
+
+            // Store the new file
+            File::put($absoluteFilePath, $value->get());
+
+            // Get last part of absolute file path
+            $fileName = str($absoluteFilePath)->afterLast('/')->toString();
+
+            // Reset replaceFilePath
+            $this->replaceFilePath = null;
+
+            // Refresh the directories and files list
+            $this->refresh();
+
+            // View the new file
+            $this->viewFile($this->viewingDirectory, $fileName);
+        }
+    }
+
+    public function updatedUploadFile($value)
+    {
+        if ($value && $this->uploadFilePath !== null) {
+            // Get file with absolute directory path
+            $absoluteDirectoryPath = rtrim($this->fileSystemAbsolutePath, '/') .'/'. ltrim($this->uploadFilePath, '/');
+
+            // Get full file name
+            $fileName = $value->getClientOriginalName();
+
+            // Full absolute path to new file
+            $fullFilePath = $absoluteDirectoryPath .'/'. $fileName;
+            // dd($fullFilePath, $value);
+
+            // Store the new file
+            File::put($fullFilePath, $value->get());
+
+            // Reset uploadFilePath
+            $this->uploadFilePath = null;
+
+            // Refresh the directories and files list
+            $this->refresh();
+
+            // View the new file
+            $this->viewFile($this->viewingDirectory, $fileName);
+        }
+    }
 
     /* Livewire Methods / Hooks
     --------------------------------------------------------------------------*/
@@ -281,9 +343,11 @@ class FileManager extends Component
     {
         if(config("wr-laravel-administration.file_manager.file_systems.$fileSystem.enabled", false) !== true) {
             $this->currentFileSystemName = null;
+            $this->fileSystemAbsolutePath = null;
             return;
         }
 
         $this->currentFileSystemName = $fileSystem;
+        $this->fileSystemAbsolutePath = str_replace('\\', '/', Storage::disk($fileSystem)->path(''));
     }
 }
