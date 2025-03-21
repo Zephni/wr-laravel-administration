@@ -82,58 +82,31 @@
     </div>
     
     <div class="relative flex items-start gap-4">
-        {{-- Folders / Files list --}}
+        {{-- Directories / Files list --}}
         <div class="w-full flex flex-col" style="@if($viewingItemType !== null && $highlightedItem !== null) width: 62%; @endif">
-            @foreach($currentDirectoriesAndFiles as $key => $directoryOrFile)
+
+            {{-- Directories --}}
+            @foreach(array_merge((!empty($viewingDirectory) ? ['..'] : []), $currentDirectories) as $directory)
                 <div
-                    class="{{ $highlightedItem !== null && $highlightedItem == $directoryOrFile ? '!bg-slate-50 dark:!bg-slate-800 !border-primary-500 !border-2 !font-bold' : '' }} w-full flex justify-between items-center gap-2 px-3 h-12 text-lg bg-gray-100 dark:!bg-slate-800 first:rounded-t-md last:rounded-b-md hover:bg-white dark:hover:bg-slate-700 text-slate-700 dark:text-white even:!bg-opacity-60 dark:even:!bg-opacity-60 whitespace-nowrap truncate">
+                    class="{{ $highlightedItem !== null && $highlightedItem == $directory ? '!bg-slate-50 dark:!bg-slate-800 !border-primary-500 !border-2 !font-bold' : '' }} w-full flex justify-between items-center gap-2 px-3 h-12 text-lg bg-gray-100 dark:!bg-slate-800 first:rounded-t-md last:rounded-b-md hover:bg-white dark:hover:!bg-slate-700 text-slate-700 dark:text-white even:!bg-opacity-60 dark:even:!bg-opacity-60 whitespace-nowrap truncate">
                     
                     <div
-                        @if($directoryOrFile == '..')
+                        @if($directory == '..')
                             wire:click="switchDirectory('..')"
-                        @elseif(is_array($directoryOrFile))
-                            wire:click="switchDirectory('{{ (empty($viewingDirectory) ? '' : $viewingDirectory.'.').$key }}')"
-                            title="{{ ltrim((empty($viewingDirectory) ? '' : str_replace('.', '/', $viewingDirectory).'/').$key, '/') }}"
                         @else
-                            wire:click="viewFile('{{ $viewingDirectory }}', '{{ $directoryOrFile }}')"
-                            title="{{ ltrim(str_replace('.', '/', $viewingDirectory).'/'.$directoryOrFile, '/') }}"
+                            wire:click="switchDirectory('{{ (empty($viewingDirectory) ? '' : $viewingDirectory.'.').$directory }}')"
+                            title="{{ ltrim((empty($viewingDirectory) ? '' : str_replace('.', '/', $viewingDirectory).'/').$directory, '/') }}"
                         @endif
                         class="w-full h-full flex items-center gap-2 cursor-pointer">
-                        @if($directoryOrFile == '..' || is_array($directoryOrFile))
-                            <div class="text-center">
-                                <i class="fas fa-folder text-amber-400 mr-1.5"></i>
-                            </div>
-                            <div class="">{{ $key }} {{ is_array($directoryOrFile) ? '('.count($directoryOrFile).')' : '' }}</div>
-                        @else
-                            <div class="text-center">
-                                <i class="fas fa-file text-primary-500 mr-1.5"></i>
-                            </div>
-                            <div>{{ $directoryOrFile }}</div>
-                        @endif
+                        <div class="text-center">
+                            <i class="fas fa-folder text-amber-400 mr-1.5"></i>
+                        </div>
+                        <div>{{ $directory }}</div>
                     </div>
     
                     <div class="flex justify-end items-center gap-2">
-                        {{-- If is file --}}
-                        @if($directoryOrFile != '..' && !is_array($directoryOrFile))
-                            <label
-                                for="fileReplace"
-                                title="Replace file"
-                                x-on:click="$wire.set('replaceFilePath', '{{ trim(trim(str_replace('.', '/', $viewingDirectory), '/').'/'.$directoryOrFile, '/') }}')"
-                                class="flex justify-center items-center gap-1 w-fit px-2 text-[14px] !h-[22.6px] font-semibold border bg-primary-600 dark:bg-primary-800 text-white dark:text-slate-200 hover:brightness-110 border-teal-500 dark:border-teal-600 shadow-slate-400 dark:shadow-slate-700 rounded-md shadow-sm whitespace-nowrap cursor-pointer"
-                            >
-                                <i class="fas fa-upload text-xs mr-1"></i>
-                                Replace
-                            </label>
-                            <input
-                                id="fileReplace"
-                                type="file"
-                                wire:model.live="replaceFile"
-                                accept="*/*"
-                                class="hidden" />
-                        @endif
-
-                        {{-- If is valid directory or file --}}
-                        @if($directoryOrFile != '..')
+                        {{-- If is valid directory --}}
+                        @if($directory != '..')
                             {{-- Delete button --}}
                             @themeComponent('forms.button', [
                                 'type' => 'button',
@@ -142,14 +115,14 @@
                                 'text' => 'Delete',
                                 'icon' => 'fas fa-trash text-xs leading-0',
                                 'attributes' => new \Illuminate\View\ComponentAttributeBag([
-                                    'title' => 'Delete '.(!is_array($directoryOrFile) ? 'file' : 'directory'),
+                                    'title' => 'Delete '.(!is_array($directory) ? 'file' : 'directory'),
                                     'class' => '!py-0 !leading-0 !h-[22.6px]',
                                     // 'wire:click' => "deleteFile('$viewingDirectory', '".(is_array($directoryOrFile) ? $key : $directoryOrFile)."')",
                                     // Rather than wire:click, use x-on:click to first confirm deletion, and then call the method
-                                    'x-on:click' => "if(confirm('Are you sure you want to delete this ".(!is_array($directoryOrFile) ? 'file' : 'directory and all of its contents')."?')) {
-                                        \$wire.dispatchSelf('delete".(!is_array($directoryOrFile) ? 'File' : 'Directory')."', {
+                                    'x-on:click' => "if(confirm('Are you sure you want to delete this directory and all of its contents?')) {
+                                        \$wire.dispatchSelf('deleteDirectory', {
                                             'directoryPath': '$viewingDirectory',
-                                            'name': '".(is_array($directoryOrFile) ? $key : $directoryOrFile)."'
+                                            'name': '$directory'
                                         });
                                     }"
                                 ])
@@ -158,6 +131,61 @@
                     </div>
                 </div>
             @endforeach
+
+            {{-- Files --}}
+            @foreach($currentFiles as $file)
+                <div
+                    class="{{ $highlightedItem !== null && $highlightedItem == $file ? '!bg-slate-50 dark:!bg-slate-800 !border-primary-500 !border-2 !font-bold' : '' }} w-full flex justify-between items-center gap-2 px-3 h-12 text-lg bg-gray-100 dark:bg-slate-800 first:rounded-t-md last:rounded-b-md hover:bg-white dark:hover:!bg-slate-700 text-slate-700 dark:text-white even:!bg-opacity-60 dark:even:!bg-opacity-60 whitespace-nowrap truncate">
+                    
+                    <div
+                        wire:click="viewFile('{{ $viewingDirectory }}', '{{ $file }}')"
+                        title="{{ ltrim(str_replace('.', '/', $viewingDirectory).'/'.$file, '/') }}"
+                        class="w-full h-full flex items-center gap-2 cursor-pointer">
+                        <div class="text-center">
+                            <i class="fas fa-file text-primary-500 mr-1.5"></i>
+                        </div>
+                        <div>{{ $file }}</div>
+                    </div>
+    
+                    <div class="flex justify-end items-center gap-2">
+                        <label
+                            for="fileReplace"
+                            title="Replace file"
+                            x-on:click="$wire.set('replaceFilePath', '{{ trim(trim(str_replace('.', '/', $viewingDirectory), '/').'/'.$file, '/') }}')"
+                            class="flex justify-center items-center gap-1 w-fit px-2 text-[14px] !h-[22.6px] font-semibold border bg-primary-600 dark:bg-primary-800 text-white dark:text-slate-200 hover:brightness-110 border-teal-500 dark:border-teal-600 shadow-slate-400 dark:shadow-slate-700 rounded-md shadow-sm whitespace-nowrap cursor-pointer"
+                        >
+                            <i class="fas fa-upload text-xs mr-1"></i>
+                            Replace
+                        </label>
+                        <input
+                            id="fileReplace"
+                            type="file"
+                            wire:model.live="replaceFile"
+                            accept="*/*"
+                            class="hidden" />
+
+                        {{-- Delete button --}}
+                        @themeComponent('forms.button', [
+                            'type' => 'button',
+                            'size' => 'small',
+                            'color' => 'danger',
+                            'text' => 'Delete',
+                            'icon' => 'fas fa-trash text-xs leading-0',
+                            'attributes' => new \Illuminate\View\ComponentAttributeBag([
+                                'title' => 'Delete file',
+                                'class' => '!py-0 !leading-0 !h-[22.6px]',
+                                'x-on:click' => "if(confirm('Are you sure you want to delete this file?')) {
+                                    \$wire.dispatchSelf('deleteFile', {
+                                        'directoryPath': '$viewingDirectory',
+                                        'name': '$file'
+                                    });
+                                }"
+                            ])
+                        ])
+                    </div>
+                </div>
+            @endforeach
+
         </div>
 
         {{-- If file system set --}}
@@ -230,6 +258,4 @@
         </div>
 
     @endif
-
-    {{-- @dump($debug) --}}
 </div>

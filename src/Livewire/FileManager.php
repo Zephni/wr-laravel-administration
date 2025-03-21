@@ -17,12 +17,12 @@ class FileManager extends Component
     --------------------------------------------------------------------------*/
     public ?string $currentFileSystemName = null; // Set on mount
     public string $viewingDirectory = '';
-    public array $directoriesAndFiles = [];
+    public array $currentDirectories = [];
+    public array $currentFiles = [];
     public ?string $highlightedItem = null;
     public string $viewingItemContent = 'No content 1';
     public ?string $viewingItemType = null; // null, text, image, video, file (link)
     public int $viewFileMaxCharacters = 0;
-    public array $debug = [];
     public $listeners = [
         'createDirectory' => 'createDirectory',
         'deleteFile' => 'deleteFile',
@@ -93,7 +93,7 @@ class FileManager extends Component
         $this->setFileSystem($attemptFileSystemName);
 
         // Set all log files and directories
-        $this->setDirectoriesAndFiles();
+        $this->setCurrentDirectoriesAndFiles();
 
         // Find the first file within found logs and set it as the default viewing log
         $this->selectFirstFileInCurrentDirectory();
@@ -101,18 +101,8 @@ class FileManager extends Component
 
     public function render()
     {
-        // Get current directories and files
-        $currentDirectoriesAndFiles = empty($this->viewingDirectory)
-            ? $this->directoriesAndFiles
-            : data_get($this->directoriesAndFiles, $this->viewingDirectory, []);
-
-        // Prepend .. directory if viewing a subdirectory
-        if (!empty($this->viewingDirectory)) {
-            $currentDirectoriesAndFiles = ['..' => '..'] + $currentDirectoriesAndFiles;
-        }
-
+        // Render the view
         return view(WRLAHelper::getViewPath('livewire.file-manager'), [
-            'currentDirectoriesAndFiles' => $currentDirectoriesAndFiles,
             'fullDirectoryPath' => $this->getFullDirectoryPath(false),
             'fullFilePath' => $this->getFullFilePath(false),
         ]);
@@ -153,19 +143,23 @@ class FileManager extends Component
             : $filePath;
     }
 
-    private function setDirectoriesAndFiles()
+    private function setCurrentDirectoriesAndFiles()
     {
         // If no file system is set, return
         if ($this->currentFileSystemName === null) {
-            $this->directoriesAndFiles = [];
+            $this->currentDirectories = [];
+            $this->currentFiles = [];
             return;
         }
 
-        // We need to get the path from whatever initial config filesystem we have set, but for now just get local storage
-        $path = $this->getFileSystemAbsolutePath();
-
-        // Get all files and directories within given path
-        $this->directoriesAndFiles = WRLAHelper::getDirectoriesAndFiles($path);
+        // Get all directories within given path and get last part of path
+        $this->currentDirectories = $this->getCurrentFileSystem()->directories(str_replace('.', '/', $this->viewingDirectory));
+        $this->currentDirectories = array_map(fn($directory) => str($directory)->afterLast('/')->toString(), $this->currentDirectories);
+        
+        // Get all files but ignore hidden files and get last part of path
+        $this->currentFiles = $this->getCurrentFileSystem()->files(str_replace('.', '/', $this->viewingDirectory));
+        $this->currentFiles = array_filter($this->currentFiles, fn($file) => !str_starts_with($file, '.'));
+        $this->currentFiles = array_map(fn($file) => str($file)->afterLast('/')->toString(), $this->currentFiles);
     }
 
     private function getFileContent(string $filePath): string
@@ -241,16 +235,19 @@ class FileManager extends Component
         $this->viewingItemType = null;
 
         // If $directory is .., go up a directory
-        if ($directory === '..' && !empty($this->viewingDirectory)) {
+        if (!empty($this->viewingDirectory) && $directory === '..')
+        {
             $this->viewingDirectory = !str($this->viewingDirectory)->contains('.')
                 ? ''
                 : str($this->viewingDirectory)->beforeLast('.');
-
-            $this->selectFirstFileInCurrentDirectory();
-            return;
+        }
+        // Otherwise set viewing directory
+        else
+        {
+            $this->viewingDirectory = trim($directory, '.');
         }
 
-        $this->viewingDirectory = $directory;
+        $this->refresh();
         $this->selectFirstFileInCurrentDirectory();
         $this->viewFile($this->viewingDirectory, $this->highlightedItem);
     }
@@ -274,12 +271,6 @@ class FileManager extends Component
         // Delete file
         $this->getCurrentFileSystem()->delete($diskPath);
 
-        WRLAHelper::unsetNestedArrayByKeyAndValue(
-            $this->directoriesAndFiles,
-            $directoryPath,
-            $name
-        );
-
         // Clean up, refresh and re-render
         $this->viewingDirectory = $directoryPath;
         $this->refresh();
@@ -293,11 +284,6 @@ class FileManager extends Component
 
         // Delete directory
         $this->getCurrentFileSystem()->deleteDirectory($diskPath);
-
-        WRLAHelper::unsetNestedArrayByKey(
-            $this->directoriesAndFiles,
-            $name
-        );
 
         // Clean up, refresh and re-render
         $this->viewingDirectory = $directoryPath;
@@ -327,7 +313,7 @@ class FileManager extends Component
     public function refresh()
     {
         // Set all log files and directories
-        $this->setDirectoriesAndFiles();
+        $this->setCurrentDirectoriesAndFiles();
 
         // Update current selected log content
         $this->viewFile($this->viewingDirectory, $this->highlightedItem);
@@ -337,25 +323,11 @@ class FileManager extends Component
     {
         $this->highlightedItem = null;
 
-        $currentDirectoryContents = empty($this->viewingDirectory)
-            ? $this->directoriesAndFiles
-            : data_get($this->directoriesAndFiles, $this->viewingDirectory, []);
-
-        foreach ($currentDirectoryContents as $directory => $directoryOrFile) {
-            // If full path is not a file, skip
-            if (is_array($directoryOrFile)) {
-                continue;
-            }
-
-            if (is_string($directoryOrFile)) {
-                $this->highlightedItem = $directoryOrFile;
-                break;
-            }
-        }
-
-        if ($this->highlightedItem === null) {
+        if(count($this->currentFiles) === 0) {
             return;
         }
+
+        $this->highlightedItem = $this->currentFiles[array_key_first($this->currentFiles)];
 
         $this->viewingItemContent = $this->getFileContent("{$this->viewingDirectory}/{$this->highlightedItem}");
     }
