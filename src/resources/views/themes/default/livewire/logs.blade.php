@@ -29,7 +29,7 @@
     <div class="w-full flex flex-col">
         @foreach($currentDirectoriesAndFiles as $key => $directoryOrFile)
             <div
-                class="{{ $viewingLogFile !== null && $viewingLogFile == $directoryOrFile ? '!bg-slate-50 !border-primary-500 !border-2 !font-bold' : '' }} w-full flex justify-between items-center gap-2 px-3 h-12 text-lg bg-gray-100 dark:bg-slate-700 first:rounded-t-md last:rounded-b-md hover:bg-white dark:hover:bg-slate-600 text-slate-700 dark:text-white even:bg-opacity-60">
+            class="{{ $viewingLogFile !== null && $viewingLogFile == $directoryOrFile ? '!bg-slate-50 dark:!bg-slate-800 !border-primary-500 !border-2 !font-bold' : '' }} w-full flex justify-between items-center gap-2 px-3 h-12 text-lg bg-gray-100 dark:!bg-slate-800 first:rounded-t-md last:rounded-b-md hover:bg-white dark:hover:bg-slate-700 text-slate-700 dark:text-white even:!bg-opacity-60 whitespace-nowrap truncate">
                 
                 <div
                     @if($directoryOrFile == '..')
@@ -65,6 +65,7 @@
                             'text' => 'Delete',
                             'icon' => 'fas fa-trash',
                             'attributes' => new \Illuminate\View\ComponentAttributeBag([
+                                'class' => '!py-0 !leading-0 !h-[22.6px]',
                                 'wire:click' => "deleteLogFile('$viewingLogsDirectory', '".(is_array($directoryOrFile) ? $key : $directoryOrFile)."')",
                             ])
                         ])

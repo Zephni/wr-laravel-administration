@@ -30,7 +30,7 @@
 
     <div class="flex justify-between items-center gap-3 mb-4">
         <div class="flex-1">
-            <p class="w-full text-lg px-2 font-normal text-slate-600 border-b border-slate-400">
+            <p class="w-full text-lg px-2 font-normal text-slate-600 dark:!text-slate-400 border-b border-slate-400">
                 <span class="text-sky-600 font-medium cursor-pointer hover:underline" wire:click="switchDirectory('')">{{ $currentFileSystemName }}</span>
     
                 @php $filePathParts = []; @endphp
@@ -40,7 +40,7 @@
                     @if(!$loop->last)
                         <span type="button" wire:click="switchDirectory('{{ implode('.', $filePathParts) }}')" class="cursor-pointer hover:underline">{{ $filePathPart }}</span>
                     @else
-                        <span class="text-slate-700">{{ $filePathPart }}</span>
+                        <span class="text-slate-700 dark:!text-slate-400">{{ $filePathPart }}</span>
                     @endif
                 @endforeach
             </p>
@@ -86,7 +86,7 @@
         <div class="w-full flex flex-col" style="@if($viewingItemType !== null && $highlightedItem !== null) width: 62%; @endif">
             @foreach($currentDirectoriesAndFiles as $key => $directoryOrFile)
                 <div
-                    class="{{ $highlightedItem !== null && $highlightedItem == $directoryOrFile ? '!bg-slate-50 !border-primary-500 !border-2 !font-bold' : '' }} w-full flex justify-between items-center gap-2 px-3 h-12 text-lg bg-gray-100 dark:bg-slate-700 first:rounded-t-md last:rounded-b-md hover:bg-white dark:hover:bg-slate-600 text-slate-700 dark:text-white even:bg-opacity-60 whitespace-nowrap truncate">
+                    class="{{ $highlightedItem !== null && $highlightedItem == $directoryOrFile ? '!bg-slate-50 dark:!bg-slate-800 !border-primary-500 !border-2 !font-bold' : '' }} w-full flex justify-between items-center gap-2 px-3 h-12 text-lg bg-gray-100 dark:!bg-slate-800 first:rounded-t-md last:rounded-b-md hover:bg-white dark:hover:bg-slate-700 text-slate-700 dark:text-white even:!bg-opacity-60 dark:even:!bg-opacity-60 whitespace-nowrap truncate">
                     
                     <div
                         @if($directoryOrFile == '..')
