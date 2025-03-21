@@ -26,6 +26,7 @@ class FileManager extends Component
     public $listeners = [
         'createDirectory' => 'createDirectory',
         'deleteFile' => 'deleteFile',
+        'deleteDirectory' => 'deleteDirectory',
     ];
 
     public $uploadFile; // Modelled, used for file upload
@@ -283,32 +284,37 @@ class FileManager extends Component
         $this->viewingItemContent = $this->getFileContent(str($this->viewingDirectory)->replace('.', '/')->toString()."/{$this->highlightedItem}");
     }
 
-    public function deleteFile(string $directoryPath, string $filePath)
+    public function deleteFile(string $directoryPath, string $name)
     {
-        $fullPath = $this->getFullPath($directoryPath, $filePath);
+        $diskPath = rtrim($directoryPath.'/'.$name, '/');
 
-        if(file_exists($fullPath)) {
-            if (is_file($fullPath)) {
-                // Use Laravel file facade to delete file
-                File::delete($fullPath);
+        // Delete file
+        Storage::disk($this->currentFileSystemName)->delete($diskPath);
 
-                WRLAHelper::unsetNestedArrayByKeyAndValue(
-                    $this->directoriesAndFiles,
-                    $directoryPath,
-                    $filePath
-                );
-            }
+        WRLAHelper::unsetNestedArrayByKeyAndValue(
+            $this->directoriesAndFiles,
+            $directoryPath,
+            $name
+        );
 
-            if(is_dir($fullPath)) {
-                // Use Laravel file facade to delete directory
-                File::deleteDirectory($fullPath);
+        // Clean up, refresh and re-render
+        $this->viewingDirectory = $directoryPath;
+        $this->refresh();
+        $this->selectFirstFileInCurrentDirectory();
+        $this->render();
+    }
 
-                WRLAHelper::unsetNestedArrayByKey(
-                    $this->directoriesAndFiles,
-                    $filePath
-                );
-            }
-        }
+    public function deleteDirectory(string $directoryPath, string $name)
+    {
+        $diskPath = rtrim($directoryPath.'/'.$name, '/');
+
+        // Delete directory
+        Storage::disk($this->currentFileSystemName)->deleteDirectory($diskPath);
+
+        WRLAHelper::unsetNestedArrayByKey(
+            $this->directoriesAndFiles,
+            $name
+        );
 
         // Clean up, refresh and re-render
         $this->viewingDirectory = $directoryPath;
@@ -329,7 +335,7 @@ class FileManager extends Component
         }
 
         // Create the new directory
-        File::makeDirectory($fullPath, 0755, true);
+        Storage::disk($this->currentFileSystemName)->makeDirectory($this->viewingDirectory . '/' . $newDirectoryName);
 
         // Refresh the directories and files list
         $this->refresh();

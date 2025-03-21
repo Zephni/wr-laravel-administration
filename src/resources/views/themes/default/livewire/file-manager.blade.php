@@ -142,14 +142,14 @@
                                 'text' => 'Delete',
                                 'icon' => 'fas fa-trash text-xs leading-0',
                                 'attributes' => new \Illuminate\View\ComponentAttributeBag([
-                                    'title' => 'Delete file',
+                                    'title' => 'Delete '.(!is_array($directoryOrFile) ? 'file' : 'directory'),
                                     'class' => '!py-0 !leading-0 !h-[22.6px]',
                                     // 'wire:click' => "deleteFile('$viewingDirectory', '".(is_array($directoryOrFile) ? $key : $directoryOrFile)."')",
                                     // Rather than wire:click, use x-on:click to first confirm deletion, and then call the method
                                     'x-on:click' => "if(confirm('Are you sure you want to delete this ".(!is_array($directoryOrFile) ? 'file' : 'directory and all of its contents')."?')) {
-                                        \$wire.dispatchSelf('deleteFile', {
+                                        \$wire.dispatchSelf('delete".(!is_array($directoryOrFile) ? 'File' : 'Directory')."', {
                                             'directoryPath': '$viewingDirectory',
-                                            'filePath': '".(is_array($directoryOrFile) ? $key : $directoryOrFile)."'
+                                            'name': '".(is_array($directoryOrFile) ? $key : $directoryOrFile)."'
                                         });
                                     }"
                                 ])
