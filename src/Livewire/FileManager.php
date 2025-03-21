@@ -47,7 +47,7 @@ class FileManager extends Component
             // dd($absoluteFilePath);
 
             // Store the new file
-            File::put($absoluteFilePath, $value->get());
+            $this->getCurrentFileSystem()->put($absoluteFilePath, $value->get());
 
             // Get last part of absolute file path
             $fileName = str($absoluteFilePath)->afterLast('/')->toString();
@@ -80,7 +80,7 @@ class FileManager extends Component
             // dd($fullFilePath, $value);
 
             // Store the new file
-            File::put($fullFilePath, $value->get());
+            $this->getCurrentFileSystem()->put($fullFilePath, $value->get());
 
             // Reset uploadFilePath
             $this->uploadFilePath = null;
@@ -141,14 +141,14 @@ class FileManager extends Component
     {
         // If viewing directory is empty, return root path
         if (empty($this->viewingDirectory)) {
-            return $absolute ? Storage::disk($this->currentFileSystemName)->path('') : '';
+            return $absolute ? $this->getCurrentFileSystem()->path('') : '';
         }
 
         // Get the full path to the current viewing directory
         $directoryPath = str_replace('.', '/', $this->viewingDirectory);
 
         return $absolute
-            ? str_replace('\\', '/', Storage::disk($this->currentFileSystemName)->path($directoryPath))
+            ? str_replace('\\', '/', $this->getCurrentFileSystem()->path($directoryPath))
             : $directoryPath;
     }
 
@@ -166,7 +166,7 @@ class FileManager extends Component
         $filePath = $directoryPath . '/' . $this->highlightedItem;
 
         return $absolute
-            ? str_replace('\\', '/', Storage::disk($this->currentFileSystemName)->path($filePath))
+            ? str_replace('\\', '/', $this->getCurrentFileSystem()->path($filePath))
             : $filePath;
     }
 
@@ -191,7 +191,7 @@ class FileManager extends Component
         $filePath = str($filePath)->ltrim('/')->toString();
 
         // Get full path to file
-        $fullPath = str(Storage::disk($this->currentFileSystemName)->path($filePath))->replace('\\', '/')->toString();
+        $fullPath = str($this->getCurrentFileSystem()->path($filePath))->replace('\\', '/')->toString();
 
         // Get file mime type
         try {
@@ -214,17 +214,17 @@ class FileManager extends Component
         if ($this->viewingItemType === 'text')
         {
             // Use storage to get file contents
-            return Storage::disk($this->currentFileSystemName)->get($filePath);
+            return $this->getCurrentFileSystem()->get($filePath);
         }
         elseif ($this->viewingItemType === 'image')
         {
-            $rawImageData = Storage::disk($this->currentFileSystemName)->get($filePath);
+            $rawImageData = $this->getCurrentFileSystem()->get($filePath);
             return 'data:image/'.str($mimeType)->afterLast('/').';base64,' . base64_encode($rawImageData);;
         }
         elseif ($this->viewingItemType === 'video')
         {
             // Get public path to video file
-            return Storage::disk($this->currentFileSystemName)->url($filePath);
+            return $this->getCurrentFileSystem()->url($filePath);
         }
         elseif ($this->viewingItemType === 'pdf')
         {
@@ -243,13 +243,13 @@ class FileManager extends Component
     {
         // If directory is empty, just pass the file
         if (empty($directory)) {
-            return Storage::disk($this->currentFileSystemName)->path(str($file)->rtrim('/'));
+            return $this->getCurrentFileSystem()->path(str($file)->rtrim('/'));
         }
 
         // Swap .'s for /'s
         $directory = str_replace('.', '/', $directory);
 
-        return str_replace('\\', '/', Storage::disk($this->currentFileSystemName)->path(str($directory . '/' . $file)->rtrim('/')));
+        return str_replace('\\', '/', $this->getCurrentFileSystem()->path(str($directory . '/' . $file)->rtrim('/')));
     }
 
     public function switchDirectory(string $directory)
@@ -289,7 +289,7 @@ class FileManager extends Component
         $diskPath = rtrim($directoryPath.'/'.$name, '/');
 
         // Delete file
-        Storage::disk($this->currentFileSystemName)->delete($diskPath);
+        $this->getCurrentFileSystem()->delete($diskPath);
 
         WRLAHelper::unsetNestedArrayByKeyAndValue(
             $this->directoriesAndFiles,
@@ -309,7 +309,7 @@ class FileManager extends Component
         $diskPath = rtrim($directoryPath.'/'.$name, '/');
 
         // Delete directory
-        Storage::disk($this->currentFileSystemName)->deleteDirectory($diskPath);
+        $this->getCurrentFileSystem()->deleteDirectory($diskPath);
 
         WRLAHelper::unsetNestedArrayByKey(
             $this->directoriesAndFiles,
@@ -335,7 +335,7 @@ class FileManager extends Component
         }
 
         // Create the new directory
-        Storage::disk($this->currentFileSystemName)->makeDirectory($this->viewingDirectory . '/' . $newDirectoryName);
+        $this->getCurrentFileSystem()->makeDirectory($this->viewingDirectory . '/' . $newDirectoryName);
 
         // Refresh the directories and files list
         $this->refresh();
@@ -390,6 +390,11 @@ class FileManager extends Component
     public function getFileSystemAbsolutePath(): string
     {
         // Get the absolute path to the current file system
-        return str_replace('\\', '/', Storage::disk($this->currentFileSystemName)->path(''));
+        return str_replace('\\', '/', $this->getCurrentFileSystem()->path(''));
+    }
+
+    private function getCurrentFileSystem()
+    {
+        return Storage::disk($this->currentFileSystemName);
     }
 }
