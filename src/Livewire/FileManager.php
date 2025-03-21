@@ -219,7 +219,7 @@ class FileManager extends Component
         elseif ($this->viewingItemType === 'video')
         {
             // Get public path to video file
-            return '/storage/'.$filePath;
+            return Storage::disk($this->currentFileSystemName)->url($filePath);
         }
         elseif ($this->viewingItemType === 'pdf')
         {
