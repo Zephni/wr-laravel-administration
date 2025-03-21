@@ -307,7 +307,9 @@ class FileManager extends Component
             }
         }
 
+        // Clean up, refresh and re-render
         $this->viewingDirectory = $directoryPath;
+        $this->refresh();
         $this->selectFirstFileInCurrentDirectory();
         $this->render();
     }
