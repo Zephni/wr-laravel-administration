@@ -312,7 +312,7 @@ class FileManager extends Component
         $fullPath = $this->getFullPath($this->viewingDirectory, $newDirectoryName);
 
         // Check if directory already exists
-        if (File::exists($fullPath)) {
+        if ($this->getCurrentFileSystem()->exists($fullPath)) {
             $this->addError('directory', 'Directory already exists.');
             return;
         }
