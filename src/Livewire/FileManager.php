@@ -36,24 +36,17 @@ class FileManager extends Component
 
     /* Update fields
     --------------------------------------------------------------------------*/
-    public function updatedReplaceFile($value)
+    public function updatedUploadFile($value)
     {
-        if ($value && $this->replaceFilePath) {
-            // Get file system absolute path
-            $fileSystemAbsolutePath = $this->getFileSystemAbsolutePath();
-
-            // Get file with absolute path
-            $absoluteFilePath = rtrim($fileSystemAbsolutePath, '/') .'/'. ltrim($this->replaceFilePath, '/');
-            // dd($absoluteFilePath);
+        if ($value && $this->uploadFilePath !== null) {
+            // Get full file name
+            $fileName = $value->getClientOriginalName();
 
             // Store the new file
-            $this->getCurrentFileSystem()->put($absoluteFilePath, $value->get());
+            $this->getCurrentFileSystem()->put("{$this->viewingDirectory}/$fileName", $value->get());
 
-            // Get last part of absolute file path
-            $fileName = str($absoluteFilePath)->afterLast('/')->toString();
-
-            // Reset replaceFilePath
-            $this->replaceFilePath = null;
+            // Reset uploadFilePath
+            $this->uploadFilePath = null;
 
             // Refresh the directories and files list
             $this->refresh();
@@ -63,27 +56,17 @@ class FileManager extends Component
         }
     }
 
-    public function updatedUploadFile($value)
+    public function updatedReplaceFile($value)
     {
-        if ($value && $this->uploadFilePath !== null) {
-            // Get file system absolute path
-            $fileSystemAbsolutePath = $this->getFileSystemAbsolutePath();
-
-            // Get file with absolute directory path
-            $absoluteDirectoryPath = rtrim($fileSystemAbsolutePath, '/') .'/'. ltrim($this->uploadFilePath, '/');
-
-            // Get full file name
-            $fileName = $value->getClientOriginalName();
-
-            // Full absolute path to new file
-            $fullFilePath = $absoluteDirectoryPath .'/'. $fileName;
-            // dd($fullFilePath, $value);
+        if ($value && $this->replaceFilePath) {
+            // Get last part of absolute file path
+            $fileName = str($this->replaceFilePath)->afterLast('/')->toString();
 
             // Store the new file
-            $this->getCurrentFileSystem()->put($fullFilePath, $value->get());
+            $this->getCurrentFileSystem()->put("{$this->viewingDirectory}/$fileName", $value->get());
 
-            // Reset uploadFilePath
-            $this->uploadFilePath = null;
+            // Reset replaceFilePath
+            $this->replaceFilePath = null;
 
             // Refresh the directories and files list
             $this->refresh();
