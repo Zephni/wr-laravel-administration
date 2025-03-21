@@ -23,7 +23,10 @@ class FileManager extends Component
     public ?string $viewingItemType = null; // null, text, image, video, file (link)
     public int $viewFileMaxCharacters = 0;
     public array $debug = [];
-    public $listeners = ['deleteFile' => 'deleteFile'];
+    public $listeners = [
+        'createDirectory' => 'createDirectory',
+        'deleteFile' => 'deleteFile',
+    ];
 
     public $uploadFile; // Modelled, used for file upload
     public $uploadFilePath; // Absolute path to directory for upload
@@ -312,6 +315,24 @@ class FileManager extends Component
         $this->refresh();
         $this->selectFirstFileInCurrentDirectory();
         $this->render();
+    }
+
+    public function createDirectory(string $newDirectoryName)
+    {
+        // Get the full path to the new directory
+        $fullPath = $this->getFullPath($this->viewingDirectory, $newDirectoryName);
+
+        // Check if directory already exists
+        if (File::exists($fullPath)) {
+            $this->addError('directory', 'Directory already exists.');
+            return;
+        }
+
+        // Create the new directory
+        File::makeDirectory($fullPath, 0755, true);
+
+        // Refresh the directories and files list
+        $this->refresh();
     }
 
     public function refresh()

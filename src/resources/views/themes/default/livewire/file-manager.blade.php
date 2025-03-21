@@ -19,6 +19,15 @@
         ])
     </div>
 
+    {{-- Loop through any errors and display --}}
+    @if($errors->any())
+        <div class="mb-4">
+            @foreach($errors->all() as $error)
+                @themeComponent('alert', ['type' => 'error', 'message' => $error])
+            @endforeach
+        </div>
+    @endif
+
     <div class="flex justify-between items-center gap-3 mb-4">
         <div class="flex-1">
             <p class="w-full text-lg px-2 font-normal text-slate-600 border-b border-slate-400">
@@ -42,6 +51,18 @@
                 <i class="fas fa-spinner fa-spin"></i>
                 <span>Loading...</span>
             </div>
+
+            <button
+                x-on:click="if(newDirectoryName = window.prompt('Name of new directory', 'directory_name')) {
+                    $wire.dispatchSelf('createDirectory', {
+                        'newDirectoryName': newDirectoryName,
+                    });
+                }"
+                class="flex justify-center items-center gap-1 w-fit px-2 text-[14px] !h-[22.6px] font-semibold border bg-primary-600 dark:bg-primary-800 text-white dark:text-slate-200 hover:brightness-110 border-teal-500 dark:border-teal-600 shadow-slate-400 dark:shadow-slate-700 rounded-md shadow-sm whitespace-nowrap cursor-pointer"
+            >
+                <i class="fas fa-folder-plus text-xs mr-1"></i>
+                Create directory
+            </button>
 
             <label
                 for="fileUpload"
