@@ -23,6 +23,7 @@ class FileManager extends Component
     public ?string $viewingItemType = null; // null, text, image, video, file (link)
     public int $viewFileMaxCharacters = 0;
     public array $debug = [];
+    public $listeners = ['deleteFile' => 'deleteFile'];
 
     public $uploadFile; // Modelled, used for file upload
     public $uploadFilePath; // Absolute path to directory for upload

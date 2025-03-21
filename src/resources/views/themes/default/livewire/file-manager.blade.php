@@ -96,6 +96,7 @@
                         @if($directoryOrFile != '..' && !is_array($directoryOrFile))
                             <label
                                 for="fileReplace"
+                                title="Replace file"
                                 x-on:click="$wire.set('replaceFilePath', '{{ trim(trim(str_replace('.', '/', $viewingDirectory), '/').'/'.$directoryOrFile, '/') }}')"
                                 class="flex justify-center items-center gap-1 w-fit px-2 text-[14px] !h-[22.6px] font-semibold border bg-primary-600 dark:bg-primary-800 text-white dark:text-slate-200 hover:brightness-110 border-teal-500 dark:border-teal-600 shadow-slate-400 dark:shadow-slate-700 rounded-md shadow-sm whitespace-nowrap cursor-pointer"
                             >
@@ -122,7 +123,14 @@
                                 'attributes' => new \Illuminate\View\ComponentAttributeBag([
                                     'title' => 'Delete file',
                                     'class' => '!py-0 !leading-0 !h-[22.6px]',
-                                    'wire:click' => "deleteFile('$viewingDirectory', '".(is_array($directoryOrFile) ? $key : $directoryOrFile)."')",
+                                    // 'wire:click' => "deleteFile('$viewingDirectory', '".(is_array($directoryOrFile) ? $key : $directoryOrFile)."')",
+                                    // Rather than wire:click, use x-on:click to first confirm deletion, and then call the method
+                                    'x-on:click' => "if(confirm('Are you sure you want to delete this file?')) {
+                                        \$wire.dispatchSelf('deleteFile', {
+                                            'directoryPath': '$viewingDirectory',
+                                            'filePath': '".(is_array($directoryOrFile) ? $key : $directoryOrFile)."'
+                                        });
+                                    }"
                                 ])
                             ])
                         @endif
