@@ -16,7 +16,6 @@ class FileManager extends Component
     /* Properties
     --------------------------------------------------------------------------*/
     public ?string $currentFileSystemName = null; // Set on mount
-    public ?string $fileSystemAbsolutePath = null; // Set on mount
     public string $viewingDirectory = '';
     public array $directoriesAndFiles = [];
     public ?string $highlightedItem = null;
@@ -35,8 +34,11 @@ class FileManager extends Component
     public function updatedReplaceFile($value)
     {
         if ($value && $this->replaceFilePath) {
+            // Get file system absolute path
+            $fileSystemAbsolutePath = $this->getFileSystemAbsolutePath();
+
             // Get file with absolute path
-            $absoluteFilePath = rtrim($this->fileSystemAbsolutePath, '/') .'/'. ltrim($this->replaceFilePath, '/');
+            $absoluteFilePath = rtrim($fileSystemAbsolutePath, '/') .'/'. ltrim($this->replaceFilePath, '/');
             // dd($absoluteFilePath);
 
             // Store the new file
@@ -59,8 +61,11 @@ class FileManager extends Component
     public function updatedUploadFile($value)
     {
         if ($value && $this->uploadFilePath !== null) {
+            // Get file system absolute path
+            $fileSystemAbsolutePath = $this->getFileSystemAbsolutePath();
+
             // Get file with absolute directory path
-            $absoluteDirectoryPath = rtrim($this->fileSystemAbsolutePath, '/') .'/'. ltrim($this->uploadFilePath, '/');
+            $absoluteDirectoryPath = rtrim($fileSystemAbsolutePath, '/') .'/'. ltrim($this->uploadFilePath, '/');
 
             // Get full file name
             $fileName = $value->getClientOriginalName();
@@ -169,7 +174,7 @@ class FileManager extends Component
         }
 
         // We need to get the path from whatever initial config filesystem we have set, but for now just get local storage
-        $path = Storage::disk($this->currentFileSystemName)->path('');
+        $path = $this->getFileSystemAbsolutePath();
 
         // Get all files and directories within given path
         $this->directoriesAndFiles = WRLAHelper::getDirectoriesAndFiles($path);
@@ -194,15 +199,15 @@ class FileManager extends Component
         $this->viewingItemType = match($mimeType) {
             'image/jpeg', 'image/png', 'image/gif' => 'image',
             'video/mp4' => 'video',
+            'text/plain', 'text/html', 'application/json', 'application/javascript' => 'text',
+            'application/pdf' => 'pdf',
             'error' => 'error',
-            default => 'text',
+            default => 'unhandled',
         };
-
 
         // If file is text, return content
         if ($this->viewingItemType === 'text')
         {
-            // return file_get_contents($fullPath);
             // Use storage to get file contents
             return Storage::disk($this->currentFileSystemName)->get($filePath);
         }
@@ -215,6 +220,10 @@ class FileManager extends Component
         {
             // Get public path to video file
             return '/storage/'.$filePath;
+        }
+        elseif ($this->viewingItemType === 'pdf')
+        {
+            return '❌ Cannot display PDF contents...';
         }
         elseif ($this->viewingItemType === 'error')
         {
@@ -315,7 +324,6 @@ class FileManager extends Component
     {
         $this->highlightedItem = null;
 
-
         $currentDirectoryContents = empty($this->viewingDirectory)
             ? $this->directoriesAndFiles
             : data_get($this->directoriesAndFiles, $this->viewingDirectory, []);
@@ -343,11 +351,15 @@ class FileManager extends Component
     {
         if(config("wr-laravel-administration.file_manager.file_systems.$fileSystem.enabled", false) !== true) {
             $this->currentFileSystemName = null;
-            $this->fileSystemAbsolutePath = null;
             return;
         }
 
         $this->currentFileSystemName = $fileSystem;
-        $this->fileSystemAbsolutePath = str_replace('\\', '/', Storage::disk($fileSystem)->path(''));
+    }
+
+    public function getFileSystemAbsolutePath(): string
+    {
+        // Get the absolute path to the current file system
+        return str_replace('\\', '/', Storage::disk($this->currentFileSystemName)->path(''));
     }
 }

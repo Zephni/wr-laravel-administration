@@ -92,8 +92,6 @@
                     </div>
     
                     <div class="flex justify-end items-center gap-2">
-                        {{-- Absolute file: rtrim($fileSystemAbsolutePath.trim(str_replace('.', '/', $viewingDirectory), '/').'/'.$directoryOrFile, '/') --}}
-
                         {{-- If is file --}}
                         @if($directoryOrFile != '..' && !is_array($directoryOrFile))
                             <label
@@ -168,6 +166,11 @@
                                 <source src="{{ $viewingItemContent }}" type="video/mp4">
                                 Your browser does not support the video tag.
                             </video>
+                        </div>
+                    @else
+                        <div class="w-full flex justify-center items-center mt-3">
+                            <i class="fas fa-info-circle text-slate-400 mr-1"></i>
+                            {{ $viewingItemType }} preview not available.
                         </div>
                     @endif
 

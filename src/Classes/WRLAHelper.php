@@ -1167,7 +1167,7 @@ class WRLAHelper
      */
     public static function getDirectoriesAndFiles(string $directoryPath, array $ignoreDirectoriesOrFiles = ['.gitignore']): array
     {
-        $logDirectoriesAndFiles = [];
+        $allDirectoriesAndFiles = [];
         $directoriesAndFiles = scandir($directoryPath);
 
         // Loop through each file or directory
@@ -1178,36 +1178,38 @@ class WRLAHelper
                 continue;
             }
 
-            $fullPath = "$directoryPath/$fileOrDirectory";
+            $fullPath = str_replace('//', '/', "$directoryPath/$fileOrDirectory");
 
-            if (is_file($fullPath))
-            {
-                // Add file to the list
-                $logDirectoriesAndFiles[] = $fileOrDirectory;
-            }
-            elseif (is_dir($fullPath) && !is_link($fullPath))
-            {
-                // Recursively get directories and files
-                $logDirectoriesAndFiles[$fileOrDirectory] = self::getDirectoriesAndFiles($fullPath);
+            if(!is_link($fullPath)) {
+                if (is_dir($fullPath))
+                {
+                    // Recursively get directories and files
+                    $allDirectoriesAndFiles[$fileOrDirectory] = self::getDirectoriesAndFiles($fullPath);
+                }
+                else
+                {
+                    // Add file to the list
+                    $allDirectoriesAndFiles[] = $fileOrDirectory;
+                }
             }
         }
 
         // Re-order the array so that directories are first
-        $logDirectoriesAndFiles = collect($logDirectoriesAndFiles);
+        $allDirectoriesAndFiles = collect($allDirectoriesAndFiles);
 
-        $directories = $logDirectoriesAndFiles->filter(function($value, $key) {
+        $directories = $allDirectoriesAndFiles->filter(function($value, $key) {
             return is_array($value);
         })->sort();
 
-        $files = $logDirectoriesAndFiles->filter(function($value, $key) {
+        $files = $allDirectoriesAndFiles->filter(function($value, $key) {
             return !is_array($value);
         })->sort(function($a, $b) use ($directoryPath) {
             return filemtime("$directoryPath/$a") < filemtime("$directoryPath/$b");
         });
 
-        $logDirectoriesAndFiles = $directories->merge($files)->toArray();
+        $allDirectoriesAndFiles = $directories->merge($files)->toArray();
 
-        return $logDirectoriesAndFiles;
+        return $allDirectoriesAndFiles;
     }
 
     /**
