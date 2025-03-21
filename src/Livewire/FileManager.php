@@ -197,7 +197,7 @@ class FileManager extends Component
 
         // Match type of file
         $this->viewingItemType = match($mimeType) {
-            'image/jpeg', 'image/png', 'image/gif' => 'image',
+            'image/jpeg', 'image/png', 'image/gif', 'image/svg+xml', 'image/webp' => 'image',
             'video/mp4' => 'video',
             'text/plain', 'text/html', 'application/json', 'application/javascript' => 'text',
             'application/pdf' => 'pdf',
