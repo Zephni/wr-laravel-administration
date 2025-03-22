@@ -121,6 +121,11 @@ class Image
             $image = $manipulateImageFunction($image);
         }
 
+        // If no extension is provided in the filename, use the original file extension
+        if (!str($filename)->contains('.')) {
+            $filename .= '.' . $file->getClientOriginalExtension();
+        }
+
         $fileSystem = $this->getOption('fileSystem');
         if($this->getOption('fileSystem') == 'public') {
             $image->save(public_path($path) . '/' . $filename);
