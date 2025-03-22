@@ -82,27 +82,23 @@ class FileManager extends Component
     {
         // Redirect if file manager is not enabled in config
         if(config('wr-laravel-administration.file_manager.enabled', false) !== true) {
+            session()->flash('error', 'Access to file manager permission denied.');
             $this->redirect(route('wrla.dashboard'));
         }
 
         // Config
         $this->viewFileMaxCharacters = config('wr-laravel-administration.file_manager.max_characters', 500000);
-        $attemptFileSystemName = collect(config('wr-laravel-administration.file_manager.file_systems', []))->keys()->first();
+        $attemptFileSystemName = config('wr-laravel-administration.file_manager.default_filesystem', null);
 
         // Set file system
-        $this->setFileSystem($attemptFileSystemName);
-
-        // Set all log files and directories
-        $this->setCurrentDirectoriesAndFiles();
-
-        // Find the first file within found logs and set it as the default viewing log
-        $this->selectFirstFileInCurrentDirectory();
+        $this->switchFileSystem($attemptFileSystemName);
     }
 
     public function render()
     {
         // Render the view
         return view(WRLAHelper::getViewPath('livewire.file-manager'), [
+            'fileSystemNames' => $this->getAvailableFileSystemNames(),
             'fullDirectoryPath' => $this->getFullDirectoryPath(false),
             'fullFilePath' => $this->getFullFilePath(false),
         ]);
@@ -158,7 +154,9 @@ class FileManager extends Component
         
         // Get all files but ignore hidden files and get last part of path
         $this->currentFiles = $this->getCurrentFileSystem()->files(str_replace('.', '/', $this->viewingDirectory));
-        $this->currentFiles = array_filter($this->currentFiles, fn($file) => !str_starts_with($file, '.'));
+        $this->currentFiles = array_filter($this->currentFiles, function($file) {
+            return !str($file)->afterLast('/')->startsWith('.');
+        });
         $this->currentFiles = array_map(fn($file) => str($file)->afterLast('/')->toString(), $this->currentFiles);
     }
 
@@ -310,6 +308,37 @@ class FileManager extends Component
         $this->refresh();
     }
 
+    public function switchFileSystem(string $fileSystemName)
+    {
+        // Get available file system names
+        $availableFileSystemNames = $this->getAvailableFileSystemNames();
+
+        // If the file system name is not in the available file systems, return
+        if ($fileSystemName !== '' && !in_array($fileSystemName, $availableFileSystemNames)) {
+            $this->addError('error', "File system '$fileSystemName' not available or enabled in wr-laravel-administration.file_manager config.");
+            return;
+        }
+
+        // Set current file system name
+        $this->currentFileSystemName = $fileSystemName;
+
+        // If empty
+        if(empty($this->currentFileSystemName)) {
+            $this->viewingDirectory = '';
+            $this->highlightedItem = null;
+            $this->currentDirectories = [];
+            $this->currentFiles = [];
+            $this->viewingItemContent = '';
+            $this->viewingItemType = null;
+        } else {
+            // Set all log files and directories
+            $this->setCurrentDirectoriesAndFiles();
+
+            // Select the first file in the current directory
+            $this->selectFirstFileInCurrentDirectory();
+        }
+    }
+
     public function refresh()
     {
         // Set all log files and directories
@@ -332,16 +361,6 @@ class FileManager extends Component
         $this->viewingItemContent = $this->getFileContent("{$this->viewingDirectory}/{$this->highlightedItem}");
     }
 
-    public function setFileSystem(string $fileSystem)
-    {
-        if(config("wr-laravel-administration.file_manager.file_systems.$fileSystem.enabled", false) !== true) {
-            $this->currentFileSystemName = null;
-            return;
-        }
-
-        $this->currentFileSystemName = $fileSystem;
-    }
-
     public function getFileSystemAbsolutePath(): string
     {
         // Get the absolute path to the current file system
@@ -351,5 +370,18 @@ class FileManager extends Component
     private function getCurrentFileSystem()
     {
         return Storage::disk($this->currentFileSystemName);
+    }
+
+    private function getAvailableFileSystemNames(): array
+    {
+        return array_keys($this->getAvailableFileSystemConfigs());
+    }
+
+    private function getAvailableFileSystemConfigs(): array
+    {
+        // Only where where enabled
+        return collect(config('wr-laravel-administration.file_manager.file_systems', []))->filter(function ($fileSystem) {
+            return $fileSystem['enabled'] ?? false;
+        })->toArray();
     }
 }

@@ -116,10 +116,11 @@ return [
     'file_manager' => [
         'enabled' => true,
         'max_characters' => 500000,
+        'default_filesystem' => 'public', // Use null or empty string to display all filesystems
         'file_systems' => [
             'public' => [
                 'enabled' => true,
-            ]
+            ],
         ]
     ],
 
