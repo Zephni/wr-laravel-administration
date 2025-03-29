@@ -176,7 +176,7 @@ class FileManager extends Component
 
         // Get file mime type
         try {
-            $mimeType = mime_content_type($fullPath);
+            $mimeType = $this->getCurrentFileSystem()->mimeType($filePath);
         } catch (Exception $e) {
             $mimeType = 'error';
         }
