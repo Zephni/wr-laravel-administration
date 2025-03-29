@@ -57,6 +57,29 @@ class Image
     }
 
     /**
+     * Get manageable model's absolute URL from manageable field
+     * 
+     * @param ManageableModel $manageableModel
+     * @param string $column
+     * @return string
+     */
+    public static function getModelURL(ManageableModel $manageableModel, string $column): string
+    {
+        $value = $manageableModel->getModelInstance()->{$column};
+
+        if (empty($value)) {
+            return WRLAHelper::getCurrentThemeData('no_image_src') ?? '';
+        }
+
+        $manageableField = $manageableModel->getManageableFieldByName($column);
+        $urlPath = $manageableField->getFileSystem()->url(
+            trim($manageableField->getPathOnly().'/'.$manageableModel->getModelInstance()->{$column}, '/')
+        );
+
+        return $urlPath;
+    }
+
+    /**
      * Upload the image from request and apply the value.
      *
      * @param Request $request

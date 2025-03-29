@@ -877,7 +877,7 @@ abstract class ManageableModel
         }
 
         // Simply remove any null values from the manageable fields
-        $manageableFields = array_filter($this->getManageableFields());
+        $manageableFields = once(fn() => array_filter($this->getManageableFields()));
 
         // Unpack any nested arrays within manageable fields
         $manageableFields = array_reduce($manageableFields, function($carry, $item) {
@@ -899,6 +899,40 @@ abstract class ManageableModel
 
         return $manageableFields;
     }
+
+
+    public static $instancelessManageableFields = [];
+
+    /**
+     * Get manageable field by name
+     * 
+     * @param string $name
+     * @return ?object&ManageableField
+     */
+    public function getManageableFieldByName(string $columnName): ?object
+    {
+        // If instanceless manageable fields are set for this class, return them
+        if(array_key_exists(static::class, self::$instancelessManageableFields))
+        {
+            $manageableFields = self::$instancelessManageableFields[static::class];
+        }
+        // Otherwise, set them
+        else
+        {
+            self::$instancelessManageableFields[static::class] = $this->getManageableFieldsFinal();
+            $manageableFields = self::$instancelessManageableFields[static::class];
+        }
+
+        // Loop through manageable fields and find the one with the matching name
+        foreach ($manageableFields as $manageableField) {
+            if ($manageableField->getAttribute('name') === $columnName) {
+                return $manageableField;
+            }
+        }
+
+        return null; // Return null if not found
+    }
+
 
     /**
      * Get a json value with -> notation, eg: column->key1->key2
@@ -1025,32 +1059,50 @@ abstract class ManageableModel
      */
     public function fillEmptyInstanceAttributesWithDefaults(): void
     {
-        $manageableModel = $this;
+        // Get the table data for each column, allow for failure in case where this isn't a mysql database
+        $tableData = static::getTableData();
 
-        once(function() use($manageableModel) {
-            // Get the table data for each column, allow for failure in case where this isn't a mysql database
-            try {
-                $tableData = $manageableModel->getModelInstance()->getConnection()
-                                ->select("SHOW COLUMNS FROM {$manageableModel->getModelInstance()->getTable()}");
-            } catch(\Exception $e) {
-                return;
+        // Loop through (other than the specified ones and set all the default values)
+        foreach($tableData as $columnData) {
+            $columnName = $columnData->Field;
+
+            // If the column is 'id' or 'created_at' or 'updated_at' or 'deleted_at' then skip
+            if(in_array($columnName, ['id', 'created_at', 'updated_at', 'deleted_at'])) {
+                continue;
             }
 
-            // Loop through (other than the specified ones and set all the default values)
-            foreach($tableData as $columnData) {
-                $columnName = $columnData->Field;
-
-                // If the column is 'id' or 'created_at' or 'updated_at' or 'deleted_at' then skip
-                if(in_array($columnName, ['id', 'created_at', 'updated_at', 'deleted_at'])) {
-                    continue;
-                }
-
-                // If the column is not set on the instance, then set the default value
-                if(!$manageableModel->getModelInstance()->hasAttribute($columnName)) {
-                    $manageableModel->getModelInstance()->setAttribute($columnName, $columnData->Default);
-                }
+            // If the column is not set on the instance, then set the default value
+            if(!$this->getModelInstance()->hasAttribute($columnName)) {
+                $this->getModelInstance()->setAttribute($columnName, $columnData->Default);
             }
-        });
+        }
+    }
+
+    /**
+     * Store and get table data for the base model
+     * 
+     * @return array
+     */
+    public function getTableData(): array
+    {
+        // If already set, return the table data
+        $tableData = static::getStaticOption(static::class, 'tableData');
+        if(!empty($tableData)) return $tableData;
+
+        // Get table data
+        try {
+            $tableData = once(fn() =>
+                $this->getModelInstance()->getConnection()->select("SHOW COLUMNS FROM {$this->getModelInstance()->getTable()}")
+            );
+        } catch(\Exception $e) {
+            return [];
+        }
+
+        // Store in static variable
+        static::setStaticOption('tableData', $tableData);
+
+        // Return
+        return $tableData;
     }
 
     /**
