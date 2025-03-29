@@ -3,10 +3,11 @@
     'aspect' => 'auto',
     'class' => '',
     'style' => '',
+    'originalSrc' => null,
 ])
 
 @php
-    if(!str_starts_with($src, 'http') && !file_exists(public_path($WRLAHelper::forwardSlashPath($src)))) {
+    if(empty($originalSrc) && !str_starts_with($src, 'http') && !file_exists(public_path($WRLAHelper::forwardSlashPath($src)))) {
         $originalSrc = $src;
         $src = $WRLAHelper::forwardSlashPath($WRLAHelper::getCurrentThemeData('no_image_src'));
     }

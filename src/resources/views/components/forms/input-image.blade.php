@@ -36,6 +36,7 @@
     <div class="w-2/12">
         @themeComponent('forced-aspect-image', [
             'src' => $src,
+            'originalSrc' => $publicUrlWithoutDomain,
             'class' => "wrla_image_preview {$options['class']} ".($imageExists ? '' : 'wrla_no_image'),
             'aspect' => $options["aspect"],
         ])
