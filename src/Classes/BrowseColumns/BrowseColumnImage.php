@@ -10,6 +10,7 @@ class BrowseColumnImage extends BrowseColumnBase
      * Create a new instance of the class
      *
      * @param string|null $label
+     * @param string $imagePath Path to the image including filename
      * @return static
      */
     public static function make(?string $label, string $imagePath, null|string|int $width = 140): static
