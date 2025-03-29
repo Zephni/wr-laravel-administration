@@ -2,13 +2,14 @@
 
 namespace WebRegulate\LaravelAdministration\Classes\ManageableFields;
 
-use Illuminate\Contracts\Filesystem\Filesystem;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Intervention\Image\ImageManager;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Drivers\Gd\Driver;
 use Illuminate\View\ComponentAttributeBag;
+use Illuminate\Contracts\Filesystem\Filesystem;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 use WebRegulate\LaravelAdministration\Traits\ManageableField;
 use WebRegulate\LaravelAdministration\Classes\ManageableModel;
@@ -426,12 +427,20 @@ class Image
      */
     public function render(): mixed
     {
+        $fileSystemImageExists = true;
+        try {
+            $fileSystemImageExists = $this->getFileSystem()->exists($this->getDiskStoragePath());
+        } catch (Exception $e) {
+            // $fileSystemImageExists = false;
+        }
+
         $HTML = view(WRLAHelper::getViewPath('components.forms.input-image'), [
             'label' => $this->getLabel(),
             'options' => $this->options,
             'fileSystem' => $this->getFileSystem(),
             'publicUrl' => $this->getURLPath(),
             'publicUrlWithoutDomain' => $this->getURLPathWithoutDomain(),
+            'fileSystemImageExists' => $fileSystemImageExists,
             'attributes' => new ComponentAttributeBag(array_merge($this->htmlAttributes, [
                 'name' => $this->getAttribute('name'),
                 'value' => $this->getDiskStoragePath(),

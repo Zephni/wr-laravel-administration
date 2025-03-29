@@ -1,4 +1,4 @@
-@props(['fileSystem' => null, 'publicUrlWithoutDomain' => '', 'options' => [], 'label' => null])
+@props(['fileSystem' => null, 'publicUrl' => '', 'publicUrlWithoutDomain' => '', 'options' => [], 'label' => null])
 
 @php
     // Set id from name if unset
@@ -12,8 +12,8 @@
     $isHttpImage = preg_match('/^http(s)?:\/\//', $value);
 
     // Check that $value exists as an image, if not then we use the $options['defaultImage']
-    $imageExists = !empty($value) && $fileSystem?->exists($value) && $value != $WRLAHelper::getCurrentThemeData('no_image_src');
-    $src = $imageExists ? $publicUrlWithoutDomain : $options['defaultImage'];
+    $imageExists = !empty($value) && $fileSystemImageExists && $value != $WRLAHelper::getCurrentThemeData('no_image_src');
+    $src = $imageExists ? $publicUrl : $options['defaultImage'];
     $imageExistsHtml = $imageExists
         ? '<span class="float-right text-green-500">Image found</span>'
         : '<span class="float-right text-red-500">Image not found</span>';
