@@ -42,8 +42,11 @@ class FileManager extends Component
             // Get full file name
             $fileName = $value->getClientOriginalName();
 
+            // Get filesystem path
+            $fileSystemPath = str_replace('//', '/', str_replace('.', '/', $this->viewingDirectory).'/'.$fileName);
+
             // Store the new file
-            $this->getCurrentFileSystem()->put("{$this->viewingDirectory}/$fileName", $value->get());
+            $this->getCurrentFileSystem()->put($fileSystemPath, $value->get());
 
             // Reset uploadFilePath
             $this->uploadFilePath = null;
@@ -62,8 +65,11 @@ class FileManager extends Component
             // Get last part of absolute file path
             $fileName = str($this->replaceFilePath)->afterLast('/')->toString();
 
+            // Get filesystem path
+            $fileSystemPath = str_replace('//', '/', str_replace('.', '/', $this->viewingDirectory).'/'.$fileName);
+
             // Store the new file
-            $this->getCurrentFileSystem()->put("{$this->viewingDirectory}/$fileName", $value->get());
+            $this->getCurrentFileSystem()->put($fileSystemPath, $value->get());
 
             // Reset replaceFilePath
             $this->replaceFilePath = null;
@@ -193,8 +199,14 @@ class FileManager extends Component
         }
         elseif ($this->viewingItemType === 'image')
         {
-            $rawImageData = $this->getCurrentFileSystem()->get($filePath);
-            return 'data:image/'.str($mimeType)->afterLast('/').';base64,' . base64_encode($rawImageData);;
+            // Get raw image data and convert to base64
+            try {
+                $rawImageData = $this->getCurrentFileSystem()->get($filePath);
+                return 'data:image/'.str($mimeType)->afterLast('/').';base64,' . base64_encode($rawImageData);;
+            // If fails, get public path to image file
+            } catch (Exception $e) {
+                return $this->getCurrentFileSystem()->url($filePath);
+            }
         }
         elseif ($this->viewingItemType === 'video')
         {
