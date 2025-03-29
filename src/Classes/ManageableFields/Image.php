@@ -2,13 +2,13 @@
 
 namespace WebRegulate\LaravelAdministration\Classes\ManageableFields;
 
+use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Intervention\Image\ImageManager;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Drivers\Gd\Driver;
 use Illuminate\View\ComponentAttributeBag;
-use WebRegulate\LaravelAdministration\Enums\PageType;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 use WebRegulate\LaravelAdministration\Traits\ManageableField;
 use WebRegulate\LaravelAdministration\Classes\ManageableModel;
@@ -42,6 +42,7 @@ class Image
 
         $imageInstance = new static($column, $manageableModel?->getModelInstance()->{$column}, $manageableModel);
         $imageInstance->setOptions([
+            'fileSystem' => $fileSystem,
             'path' => $path,
             'filename' => $filename,
             'defaultImage' => WRLAHelper::getCurrentThemeData('no_image_src'),
@@ -50,8 +51,8 @@ class Image
             'aspect' => null,
             'storeFilenameOnly' => true,
             'class' => '',
-            'fileSystem' => $fileSystem,
         ]);
+        
         return $imageInstance;
     }
 
@@ -69,7 +70,7 @@ class Image
 
         // If value is equal to the special constant WRLA_KEY_REMOVE, we delete the image
         if ($value === WRLAHelper::WRLA_KEY_REMOVE) {
-            $this->deleteImageByPath($currentImage);
+            $this->deleteImage($currentImage);
             return null;
         }
 
@@ -78,7 +79,7 @@ class Image
 
             // If unlinkOld option set, and an image already exists with the old value, we delete it
             if ($this->getOption('unlinkOld') == true && !empty($currentImage)) {
-                $this->deleteImageByPath($currentImage);
+                $this->deleteImage($currentImage);
             }
 
             // If storeFilenameOnly is false, store the entire filepath/filename.ext
@@ -96,6 +97,16 @@ class Image
     }
 
     /**
+     * Get file system
+     * 
+     * @return FileSystem
+     */
+    public function getFileSystem(): FileSystem
+    {
+        return Storage::disk($this->getOption('fileSystem'));
+    }
+
+    /**
      * Upload image
      *
      * @param UploadedFile $request
@@ -103,13 +114,16 @@ class Image
      */
     public function uploadImage(UploadedFile $file): string
     {
+        // Get file system
+        $fileSystem = $this->getFileSystem();
+
         // Get path and filename
-        $path = WRLAHelper::forwardSlashPath($this->getPath());
+        $path = WRLAHelper::forwardSlashPath($this->getPathOnly());
         $filename = $this->formatImageName($this->options['filename'] ?? $file->getClientOriginalName());
 
         // If directory doesn't exist, create it
-        if (!is_dir(public_path($path))) {
-            mkdir(public_path($path), 0777, true);
+        if (!$fileSystem->exists($path)) {
+            $fileSystem->makeDirectory($path);
         }
 
         // New, we now use Intervention
@@ -126,15 +140,13 @@ class Image
             $filename .= '.' . $file->getClientOriginalExtension();
         }
 
+        // Get file system
         $fileSystem = $this->getOption('fileSystem');
-        if($this->getOption('fileSystem') == 'public') {
-            $image->save(public_path($path) . '/' . $filename);
-        } else {
-            $image = $image->stream();
-            Storage::disk($fileSystem)->put("$path/$filename", $image->__toString());
-        }
 
-        return '/'.rtrim(ltrim($path, '/'), '/') . '/' . $filename;
+        // Store image
+        Storage::disk($fileSystem)->put("$path/$filename", $image->encode());
+
+        return ltrim(rtrim(ltrim($path, '/'), '/') . '/' . $filename, '/');
     }
 
     /**
@@ -180,30 +192,30 @@ class Image
      *
      * @return string
      */
-    public function getPath(): string
+    public function getPathOnly(): string
     {
-        return $this->options['path'] ?? 'uploads';
+        return !empty($this->options['path']) ? $this->options['path'] : '';
     }
 
     /**
      * Delete image file
      *
-     * @param string $pathRelativeToPublic
+     * @param string $filePathRelativeToFileSystem
      */
-    public function deleteImageByPath(string $pathRelativeToPublic)
+    public function deleteImage(string $filePathRelativeToFileSystem)
     {
         // Check is a filename
-        $parts = explode('/', ltrim($pathRelativeToPublic, '/'));
+        $parts = explode('/', ltrim($filePathRelativeToFileSystem, '/'));
         $isAFileName = count($parts) > 0 && strpos(end($parts), '.') !== false;
 
         if($isAFileName) {
-            $oldValue = WRLAHelper::forwardSlashPath(public_path().'/'.$this->getPath().'/'.$pathRelativeToPublic);
+            $oldValue = WRLAHelper::forwardSlashPath($this->getPathOnly().'/'.$filePathRelativeToFileSystem);
 
-            // If is file and exists, delete it
-            // dd($oldValue);
-            if (file_exists($oldValue)) {
-                unlink($oldValue);
-            }
+            // Get file system
+            $fileSystem = $this->getOption('fileSystem');
+
+            // If file exists, delete it from file system
+            Storage::disk($fileSystem)->delete($oldValue);
         }
     }
 
@@ -339,7 +351,50 @@ class Image
         return $this;
     }
 
+    /**
+     * Get disk storage path, returns the full path (including filename) relative to the filesystem
+     * 
+     * @return string
+     */
+    public function getDiskStoragePath(): string
+    {
+        $path = ($this->getOption('storeFilenameOnly') == true)
+            ? '/'.$this->getPathOnly()
+            : '';
 
+        return $path.$this->getValue();
+    }
+
+    /**
+     * Get absolute path, full path to the file (including filename) on the server
+     * 
+     * @return string
+     */
+    public function getAbsolutePath(): string
+    {
+        return $this->getFileSystem()->path($this->getDiskStoragePath());
+    }
+
+    /**
+     * Get URL path, full URL to the file (including filename)
+     * 
+     * @return string
+     */
+    public function getURLPath(): string
+    {
+        return $this->getFileSystem()->url($this->getDiskStoragePath());
+    }
+
+    /**
+     * Get public URL path without domain
+     * 
+     * @return string
+     */
+    public function getURLPathWithoutDomain(): string
+    {
+        $url = $this->getURLPath();
+        return parse_url($url, PHP_URL_PATH) ?? '';
+    }
 
     /**
      * Render the input field.
@@ -348,18 +403,15 @@ class Image
      */
     public function render(): mixed
     {
-        $HTML = '';
-
-        $path = ($this->getOption('storeFilenameOnly') == true)
-            ? '/'.$this->getPath()
-            : '';
-
-        $HTML .= view(WRLAHelper::getViewPath('components.forms.input-image'), [
+        $HTML = view(WRLAHelper::getViewPath('components.forms.input-image'), [
             'label' => $this->getLabel(),
             'options' => $this->options,
+            'fileSystem' => $this->getFileSystem(),
+            'publicUrl' => $this->getURLPath(),
+            'publicUrlWithoutDomain' => $this->getURLPathWithoutDomain(),
             'attributes' => new ComponentAttributeBag(array_merge($this->htmlAttributes, [
                 'name' => $this->getAttribute('name'),
-                'value' => $path.$this->getValue(),
+                'value' => $this->getDiskStoragePath(),
                 'type' => 'file'
             ])),
         ])->render();
