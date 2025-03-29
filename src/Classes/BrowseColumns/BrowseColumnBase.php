@@ -254,6 +254,18 @@ class BrowseColumnBase
     }
 
     /**
+     * Set class
+     * 
+     * @param string $class
+     * @return static
+     */
+    public function class(string $class): static
+    {
+        $this->setOption('class', $class);
+        return $this;
+    }
+
+    /**
      * Render string value
      *
      * @param ?string $value

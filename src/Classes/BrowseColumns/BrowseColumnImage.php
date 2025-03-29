@@ -39,4 +39,16 @@ class BrowseColumnImage extends BrowseColumnBase
 
         return $browseColumnImage;
     }
+
+    /**
+     * Set aspect ratio of the image
+     * 
+     * @param string $aspect Format 1/1 (width/height)
+     * @return static
+     */
+    public function aspect(string $aspect): static
+    {
+        $this->options['aspect'] = $aspect;
+        return $this;
+    }
 }
