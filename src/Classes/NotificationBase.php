@@ -88,6 +88,11 @@ class NotificationBase
         return $message;
     }
 
+    public function getLink(): ?string
+    {
+        return null;
+    }
+
     public function postCreated(): void
     {
         // Handle email sending, push notifications, etc.
