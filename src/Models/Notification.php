@@ -156,12 +156,14 @@ class Notification extends Model
     {
         $userIds = WRLAHelper::interpretUserGroupsArray($userIds);
 
-        return static::where(function ($query) use($userIds) {
+        return once(fn() =>
+            static::where(function ($query) use($userIds) {
                 // Loop through user ids building where / or where's
                 foreach($userIds as $userId) {
                     $query->orWhere('user_id', $userId);
                 }
             })
-            ->orderBy('created_at', 'desc');
+            ->orderBy('created_at', 'desc')
+        );
     }
 }
