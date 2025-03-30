@@ -9,12 +9,13 @@ use WebRegulate\LaravelAdministration\Classes\NotificationBase;
 
 class NotificationCustom extends NotificationBase
 {
-    public static function make(string $userId, string $title, string $body, ?string $emailBody, bool $sendEmail): self
+    public static function make(string $userId, string $title, string $body, ?string $emailBody, ?string $link, bool $sendEmail): self
     {
         $notification = Notification::make(self::class, $userId, [
             'title' => $title,
             'body' => $body,
-            'emailBody' => $emailBody,
+            'emailBody' => $emailBody ?? $body,
+            'link' => $link,
             'sendEmail' => $sendEmail,
         ]);
 
@@ -34,6 +35,11 @@ class NotificationCustom extends NotificationBase
     public function getEmailMessage(): string
     {
         return $this->data['emailBody'] ?? $this->getMessage();
+    }
+
+    public function getLink(): ?string
+    {
+        return $this->data['link'] ?? null;
     }
 
     public function getButtons(Collection $defaultButtons, Notification $notification): Collection
