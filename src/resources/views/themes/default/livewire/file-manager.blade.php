@@ -147,7 +147,7 @@
                                     'text' => 'Delete',
                                     'icon' => 'fas fa-trash text-xs leading-0',
                                     'attributes' => new \Illuminate\View\ComponentAttributeBag([
-                                        'title' => 'Delete '.(!is_array($directory) ? 'file' : 'directory'),
+                                        'title' => 'Delete directory and all contents',
                                         'class' => '!py-0 !leading-0 !h-[22.6px]',
                                         // 'wire:click' => "deleteFile('$viewingDirectory', '".(is_array($directoryOrFile) ? $key : $directoryOrFile)."')",
                                         // Rather than wire:click, use x-on:click to first confirm deletion, and then call the method
