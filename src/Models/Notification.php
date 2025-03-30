@@ -86,16 +86,46 @@ class Notification extends Model
     /**
      * Mark notification as read.
      *
+     * @param bool $softDelete
      * @return void
      */
-    public function markAsRead()
+    public function markAsRead(bool $softDelete = false)
     {
         if (User::current() === null) {
             return;
         }
 
         $this->read_at = now();
+
+        if ($softDelete) {
+            $this->delete();
+        }
+
         $this->save();
+    }
+
+    /**
+     * Mark all notifications as read with an optional soft delete.
+     * 
+     * @param bool $softDelete
+     * @return void
+     */
+    public static function markAllAsRead(bool $softDelete = false)
+    {
+        $user = User::current();
+
+        if ($user === null) {
+            return;
+        }
+
+        $query = self::where('user_id', $user->id)
+            ->whereNull('read_at');
+
+        if ($softDelete) {
+            $query->delete();
+        } else {
+            $query->update(['read_at' => now()]);
+        }
     }
 
     /**
