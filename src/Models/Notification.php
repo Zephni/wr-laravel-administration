@@ -86,10 +86,10 @@ class Notification extends Model
     /**
      * Mark notification as read.
      *
-     * @param bool $softDelete
+     * @param bool $delete
      * @return void
      */
-    public function markAsRead(bool $softDelete = false)
+    public function markAsRead(bool $delete = false)
     {
         if (User::current() === null) {
             return;
@@ -97,7 +97,7 @@ class Notification extends Model
 
         $this->read_at = now();
 
-        if ($softDelete) {
+        if ($delete) {
             $this->delete();
         }
 
@@ -107,10 +107,10 @@ class Notification extends Model
     /**
      * Mark all notifications as read with an optional soft delete.
      * 
-     * @param bool $softDelete
+     * @param bool $delete
      * @return void
      */
-    public static function markAllAsRead(bool $softDelete = false)
+    public static function markAllAsRead(bool $delete = false)
     {
         $user = User::current();
 
@@ -121,7 +121,7 @@ class Notification extends Model
         $query = self::where('user_id', $user->id)
             ->whereNull('read_at');
 
-        if ($softDelete) {
+        if ($delete) {
             $query->delete();
         } else {
             $query->update(['read_at' => now()]);
