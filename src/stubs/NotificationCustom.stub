@@ -14,7 +14,7 @@ class NotificationCustom extends NotificationBase
         $notification = Notification::make(self::class, $userId, [
             'title' => $title,
             'body' => $body,
-            'emailBody' => $emailBody ?? $body,
+            'emailBody' => $emailBody,
             'link' => $link,
             'sendEmail' => $sendEmail,
         ]);
