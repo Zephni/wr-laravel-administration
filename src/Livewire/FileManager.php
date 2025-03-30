@@ -172,8 +172,8 @@ class FileManager extends Component
         // File path
         $filePath = str($filePath)->ltrim('/')->toString();
 
-        // Get full path to file
-        $fullPath = str($this->getCurrentFileSystem()->path($filePath))->replace('\\', '/')->toString();
+        // Reset viewing item data to null
+        $this->viewingItemData = null;
 
         // Get file mime type
         try {
