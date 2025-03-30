@@ -5,6 +5,7 @@ namespace WebRegulate\LaravelAdministration\Models;
 use App\Models\User;
 use Illuminate\Support\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 use WebRegulate\LaravelAdministration\Classes\NotificationBase;
 
@@ -143,5 +144,24 @@ class Notification extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Get eloquent builder for given userIds
+     * 
+     * @param array $userIds
+     * @return Builder|mixed
+     */
+    public static function baseBuilderForUserIds(array $userIds): mixed
+    {
+        $userIds = WRLAHelper::interpretUserGroupsArray($userIds);
+
+        return static::where(function ($query) use($userIds) {
+                // Loop through user ids building where / or where's
+                foreach($userIds as $userId) {
+                    $query->orWhere('user_id', $userId);
+                }
+            })
+            ->orderBy('created_at', 'desc');
     }
 }

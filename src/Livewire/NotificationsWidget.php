@@ -32,19 +32,13 @@ class NotificationsWidget extends Component
 
     public function render(): View
     {
-        $notifications = Notification::where(function ($query) {
-                // Loop through user ids building where / or where's
-                foreach($this->userIds as $userId) {
-                    $query->orWhere('user_id', $userId);
-                }
-            })
+        $notifications = Notification::baseBuilderForUserIds($this->userIds)
             ->when($this->statusFilter === 'unread', function ($query) {
                 return $query->whereNull('read_at');
             })
             ->when($this->statusFilter === 'read', function ($query) {
                 return $query->whereNotNull('read_at');
             })
-            ->orderBy('created_at', 'desc')
             ->paginate(15);
 
         return view(WRLAHelper::getViewPath('livewire.notifications-widget'), [
