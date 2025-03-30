@@ -265,6 +265,13 @@
                         </div>
                     @endif
 
+                    {{-- @if(!empty($viewingItemData)) --}}
+                        <div class="w-full pt-5 text-slate-600">
+                            <i class="fas fa-info-circle text-slate-400 mr-1"></i>
+                            {{ $viewingItemData }}
+                        </div>
+                    {{-- @endif --}}
+
                 </div>
             @endif
 

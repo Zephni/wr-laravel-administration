@@ -22,6 +22,7 @@ class FileManager extends Component
     public ?string $highlightedItem = null;
     public string $viewingItemContent = 'No content 1';
     public ?string $viewingItemType = null; // null, text, image, video, file (link)
+    public ?string $viewingItemData = null;
     public int $viewFileMaxCharacters = 0;
     public $listeners = [
         'createDirectory' => 'createDirectory',
@@ -202,6 +203,13 @@ class FileManager extends Component
             // Get raw image data and convert to base64
             try {
                 $rawImageData = $this->getCurrentFileSystem()->get($filePath);
+
+                // Get image size (not filesize)
+                $imageMeta = getimagesizefromstring($rawImageData);
+                $fileSize = $this->getCurrentFileSystem()->fileSize($filePath);
+                $humanReadableFileSize = $this->humanReadableSize($fileSize ?? 0);
+                $this->viewingItemData = "Width: {$imageMeta[0]}px, Height: {$imageMeta[1]}px, Size: ".$humanReadableFileSize;
+
                 return 'data:image/'.str($mimeType)->afterLast('/').';base64,' . base64_encode($rawImageData);;
             // If fails, get public path to image file
             } catch (Exception $e) {
@@ -224,6 +232,12 @@ class FileManager extends Component
 
         $this->highlightedItem = null;
         return '❌ Mime type not handled...';
+    }
+
+    public function humanReadableSize($bytes, $decimals = 2) {
+        $sizeUnits = ['B', 'KB', 'MB', 'GB', 'TB'];
+        $factor = floor((strlen($bytes) - 1) / 3);
+        return sprintf("%.{$decimals}f", $bytes / pow(1024, $factor)) . $sizeUnits[$factor];
     }
 
     public function getFullPath(string $directory, string $file): string
