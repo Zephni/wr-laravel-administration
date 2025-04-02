@@ -359,6 +359,20 @@ class EmailTemplate extends Model
     }
 
     /**
+     * Render email, returning the HTML.
+     * 
+     * @param string $renderMode
+     * @return string
+     */
+    public function renderEmail(string $renderMode = EmailTemplate::RENDER_MODE_EMAIL)
+    {
+        return view('email.wrla.email-template-mail', [
+            'emailTemplate' => $this,
+            'renderMode' => $renderMode,
+        ])->render();
+    }
+
+    /**
      * Get available mappings list as formatted HTML
      *
      * @return string
