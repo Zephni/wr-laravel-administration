@@ -1,6 +1,7 @@
 <?php
 namespace WebRegulate\LaravelAdministration\Classes\ManageableFields;
 
+use Exception;
 use Illuminate\Support\Facades\Blade;
 use WebRegulate\LaravelAdministration\Traits\ManageableField;
 use WebRegulate\LaravelAdministration\Classes\ManageableModel;
@@ -32,7 +33,13 @@ class BladeElement
             ? $this->options['bladeCode']
             : call_user_func($this->options['bladeCode'], $this);
 
-        return Blade::render($bladeCode, $this->options['data']);
+        try {
+            return Blade::render($bladeCode, $this->options['data']);
+        } catch (Exception $e) {
+            // If blade code not valid, try and remove {{ }} from the code
+            $sanitizedBladeCode = preg_replace('/{{.*?}}/', '', $bladeCode);
+            return Blade::render($sanitizedBladeCode, $this->options['data']);
+        }
     }
 
     /**
