@@ -266,13 +266,17 @@
                     @endif
 
                     @if(!empty($viewingItemData))
-                        <div class="w-full pt-5 text-slate-600">
+                        <div class="w-full pt-5 text-sm text-slate-600">
                             <i class="fas fa-info-circle text-slate-400 mr-1"></i>
-                            {{ $viewingItemData }}
+                            {!! $viewingItemData !!}
 
-                            <br /><br />
-                            <b>Public URL:</b>
-                            <a href="{{ $viewingItemPublicUrl }}" target="_blank" class="w-full" style="overflow-wrap: break-word;">{{ $viewingItemPublicUrl }}</a>
+                            <p class="pt-4">
+                                <i class="fas fa-link text-slate-400 mr-1"></i>
+                                Public URL:
+                            </p>
+                            <a href="{{ $viewingItemPublicUrl }}" target="_blank" class="w-full text-sm" style="overflow-wrap: break-word;">
+                                {{ $viewingItemPublicUrl }}
+                            </a>
                         </div>
                     @endif
 

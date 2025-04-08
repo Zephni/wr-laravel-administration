@@ -212,7 +212,7 @@ class FileManager extends Component
                 $imageMeta = getimagesizefromstring($rawImageData);
                 $fileSize = $this->getCurrentFileSystem()->fileSize($filePath);
                 $humanReadableFileSize = $this->humanReadableSize($fileSize ?? 0);
-                $this->viewingItemData = "Width: {$imageMeta[0]}px, Height: {$imageMeta[1]}px, Size: ".$humanReadableFileSize;
+                $this->viewingItemData = "Width: <b>{$imageMeta[0]}</b>px, Height: <b>{$imageMeta[1]}</b>px, Size: <b>".$humanReadableFileSize."</b>";
 
                 return 'data:image/'.str($mimeType)->afterLast('/').';base64,' . base64_encode($rawImageData);;
             // If fails, get public path to image file
