@@ -23,6 +23,7 @@ class FileManager extends Component
     public string $viewingItemContent = 'No content 1';
     public ?string $viewingItemType = null; // null, text, image, video, file (link)
     public ?string $viewingItemData = null;
+    public ?string $viewingItemPublicUrl = null;
     public int $viewFileMaxCharacters = 0;
     public $listeners = [
         'createDirectory' => 'createDirectory',
@@ -174,6 +175,9 @@ class FileManager extends Component
 
         // Reset viewing item data to null
         $this->viewingItemData = null;
+
+        // Set public URL
+        $this->viewingItemPublicUrl = $this->getCurrentFileSystem()->url($filePath);
 
         // Get file mime type
         try {

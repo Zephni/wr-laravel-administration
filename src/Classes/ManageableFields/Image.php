@@ -250,17 +250,20 @@ class Image
      */
     public function getValue(): string
     {
+        // Get value attriubute
+        $value = $this->getAttribute('value');
+
         // If starts with http, return as is
-        if (strpos($this->getAttribute('value'), 'http') === 0) {
-            return $this->getAttribute('value');
+        if (str($value)->startsWith('http')) {
+            return $value;
         // Else, we apply a forward slash to the beginning of the path
         } else {
             // If no value is set, return default image
-            if (empty($this->getAttribute('value'))) {
-                return $this->getOption('defaultImage') ?? '__wrla_dont_find_me__';
+            if (empty($value)) {
+                return $this->getOption('defaultImage') ?? '';
             }
 
-            return '/'.ltrim(WRLAHelper::forwardSlashPath($this->getAttribute('value')), '/');
+            return '/'.ltrim(WRLAHelper::forwardSlashPath($value), '/');
         }
     }
 
@@ -406,6 +409,10 @@ class Image
      */
     public function getURLPath(): string
     {
+        if(str($this->getValue())->startsWith('http')) {
+            return $this->getValue();
+        }
+
         return $this->getFileSystem()->url($this->getDiskStoragePath());
     }
 
@@ -416,6 +423,10 @@ class Image
      */
     public function getURLPathWithoutDomain(): string
     {
+        if(str($this->getValue())->startsWith('http')) {
+            return $this->getValue();
+        }
+
         $url = $this->getURLPath();
         return parse_url($url, PHP_URL_PATH) ?? '';
     }
@@ -429,7 +440,9 @@ class Image
     {
         $fileSystemImageExists = true;
         try {
-            $fileSystemImageExists = $this->getFileSystem()->exists($this->getDiskStoragePath());
+            if(!str($this->getValue())->startsWith('http')) {
+                $fileSystemImageExists = $this->getFileSystem()->exists($this->getDiskStoragePath());
+            }
         } catch (Exception $e) {
             // $fileSystemImageExists = false;
         }

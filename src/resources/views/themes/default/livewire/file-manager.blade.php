@@ -269,6 +269,10 @@
                         <div class="w-full pt-5 text-slate-600">
                             <i class="fas fa-info-circle text-slate-400 mr-1"></i>
                             {{ $viewingItemData }}
+
+                            <br /><br />
+                            <b>Public URL:</b>
+                            <a href="{{ $viewingItemPublicUrl }}" target="_blank" class="w-full" style="overflow-wrap: break-word;">{{ $viewingItemPublicUrl }}</a>
                         </div>
                     @endif
 
