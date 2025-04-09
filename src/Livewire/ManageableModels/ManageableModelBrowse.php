@@ -5,11 +5,12 @@ namespace WebRegulate\LaravelAdministration\Livewire\ManageableModels;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Illuminate\Support\Collection;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+use WebRegulate\LaravelAdministration\Classes\CSVHelper;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 use WebRegulate\LaravelAdministration\Classes\ManageableModel;
-use WebRegulate\LaravelAdministration\Classes\CSVHelper;
 use WebRegulate\LaravelAdministration\Enums\ManageableModelPermissions;
 use WebRegulate\LaravelAdministration\Classes\BrowseColumns\BrowseColumnBase;
 
@@ -229,7 +230,7 @@ class ManageableModelBrowse extends Component
         $fileName = $this->manageableModelClass::getDisplayName(true) . ' ' . date('Y-m-d H:i') . '.csv';
 
         // Get current data set
-        $models = collect($this->browseModels()->all());
+        $models = $this->browseModels()->get();
 
         // If a static export method is provided, use that
         if($manageableModelStaticExportMethod !== null) {
@@ -267,7 +268,7 @@ class ManageableModelBrowse extends Component
     public function render()
     {
         $this->renders++;
-        $models = $this->browseModels();
+        $models = $this->browseModels()->paginate(18);
 
         return view(WRLAHelper::getViewPath('livewire.manageable-models.browse'), [
             'models' => $models,
@@ -318,9 +319,9 @@ class ManageableModelBrowse extends Component
     /**
      * Browse the models.
      *
-     * @return LengthAwarePaginator
+     * @return Builder
      */
-    protected function browseModels(): LengthAwarePaginator
+    protected function browseModels(): Builder
     {
         // get base model class and instance
         $baseModelClass = $this->manageableModelClass::getBaseModelClass();
@@ -338,8 +339,8 @@ class ManageableModelBrowse extends Component
         if(!WRLAHelper::tableExists($baseModelInstance, $tableName)) {
             session()->flash('error', 'Table `' . $tableName . '` does not exist in the database.');
             $this->redirectRoute('wrla.dashboard');
-            // We have to return an empty paginator so that the view does not error
-            return new LengthAwarePaginator([], 0, 18);
+            // Now we just return builder
+            return $baseModelClass::query();
         }
 
         // Get all types of columns
@@ -474,9 +475,7 @@ class ManageableModelBrowse extends Component
 
         $this->debugMessage = $eloquent->toRawSql();
 
-        $final = $eloquent->paginate(18);
-
-        return $final;
+        return $eloquent;
     }
 
     /**
