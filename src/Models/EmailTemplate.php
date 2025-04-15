@@ -35,20 +35,44 @@ class EmailTemplate extends Model
     private bool $errorFound = false;
 
     /**
-     * Find by alias.
+     * Get by alias.
+     *
+     * @param string $alias
+     * @param array $dataOrModels
+     * @return ?self
+     */
+    public static function getByAlias(string $alias, array $dataOrModels = []): ?self
+    {
+        // Cache the email template for this request
+        $emailTemplate = once(fn() => self::where('alias', 'like', $alias)->first());
+
+        if($emailTemplate == null) {
+            throw new \Exception('Email template not found with alias: ' . $alias);
+        }
+
+        // Set data array
+        if(!empty($dataOrModels)) {
+            $emailTemplate->setDataArray($dataOrModels);
+        }
+
+        return $emailTemplate;
+    }
+
+    /**
+     * Get by caetgory and alias.
      *
      * @param string $category
      * @param string $alias
      * @param array $dataOrModels
      * @return ?self
      */
-    public static function findByAlias(string $category, string $alias, array $dataOrModels = []): ?self
+    public static function getByCategoryAlias(string $category, string $alias, array $dataOrModels = []): ?self
     {
         // Cache the email template for this request
         $emailTemplate = once(fn() => self::where('category', $category)->where('alias', 'like', $alias)->first());
 
         if($emailTemplate == null) {
-            throw new \Exception('Email template not found with alias: ' . $alias);
+            throw new \Exception("Email template not found with category: $category and alias: $alias");
         }
 
         // Set data array
