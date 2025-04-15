@@ -39,12 +39,12 @@ class EmailTemplate extends Model
      *
      * @param string $alias
      * @param array $dataOrModels
-     * @return ?self
+     * @return ?static
      */
-    public static function getByAlias(string $alias, array $dataOrModels = []): ?self
+    public static function getByAlias(string $alias, array $dataOrModels = []): ?static
     {
         // Cache the email template for this request
-        $emailTemplate = once(fn() => self::where('alias', 'like', $alias)->first());
+        $emailTemplate = once(fn() => static::where('alias', 'like', $alias)->first());
 
         if($emailTemplate == null) {
             throw new \Exception('Email template not found with alias: ' . $alias);
@@ -64,12 +64,12 @@ class EmailTemplate extends Model
      * @param string $category
      * @param string $alias
      * @param array $dataOrModels
-     * @return ?self
+     * @return ?static
      */
-    public static function getByCategoryAlias(string $category, string $alias, array $dataOrModels = []): ?self
+    public static function getByCategoryAlias(string $category, string $alias, array $dataOrModels = []): ?static
     {
         // Cache the email template for this request
-        $emailTemplate = once(fn() => self::where('category', $category)->where('alias', 'like', $alias)->first());
+        $emailTemplate = once(fn() => static::where('category', $category)->where('alias', 'like', $alias)->first());
 
         if($emailTemplate == null) {
             throw new \Exception("Email template not found with category: $category and alias: $alias");
@@ -87,9 +87,9 @@ class EmailTemplate extends Model
      * Set data array.
      *
      * @param array $dataArray Can be key => data, key => model,... etc
-     * @return self
+     * @return static
      */
-    public function setDataArray(array $dataArray): self
+    public function setDataArray(array $dataArray): static
     {
         $this->dataArray = $this->buildDataArrayFromDataOrModels($dataArray);
         return $this;
@@ -99,9 +99,9 @@ class EmailTemplate extends Model
      * Merge data array
      *
      * @param array $dataArray Can be key => data, key => model,... etc
-     * @return self
+     * @return static
      */
-    public function mergeDataArray(array $dataArray): self
+    public function mergeDataArray(array $dataArray): static
     {
         $this->dataArray = array_merge($this->dataArray ?? [], $this->buildDataArrayFromDataOrModels($dataArray));
         return $this;
@@ -110,9 +110,9 @@ class EmailTemplate extends Model
     /**
      * Fill missing data in data array with (key.subkey here) placeholders.
      *
-     * @return self
+     * @return static
      */
-    public function fillMissingDataWithPlaceholders(): self
+    public function fillMissingDataWithPlaceholders(): static
     {
         $data = $this->getKeyMappings();
 
@@ -261,9 +261,9 @@ class EmailTemplate extends Model
      * Set subject template.
      *
      * @param string $subject
-     * @return self
+     * @return static
      */
-    public function setSubject(string $subject): self
+    public function setSubject(string $subject): static
     {
         $this->subject = $subject;
         return $this;
@@ -273,9 +273,9 @@ class EmailTemplate extends Model
      * Set body template.
      *
      * @param string $body
-     * @return self
+     * @return static
      */
-    public function setBody(string $body): self
+    public function setBody(string $body): static
     {
         $this->body = $body;
         return $this;
