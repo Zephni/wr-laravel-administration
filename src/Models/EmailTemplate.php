@@ -15,8 +15,8 @@ class EmailTemplate extends Model
 
     protected $table = 'wrla_email_templates';
 
-    const RENDER_MODE_BLADE = 'blade';
-    const RENDER_MODE_EMAIL = 'email';
+    public const RENDER_MODE_BLADE = 'blade';
+    public const RENDER_MODE_EMAIL = 'email';
 
     protected $fillable = [
         'category',
@@ -32,7 +32,8 @@ class EmailTemplate extends Model
 
     public ?array $dataArray = null;
 
-    private bool $errorFound = false;
+    public bool $errorFound = false;
+    public string $errorMessage = '';
 
     /**
      * Get by alias.
@@ -225,7 +226,7 @@ class EmailTemplate extends Model
         $buildString = $string;
 
         if($this->errorFound) {
-            return $buildString;
+            return str($buildString)->replace('{', '(')->replace('}', ')')->toString();
         }
 
         try {
@@ -237,7 +238,7 @@ class EmailTemplate extends Model
             }
 
             // Render mode escaping
-            if($this->renderMode == self::RENDER_MODE_BLADE) {
+            if($renderMode == self::RENDER_MODE_BLADE) {
                 $buildString = str_replace(['{', '}'], ['(', ')'], $buildString);
                 $buildString = str_replace('@', "{{ '@' }}", $buildString);
                 $buildString = str_replace('$', "{{ '$' }}", $buildString);
@@ -252,6 +253,7 @@ class EmailTemplate extends Model
             $buildString = nl2br($buildString);
         } catch (\Exception $e) {
             $this->errorFound = true;
+            $this->errorMessage = $e->getMessage();
         }
 
         return $buildString;
