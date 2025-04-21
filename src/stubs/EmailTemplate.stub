@@ -156,9 +156,6 @@ class EmailTemplate extends ManageableModel
                 ]
             ]);
 
-            // If mappings include any which aren't set above, then fill with placeholders
-            $emailTemplate->fillMissingDataWithPlaceholders();
-
             $emailTemplate->subject = ManageableModel::getLivewireField('subject');
             $emailTemplate->body = ManageableModel::getLivewireField('body');
 

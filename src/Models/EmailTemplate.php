@@ -146,17 +146,13 @@ class EmailTemplate extends Model
      */
     public function getKeyMappings(): array
     {
-        $mappings = json_decode(!empty($this->mappings) ? $this->mappings : '{"user": {
-    "id": null,
-    "name": null,
-    "email": null
-}}', true);
-
-        // if ($mappings == null) {
-        //     throw new \Exception('Email template key mappings can not be null. (Perhaps issue with JSON formatting?)');
-        // }
-
-        return $mappings ?? [];
+        return once(function() {
+            $mappings = !empty($this->mappings)
+                ? json_decode($this->mappings, true)
+                : [];
+    
+            return $mappings ?? [];
+        });
     }
 
     /**
@@ -178,23 +174,72 @@ class EmailTemplate extends Model
         foreach($modelsOrData as $key => $dataOrModel) {
             $keyMappings = $this->getKeyMappings();
 
-            if(!isset($keyMappings[$key])) {
-                continue;
-            }
-
             // If data is Model, get only the attributes that are in the key mappings
             if($dataOrModel instanceof Model) {
                 $data[$key] = $dataOrModel->only(array_keys($keyMappings[$key]));
                 continue;
             }
 
-            // If data is an array, just use it
-            if(is_array($dataOrModel)) {
+            // If data is an array or string, use that
+            else if(is_array($dataOrModel) || is_string($dataOrModel)) {
                 $data[$key] = $dataOrModel;
                 continue;
             }
 
             // Otherwise, do nothing
+        }
+
+        // Apply custom values to data array
+        $data = $this->applyCustomisedDataValues($data);
+
+        return $data;
+    }
+
+    /**
+     * Apply customised data values to the data array.
+     * 
+     * "field": null -> Uses whatever is passed from the modelsOrData array
+     * "field": "some string" -> A fall back value if the modelsOrData array is empty()
+     * More to come...
+     * 
+     * @param array $data
+     * @return array
+     */
+    public function applyCustomisedDataValues(array $data): array
+    {
+        if(empty($data)) {
+            return $data;
+        }
+
+        // Get key mappings
+        $keyMappings = $this->getKeyMappings();
+
+        // Loop through each data array and apply based on key mapping type (explained above)
+        foreach ($keyMappings as $key => $mapping) {
+            // If data is an array, loop through each key and value
+            if (is_array($mapping)) {
+                foreach ($mapping as $mappingKey => $mappingValue) {
+                    // If mapping value is null, skip
+                    if(is_null($mappingValue))
+                    {
+                        continue;
+                    }
+                    // If data value is empty and mapping value is a string, set it to the data value
+                    elseif (is_string($mappingValue))
+                    {
+                        if (empty($data[$key][$mappingKey])) {
+                            $data[$key][$mappingKey] = $mappingValue;
+                        }
+                    }
+                }
+            }
+            // Else if $mapping is a string, set it to the data value
+            else if (is_string($mapping)) {
+                // If data value is empty, set to mapping
+                if (empty($data[$key])) {
+                    $data[$key] = $mapping;
+                }
+            }
         }
 
         return $data;
@@ -204,15 +249,17 @@ class EmailTemplate extends Model
      * Set user data from email if exists. Note this also updates the SMTP config.
      *
      * @param string $email
-     * @return void
+     * @return static
      */
-    public function setUserDataFromEmail(string $email): void
+    public function setUserDataFromEmail(string $email): static
     {
         $user = WRLAHelper::getUserModelClass()::where('email', $email)->first();
 
         if($user !== null) {
             $this->dataArray = ['user' => $user->only(array_keys($this->getKeyMappings()['user']))];
         }
+
+        return $this;
     }
 
     /**
@@ -231,9 +278,16 @@ class EmailTemplate extends Model
 
         try {
             // Loop through each data array and inject into string
-            foreach ($this->dataArray as $key => $model) {
-                foreach ($model as $modelKey => $modelValue) {
-                    $buildString = str_replace('{{ ' . $key . '.' . $modelKey . ' }}', $modelValue ?? '', $buildString);
+            foreach ($this->dataArray as $key => $data) {
+                // If data is an array, loop through each key and value
+                if(is_array($data)) {
+                    foreach ($data as $dataKey => $dataValue) {
+                        $buildString = str_replace('{{ ' . $key . '.' . $dataKey . ' }}', $dataValue ?? '', $buildString);
+                    }
+                }
+                // If data is string, just replace it
+                elseif(is_string($data)) {
+                    $buildString = str_replace('{{ ' . $key . ' }}', $data ?? '', $buildString);
                 }
             }
 
