@@ -52,7 +52,7 @@
                     type="button"
                     wire:click="setFieldValues({
                         '{{ $attributes->get('name') }}': '{{ $key }}',
-                        '{{ $attributes->get('name') }}_searchable_value': '{{ str_replace("'", "\'", $value) }}',
+                        '{{ $attributes->get('name') }}_display_text': '{{ str_replace("'", "\'", $value) }}',
                         '{{ $attributes->get('name') }}_searchable_value': ''
                     })"
                     x-on:click="

@@ -288,9 +288,16 @@ class SearchableValue
             }
         }
 
-        // Set display text for selected value
-        if($this->itemsCallable === null) $this->displayText = $this->items[$this->getAttribute('value')] ?? null;
-        if(ManageableModel::getLivewireField("{$this->getAttribute('name')}_display_text") !== null) $this->displayText = ManageableModel::getLivewireField("{$this->getAttribute('name')}_display_text");
+        // If itemsCallable is not set, use the items array to set the display text
+        if($this->itemsCallable === null) {
+            $this->displayText = $this->items[$this->getAttribute('value')] ?? null;
+        }
+        // Otherwise, if livewire display text field is set, use that
+        else if(ManageableModel::getLivewireField("{$this->getAttribute('name')}_display_text") !== null) {
+            $this->displayText = ManageableModel::getLivewireField("{$this->getAttribute('name')}_display_text");
+        }
+        
+        // Set selectedValueText to the display text or a default value
         $selectedValueText = $this->displayText ?? ' - None selected - ';
 
         // Get attributes for search field and main input field
