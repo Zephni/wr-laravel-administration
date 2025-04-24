@@ -155,16 +155,28 @@ class InstallCommand extends Command
                 $lastBracePosition = strrpos($userModelContents, '}');
                 $userModelContents = substr_replace($userModelContents, '
     /**
-     * Get User data
+     * WRLA user data relationship, if does not exist, will be automatically created based on default config
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasOne
      */
     public function wrlaUserData(): \Illuminate\Database\Eloquent\Relations\HasOne
     {
         return $this->hasOne(\WebRegulate\LaravelAdministration\Classes\WRLAHelper::getUserDataModelClass())
-            ->withDefault([
-                \'permissions\' => json_encode([\'master\' => false, \'admin\' => false]),
-            ]);
+            // If user data is not found, create a new instance.
+            ->withDefault(function($wrlaUserData, $user) {
+                // Return existing data if present.
+                if (!empty($user->wrlaUserData)) {
+                    return $wrlaUserData;
+                }
+
+                // Otherwise, populate default user data from configuration.
+                foreach (config(\'wr-laravel-administration.default_user_data\') as $key => $value) {
+                    $wrlaUserData->{$key} = is_array($value) ? json_encode($value) : $value;
+                }
+                    
+                // Save newly created default data for the user.
+                $user->wrlaUserData()->save($wrlaUserData);
+            });
     }
 ', $lastBracePosition, 0);
 

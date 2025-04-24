@@ -93,6 +93,13 @@ return [
     'user_avatar' => null,
     // 'user_avatar' => fn(\App\Models\User $user) => $user->profile_image,
 
+    // Default user data fields (JSON)
+    'default_user_data' => [
+        'permissions' => ['admin' => false, 'master' => false],
+        'settings' => ['theme' => 'default'],
+        'data' => [],
+    ],
+
     // User groups, each must be a function that returns a Collection of users
     'user_groups' => [
         'admin' => function() {

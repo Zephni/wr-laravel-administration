@@ -228,33 +228,6 @@ class User extends ManageableModel
     }
 
     /**
-     * Pre update relationship instance field hook. Note that this is called after validation but before the relationship instance is updated and saved for each field it's associated with.
-     *
-     * @param mixed $modelInstance The model instance.
-     * @param mixed $relationshipInstance The relationship instance (If it already exists)
-     * @param string $relationshipName The name of the relationship.
-     * @param string $relationshipFieldName The name of the field in the relationship.
-     * @param mixed $fieldValue The field value.
-     * @return void
-     */
-    public function preUpdateRelationshipInstanceField(mixed &$modelInstance, mixed &$relationshipInstance, string $relationshipName, string $relationshipFieldName, mixed $fieldValue): void
-    {
-        // We prematurely save the model instance here and set the relationship instance user_id to the model instance id
-        once(function() use ($modelInstance, $relationshipInstance) {
-            // If user is being created, save the model instance first
-            if($modelInstance->id === null) {
-                $modelInstance->save();
-            }
-
-            // If relationship instance does not yet exist, set the relationship instance user_id to the model instance id and save
-            if($relationshipInstance?->id === null) {
-                $relationshipInstance->user_id = $modelInstance->id;
-                $relationshipInstance->save();
-            }
-        });
-    }
-
-    /**
      * Post update model instance hook. Note that this is called after validation and after the model is updated and saved.
      *
      * @param Request $request The HTTP request object.
