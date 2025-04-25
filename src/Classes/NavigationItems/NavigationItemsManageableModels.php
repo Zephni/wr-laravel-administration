@@ -38,7 +38,7 @@ class NavigationItemsManageableModels extends NavigationItem
         foreach ($manageableModelClasses as $manageableModelClass) {
             $nimm = $manageableModelClass::getNavigationItem();
             
-            if(WRLAHelper::$globalManageableModelData[ltrim($manageableModelClass, '\\')]['hideFromNavigation']) {
+            if(WRLAHelper::$globalManageableModelData[ltrim((string) $manageableModelClass, '\\')]['hideFromNavigation']) {
                 continue;
             }
 

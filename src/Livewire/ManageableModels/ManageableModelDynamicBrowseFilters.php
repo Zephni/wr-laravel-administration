@@ -108,14 +108,14 @@ class ManageableModelDynamicBrowseFilters extends Component
                     // Split value by | for OR condition
                     $orValues = explode('|', $value);
 
-                    $query->where(function($query) use ($orValues, $table, $item) {
+                    $query->where(function($query) use ($orValues, $table, $item): void {
                         foreach($orValues as $orValue) {
                             $orValue = trim($orValue ?? '');
 
                             // Split value by , for AND condition
                             $andValues = explode(',', $orValue);
 
-                            $query->orWhere(function($query) use ($andValues, $table, $item) {
+                            $query->orWhere(function($query) use ($andValues, $table, $item): void {
                                 // If $andValues is empty, pass array with empty string
                                 if(count($andValues) === 1 && empty($andValues[0])) $andValues = [''];
 
@@ -143,7 +143,7 @@ class ManageableModelDynamicBrowseFilters extends Component
                                     // If empty or not empty, apply and skip
                                     if($operator == 'empty' || $operator == 'not empty')
                                     {
-                                        $query->where(function($query) use ($table, $item, $operator) {
+                                        $query->where(function($query) use ($table, $item, $operator): void {
                                             if($operator == 'empty') {
                                                 $query->whereNull($table.'.'.$item['field'])
                                                     ->orWhere($table.'.'.$item['field'], '=', '');
@@ -168,7 +168,7 @@ class ManageableModelDynamicBrowseFilters extends Component
                                     // If not like, we need to also check for null values and skip
                                     if($operator == 'not like')
                                     {
-                                        $query->where(function($query) use ($table, $item, $andValue) {
+                                        $query->where(function($query) use ($table, $item, $andValue): void {
                                             $query->where($table.'.'.$item['field'], 'not like', $andValue)
                                                 ->orWhereNull($table.'.'.$item['field']);
                                         });
@@ -202,9 +202,7 @@ class ManageableModelDynamicBrowseFilters extends Component
     {
         $columns = $this->manageableModelClass::getTableColumns();
 
-        $usedColumns = array_map(function($item) {
-            return $item['field'];
-        }, $this->browseFilterInputs);
+        $usedColumns = array_map(fn($item) => $item['field'], $this->browseFilterInputs);
 
         foreach($columns as $column) {
             if(!in_array($column, $usedColumns)) {

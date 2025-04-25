@@ -106,7 +106,7 @@ class Password
                 'name' => $this->getAttribute('name').'_confirmation',
                 'value' => '',
                 'type' => 'password',
-                'placeholder' => 'Confirm ' . strtolower($this->getLabel()),
+                'placeholder' => 'Confirm ' . strtolower((string) $this->getLabel()),
             ], $pageType == PageType::EDIT ? [
                 'x-show' => 'userWantsToChange',
                 'x-bind:disabled' => '!userWantsToChange',

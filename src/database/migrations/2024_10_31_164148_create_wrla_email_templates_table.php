@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('wrla_email_templates', function (Blueprint $table) {
+        Schema::create('wrla_email_templates', function (Blueprint $table): void {
             $table->id();
             $table->string('category')->default('transactional');
             $table->string('alias')->unique();

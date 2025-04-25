@@ -303,7 +303,7 @@ class WRLAHelper
     public static function parseBrowseColumnRelationship(string $relationshipKeyString): array|false
     {
         // If does not contain :: then return false
-        if(strpos($relationshipKeyString, '.') === false) {
+        if(!str_contains($relationshipKeyString, '.')) {
             return false;
         }
 
@@ -369,11 +369,7 @@ class WRLAHelper
         $rateLimitMessage = str_replace(':decay_minutes', $rateLimitDecayMinutes, $rateLimitConfigItem['message']);
 
         // Build the rate limiter
-        RateLimiter::for($throttleAlias, function (Request $request) use ($rateLimitBy, $rateLimitMaxAttempts, $rateLimitDecayMinutes, $rateLimitMessage) {
-            return Limit::perMinutes($rateLimitDecayMinutes, $rateLimitMaxAttempts)->by($rateLimitBy)->response(function() use ($rateLimitMessage) {
-                return redirect()->route('wrla.login')->with('error', $rateLimitMessage);
-            });
-        });
+        RateLimiter::for($throttleAlias, fn(Request $request) => Limit::perMinutes($rateLimitDecayMinutes, $rateLimitMaxAttempts)->by($rateLimitBy)->response(fn() => redirect()->route('wrla.login')->with('error', $rateLimitMessage)));
     }
 
     /**
@@ -391,7 +387,7 @@ class WRLAHelper
             $rateLimitByItem = trim($rateLimitByItem);
 
             // If begins with input: then check the request input
-            if(strpos($rateLimitByItem, 'input:') === 0) {
+            if(str_starts_with($rateLimitByItem, 'input:')) {
                 $rateLimitByCompiled .= $request->input(substr($rateLimitByItem, 6));
             }
             // If is ip then check the request ip
@@ -429,7 +425,7 @@ class WRLAHelper
             $namespaceAndClass = 'App\\WRLA\\'.str($file->getPathname())->after(app_path('WRLA'))->replace('/', '\\')->replace('.php', '')->ltrim('\\');
 
             // If is subclass of ManageableModel then add to manageableModels
-            if(is_subclass_of($namespaceAndClass, 'WebRegulate\LaravelAdministration\Classes\ManageableModel')) {
+            if(is_subclass_of($namespaceAndClass, \WebRegulate\LaravelAdministration\Classes\ManageableModel::class)) {
                 $manageableModels[] = $namespaceAndClass;
             }
         }
@@ -695,7 +691,7 @@ class WRLAHelper
             $validateDataArray[$key] = $jsonData[$key] ?? null;
 
             // If value definition has an in: then extract it and set the custom message
-            preg_match('/in:([a-zA-Z0-9,]+)/', $valueDefinition, $matches);
+            preg_match('/in:([a-zA-Z0-9,]+)/', (string) $valueDefinition, $matches);
             if(!empty($matches)) {
                 $inValues = explode(',', $matches[1]);
 
@@ -921,7 +917,7 @@ class WRLAHelper
                     mkdir($publicPath, 0777, true);
                 }
 
-                $finalPath = '/' . ltrim($wysiwygEditorSettings['image_uploads']['path'], '/') . '/' . $image->hashName();
+                $finalPath = '/' . ltrim((string) $wysiwygEditorSettings['image_uploads']['path'], '/') . '/' . $image->hashName();
                 $finalPathAbsolute = public_path($finalPath);
                 $imageInterface->save($finalPathAbsolute);
 
@@ -1030,9 +1026,7 @@ class WRLAHelper
     public static function isSoftDeletable(string $class): bool
     {
         // Get whether base model has SoftDeletes trait
-        return once(function() use ($class){
-            return in_array('Illuminate\Database\Eloquent\SoftDeletes', class_uses($class)) ?? false;
-        });
+        return once(fn() => in_array(\Illuminate\Database\Eloquent\SoftDeletes::class, class_uses($class)) ?? false);
     }
 
     /**
@@ -1055,12 +1049,12 @@ class WRLAHelper
                 $validationString = str_replace($rule, '', $validationString);
             } else {
                 // The \b here is a word boundary, so it will only match the word 'required' and not 'required_if' etc.
-                $validationString = preg_replace('/\b' . $r . '\b/', '', $validationString);
+                $validationString = preg_replace('/\b' . $r . '\b/', '', (string) $validationString);
             }
         }
 
         // Finally clean up the validation string by removing unnecessary pipes
-        return str_replace('||', '|', rtrim(ltrim($validationString, '|'), '|'));
+        return str_replace('||', '|', rtrim(ltrim((string) $validationString, '|'), '|'));
     }
 
     /**
@@ -1079,13 +1073,11 @@ class WRLAHelper
         Livewire::component($livewireComponentAlias, $livewireComponentClass);
 
         // Build the route
-        $route = Route::get($routeName, function() use ($livewireComponentAlias, $livewireComponentClass, $livewireComponentData, $title) {
-            return view(WRLAHelper::getViewPath('livewire-content'), [
-                'title' => $title,
-                'livewireComponentAlias' => $livewireComponentAlias,
-                'livewireComponentData' => $livewireComponentData
-            ]);
-        });
+        $route = Route::get($routeName, fn() => view(WRLAHelper::getViewPath('livewire-content'), [
+            'title' => $title,
+            'livewireComponentAlias' => $livewireComponentAlias,
+            'livewireComponentData' => $livewireComponentData
+        ]));
 
         // Set default name
         $route->name("wrla.$routeName");
@@ -1197,15 +1189,9 @@ class WRLAHelper
         // Re-order the array so that directories are first
         $allDirectoriesAndFiles = collect($allDirectoriesAndFiles);
 
-        $directories = $allDirectoriesAndFiles->filter(function($value, $key) {
-            return is_array($value);
-        })->sort();
+        $directories = $allDirectoriesAndFiles->filter(fn($value, $key) => is_array($value))->sort();
 
-        $files = $allDirectoriesAndFiles->filter(function($value, $key) {
-            return !is_array($value);
-        })->sort(function($a, $b) use ($directoryPath) {
-            return filemtime("$directoryPath/$a") < filemtime("$directoryPath/$b");
-        });
+        $files = $allDirectoriesAndFiles->filter(fn($value, $key) => !is_array($value))->sort(fn($a, $b) => filemtime("$directoryPath/$a") < filemtime("$directoryPath/$b"));
 
         $allDirectoriesAndFiles = $directories->merge($files)->toArray();
 
@@ -1282,7 +1268,7 @@ class WRLAHelper
     public static function deleteModel(ManageableModel $manageableModel, int $id): array
     {
         // Get manageable model class
-        $manageableModelClass = get_class($manageableModel);
+        $manageableModelClass = $manageableModel::class;
 
         // Check has delete permission
         if(!$manageableModelClass::getPermission(ManageableModelPermissions::DELETE)) {

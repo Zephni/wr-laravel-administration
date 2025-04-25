@@ -10,16 +10,12 @@ use WebRegulate\LaravelAdministration\Models\Notification;
 
 class NotificationBase
 {
-    public mixed $userId;
-    public array $data;
     public ?User $user;
 
-    public function __construct(mixed $userId, array $data)
+    public function __construct(public mixed $userId, public array $data)
     {
-        $this->userId = $userId;
-        $this->user = is_int($this->userId) ? User::find($userId) : null;
-        $this->data = $data;
-        $this->mount($data);
+        $this->user = is_int($this->userId) ? User::find($this->userId) : null;
+        $this->mount($this->data);
     }
 
     public function getUserGroup(): ?Collection
@@ -60,10 +56,10 @@ class NotificationBase
         $message = preg_replace('/^[\t ]+/m', '', $message);
 
         // Remove all double spaces
-        $message = preg_replace('/\s+/', ' ', $message);
+        $message = preg_replace('/\s+/', ' ', (string) $message);
 
         // Strip all tags
-        $message = strip_tags($message);
+        $message = strip_tags((string) $message);
 
         // Add target _blank to all links
         $message = str_replace('<a href=', '<a target="_blank" href=', $message);

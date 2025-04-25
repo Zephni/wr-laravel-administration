@@ -213,9 +213,7 @@ class SearchableValue
 
             try
             {
-                return $query->mapWithKeys(function($model) use ($displayTextFunction) {
-                    return [$model->id => call_user_func($displayTextFunction, $model)];
-                })->toArray();
+                return $query->mapWithKeys(fn($model) => [$model->id => call_user_func($displayTextFunction, $model)])->toArray();
             }
             catch (\Exception $e)
             {
@@ -261,7 +259,7 @@ class SearchableValue
 
         // If search field value is not empty, filter the items
         if($searchFieldValue != '') {
-            $trimmedSearch = trim($searchFieldValue);
+            $trimmedSearch = trim((string) $searchFieldValue);
 
             // If search mode uses dynamic items, set items based on search value from callable
             if($this->itemsCallable !== null) {

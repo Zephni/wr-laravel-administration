@@ -230,7 +230,7 @@ class Image
     {
         // Check is a filename
         $parts = explode('/', ltrim($filePathRelativeToFileSystem, '/'));
-        $isAFileName = count($parts) > 0 && strpos(end($parts), '.') !== false;
+        $isAFileName = count($parts) > 0 && str_contains(end($parts), '.');
 
         if($isAFileName) {
             $oldValue = WRLAHelper::forwardSlashPath($this->getPathOnly().'/'.$filePathRelativeToFileSystem);
@@ -276,7 +276,7 @@ class Image
     public function formatImageName(string $name): string
     {
         // If find {id} in the name
-        if (strpos($name, '{id}') !== false) {
+        if (str_contains($name, '{id}')) {
             // Get the id of the model instance
             $id = $this->manageableModel->getModelInstance()->id;
 
@@ -290,7 +290,7 @@ class Image
         }
 
         // If find {time} in the name
-        if (strpos($name, '{time}') !== false) {
+        if (str_contains($name, '{time}')) {
             // Get the current time
             $time = time();
 
@@ -443,7 +443,7 @@ class Image
             if(!str($this->getValue())->startsWith('http')) {
                 $fileSystemImageExists = $this->getFileSystem()->exists($this->getDiskStoragePath());
             }
-        } catch (Exception $e) {
+        } catch (Exception) {
             // $fileSystemImageExists = false;
         }
 

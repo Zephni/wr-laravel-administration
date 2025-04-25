@@ -14,7 +14,7 @@ class NavigationItemManageableModel extends NavigationItem
     ) {
         // Error handling
         throw_if(!class_exists($manageableModelClass), new \Exception("Model class `$manageableModelClass` does not exist when passing to navigation item."));
-        throw_if(!is_subclass_of($this->manageableModelClass, 'WebRegulate\LaravelAdministration\Classes\ManageableModel'), new \Exception("Model class `$this->manageableModelClass` must extend ManageableModel when passing to navigation item."));
+        throw_if(!is_subclass_of($this->manageableModelClass, \WebRegulate\LaravelAdministration\Classes\ManageableModel::class), new \Exception("Model class `$this->manageableModelClass` must extend ManageableModel when passing to navigation item."));
 
         // Get child navigation from model
         // $childNavigationItems = $this->manageableModelClass::getChildNavigationItems();

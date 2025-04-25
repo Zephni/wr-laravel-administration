@@ -166,7 +166,7 @@ class Logs extends Component
             ? $this->logDirectoriesAndFiles
             : data_get($this->logDirectoriesAndFiles, $this->viewingLogsDirectory, []);
 
-        foreach ($currentDirectoryContents as $directory => $directoryOrFile) {
+        foreach ($currentDirectoryContents as $directoryOrFile) {
             // If full path is not a file, skip
             if (is_array($directoryOrFile)) {
                 continue;

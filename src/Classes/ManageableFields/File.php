@@ -131,7 +131,7 @@ class File
     {
         // Check is a filename
         $parts = explode('/', ltrim($pathRelativeToPublic, '/'));
-        $isAFileName = count($parts) > 0 && strpos(end($parts), '.') !== false;
+        $isAFileName = count($parts) > 0 && str_contains(end($parts), '.');
 
         if($isAFileName) {
             $oldValue = WRLAHelper::forwardSlashPath(public_path().'/'.$this->getPath().'/'.$pathRelativeToPublic);
@@ -152,7 +152,7 @@ class File
     public function getValue(): string
     {
         // If starts with http, return as is
-        if (strpos($this->getAttribute('value'), 'http') === 0) {
+        if (str_starts_with((string) $this->getAttribute('value'), 'http')) {
             return $this->getAttribute('value');
         // Else, we apply a forward slash to the beginning of the path
         } else {
@@ -174,7 +174,7 @@ class File
     public function formatFileName(string $name): string
     {
         // If find {id} in the name
-        if (strpos($name, '{id}') !== false) {
+        if (str_contains($name, '{id}')) {
             // Get the id of the model instance
             $id = $this->manageableModel->getModelInstance()->id;
 
@@ -188,7 +188,7 @@ class File
         }
 
         // If find {time} in the name
-        if (strpos($name, '{time}') !== false) {
+        if (str_contains($name, '{time}')) {
             // Get the current time
             $time = time();
 

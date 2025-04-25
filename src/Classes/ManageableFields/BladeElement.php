@@ -19,7 +19,7 @@ class BladeElement
      * @param array $data
      * @return static
      */
-    public static function make(?ManageableModel $manageableModel, ?string $column, string|callable $bladeCode, array $data = []): static
+    public static function make(?ManageableModel $manageableModel, ?string $column, string|callable $bladeCode = null, array $data = []): static
     {
         $manageableField = new static($column, $manageableModel?->getModelInstance()->{$column}, $manageableModel);
         $manageableField->options['bladeCode'] = $bladeCode;
@@ -35,9 +35,9 @@ class BladeElement
 
         try {
             return Blade::render($bladeCode, $this->options['data']);
-        } catch (Exception $e) {
+        } catch (Exception) {
             // If blade code not valid, try and remove {{ }} from the code
-            $sanitizedBladeCode = preg_replace('/{{.*?}}/', '', $bladeCode);
+            $sanitizedBladeCode = preg_replace('/{{.*?}}/', '', (string) $bladeCode);
             return Blade::render($sanitizedBladeCode, $this->options['data']);
         }
     }

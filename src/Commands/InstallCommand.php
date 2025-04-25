@@ -32,13 +32,13 @@ class InstallCommand extends Command
     {
         // Publish config
         $this->call('vendor:publish', [
-            '--provider' => 'WebRegulate\LaravelAdministration\WRLAServiceProvider',
+            '--provider' => \WebRegulate\LaravelAdministration\WRLAServiceProvider::class,
             '--tag' => 'wrla-config',
         ]);
 
         // Publish assets
         $this->call('vendor:publish', [
-            '--provider' => 'WebRegulate\LaravelAdministration\WRLAServiceProvider',
+            '--provider' => \WebRegulate\LaravelAdministration\WRLAServiceProvider::class,
             '--tag' => 'wrla-assets',
         ]);
 
@@ -144,7 +144,7 @@ class InstallCommand extends Command
         $userModelContents = file_get_contents($userModelPath);
 
         // Check if file already has the relationship
-        if (strpos($userModelContents, 'function wrlaUserData()') !== false) {
+        if (str_contains($userModelContents, 'function wrlaUserData()')) {
             $this->warn(' - wrlaUserData relationship already exists in '.config('wr-laravel-administration.models.user').' model. To replace it delete the relationship and run again.');
         } else {
             // Let user know we are about to add a relationship to the User model, we use confirmation to gurantree they are aware
@@ -204,7 +204,7 @@ class InstallCommand extends Command
                 ? DB::connection()->getDatabaseName()
                 : 'null';
             $databaseConnectionExists = true;
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             $databaseConnectionExists = false;
         }
 

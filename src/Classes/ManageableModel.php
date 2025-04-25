@@ -153,7 +153,7 @@ abstract class ManageableModel
      * @return void
      */
     public static function browseSetupFinal($browseFilterFields) {
-        once(function() use($browseFilterFields) {
+        once(function() use($browseFilterFields): void {
             self::$browseFilterFields = $browseFilterFields;
             static::browseSetup();
         });
@@ -341,9 +341,7 @@ abstract class ManageableModel
      */
     public static function getByModelClass(string $modelClass): mixed
     {
-        return static::$manageableModels->first(function ($manageableModel) use ($modelClass) {
-            return $manageableModel::getStaticOption($manageableModel::class, 'baseModelClass') === $modelClass;
-        });
+        return static::$manageableModels->first(fn($manageableModel) => $manageableModel::getStaticOption($manageableModel::class, 'baseModelClass') === $modelClass);
     }
 
     /**
@@ -354,9 +352,7 @@ abstract class ManageableModel
      */
     public static function getByUrlAlias(string $urlAlias): mixed
     {
-        $manageableModel = static::$manageableModels->first(function ($manageableModel) use ($urlAlias) {
-            return $manageableModel::getUrlAlias() === $urlAlias;
-        });
+        $manageableModel = static::$manageableModels->first(fn($manageableModel) => $manageableModel::getUrlAlias() === $urlAlias);
 
         return $manageableModel;
     }
@@ -757,41 +753,39 @@ abstract class ManageableModel
                         'autofocus' => true,
                         'placeholder' => 'Search filter...'
                     ])
-                    ->browseFilterApply(function(Builder $query, $table, $columns, $value) {
-                        return $query->where(function($query) use($table, $columns, $value) {
-                            $whereIndex = 0;
+                    ->browseFilterApply(fn(Builder $query, $table, $columns, $value) => $query->where(function($query) use($table, $columns, $value): void {
+                        $whereIndex = 0;
 
-                            foreach($columns as $column => $label) {
-                                // If column is int or begins with !, skip
-                                if(is_int($column) || str_starts_with($column, '!')) {
-                                    continue;
-                                }
-
-                                // If column is relationship, then modify the column to be the related column
-                                if((WRLAHelper::isBrowseColumnRelationship($column))) {
-                                    $relationshipParts = WRLAHelper::parseBrowseColumnRelationship($column);
-
-                                    $baseModelClass = self::getBaseModelClass();
-                                    $relationship = (new $baseModelClass)->{$relationshipParts[0]}();
-                                    if($relationship?->getRelated() == null) continue;
-                                    $relationshipTableName = $relationship->getRelated()->getTable();
-                                    $foreignColumn = $relationship->getForeignKeyName();
-
-                                    // If relationship connection is not empty, generate the SQL to inject it
-                                    if(!empty($relationshipConnection)) $relationshipConnection = "`$relationshipConnection`.";
-
-                                    $whereIndex++;
-
-                                    // Safely escape value
-                                    $query->orWhereRelation($relationshipParts[0], "{$relationshipTableName}.{$relationshipParts[1]}", 'like', "%{$value}%");
-                                // Otherwise just use the table and column
-                                } else {
-                                    $column = "$table.$column";
-                                    $query->orWhere($column, 'like', "%{$value}%");
-                                }
+                        foreach($columns as $column => $label) {
+                            // If column is int or begins with !, skip
+                            if(is_int($column) || str_starts_with($column, '!')) {
+                                continue;
                             }
-                        });
-                    }),
+
+                            // If column is relationship, then modify the column to be the related column
+                            if((WRLAHelper::isBrowseColumnRelationship($column))) {
+                                $relationshipParts = WRLAHelper::parseBrowseColumnRelationship($column);
+
+                                $baseModelClass = self::getBaseModelClass();
+                                $relationship = (new $baseModelClass)->{$relationshipParts[0]}();
+                                if($relationship?->getRelated() == null) continue;
+                                $relationshipTableName = $relationship->getRelated()->getTable();
+                                $foreignColumn = $relationship->getForeignKeyName();
+
+                                // If relationship connection is not empty, generate the SQL to inject it
+                                if(!empty($relationshipConnection)) $relationshipConnection = "`$relationshipConnection`.";
+
+                                $whereIndex++;
+
+                                // Safely escape value
+                                $query->orWhereRelation($relationshipParts[0], "{$relationshipTableName}.{$relationshipParts[1]}", 'like', "%{$value}%");
+                            // Otherwise just use the table and column
+                            } else {
+                                $column = "$table.$column";
+                                $query->orWhere($column, 'like', "%{$value}%");
+                            }
+                        }
+                    })),
         ];
 
         if(WRLAHelper::isSoftDeletable(static::getBaseModelClass())) {
@@ -950,7 +944,7 @@ abstract class ManageableModel
         $dotNotation = implode('.', array_slice($parts, 1)); // The remaining parts are the dot notation.
 
         // Return the value from the json.
-        return data_get(json_decode($modelInstance->{$column}, true), $dotNotation);
+        return data_get(json_decode((string) $modelInstance->{$column}, true), $dotNotation);
     }
 
     /**
@@ -974,7 +968,7 @@ abstract class ManageableModel
         if($relatedModel == null) return null;
 
         // If doesn't have -> notation then we can just return the relationship value
-        if(strpos($key, '->') === false) return $relatedModel->{$key};
+        if(!str_contains((string) $key, '->')) return $relatedModel->{$key};
 
         // If has -> notation then we need to get the json value from the relationship
         return $this->getInstanceJsonValue($key, $relatedModel);
@@ -1094,7 +1088,7 @@ abstract class ManageableModel
             $tableData = once(fn() =>
                 $this->getModelInstance()->getConnection()->select("SHOW COLUMNS FROM {$this->getModelInstance()->getTable()}")
             );
-        } catch(\Exception $e) {
+        } catch(\Exception) {
             return [];
         }
 
@@ -1121,13 +1115,11 @@ abstract class ManageableModel
         // Check id request has any values that start with wrla_remove_ and apply to formKeyValues if so
         if (count($request->all()) > 0) {
             // Collect all keys that start with wrla_remove_ and have a value of true
-            $removeKeys = collect($request->all())->filter(function ($value, $key) {
-                return strpos($key, 'wrla_remove_') === 0 && $value === 'true';
-            });
+            $removeKeys = collect($request->all())->filter(fn($value, $key) => str_starts_with((string) $key, 'wrla_remove_') && $value === 'true');
 
             // If there are any keys to remove, set the special WRLA_KEY_REMOVE constant value and unset the original key
             if ($removeKeys->count() > 0) {
-                $removeKeys->each(function ($value, $key) use(&$formKeyValues) {
+                $removeKeys->each(function ($value, $key) use(&$formKeyValues): void {
                     $keyWithoutRemovePrefix = ltrim($key, 'wrla_remove_');
                     $formKeyValues[$keyWithoutRemovePrefix] = WRLAHelper::WRLA_KEY_REMOVE;
                     unset($formKeyValues[$key]);
@@ -1163,13 +1155,11 @@ abstract class ManageableModel
             }
 
             // Get the form component by name
-            $formComponent = $formComponents->first(function ($_formComponent) use ($fieldName) {
-                return $_formComponent->getAttribute('name') === $fieldName;
-            });
+            $formComponent = $formComponents->first(fn($_formComponent) => $_formComponent->getAttribute('name') === $fieldName);
 
             // Check if the field name is based on a JSON column
             $isUsingNestedJson = false;
-            if (strpos($fieldName, '->') !== false) {
+            if (str_contains($fieldName, '->')) {
                 // If form key does not exist, then skip
                 if (!array_key_exists($formComponent->getAttribute('name'), $formKeyValues)) {
                     continue;
@@ -1193,11 +1183,11 @@ abstract class ManageableModel
             {
                 // If is relation, get current field value from relationship instance
                 if($relationshipInstance != null) {
-                    $fieldValue = json_decode($relationshipInstance->{$manageableField->getRelationshipFieldName()});
+                    $fieldValue = json_decode((string) $relationshipInstance->{$manageableField->getRelationshipFieldName()});
                 }
                 // Otherwise, get the perhaps updated value from the model instance (we may be updating the same field with different JSON notation)
                 else {
-                    $fieldValue = json_decode($this->modelInstance->{$fieldName});
+                    $fieldValue = json_decode((string) $this->modelInstance->{$fieldName});
                 }
 
                 // Apply the value to the form component and get the new value

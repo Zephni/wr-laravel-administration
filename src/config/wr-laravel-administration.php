@@ -102,14 +102,12 @@ return [
 
     // User groups, each must be a function that returns a Collection of users
     'user_groups' => [
-        'admin' => function() {
-            return WRLAHelper::getUserModelClass()::whereIn('id',
-                WRLAHelper::getUserDataModelClass()
-                    ::whereJsonContains('permissions', ['admin' => true])
-                    ->get()
-                    ->pluck('user_id')
-            )->get();
-        }
+        'admin' => fn() => WRLAHelper::getUserModelClass()::whereIn('id',
+            WRLAHelper::getUserDataModelClass()
+                ::whereJsonContains('permissions', ['admin' => true])
+                ->get()
+                ->pluck('user_id')
+        )->get()
     ],
 
     // Dashboard display notifications for users / groups, use '@self' for the user's own notifications
@@ -200,12 +198,12 @@ return [
     ],
 
     // Common CSS - Be careful that this does not break the layout as this is injected into the head of the layout
-    'common_css' => <<<CSS
+    'common_css' => <<<CSS_WRAP
         /* Add your custom / override CSS here */
-    CSS,
+    CSS_WRAP,
 
     // Wysiwyg CSS - Be careful that this does not break the layout as this is injected into the wysiwyg editor
-    'wysiwyg_css' => <<<CSS
+    'wysiwyg_css' => <<<CSS_WRAP
         /* Add your custom / override CSS here */
-    CSS,
+    CSS_WRAP,
 ];

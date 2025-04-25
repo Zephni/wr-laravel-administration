@@ -162,9 +162,7 @@ class FileManager extends Component
         
         // Get all files but ignore hidden files and get last part of path
         $this->currentFiles = $this->getCurrentFileSystem()->files(str_replace('.', '/', $this->viewingDirectory));
-        $this->currentFiles = array_filter($this->currentFiles, function($file) {
-            return !str($file)->afterLast('/')->startsWith('.');
-        });
+        $this->currentFiles = array_filter($this->currentFiles, fn($file) => !str($file)->afterLast('/')->startsWith('.'));
         $this->currentFiles = array_map(fn($file) => str($file)->afterLast('/')->toString(), $this->currentFiles);
     }
 
@@ -182,7 +180,7 @@ class FileManager extends Component
         // Get file mime type
         try {
             $mimeType = $this->getCurrentFileSystem()->mimeType($filePath);
-        } catch (Exception $e) {
+        } catch (Exception) {
             $mimeType = 'error';
         }
 
@@ -214,9 +212,9 @@ class FileManager extends Component
                 $humanReadableFileSize = $this->humanReadableSize($fileSize ?? 0);
                 $this->viewingItemData = "Width: <b>{$imageMeta[0]}</b>px, Height: <b>{$imageMeta[1]}</b>px, Size: <b>".$humanReadableFileSize."</b>";
 
-                return 'data:image/'.str($mimeType)->afterLast('/').';base64,' . base64_encode($rawImageData);;
+                return 'data:image/'.str($mimeType)->afterLast('/').';base64,' . base64_encode((string) $rawImageData);;
             // If fails, get public path to image file
-            } catch (Exception $e) {
+            } catch (Exception) {
                 return $this->getCurrentFileSystem()->url($filePath);
             }
         }
@@ -240,8 +238,8 @@ class FileManager extends Component
 
     public function humanReadableSize($bytes, $decimals = 2) {
         $sizeUnits = ['B', 'KB', 'MB', 'GB', 'TB'];
-        $factor = floor((strlen($bytes) - 1) / 3);
-        return sprintf("%.{$decimals}f", $bytes / pow(1024, $factor)) . $sizeUnits[$factor];
+        $factor = floor((strlen((string) $bytes) - 1) / 3);
+        return sprintf("%.{$decimals}f", $bytes / 1024 ** $factor) . $sizeUnits[$factor];
     }
 
     public function getFullPath(string $directory, string $file): string
@@ -410,8 +408,6 @@ class FileManager extends Component
     private function getAvailableFileSystemConfigs(): array
     {
         // Only where where enabled
-        return collect(config('wr-laravel-administration.file_manager.file_systems', []))->filter(function ($fileSystem) {
-            return $fileSystem['enabled'] ?? false;
-        })->toArray();
+        return collect(config('wr-laravel-administration.file_manager.file_systems', []))->filter(fn($fileSystem) => $fileSystem['enabled'] ?? false)->toArray();
     }
 }

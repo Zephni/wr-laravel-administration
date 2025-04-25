@@ -170,9 +170,7 @@ class BrowseColumnBase
      */
     public function setDateFormat(string $format): static
     {
-        return $this->overrideRenderValue(function($value) use ($format) {
-            return $value->format($format);
-        });
+        return $this->overrideRenderValue(fn($value) => $value->format($format));
     }
 
     /**
@@ -205,8 +203,8 @@ class BrowseColumnBase
         }
 
         // Use maxChars option to truncate text
-        if($this->options['maxChars'] != null && strlen($value) > $this->options['maxChars']) {
-            $value = substr($value, 0, $this->options['maxChars']).'...';
+        if($this->options['maxChars'] != null && strlen((string) $value) > $this->options['maxChars']) {
+            $value = substr((string) $value, 0, $this->options['maxChars']).'...';
         }
 
         return $this->renderFinalStringValue($value);
@@ -234,15 +232,15 @@ class BrowseColumnBase
                 if(!$model->{$relationshipParts[0]}) {
                     return '';
                 }
-            } catch (\Exception $e) {
+            } catch (\Exception) {
                 return '';
             }
 
             // If relationship parts [1] has -> then it's a json column so we dig for the value
             if(str($relationshipParts[1])->contains('->')) {
-                $dotNotationParts = explode('->', $relationshipParts[1]);
+                $dotNotationParts = explode('->', (string) $relationshipParts[1]);
                 $jsonField = $model->{$relationshipParts[0]}->{$dotNotationParts[0]};
-                return data_get(json_decode($jsonField), implode('.', array_slice($dotNotationParts, 1)));
+                return data_get(json_decode((string) $jsonField), implode('.', array_slice($dotNotationParts, 1)));
             }
 
             // Otherwise, just return the relationship value

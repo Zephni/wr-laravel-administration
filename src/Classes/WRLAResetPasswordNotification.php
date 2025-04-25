@@ -7,29 +7,23 @@ use Illuminate\Notifications\Notification;
 class WRLAResetPasswordNotification extends Notification
 {
     /**
-     * The user's email address.
-     *
-     * @var string
-     */
-    public $email;
-
-    /**
-     * The password reset token.
-     *
-     * @var string
-     */
-    public $token;
-
-    /**
      * Create a new notification instance.
      *
      * @param  string  $token
      * @return void
+     * @param string $email
      */
-    public function __construct($email, $token)
+    public function __construct(
+        /**
+         * The user's email address.
+         */
+        public $email,
+        /**
+         * The password reset token.
+         */
+        public $token
+    )
     {
-        $this->email = $email;
-        $this->token = $token;
     }
 
     /**

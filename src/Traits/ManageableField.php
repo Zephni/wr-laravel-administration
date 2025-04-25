@@ -93,10 +93,10 @@ trait ManageableField
     public function __construct(?string $name, ?string $value, ?ManageableModel $manageableModel = null)
     {
         // Check if name has . (relationship) or -> (json seperator) in it we need to get the appropriate value
-        if(strpos($name ?? '', '.') !== false) {
+        if(str_contains($name ?? '', '.')) {
             $value = $manageableModel->getInstanceRelationValue($name);
         }
-        elseif(strpos($name ?? '', '->') !== false) {
+        elseif(str_contains($name ?? '', '->')) {
             $value = $manageableModel->getInstanceJsonValue($name);
         }
 
@@ -190,7 +190,7 @@ trait ManageableField
     public function isModeledWithLivewire(): bool
     {
         foreach($this->htmlAttributes as $key => $value) {
-            if(strpos($key, 'wire:model') !== false) {
+            if(str_contains((string) $key, 'wire:model')) {
                 return true;
             }
         }
@@ -729,9 +729,7 @@ trait ManageableField
      */
     public function hideFrom(...$pageTypes): static
     {
-        $this->showOnPages = array_filter($this->showOnPages, function($pageType) use ($pageTypes) {
-            return !in_array($pageType, $pageTypes);
-        });
+        $this->showOnPages = array_filter($this->showOnPages, fn($pageType) => !in_array($pageType, $pageTypes));
 
         return $this;
     }
@@ -849,7 +847,7 @@ trait ManageableField
 
             // Get model class from relationship and return new instance
             $relationship = $modelInstance->{$relationshipParts[0]}();
-            $relationshipClass = get_class($relationship->getRelated());
+            $relationshipClass = $relationship->getRelated()::class;
             return new $relationshipClass;
         });
     }
@@ -877,13 +875,13 @@ trait ManageableField
 
         if(empty($HTML))
         {
-            return <<<HTML
+            return <<<HTML_WRAP
                 <br />
                 ---------------------<br />
                 Override form component HTML in FormComponent render() method<br />
                 ---------------------<br />
                 <br />
-            HTML;
+            HTML_WRAP;
         }
         else
         {

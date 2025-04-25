@@ -26,7 +26,7 @@ class CSVHelper
         ];
 
         // Return the CSV
-        return response()->stream(function () use ($columnHeadings, $data) {
+        return response()->stream(function () use ($columnHeadings, $data): void {
             $csv = fopen('php://output', 'w');
 
             // Write the column headings
@@ -38,7 +38,7 @@ class CSVHelper
             foreach ($data as $row) {
                 try {
                     fputcsv($csv, (array) $row);
-                } catch(\Exception $e) {
+                } catch(\Exception) {
                     // Skip this row on failure
                 }
             }

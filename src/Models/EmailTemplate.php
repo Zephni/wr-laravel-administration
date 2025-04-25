@@ -131,7 +131,7 @@ class EmailTemplate extends Model
                         $this->dataArray[$key][$modelKey] = "($key.$modelKey here)";
                     }
                 }
-            } catch (\Exception $e) {
+            } catch (\Exception) {
                 // dd($e->getMessage(), $key, $model);
             }
         }
@@ -465,13 +465,11 @@ class EmailTemplate extends Model
             // Build a list like this: key.mapping[0], key.mapping[1], key.mapping[2]...
             if (is_array($mapping)) {
                 $html .= "<li>$key: &nbsp;";
-                $html .= implode(', ', array_map(function ($item) use ($key) {
-                    return <<<HTML
+                $html .= implode(', ', array_map(fn($item) => <<<HTML
                         <span onclick="
                             window.wrlaInsertTextAtCursor('@{{ $key.$item }}');
                         " class="select-none cursor-pointer text-primary-700 font-medium">$key.$item</span>
-                    HTML;
-                }, array_keys($mapping)));
+                    HTML, array_keys($mapping)));
                 $html .= '</li>';
             }
         }

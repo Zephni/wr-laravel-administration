@@ -310,7 +310,7 @@ class ImportDataModal extends ModalComponent
 
         // Clean headers by trimming whitespace and removing unwanted characters
         foreach ($headers as $key => $value) {
-            $value = trim($value);
+            $value = trim((string) $value);
             $value = preg_replace('/^\x{FEFF}/u', '', $value);
             $headers[$key] = $value;
             if ($headers[$key] == 'id') {
@@ -321,7 +321,7 @@ class ImportDataModal extends ModalComponent
         // Clean rows by trimming whitespace and removing unwanted characters
         foreach ($rows as $rowKey => $row) {
             foreach ($row as $key => $value) {
-                $value = trim($value);
+                $value = trim((string) $value);
                 $value = preg_replace('/^\x{FEFF}/u', '', $value);
                 $rows[$rowKey][$key] = $value;
             }

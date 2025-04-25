@@ -31,7 +31,7 @@ class IsAdmin
         }
 
         // Handle WRLASettings
-        if(class_exists('\App\WRLA\WRLASettings')) {
+        if(class_exists(\App\WRLA\WRLASettings::class)) {
             // Set navigation items (if App\WRLA\WRLASettings exists)
             NavigationItem::$navigationItems = \App\WRLA\WRLASettings::buildNavigation() ?? [];
         }

@@ -47,7 +47,7 @@ class Json
         }
 
         // Trim, if null, or starts or ends with curly or square braces, handle as normal
-        $value = trim($value);
+        $value = trim((string) $value);
         if(
             $value == 'null' ||
             (str_starts_with($value, '{') && str_ends_with($value, '}')) ||
@@ -111,9 +111,7 @@ class Json
      */
     public function jsonFormatValidation(array $rules): static
     {
-        $this->inlineValidation(function($value) use ($rules) {
-            return WRLAHelper::jsonFormatValidation($value, $rules);
-        });
+        $this->inlineValidation(fn($value) => WRLAHelper::jsonFormatValidation($value, $rules));
 
         return $this;
     }
@@ -138,9 +136,7 @@ class Json
         }
 
         // Check if json is valid, if not then do not format it and show as is
-        $jsonData = json_decode($value) !== null
-            ? json_decode($value)
-            : false;
+        $jsonData = json_decode((string) $value) ?? false;
 
         if($jsonData !== false) {
             // Now we have validation, we can loop through the merge default key values and apply them
@@ -157,7 +153,7 @@ class Json
         }
 
         // Trim whitespace from the value
-        $value = trim($value);
+        $value = trim((string) $value);
 
         // If hide braces option set, we need to do a final check to remove any outer braces
         if($this->getOption(static::OPTION_HIDE_CONTAINING_BRACES)) {

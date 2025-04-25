@@ -169,9 +169,7 @@ class ManageableModelBrowse extends Component
 
         // Build parent columns from manageable model
         $columns = $manageableModelInstance->getBrowseColumns();
-        $this->columns = collect($columns)->map(function($column) {
-            return $column instanceof BrowseColumnBase ? $column->label : $column;
-        });
+        $this->columns = collect($columns)->map(fn($column) => $column instanceof BrowseColumnBase ? $column->label : $column);
 
         // Get manageable model filter keys from collection
         $manageableModelFilters = $manageableModelClass::getBrowseFilters();
@@ -286,9 +284,7 @@ class ManageableModelBrowse extends Component
      */
     public function getStandardColumns()
     {
-        return collect($this->columns)->filter(function($label, $column) {
-            return !WRLAHelper::isBrowseColumnRelationship($column) && strpos($column, '->') === false;
-        });
+        return collect($this->columns)->filter(fn($label, $column) => !WRLAHelper::isBrowseColumnRelationship($column) && !str_contains((string) $column, '->'));
     }
 
     /**
@@ -298,9 +294,7 @@ class ManageableModelBrowse extends Component
      */
     public function getJsonReferenceColumns()
     {
-        return collect($this->columns)->filter(function($label, $column) {
-            return strpos($column, '->') !== false;
-        });
+        return collect($this->columns)->filter(fn($label, $column) => str_contains((string) $column, '->'));
     }
 
     /**
@@ -311,9 +305,7 @@ class ManageableModelBrowse extends Component
     public function getRelationshipColumns()
     {
         // Get any keys from columns that have a relationship
-        return collect($this->columns)->filter(function($label, $column) {
-            return WRLAHelper::isBrowseColumnRelationship($column);
-        });
+        return collect($this->columns)->filter(fn($label, $column) => WRLAHelper::isBrowseColumnRelationship($column));
     }
 
     /**

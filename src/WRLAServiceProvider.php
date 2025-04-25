@@ -60,7 +60,7 @@ class WRLAServiceProvider extends ServiceProvider
         $this->provideBladeDirectives();
 
         // Post boot calls
-        $this->app->booted(function () {
+        $this->app->booted(function (): void {
             $this->postBootCalls();
         });
     }
@@ -118,13 +118,13 @@ class WRLAServiceProvider extends ServiceProvider
         $this->defineGates();
 
         // Load routes
-        Route::middleware('web')->group(function () {
+        Route::middleware('web')->group(function (): void {
             $this->loadRoutesFrom(__DIR__ . '/routes/wr-laravel-administration-routes.php');
 
             // Load custom routes from WRLASettings if exists
-            if(class_exists('\App\WRLA\WRLASettings') && method_exists('\App\WRLA\WRLASettings', 'buildCustomRoutes')) {
-                Route::prefix(config('wr-laravel-administration.base_url', 'wr-admin'))->group(function () {
-                    Route::group(['middleware' => ['wrla_is_admin']], function () {
+            if(class_exists(\App\WRLA\WRLASettings::class) && method_exists(\App\WRLA\WRLASettings::class, 'buildCustomRoutes')) {
+                Route::prefix(config('wr-laravel-administration.base_url', 'wr-admin'))->group(function (): void {
+                    Route::group(['middleware' => ['wrla_is_admin']], function (): void {
                         \App\WRLA\WRLASettings::buildCustomRoutes();
                     });
                 });
@@ -197,9 +197,7 @@ class WRLAServiceProvider extends ServiceProvider
      */
     protected function defineGates(): void
     {
-        Gate::define('wrla-admin', function (mixed $user) {
-            return $user->isAdmin();
-        });
+        Gate::define('wrla-admin', fn(mixed $user) => $user->isAdmin());
     }
 
     /**
@@ -251,7 +249,7 @@ class WRLAServiceProvider extends ServiceProvider
     protected function passVariablesToViews(): void
     {
         // Share variables with all views within this package
-        view()->composer(['wr-laravel-administration::*', '*wrla.*'], function ($view) {
+        view()->composer(['wr-laravel-administration::*', '*wrla.*'], function ($view): void {
             // Theme data
             $view->with('WRLAThemeData', (object)WRLAHelper::getCurrentThemeData());
 
@@ -260,7 +258,7 @@ class WRLAServiceProvider extends ServiceProvider
         });
 
         // Share variables with all views (including frontend)
-        view()->composer('*', function ($view) {
+        view()->composer('*', function ($view): void {
             // Current user data (which has relationship with current ->user)
             $view->with('user', once(function() {
                 $user = WRLAHelper::getUserDataModelClass()::getCurrentUser();
