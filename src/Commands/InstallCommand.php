@@ -169,6 +169,9 @@ class InstallCommand extends Command
                     return $wrlaUserData;
                 }
 
+                // Set user_id
+                $wrlaUserData->user_id = !empty($user->id) ? $user->id : 0;
+
                 // Otherwise, populate default user data from configuration.
                 foreach (config(\'wr-laravel-administration.default_user_data\') as $key => $value) {
                     $wrlaUserData->{$key} = is_array($value) ? json_encode($value) : $value;
