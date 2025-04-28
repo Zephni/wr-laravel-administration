@@ -272,7 +272,8 @@ class UserData extends Model
         return $this->getPermission('admin') == true;
     }
 
-    // Relationships
+    /* Relationships
+    ---------------------------------------------------*/
     public function user()
     {
         return $this->belongsTo(WRLAHelper::getUserModelClass());

@@ -140,7 +140,8 @@ class Notification extends Model
         $this->save();
     }
 
-    // Relationships
+    /* Relationships
+    ---------------------------------------------------*/
     public function user()
     {
         return $this->belongsTo(User::class);
