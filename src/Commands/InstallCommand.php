@@ -164,9 +164,6 @@ class InstallCommand extends Command
         return $this->hasOne(\WebRegulate\LaravelAdministration\Classes\WRLAHelper::getUserDataModelClass())
             // If user data is not found, create a new instance.
             ->withDefault(function($wrlaUserData, $user) {
-                // Load wrlaUserData
-                $user->Load(\'wrlaUserData\');
-
                 // Return existing data if present.
                 if (!empty($user->wrlaUserData)) {
                     return $wrlaUserData;
