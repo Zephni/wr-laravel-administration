@@ -42,6 +42,9 @@ class InstallCommand extends Command
             '--tag' => 'wrla-assets',
         ]);
 
+        // Publish log-viewer assets
+        $this->call('log-viewer:publish');
+
         // Create UserData.php model in app/Models
         $envConnection = env('DB_CONNECTION', 'mysql');
         WRLAHelper::generateFileFromStub(
