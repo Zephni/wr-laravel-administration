@@ -339,7 +339,7 @@ class WRLAServiceProvider extends ServiceProvider
             // Log viewer auth uses condition for wrla.logs route set in WRLASettings, if does not exist then return false
             LogViewer::auth(function ($request) {
                 // If route is not related to log-viewer package, bail
-                if (!str_starts_with($request->route()->getName(), 'log-viewer.')) {
+                if (!str_starts_with($request->route()->getName(), config('log-viewer.route_path'))) {
                     return false;
                 }
 
