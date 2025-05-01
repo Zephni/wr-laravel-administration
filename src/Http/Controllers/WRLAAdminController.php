@@ -282,6 +282,7 @@ class WRLAAdminController extends Controller
                     'title' => 'View Logs',
                     'content' => <<<BLADE
                         <iframe
+                            wire:ignore
                             src="/log-viewer"
                             class="relative border-0"
                             style="
