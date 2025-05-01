@@ -42,11 +42,16 @@ class WRLAServiceProvider extends ServiceProvider
         // Register Livewire
         $this->app->register(\Livewire\LivewireServiceProvider::class);
 
+        // Note we register this early to make sure it is loaded before the log viewer package,
+        // this also means you can override it if you wish in your Auth/App service provider boot method.
         // Log viewer auth uses condition for wrla.logs route set in WRLASettings, if does not exist then return false
         Gate::define('viewLogViewer', function ($user) {
             // Load navigation items and get wrla.logs route navigation item
             WRLAHelper::loadNavigationItems();
             $logsNavigationItem = collect(NavigationItem::$navigationItems)->firstWhere('route', 'wrla.logs');
+
+            // If no navigation item found, return false
+            if($logsNavigationItem === null) return false;
 
             // Check show and enabled condition enabled
             return $logsNavigationItem->checkShowCondition() && $logsNavigationItem->checkEnabledCondition();
