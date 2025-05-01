@@ -616,7 +616,7 @@ class WRLAHelper
         // Loop through each item and replace '@self' with the current user id
         foreach($array as $key => $value) {
             if($value === '@self') {
-                $array[$key] = WRLAHelper::getCurrentUser()->id;
+                $array[$key] = WRLAHelper::getCurrentUser()?->id;
             }
         }
 
