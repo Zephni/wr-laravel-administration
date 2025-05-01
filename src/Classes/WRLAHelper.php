@@ -312,6 +312,19 @@ class WRLAHelper
     }
 
     /**
+     * Load navigation items into NavigationItem::$navigationItems array.
+     * @return void
+     */
+    public static function loadNavigationItems(): void
+    {
+        // Handle WRLASettings
+        if(class_exists(\App\WRLA\WRLASettings::class)) {
+            // Set navigation items (if App\WRLA\WRLASettings exists)
+            NavigationItem::$navigationItems = \App\WRLA\WRLASettings::buildNavigation() ?? [];
+        }
+    }
+
+    /**
      * Get navigation items from the config and return them as an array of NavigationItem objects.
      * @return array The array of NavigationItem objects.
      */

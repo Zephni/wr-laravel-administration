@@ -9,12 +9,13 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
+use Opcodes\LogViewer\Facades\LogViewer;
 use Illuminate\Support\Facades\Validator;
-use WebRegulate\LaravelAdministration\Livewire\FileManager;
 use WebRegulate\LaravelAdministration\Livewire\Logs;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 use WebRegulate\LaravelAdministration\Commands\RebuildUser;
 use WebRegulate\LaravelAdministration\Commands\WikiCommand;
+use WebRegulate\LaravelAdministration\Livewire\FileManager;
 use WebRegulate\LaravelAdministration\Commands\InstallCommand;
 use WebRegulate\LaravelAdministration\Http\Middleware\IsAdmin;
 use WebRegulate\LaravelAdministration\Livewire\ImportDataModal;
@@ -58,6 +59,9 @@ class WRLAServiceProvider extends ServiceProvider
 
         // Provide blade directives
         $this->provideBladeDirectives();
+
+        // Handle vendor / packages booting
+        $this->handleVendorBooting();
 
         // Post boot calls
         $this->app->booted(function (): void {
@@ -322,6 +326,38 @@ class WRLAServiceProvider extends ServiceProvider
             // Display the component with the provided attributes
             return "<?php echo view('{$fullComponentPath}', {$args[1]})->render(); ?>";
         });
+    }
+
+    /**
+     * Handle vendor / packages booting
+     * @return void
+     */
+    protected function handleVendorBooting(): void
+    {
+        // If config logs.current is set to opcodesio/log-viewer
+        if(config('wr-laravel-administration.logs.current') == 'opcodesio/log-viewer') {
+            // Log viewer auth uses condition for wrla.logs route set in WRLASettings, if does not exist then return false
+            LogViewer::auth(function ($request) {
+                // If route is not related to log-viewer package, bail
+                if (!str_starts_with($request->route()->getName(), 'log-viewer.')) {
+                    return false;
+                }
+
+                // Load navigation items and get
+                WRLAHelper::loadNavigationItems();
+                $navigationItems = NavigationItem::$navigationItems;
+
+                // Loop through and check condition for wrla.logs route
+                foreach ($navigationItems as $item) {
+                    if ($item->route ?? '' === 'wrla.logs') {
+                        return $item->checkShowCondition();
+                    }
+                }
+
+                // If no condition found, return false
+                return false;
+            });
+        }
     }
 
     /**

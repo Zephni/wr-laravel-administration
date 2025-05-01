@@ -32,9 +32,9 @@
     <div class="block w-full h-9"></div>
 
     {{-- Content container --}}
-    <div class="flex flex-row w-full">
+    <div class="flex flex-row w-full h-full">
         {{-- Yield content --}}
-        <div class="relative w-full flex flex-col pt-8 pb-24 pl-3 pr-2 lg:pl-14 lg:pr-10">
+        <div class="relative w-full h-full flex flex-col pt-8 pl-3 pr-2 lg:pl-14 lg:pr-10">
             @if(session('success'))
                 @themeComponent('alert', ['type' => 'success', 'message' => session('success')])
             @elseif(session('error'))

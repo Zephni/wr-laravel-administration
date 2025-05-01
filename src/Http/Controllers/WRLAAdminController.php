@@ -267,10 +267,35 @@ class WRLAAdminController extends Controller
      * View logs
      *
      * @param Request $request
-     * @return View
+     * @return View|RedirectResponse
      */
-    public function logs(Request $request): View
+    public function logs(Request $request): View|RedirectResponse
     {
+        $configLogsCurrent = config('wr-laravel-administration.logs.current');
+
+        // opcodesio/log-viewer
+        if(config('wr-laravel-administration.logs.current') == 'opcodesio/log-viewer')
+        {
+            if(config('wr-laravel-administration.logs.opcodesio/log-viewer.display_within_wrla') == true) {
+                return view(WRLAHelper::getViewPath('standard-content'), [
+                    'content' => <<<BLADE
+                        <iframe
+                            src="/log-viewer"
+                            class="relative border-0"
+                            style="
+                                left: -50px;
+                                top: -30px;
+                                width: calc(100% + 85px);
+                                height: calc(100% - 0px);
+                            "></iframe>
+                    BLADE
+                ]);
+            } else {
+                return redirect()->to('/log-viewer');
+            }
+        }
+
+        // wrla / fallback
         return view(WRLAHelper::getViewPath('livewire-content'), [
             'title' => 'View Logs',
             'livewireComponentAlias' => 'wrla.logs',

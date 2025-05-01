@@ -129,9 +129,20 @@ return [
         ]
     ],
 
-    // Logs
+    // Logs configuration
     'logs' => [
-        'max_characters' => 500000,
+        'current' => 'opcodesio/log-viewer', // 'wrla', 'opcodesio/log-viewer'
+
+        // wrla
+        'wrla' => [
+            'max_characters' => 1000000,
+        ],
+
+        // opcodesio/log-viewer
+        'opcodesio/log-viewer' => [
+            // Configure in config/log-viewer.php
+            'display_within_wrla' => true, // Display within WRLA instead of redirecting
+        ],
     ],
 
 

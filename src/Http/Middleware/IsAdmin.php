@@ -30,11 +30,8 @@ class IsAdmin
             );
         }
 
-        // Handle WRLASettings
-        if(class_exists(\App\WRLA\WRLASettings::class)) {
-            // Set navigation items (if App\WRLA\WRLASettings exists)
-            NavigationItem::$navigationItems = \App\WRLA\WRLASettings::buildNavigation() ?? [];
-        }
+        // Load navigation items into static array
+        WRLAHelper::loadNavigationItems();
 
         // Check that current route is both shown and enabled, otherwise redirect to the dashboard with error
         $isRouteAllowed = WRLAHelper::isCurrentRouteAllowed();

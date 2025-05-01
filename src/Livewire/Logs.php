@@ -21,7 +21,7 @@ class Logs extends Component
     public function mount()
     {
         // Config
-        $this->viewLogMaxCharacters = config('wr-laravel-administration.logs.max_characters', 200000);
+        $this->viewLogMaxCharacters = config('wr-laravel-administration.logs.wrla.max_characters', 200000);
 
         // Set all log files and directories
         $this->setDirectoriesAndFiles();
