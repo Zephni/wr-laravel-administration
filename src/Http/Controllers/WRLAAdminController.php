@@ -278,6 +278,7 @@ class WRLAAdminController extends Controller
         {
             if(config('wr-laravel-administration.logs.opcodesio/log-viewer.display_within_wrla') == true) {
                 return view(WRLAHelper::getViewPath('standard-content'), [
+                    'title' => 'View Logs',
                     'content' => <<<BLADE
                         <iframe
                             src="/log-viewer"
