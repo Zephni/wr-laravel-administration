@@ -271,10 +271,11 @@ class WRLAAdminController extends Controller
      */
     public function logs(Request $request): View|RedirectResponse
     {
+        // Get current log mode
         $configLogsCurrent = config('wr-laravel-administration.logs.current');
 
         // opcodesio/log-viewer
-        if(config('wr-laravel-administration.logs.current') == 'opcodesio/log-viewer')
+        if($configLogsCurrent == 'opcodesio/log-viewer')
         {
             if(config('wr-laravel-administration.logs.opcodesio/log-viewer.display_within_wrla') == true) {
                 return view(WRLAHelper::getViewPath('standard-content'), [
