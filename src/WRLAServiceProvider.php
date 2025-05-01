@@ -338,19 +338,12 @@ class WRLAServiceProvider extends ServiceProvider
         if(config('wr-laravel-administration.logs.current') == 'opcodesio/log-viewer') {
             // Log viewer auth uses condition for wrla.logs route set in WRLASettings, if does not exist then return false
             LogViewer::auth(function ($request) {
-                // Load navigation items and get
+                // Load navigation items and get wrla.logs route navigation item
                 WRLAHelper::loadNavigationItems();
-                $navigationItems = NavigationItem::$navigationItems;
+                $logsNavigationItem = collect(NavigationItem::$navigationItems)->firstWhere('route', 'wrla.logs');
 
-                // Loop through and check condition for wrla.logs route
-                foreach ($navigationItems as $item) {
-                    if ($item->route ?? '' === 'wrla.logs') {
-                        return $item->checkShowCondition();
-                    }
-                }
-
-                // If no condition found, return false
-                return false;
+                // Check show and enabled condition enabled
+                return $logsNavigationItem->checkShowCondition() && $logsNavigationItem->checkEnabledCondition();
             });
         }
     }
