@@ -174,6 +174,11 @@ class EmailTemplate extends Model
         foreach($modelsOrData as $key => $dataOrModel) {
             $keyMappings = $this->getKeyMappings();
 
+            // If key does not exist in key mappings, skip
+            if(!isset($keyMappings[$key])) {
+                continue;
+            }
+
             // If data is Model, get only the attributes that are in the key mappings
             if($dataOrModel instanceof Model) {
                 $data[$key] = $dataOrModel->only(array_keys($keyMappings[$key]));
