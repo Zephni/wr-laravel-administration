@@ -158,11 +158,6 @@ trait ManageableField
 
         // Set manageable model property value
         $this->manageableModel->getModelInstance()->setAttribute($name, $this->getValue());
-
-        // If livewire field, set livewire field value
-        if($this->isModeledWithLivewire()) {
-            ManageableModel::setLivewireField($name, $this->getValue());
-        }
     }
 
     /**
@@ -267,7 +262,13 @@ trait ManageableField
      */
     public function setValue(mixed $value): void
     {
-        $this->htmlAttributes['value'] = $value;
+        // Set value attribute
+        $this->setAttribute('value', $value);
+
+        // If livewire field, set livewire field value
+        if($this->isModeledWithLivewire()) {
+            ManageableModel::setLivewireField($this->getName(), $this->getValue());
+        }
     }
 
     /**
@@ -587,7 +588,10 @@ trait ManageableField
             return $this;
         }
 
-        $this->htmlAttributes['value'] = $value;
+        // Set value
+        $this->setValue($value);
+
+        // Set manageable model value
         $this->setManageableModelValue();
 
         return $this;
