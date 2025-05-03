@@ -94,10 +94,18 @@ class JsonUI
                 if($this->levelsNested != 1 && is_int($key)) $this->bladeCode .= '<div class="flex flex-row items-start gap-0">';
 
                 // Display label
-                if($this->levelsNested == 1 && is_int($key)) $this->displayLabel("item #$key", '!font-bold bg-slate-200 rounded-t-md px-3 py-1 border-b border-slate-400');
-                else if($this->levelsNested == 1) $this->displayLabel($key, '!font-bold bg-slate-200 rounded-t-md px-3 py-1 border-b border-slate-400');
-                else if(is_int($key)) $this->displayLabel("item #$key", 'relative top-[2px]');
-                else $this->displayLabel($key, '!font-bold bg-slate-100 rounded-t-md px-3 py-1 border-b border-slate-400');
+                if($this->levelsNested == 1 && is_int($key)) {
+                    $this->displayLabel("item #$key", '!font-bold bg-slate-200 rounded-t-md px-3 py-1 border-b border-slate-400');
+                }
+                else if($this->levelsNested == 1) {
+                    $this->displayLabel($key, '!font-bold bg-slate-200 rounded-t-md px-3 py-1 border-b border-slate-400');
+                }
+                else if(is_int($key)) {
+                    $this->displayLabel("item #$key", 'relative top-[2px]');
+                }
+                else {
+                    $this->displayLabel($key, '!font-bold bg-slate-100 rounded-t-md px-3 py-1 border-b border-slate-400');
+                }
 
                 // Call rcursively to build the nested structure
                 $this->buildBladeCodeFromJsonData($value);
