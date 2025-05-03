@@ -99,6 +99,9 @@ class JsonUI
         $firstKey = array_key_first($jsonData);
         $lastKey = array_key_last($jsonData);
 
+        // Arrow html
+        $arrowHtml = '<span class="!text-sm text-slate-300 ml-2">&#10148;</span>';
+
         // Loop through each key-value pair in the JSON data
         foreach ($jsonData as $key => $value)
         {
@@ -117,16 +120,16 @@ class JsonUI
                 // Display label
                 if($keyIsInt) {
                     $this->bladeCode .= '<div class="flex flex-col h-full">';
-                    $this->displayLabel("#$key", 'relative top-[6px]');
+                    $this->displayLabel("#$key$arrowHtml", 'relative top-[7px]');
                     $this->bladeCode .= '<div class="flex-1 ml-1 mt-2.5 border-l-2 border-dotted '.$this->levelBasedBorderClass().' '.($this->levelsNested == 1 ? '' : 'mb-1').'"></div>';
                     $this->bladeCode .= '</div>';
                 }
                 else {
-                    $this->displayLabel($key . '<span class="!text-sm text-slate-300 ml-2">&#10148;</span>', 'mt-1.5 mb-1.5 !font-bold');
+                    $this->displayLabel($key.$arrowHtml, 'mt-1.5 mb-1.5 !font-bold');
                 }
 
                 // Call rcursively to build the nested structure
-                $this->buildBladeCodeFromJsonData($value, (!$keyIsInt ? 'border-l-2 border-dotted '.$this->levelBasedBorderClass() : '!pb-0').' '.($key === $lastKey ? 'mb-1.5' : ''));
+                $this->buildBladeCodeFromJsonData($value, (!$keyIsInt ? 'border-l-2 border-dotted '.$this->levelBasedBorderClass() : '!pb-0 !pl-2').' '.($key === $lastKey ? 'mb-1.5' : ''));
                 
                 // If int indexed array, end horizontal group
                 if($keyIsInt) $this->bladeCode .= '</div>';
