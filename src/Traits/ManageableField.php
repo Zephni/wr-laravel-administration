@@ -267,7 +267,7 @@ trait ManageableField
 
         // If livewire field, set livewire field value
         if($this->isModeledWithLivewire()) {
-            ManageableModel::setLivewireField($this->getName(), $this->getValue());
+            ManageableModel::setLivewireField($this->getName(), $value);
         }
     }
 
@@ -585,6 +585,9 @@ trait ManageableField
     {
         // If model is being modified rather than created, then skip setting default value
         if($this->manageableModel?->isBeingCreated() === false) {
+            // We setValue here to also handle the livewire field value
+            $this->setValue($this->manageableModel->getModelInstance()->{$this->getName()} ?? $value);
+
             return $this;
         }
 
