@@ -7,7 +7,7 @@
         @if(!empty($label))
             @themeComponent('forms.label', [
                 'label' => $label,
-                'attributes' => new \Illuminate\View\ComponentAttributeBag([
+                'attributes' => Arr::toAttributeBag([
                     'class' => 'mb-2 '.($options['labelClass'] ?? '')
                 ])
             ])
@@ -32,7 +32,7 @@
             'options' => [
                 'showError' => false,
             ],
-            'attributes' => new \Illuminate\View\ComponentAttributeBag(array_merge($searchAttributes->getAttributes(), [
+            'attributes' => Arr::toAttributeBag(array_merge($searchAttributes->getAttributes(), [
                 'x-ref' => "{$attributes->get('name')}_searchable_value_input",
                 'class' => '!mt-0 !bg-slate-100 dark:!bg-slate-900 !placeholder-slate-400',
                 'autocomplete' => 'off',

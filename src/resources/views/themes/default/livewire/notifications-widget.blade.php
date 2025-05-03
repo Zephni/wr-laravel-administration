@@ -10,7 +10,7 @@
                     <div class="text-sm">Show: </div>
                     {{-- Status filter --}}
                     @themeComponent('forms.input-select', [
-                        'attributes' => new \Illuminate\View\ComponentAttributeBag([
+                        'attributes' => Arr::toAttributeBag([
                             'wire:model.live' => 'statusFilter',
                             'class' => '!bg-slate-100 dark:!bg-slate-800 !mt-0'
                         ]),

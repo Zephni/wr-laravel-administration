@@ -31,7 +31,7 @@
                 @themeComponent('forms.input-text', [
                     'label' => 'Email Address',
                     'error' => $errors->first('email'),
-                    'attributes' => new \Illuminate\View\ComponentAttributeBag([
+                    'attributes' => Arr::toAttributeBag([
                         'type' => 'email',
                         'name' => 'email',
                         'value' => $email,
@@ -45,7 +45,7 @@
                 @themeComponent('forms.input-text', [
                     'label' => 'Password',
                     'error' => $errors->first('password'),
-                    'attributes' => new \Illuminate\View\ComponentAttributeBag([
+                    'attributes' => Arr::toAttributeBag([
                         'type' => 'password',
                         'name' => 'password',
                         'value' => '',
@@ -59,7 +59,7 @@
                 @themeComponent('forms.input-text', [
                     'label' => 'Confirm Password',
                     'error' => $errors->first('password_confirmation'),
-                    'attributes' => new \Illuminate\View\ComponentAttributeBag([
+                    'attributes' => Arr::toAttributeBag([
                         'type' => 'password',
                         'name' => 'password_confirmation',
                         'value' => '',

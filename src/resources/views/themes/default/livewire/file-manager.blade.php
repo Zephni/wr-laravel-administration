@@ -12,7 +12,7 @@
             'size' => 'small',
             'text' => 'Refresh',
             'icon' => 'fas fa-sync-alt',
-            'attributes' => new \Illuminate\View\ComponentAttributeBag([
+            'attributes' => Arr::toAttributeBag([
                 'class' => 'absolute top-0 right-0 mt-2',
                 'wire:click' => 'refresh',
             ])
@@ -146,7 +146,7 @@
                                     'color' => 'danger',
                                     'text' => 'Delete',
                                     'icon' => 'fas fa-trash text-xs leading-0',
-                                    'attributes' => new \Illuminate\View\ComponentAttributeBag([
+                                    'attributes' => Arr::toAttributeBag([
                                         'title' => 'Delete directory and all contents',
                                         'class' => '!py-0 !leading-0 !h-[22.6px]',
                                         // 'wire:click' => "deleteFile('$viewingDirectory', '".(is_array($directoryOrFile) ? $key : $directoryOrFile)."')",
@@ -203,7 +203,7 @@
                                 'color' => 'danger',
                                 'text' => 'Delete',
                                 'icon' => 'fas fa-trash text-xs leading-0',
-                                'attributes' => new \Illuminate\View\ComponentAttributeBag([
+                                'attributes' => Arr::toAttributeBag([
                                     'title' => 'Delete file',
                                     'class' => '!py-0 !leading-0 !h-[22.6px]',
                                     'x-on:click' => "if(confirm('Are you sure you want to delete this file?')) {
@@ -238,7 +238,7 @@
                         @themeComponent('forms.textarea', [
                             'label' => null,
                             'options' => [],
-                            'attributes' => new \Illuminate\View\ComponentAttributeBag([
+                            'attributes' => Arr::toAttributeBag([
                                 'readonly' => true,
                                 'wire:model' => 'viewingItemContent',
                                 'name' => 'log_content',

@@ -37,7 +37,7 @@
                         'notes' => '<b>NOTE:</b> The first row of the file MUST be a list of headers.',
                         'chooseFileText' => 'Select a .csv file to import...',
                     ],
-                    'attributes' => new \Illuminate\View\ComponentAttributeBag([
+                    'attributes' => Arr::toAttributeBag([
                         'name' => 'file',
                         'wire:model.live' => 'file',
                         'class' => ''
@@ -66,7 +66,7 @@
                                 'options' => [
 
                                 ],
-                                'attributes' => new \Illuminate\View\ComponentAttributeBag([
+                                'attributes' => Arr::toAttributeBag([
                                     'wire:model.live' => "headersMappedToColumns.$headerIndex",
                                     'class' => 'px-1 py-0.5 '.($headersMappedToColumns[$headerIndex] == null ? '!border-rose-500' : '!border-emerald-500')
                                 ])
@@ -136,7 +136,7 @@
                     ',
                     'icon' => 'fas fa-file-import',
                     'size' => 'medium',
-                    'attributes' => new \Illuminate\View\ComponentAttributeBag([
+                    'attributes' => Arr::toAttributeBag([
                         'wire:loading.attr' => 'disabled',
                         'wire:loading.class' => 'opacity-70 cursor-not-allowed',
                         'wire:click' => 'importData',
@@ -211,7 +211,7 @@
                     'icon' => 'fas fa-times',
                     'size' => 'medium',
                     'color' => 'secondary',
-                    'attributes' => new \Illuminate\View\ComponentAttributeBag([
+                    'attributes' => Arr::toAttributeBag([
                         'wire:click' => 'closeAndRefresh',
                         'wire:loading.attr' => 'disabled',
                         'wire:loading.class' => 'opacity-70 cursor-not-allowed',

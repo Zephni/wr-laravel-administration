@@ -4,7 +4,7 @@
     'type' => 'button',
     'text' => 'Restore',
     'icon' => 'fa fa-undo relative !mr-[3px] text-[10px]',
-    'attributes' => new \Illuminate\View\ComponentAttributeBag([
+    'attributes' => Arr::toAttributeBag([
         'title' => 'Restore',
         'wire:click' => 'restoreModel('.$manageableModel->getModelInstance()->id.')',
     ])

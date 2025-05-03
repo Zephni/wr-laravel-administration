@@ -24,7 +24,7 @@
 @if(!empty($label))
     @themeComponent('forms.label', [
         'label' => $label,
-        'attributes' => new \Illuminate\View\ComponentAttributeBag([
+        'attributes' => Arr::toAttributeBag([
             'id' => $id,
             'class' => $options['labelClass'] ?? ''
         ])
@@ -59,7 +59,7 @@
                     'color' => 'danger',
                     'text' => 'Remove',
                     'icon' => 'fa fa-trash relative text-xs',
-                    'attributes' => new \Illuminate\View\ComponentAttributeBag([
+                    'attributes' => Arr::toAttributeBag([
                         'type' => 'button',
                         'title' => 'Remove',
                         'class' => 'text-sm',
@@ -82,7 +82,7 @@
                 'notes' => $imageExists || (!$isHttpImage && !$imageExists)
                     ? '<a href="'.$publicUrl.'" target="_blank" class="underline">'.$publicUrlWithoutDomain.'</a>'.$imageExistsHtml
                     : 'No image set',
-                'attributes' => new \Illuminate\View\ComponentAttributeBag([
+                'attributes' => Arr::toAttributeBag([
                     'class' => '!text-xs !px-2 !py-1',
                 ])
             ])

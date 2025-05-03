@@ -10,7 +10,7 @@
 @if(!empty($label))
     @themeComponent('forms.label', [
         'label' => $label,
-        'attributes' => new \Illuminate\View\ComponentAttributeBag([
+        'attributes' => Arr::toAttributeBag([
             'id' => $id,
             'class' => $options['labelClass'] ?? ''
         ])

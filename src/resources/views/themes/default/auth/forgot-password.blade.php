@@ -31,7 +31,7 @@
                 @themeComponent('forms.input-text', [
                     'label' => 'Email Address',
                     'error' => $errors->first('email'),
-                    'attributes' => new \Illuminate\View\ComponentAttributeBag([
+                    'attributes' => Arr::toAttributeBag([
                         'type' => 'email',
                         'name' => 'email',
                         'value' => old('email'),
@@ -52,7 +52,7 @@
                 @themeComponent('forms.button', [
                     'size' => 'large',
                     'text' => 'Request password reset link',
-                    'attributes' => new \Illuminate\View\ComponentAttributeBag([
+                    'attributes' => Arr::toAttributeBag([
                         'type' => 'submit'
                     ])
                 ])

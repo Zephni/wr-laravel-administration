@@ -20,7 +20,7 @@
             'size' => 'small',
             'text' => 'Refresh',
             'icon' => 'fas fa-sync-alt',
-            'attributes' => new \Illuminate\View\ComponentAttributeBag([
+            'attributes' => Arr::toAttributeBag([
                 'wire:click' => 'refresh',
             ])
         ])
@@ -64,7 +64,7 @@
                             'color' => 'danger',
                             'text' => 'Delete',
                             'icon' => 'fas fa-trash',
-                            'attributes' => new \Illuminate\View\ComponentAttributeBag([
+                            'attributes' => Arr::toAttributeBag([
                                 'class' => '!py-0 !leading-0 !h-[22.6px]',
                                 'wire:click' => "deleteLogFile('$viewingLogsDirectory', '".(is_array($directoryOrFile) ? $key : $directoryOrFile)."')",
                             ])
@@ -82,7 +82,7 @@
         {!! view($WRLAHelper::getViewPath('components.forms.textarea'), [
             'label' => $viewingLogFile,
             'options' => [],
-            'attributes' => new \Illuminate\View\ComponentAttributeBag([
+            'attributes' => Arr::toAttributeBag([
                 'readonly' => true,
                 'wire:model' => 'viewingLogContent',
                 'name' => 'log_content',

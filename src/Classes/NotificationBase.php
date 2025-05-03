@@ -3,6 +3,7 @@
 namespace WebRegulate\LaravelAdministration\Classes;
 
 use App\Models\User;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Illuminate\Support\Collection;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
@@ -141,7 +142,7 @@ class NotificationBase
     public static function staticBuildNotificationButton(Notification $notification, array $htmlAttributes, string $text, string $icon = 'fas fa-check', string $color = 'primary')
     {
         return view(WRLAHelper::getViewPath('components.forms.button'), [
-            'attributes' => new \Illuminate\View\ComponentAttributeBag(array_merge([
+            'attributes' => Arr::toAttributeBag(array_merge([
                 'onclick' => "
                     window.buttonSignifyLoading(this, () => new Promise((resolve) => {
                         Livewire.on('notificationWidgetFinishedLoading', () => {

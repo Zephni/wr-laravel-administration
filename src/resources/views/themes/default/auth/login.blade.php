@@ -24,7 +24,7 @@
                 @themeComponent('forms.input-text', [
                     'label' => 'Email Address',
                     'error' => $errors->first('email'),
-                    'attributes' => new \Illuminate\View\ComponentAttributeBag([
+                    'attributes' => Arr::toAttributeBag([
                         'type' => 'email',
                         'name' => 'email',
                         'value' => old('email'),
@@ -38,7 +38,7 @@
                 @themeComponent('forms.input-text', [
                     'label' => 'Password',
                     'error' => $errors->first('password'),
-                    'attributes' => new \Illuminate\View\ComponentAttributeBag([
+                    'attributes' => Arr::toAttributeBag([
                         'type' => 'password',
                         'name' => 'password',
                         'value' => '',
@@ -50,7 +50,7 @@
             <div class="flex justify-between">
                 @themeComponent('forms.input-checkbox', [
                     'label' => 'Remember me',
-                    'attributes' => new \Illuminate\View\ComponentAttributeBag([
+                    'attributes' => Arr::toAttributeBag([
                         'name' => 'remember',
                         'checked' => old('remember') ?? true,
                     ])
@@ -72,7 +72,7 @@
                     'size' => 'large',
                     'text' => 'Login',
                     'icon' => 'fa fa-sign-in-alt',
-                    'attributes' => new \Illuminate\View\ComponentAttributeBag([
+                    'attributes' => Arr::toAttributeBag([
                         'type' => 'submit'
                     ])
                 ])

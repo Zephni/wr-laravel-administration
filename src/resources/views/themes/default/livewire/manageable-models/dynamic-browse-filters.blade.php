@@ -15,7 +15,7 @@
                         'options' => [
                             'containerClass' => '!w-44',
                         ],
-                        'attributes' => new \Illuminate\View\ComponentAttributeBag([
+                        'attributes' => Arr::toAttributeBag([
                             'wire:model.live.debounce.400ms' =>  "browseFilterInputs.$key.field",
                         ]),
                     ])
@@ -41,7 +41,7 @@
                         'options' => [
                             'containerClass' => '!w-44',
                         ],
-                        'attributes' => new \Illuminate\View\ComponentAttributeBag([
+                        'attributes' => Arr::toAttributeBag([
                             'wire:model.live.debounce.400ms' =>  "browseFilterInputs.$key.operator",
                         ]),
                     ])
@@ -78,7 +78,7 @@
             'size' => 'small',
             'type' => 'button',
             'color' => 'primary',
-            'attributes' => new \Illuminate\View\ComponentAttributeBag([
+            'attributes' => Arr::toAttributeBag([
                 'wire:click' => 'addFilterAction',
             ]),
         ])
