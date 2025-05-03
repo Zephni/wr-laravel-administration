@@ -95,7 +95,8 @@ class JsonUI
             array_filter($jsonData, fn($value) => is_array($value))
         );
 
-        // Get the last key in the array
+        // Get the first and last key in the array
+        $firstKey = array_key_first($jsonData);
         $lastKey = array_key_last($jsonData);
 
         // Loop through each key-value pair in the JSON data
@@ -111,13 +112,13 @@ class JsonUI
             if (is_array($value))
             {
                 // If int indexed array, open horizontal group
-                if($keyIsInt) $this->bladeCode .= '<div class="'.($key !== 0 ? 'mt-2' : '').' mb-2 flex flex-row items-stretch gap-0">';
+                if($keyIsInt) $this->bladeCode .= '<div class="'.($firstKey ? '' : 'mt-2').' mb-4 last:mb-0 flex flex-row items-stretch gap-0">';
 
                 // Display label
                 if($keyIsInt) {
                     $this->bladeCode .= '<div class="flex flex-col h-full">';
                     $this->displayLabel("#$key", 'relative top-[6px]');
-                    $this->bladeCode .= '<div class="flex-1 ml-1 mt-2.5 border-l border-dashed border-slate-400"></div>';
+                    $this->bladeCode .= '<div class="flex-1 ml-1 mt-2.5 border-l-2 border-dotted '.$this->levelBasedBorderClass().' '.($this->levelsNested == 1 ? '' : 'mb-1').'"></div>';
                     $this->bladeCode .= '</div>';
                 }
                 else {
@@ -125,7 +126,7 @@ class JsonUI
                 }
 
                 // Call rcursively to build the nested structure
-                $this->buildBladeCodeFromJsonData($value, (!$keyIsInt ? 'border-l border-dashed' : '').' '.($key === $lastKey ? 'mb-1.5' : ''));
+                $this->buildBladeCodeFromJsonData($value, (!$keyIsInt ? 'border-l-2 border-dotted '.$this->levelBasedBorderClass() : '!pb-0').' '.($key === $lastKey ? 'mb-1.5' : ''));
                 
                 // If int indexed array, end horizontal group
                 if($keyIsInt) $this->bladeCode .= '</div>';
@@ -137,7 +138,7 @@ class JsonUI
                 $this->bladeCode .= '<div class="flex flex-row gap-4 items-center py-1">';
 
                 // If it's not an array, display the label and value
-                $this->displayLabel($key, '!font-bold');
+                $this->displayLabel($key, '');
                 $this->bladeCode .= "<input type='text' class='w-72 px-2 py-0.5 border border-slate-400 dark:text-black rounded-md text-sm' name='{$this->getAttribute('name')}[$key]' value='$value'>";
 
                 // End field group
@@ -150,10 +151,25 @@ class JsonUI
     }
 
     /**
+     * Border color based on level
+     */
+    private function levelBasedBorderClass(): string {
+        return match ($this->levelsNested) {
+            1 => 'json-nested-level-0 border-teal-500',
+            2 => 'json-nested-level-1 border-blue-500',
+            3 => 'json-nested-level-2 border-green-500',
+            4 => 'json-nested-level-3 border-orange-500',
+            5 => 'json-nested-level-4 border-purple-500',
+            6 => 'json-nested-level-5 border-amber-500',
+            default => 'border-slate-400',
+        };
+    }
+
+    /**
      * Start group
      */
     private function startGroup(string $groupClass): void {
-        $this->bladeCode .= '<div class="'.$groupClass.' flex flex-col mb-0 pl-5 ml-1 py-0 bg-white dark:bg-slate-600 border-slate-400">';
+        $this->bladeCode .= '<div class="'.$groupClass.' '.$this->levelBasedBorderClass().' flex flex-col mb-0 pl-5 ml-1 pb-2 bg-white dark:bg-slate-600 border-slate-400">';
         $this->levelsNested++;
     }
 
@@ -169,6 +185,6 @@ class JsonUI
      * Display label
      */
     private function displayLabel(string $label, string $class = ''): void {
-        $this->bladeCode .= "<label class='$class text-sm font-medium text-gray-700 dark:text-gray-200'>$label</label>";
+        $this->bladeCode .= "<label class='$class text-sm font-bold text-gray-700 dark:text-gray-200'>$label</label>";
     }
 }
