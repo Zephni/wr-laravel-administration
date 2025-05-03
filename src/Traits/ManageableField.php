@@ -165,11 +165,18 @@ trait ManageableField
      *
      * @param ?ManageableModel $manageableModel
      * @param ?mixed $column
+     * @param ?array $options
      * @return static
      */
-    public static function make(?ManageableModel $manageableModel = null, ?string $column = null): static
+    public static function make(?ManageableModel $manageableModel = null, ?string $column = null, ?array $options = null): static
     {
-        return new static($column, $manageableModel?->getModelInstance()->{$column}, $manageableModel);
+        $manageableField = new static($column, $manageableModel?->getModelInstance()->{$column}, $manageableModel);
+
+        if(!is_null($options)) {
+            $manageableField->setOptions($options);
+        }
+
+        return $manageableField;
     }
 
     /**
