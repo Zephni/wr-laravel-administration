@@ -79,10 +79,10 @@ class JsonUI
     /**
      * Build the blade code for the JSON UI. Calls self recursively to build the nested structure.
      */
-    public function buildBladeCodeFromJsonData(array $jsonData): void
+    public function buildBladeCodeFromJsonData(array $jsonData, string $groupClass = ''): void
     {
         // Start group
-        $this->startGroup();
+        $this->startGroup($groupClass);
 
         // Loop through each key-value pair in the JSON data
         foreach ($jsonData as $key => $value)
@@ -95,20 +95,20 @@ class JsonUI
 
                 // Display label
                 if($this->levelsNested == 1 && is_int($key)) {
-                    $this->displayLabel("item #$key", '!font-bold bg-slate-200 rounded-t-md px-3 py-1 border-b border-slate-400');
+                    $this->displayLabel("item #$key", '!font-bold rounded-t-md px-3 py-1 bg-notes-200 dark:bg-gray-700 border border-notes-300 dark:border-notes-900');
                 }
                 else if($this->levelsNested == 1) {
-                    $this->displayLabel($key, '!font-bold bg-slate-200 rounded-t-md px-3 py-1 border-b border-slate-400');
+                    $this->displayLabel($key, '!font-bold rounded-t-md px-3 py-1 bg-notes-200 dark:bg-gray-700 border border-notes-300 dark:border-notes-900');
                 }
                 else if(is_int($key)) {
-                    $this->displayLabel("item #$key", 'relative top-[2px]');
+                    $this->displayLabel("item #$key", 'relative top-[6px]');
                 }
                 else {
-                    $this->displayLabel($key, '!font-bold bg-slate-100 rounded-t-md px-3 py-1 border-b border-slate-400');
+                    $this->displayLabel('<span class="!text-sm text-slate-300 mr-1.5">&#10148;</span>'.$key, '!font-bold');
                 }
 
                 // Call rcursively to build the nested structure
-                $this->buildBladeCodeFromJsonData($value);
+                $this->buildBladeCodeFromJsonData($value, $this->levelsNested != 1 && is_int($key) ? '!border-0 !py-0' : '');
                 
                 // If int indexed array, end horizontal group
                 if($this->levelsNested != 1 && is_int($key)) $this->bladeCode .= '</div>';
@@ -117,11 +117,11 @@ class JsonUI
             else
             {
                 // Start field group
-                $this->bladeCode .= '<div class="flex flex-row gap-4 items-center">';
+                $this->bladeCode .= '<div class="flex flex-row gap-4 items-center py-1">';
 
                 // If it's not an array, display the label and value
                 $this->displayLabel($key, '!font-bold');
-                $this->bladeCode .= "<input type='text' class='w-72 px-2 py-0.5 border border-slate-400 rounded-md text-sm' name='{$this->getAttribute('name')}[$key]' value='$value'>";
+                $this->bladeCode .= "<input type='text' class='w-72 px-2 py-0.5 border border-slate-400 dark:text-black rounded-md text-sm' name='{$this->getAttribute('name')}[$key]' value='$value'>";
 
                 // End field group
                 $this->bladeCode .= '</div>';
@@ -135,8 +135,13 @@ class JsonUI
     /**
      * Start group
      */
-    private function startGroup(): void {
-        $this->bladeCode .= '<div class="flex flex-col gap-2 '.($this->levelsNested > 0 ? '!pl-5 ' : 'py-2 pr-2').' pl-2 bg-white rounded-md">';
+    private function startGroup(string $groupClass): void {
+        if($this->levelsNested == 0) {
+            $this->bladeCode .= '<div class="'.$groupClass.' flex flex-col">';
+        } else {
+            $this->bladeCode .= '<div class="'.$groupClass.' flex flex-col pl-5 pt-2 pb-2 mb-2 rounded-b-md bg-white dark:bg-slate-600 border-x border-b border-slate-300">';
+        }
+
         $this->levelsNested++;
     }
 
@@ -152,6 +157,6 @@ class JsonUI
      * Display label
      */
     private function displayLabel(string $label, string $class = ''): void {
-        $this->bladeCode .= "<label class='$class text-sm font-medium text-gray-700'>$label</label>";
+        $this->bladeCode .= "<label class='$class text-sm font-medium text-gray-700 dark:text-gray-200'>$label</label>";
     }
 }
