@@ -84,6 +84,12 @@ class JsonUI
         // Start group
         $this->startGroup($groupClass);
 
+        // Sort the array so that non-array items come first
+        $jsonData = array_merge(
+            array_filter($jsonData, fn($value) => !is_array($value)),
+            array_filter($jsonData, fn($value) => is_array($value))
+        );
+
         // Loop through each key-value pair in the JSON data
         foreach ($jsonData as $key => $value)
         {
@@ -91,24 +97,18 @@ class JsonUI
             if (is_array($value))
             { 
                 // If int indexed array, open horizontal group
-                if($this->levelsNested != 1 && is_int($key)) $this->bladeCode .= '<div class="flex flex-row items-start gap-0">';
+                if(is_int($key)) $this->bladeCode .= '<div class="'.($key !== 0 ? 'mt-2' : '').' flex flex-row items-start gap-0">';
 
                 // Display label
-                if($this->levelsNested == 1 && is_int($key)) {
-                    $this->displayLabel("item #$key", '!font-bold rounded-t-md px-3 py-1 bg-notes-200 dark:bg-gray-700 border border-notes-300 dark:border-notes-900');
-                }
-                else if($this->levelsNested == 1) {
-                    $this->displayLabel($key, '!font-bold rounded-t-md px-3 py-1 bg-notes-200 dark:bg-gray-700 border border-notes-300 dark:border-notes-900');
-                }
-                else if(is_int($key)) {
-                    $this->displayLabel("item #$key", 'relative top-[6px]');
+                if(is_int($key)) {
+                    $this->displayLabel("#$key", 'relative top-[6px]');
                 }
                 else {
-                    $this->displayLabel('<span class="!text-sm text-slate-300 mr-1.5">&#10148;</span>'.$key, '!font-bold');
+                    $this->displayLabel($key . '<span class="!text-sm text-slate-300 ml-2">&#10148;</span>', 'mt-1.5 !font-bold');
                 }
 
                 // Call rcursively to build the nested structure
-                $this->buildBladeCodeFromJsonData($value, $this->levelsNested != 1 && is_int($key) ? '!border-0 !py-0' : '');
+                $this->buildBladeCodeFromJsonData($value, is_int($key) ? '!border-0 !py-0' : '!py-0 mt-1');
                 
                 // If int indexed array, end horizontal group
                 if($this->levelsNested != 1 && is_int($key)) $this->bladeCode .= '</div>';
@@ -136,12 +136,7 @@ class JsonUI
      * Start group
      */
     private function startGroup(string $groupClass): void {
-        if($this->levelsNested == 0) {
-            $this->bladeCode .= '<div class="'.$groupClass.' flex flex-col">';
-        } else {
-            $this->bladeCode .= '<div class="'.$groupClass.' flex flex-col pl-5 pt-2 pb-2 mb-2 rounded-b-md bg-white dark:bg-slate-600 border-x border-b border-slate-300">';
-        }
-
+        $this->bladeCode .= '<div class="'.$groupClass.' flex flex-col pl-5 pt-2 pb-2 mb-2 rounded-b-md bg-white dark:bg-slate-600 border-l border-b border-slate-300">';
         $this->levelsNested++;
     }
 
