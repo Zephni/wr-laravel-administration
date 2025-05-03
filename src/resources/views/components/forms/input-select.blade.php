@@ -8,13 +8,13 @@
 <div class="{{ $options['containerClass'] ?? 'w-full flex-1 flex flex-col gap-1 md:flex-auto' }}">
 
 @if(!empty($label))
-    {!! view($WRLAHelper::getViewPath('components.forms.label'), [
+    @themeComponent('forms.label', [
         'label' => $label,
         'attributes' => new \Illuminate\View\ComponentAttributeBag([
             'id' => $id,
             'class' => $options['labelClass'] ?? ''
         ])
-    ])->render() !!}
+    ])
 @endif
 
 <select {{ $attributes->merge([

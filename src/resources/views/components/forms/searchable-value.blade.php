@@ -5,12 +5,12 @@
     <div class="flex justify-between">
         {{-- Label --}}
         @if(!empty($label))
-            {!! view($WRLAHelper::getViewPath('components.forms.label'), [
+            @themeComponent('forms.label', [
                 'label' => $label,
                 'attributes' => new \Illuminate\View\ComponentAttributeBag([
                     'class' => 'mb-2 '.($options['labelClass'] ?? '')
                 ])
-            ])->render() !!}
+            ])
         @endif
 
         {{-- Cancel button --}}

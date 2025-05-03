@@ -8,14 +8,14 @@
 <div wire:ignore class="{{ $options['containerClass'] ?? 'w-full flex-1 md:flex-auto' }}">
 
     @if(!empty($label))
-        {!! view($WRLAHelper::getViewPath('components.forms.label'), [
+        @themeComponent('forms.label', [
             'label' => $label,
             'attributes' => new \Illuminate\View\ComponentAttributeBag([
                 'id' => $id.'-label',
                 'class' => ($options['labelClass'] ?? ''),
                 'style' => 'margin-bottom: 5px;'
             ])
-        ])->render() !!}
+        ])
     @endif
 
     <textarea {{ $attributes->merge([

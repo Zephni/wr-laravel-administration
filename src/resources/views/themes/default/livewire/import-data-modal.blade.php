@@ -32,7 +32,7 @@
                 </b>
             </div>
             <div>
-                {!! view($WRLAHelper::getViewPath('components.forms.input-file'), [
+                @themeComponent('forms.input-file', [
                     'options' => [
                         'notes' => '<b>NOTE:</b> The first row of the file MUST be a list of headers.',
                         'chooseFileText' => 'Select a .csv file to import...',
@@ -42,7 +42,7 @@
                         'wire:model.live' => 'file',
                         'class' => ''
                     ])
-                ])->render() !!}
+                ])
             </div>
 
         {{-- STEP 2 - Map .csv headings to table columns --}}
@@ -60,7 +60,7 @@
                 <div class="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-4">
                     @foreach($data['origionalHeaders'] as $headerIndex => $header)
                         <div wire:key="mapped-header-{{ $headerIndex }}">
-                            {!! view($WRLAHelper::getViewPath('components.forms.input-select'), [
+                            @themeComponent('forms.input-select', [
                                 'label' => $header,
                                 'items' => $data['tableColumns'],
                                 'options' => [
@@ -70,7 +70,7 @@
                                     'wire:model.live' => "headersMappedToColumns.$headerIndex",
                                     'class' => 'px-1 py-0.5 '.($headersMappedToColumns[$headerIndex] == null ? '!border-rose-500' : '!border-emerald-500')
                                 ])
-                            ])->render() !!}
+                            ])
                         </div>
                     @endforeach
                 </div>
@@ -129,7 +129,7 @@
 
             {{-- Import button --}}
             <div class="flex justify-end mt-4">
-                {!! view($WRLAHelper::getViewPath('components.forms.button'), [
+                @themeComponent('forms.button', [
                     'text' => '
                         <span wire:loading.remove wire:target="importData">Import '.$data['totalRows'].' rows into '.$manageableModelClass::getDisplayName(true).'</span>
                         <span wire:loading wire:target="importData">Importing '.$data['totalRows'].', please wait...</span>
@@ -141,7 +141,7 @@
                         'wire:loading.class' => 'opacity-70 cursor-not-allowed',
                         'wire:click' => 'importData',
                     ])
-                ])->render() !!}
+                ])
             </div>
 
         @elseif($data['currentStep'] == 'processing')
@@ -206,7 +206,7 @@
 
             {{-- Close and refresh button --}}
             <div class="flex justify-end mt-4">
-                {!! view($WRLAHelper::getViewPath('components.forms.button'), [
+                @themeComponent('forms.button', [
                     'text' => 'Close and refresh',
                     'icon' => 'fas fa-times',
                     'size' => 'medium',
@@ -216,7 +216,7 @@
                         'wire:loading.attr' => 'disabled',
                         'wire:loading.class' => 'opacity-70 cursor-not-allowed',
                     ])
-                ])->render() !!}
+                ])
             </div>
 
         @endif

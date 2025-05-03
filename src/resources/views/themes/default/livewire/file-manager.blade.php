@@ -235,7 +235,7 @@
 
                     {{-- Text --}}
                     @if($viewingItemType == 'text' || $viewingItemType == 'error')
-                        {!! view($WRLAHelper::getViewPath('components.forms.textarea'), [
+                        @themeComponent('forms.textarea', [
                             'label' => null,
                             'options' => [],
                             'attributes' => new \Illuminate\View\ComponentAttributeBag([
@@ -243,8 +243,8 @@
                                 'wire:model' => 'viewingItemContent',
                                 'name' => 'log_content',
                                 'class' => '!bg-slate-100 dark:!bg-slate-800 h-64',
-                            ]),
-                        ])->render() !!}
+                            ])
+                        ])
                     {{-- Image --}}
                     @elseif($viewingItemType == 'image')
                         <div class="w-full flex justify-center items-center">
