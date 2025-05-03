@@ -3,6 +3,7 @@
 namespace WebRegulate\LaravelAdministration;
 
 use Livewire\Livewire;
+use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
@@ -11,6 +12,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use Opcodes\LogViewer\Facades\LogViewer;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\View\ComponentAttributeBag;
 use WebRegulate\LaravelAdministration\Livewire\Logs;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 use WebRegulate\LaravelAdministration\Commands\RebuildUser;
@@ -68,6 +70,9 @@ class WRLAServiceProvider extends ServiceProvider
 
         // Main setup - Loading migrations, routes, views, etc.
         $this->mainSetup();
+
+        // Build custom macros
+        $this->buildCustomMacros();
 
         // Pass variables to all routes within this package
         $this->passVariablesToViews();
@@ -341,6 +346,17 @@ class WRLAServiceProvider extends ServiceProvider
             // Display the component with the provided attributes
             return "<?php echo view('{$fullComponentPath}', {$args[1]})->render(); ?>";
         });
+    }
+
+    /**
+     * Build custom macros
+     *
+     * @return void
+     */
+    private function buildCustomMaros(): void
+    {
+        // Array to attribute bag macro
+        Arr::macro('toAttributeBag', fn(array $attributes) => new ComponentAttributeBag($attributes));
     }
 
     /**
