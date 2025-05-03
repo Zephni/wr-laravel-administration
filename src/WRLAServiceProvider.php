@@ -353,7 +353,7 @@ class WRLAServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    private function buildCustomMaros(): void
+    private function buildCustomMacros(): void
     {
         // Array to attribute bag macro
         Arr::macro('toAttributeBag', fn(array $attributes) => new ComponentAttributeBag($attributes));
