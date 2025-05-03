@@ -95,6 +95,9 @@ class JsonUI
             array_filter($jsonData, fn($value) => is_array($value))
         );
 
+        // Get the last key in the array
+        $lastKey = array_key_last($jsonData);
+
         // Loop through each key-value pair in the JSON data
         foreach ($jsonData as $key => $value)
         {
@@ -108,18 +111,21 @@ class JsonUI
             if (is_array($value))
             {
                 // If int indexed array, open horizontal group
-                if($keyIsInt) $this->bladeCode .= '<div class="'.($key !== 0 ? 'mt-2' : '').' pb-2 flex flex-row items-start gap-0">';
+                if($keyIsInt) $this->bladeCode .= '<div class="'.($key !== 0 ? 'mt-2' : '').' mb-2 flex flex-row items-stretch gap-0">';
 
                 // Display label
                 if($keyIsInt) {
+                    $this->bladeCode .= '<div class="flex flex-col h-full">';
                     $this->displayLabel("#$key", 'relative top-[6px]');
+                    $this->bladeCode .= '<div class="flex-1 ml-1 mt-2.5 border-l border-dashed border-slate-400"></div>';
+                    $this->bladeCode .= '</div>';
                 }
                 else {
                     $this->displayLabel($key . '<span class="!text-sm text-slate-300 ml-2">&#10148;</span>', 'mt-1.5 mb-1.5 !font-bold');
                 }
 
                 // Call rcursively to build the nested structure
-                $this->buildBladeCodeFromJsonData($value, !$keyIsInt ? 'border-l border-b mb-0.5' : '');
+                $this->buildBladeCodeFromJsonData($value, (!$keyIsInt ? 'border-l border-dashed' : '').' '.($key === $lastKey ? 'mb-1.5' : ''));
                 
                 // If int indexed array, end horizontal group
                 if($keyIsInt) $this->bladeCode .= '</div>';
@@ -147,7 +153,7 @@ class JsonUI
      * Start group
      */
     private function startGroup(string $groupClass): void {
-        $this->bladeCode .= '<div class="'.$groupClass.' flex flex-col mb-0 pl-5 py-0 rounded-b-md bg-white dark:bg-slate-600 border-slate-300">';
+        $this->bladeCode .= '<div class="'.$groupClass.' flex flex-col mb-0 pl-5 ml-1 py-0 bg-white dark:bg-slate-600 border-slate-400">';
         $this->levelsNested++;
     }
 
