@@ -357,6 +357,15 @@ class WRLAServiceProvider extends ServiceProvider
     {
         // Array to attribute bag macro
         Arr::macro('toAttributeBag', fn(array $attributes) => new ComponentAttributeBag($attributes));
+
+        // Array prepend to all keys recursively macro
+        Arr::macro('prependKeysRecursive', function (array $array, string $prefix) {
+            return array_reduce(array_keys($array), function ($carry, $key) use ($array, $prefix) {
+                $newKey = $prefix . $key;
+                $carry[$newKey] = is_array($array[$key]) ? Arr::prependKeysRecursive($array[$key], $prefix) : $array[$key];
+                return $carry;
+            }, []);
+        });
     }
 
     /**

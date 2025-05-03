@@ -2,12 +2,13 @@
 
 namespace WebRegulate\LaravelAdministration\Classes\ManageableFields;
 
+use Illuminate\Support\Arr;
+use function PHPSTORM_META\type;
 use Illuminate\View\ComponentAttributeBag;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
+
 use WebRegulate\LaravelAdministration\Traits\ManageableField;
 use WebRegulate\LaravelAdministration\Classes\ManageableModel;
-
-use function PHPSTORM_META\type;
 
 class JsonUI
 {
@@ -84,6 +85,10 @@ class JsonUI
         // Start group
         $this->startGroup($groupClass);
 
+        // We prepend _wrla_key_ to the keys of the array (recursively) to fight against PHP's
+        // ... auto array key casting for integers (loses correct indexing if not 0 based)
+        $jsonData = Arr::prependKeysRecursive($jsonData, '_wrla_key_');
+
         // Sort the array so that non-array items come first
         $jsonData = array_merge(
             array_filter($jsonData, fn($value) => !is_array($value)),
@@ -93,14 +98,20 @@ class JsonUI
         // Loop through each key-value pair in the JSON data
         foreach ($jsonData as $key => $value)
         {
+            // Remove the _wrla_key_ prefix from the key
+            $key = ltrim($key, '_wrla_key_');
+
+            // Check if can be parsed as int
+            $keyIsInt = is_numeric($key) && (int)$key == $key;
+
             // If value is array
             if (is_array($value))
-            { 
+            {
                 // If int indexed array, open horizontal group
-                if(is_int($key)) $this->bladeCode .= '<div class="'.($key !== 0 ? 'mt-2' : '').' pb-2 flex flex-row items-start gap-0">';
+                if($keyIsInt) $this->bladeCode .= '<div class="'.($key !== 0 ? 'mt-2' : '').' pb-2 flex flex-row items-start gap-0">';
 
                 // Display label
-                if(is_int($key)) {
+                if($keyIsInt) {
                     $this->displayLabel("#$key", 'relative top-[6px]');
                 }
                 else {
@@ -108,10 +119,10 @@ class JsonUI
                 }
 
                 // Call rcursively to build the nested structure
-                $this->buildBladeCodeFromJsonData($value, !is_int($key) ? 'border-l border-b mb-0.5' : '');
+                $this->buildBladeCodeFromJsonData($value, !$keyIsInt ? 'border-l border-b mb-0.5' : '');
                 
                 // If int indexed array, end horizontal group
-                if(is_int($key)) $this->bladeCode .= '</div>';
+                if($keyIsInt) $this->bladeCode .= '</div>';
             }
             // If is field
             else
