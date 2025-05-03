@@ -158,6 +158,11 @@ trait ManageableField
 
         // Set manageable model property value
         $this->manageableModel->getModelInstance()->setAttribute($name, $this->getValue());
+
+        // If livewire field, set livewire field value
+        if($this->isModeledWithLivewire()) {
+            ManageableModel::setLivewireField($name, $this->getValue());
+        }
     }
 
     /**
