@@ -15,12 +15,6 @@ class JsonUI
     use ManageableField;
 
     /**
-     * Blade code, built from column data / field settings / options on render.
-     * @var string
-     */
-    private string $bladeCode = '';
-
-    /**
      * Levels nested
      * @var int
      */
@@ -60,131 +54,17 @@ class JsonUI
         // Get decoded JSON data
         $jsonData = json_decode($this->getValue(), true);
 
-        // Build blade code for JSON UI
-        $this->buildBladeCodeFromJsonData($jsonData, '!pt-2.5 !pb-4 border !border-slate-400 rounded');
-
         // Render view
         return view(WRLAHelper::getViewPath('components.forms.json-ui'), [
             'label' => $this->getLabel(),
             'options' => $this->options,
-            'bladeCode' => $this->bladeCode,
-            'attributes' => new ComponentAttributeBag(array_merge($this->htmlAttributes, [
+            'jsonData' => $jsonData,
+            'attributes' => Arr::toAttributeBag(array_merge($this->htmlAttributes, [
                 'name' => $this->getAttribute('name'),
                 'value' => $this->getValue(),
                 'type' => $this->getAttribute('type') ?? 'text',
             ])),
 
         ])->render();
-    }
-
-    /**
-     * Build the blade code for the JSON UI. Calls self recursively to build the nested structure.
-     */
-    public function buildBladeCodeFromJsonData(array $jsonData, string $groupClass = ''): void
-    {
-        // Start group
-        $this->startGroup($groupClass);
-
-        // We prepend _wrla_key_ to the keys of the array (recursively) to fight against PHP's
-        // ... auto array key casting for integers (loses correct indexing if not 0 based)
-        $jsonData = Arr::prependKeysRecursive($jsonData, '_wrla_key_');
-
-        // Sort the array so that non-array items come first
-        $jsonData = array_merge(
-            array_filter($jsonData, fn($value) => !is_array($value)),
-            array_filter($jsonData, fn($value) => is_array($value))
-        );
-
-        // Get the first and last key in the array
-        $firstKey = array_key_first($jsonData);
-        $lastKey = array_key_last($jsonData);
-
-        // Arrow html
-        $arrowHtml = '<span class="!text-sm ml-2 opacity-50">&#10148;</span>';
-
-        // Loop through each key-value pair in the JSON data
-        foreach ($jsonData as $key => $value)
-        {
-            // Remove the _wrla_key_ prefix from the key
-            $key = ltrim($key, '_wrla_key_');
-
-            // Check if can be parsed as int
-            $keyIsInt = is_numeric($key) && (int)$key == $key;
-
-            // If value is array
-            if (is_array($value))
-            {
-                // If int indexed array, open horizontal group
-                if($keyIsInt) $this->bladeCode .= '<div class="'.($firstKey ? '' : 'mt-2').' mb-4 last:mb-0 flex flex-row items-stretch gap-0">';
-
-                // Display label
-                if($keyIsInt) {
-                    $this->bladeCode .= '<div class="flex flex-col h-full '.$this->levelBasedColorClass().'">';
-                    $this->displayLabel("#$key$arrowHtml", 'relative top-[7px]');
-                    $this->bladeCode .= '<div class="flex-1 ml-1 mt-2.5 border-l-2 border-dotted '.$this->levelBasedColorClass().' '.($this->levelsNested == 1 ? '' : 'mb-1').'"></div>';
-                    $this->bladeCode .= '</div>';
-                }
-                else {
-                    $this->displayLabel($key.$arrowHtml, 'mt-1.5 mb-1.5 !font-bold');
-                }
-
-                // Call rcursively to build the nested structure
-                $this->buildBladeCodeFromJsonData($value, (!$keyIsInt ? 'border-l-2 border-dotted '.$this->levelBasedColorClass() : '!pb-0 !pl-2').' '.($key === $lastKey ? 'mb-1.5' : ''));
-                
-                // If int indexed array, end horizontal group
-                if($keyIsInt) $this->bladeCode .= '</div>';
-            }
-            // If is field
-            else
-            {
-                // Start field group
-                $this->bladeCode .= '<div class="flex flex-row gap-4 items-center py-1">';
-
-                // If it's not an array, display the label and value
-                $this->displayLabel($key, '');
-                $this->bladeCode .= "<input type='text' class='w-72 px-2 py-0.5 border border-slate-400 text-black dark:text-black rounded-md text-sm' name='{$this->getAttribute('name')}[$key]' value='$value'>";
-
-                // End field group
-                $this->bladeCode .= '</div>';
-            }
-        }
-
-        // End group
-        $this->endGroup();
-    }
-
-    /**
-     * Border color based on level
-     */
-    private function levelBasedColorClass(): string {
-        return match ($this->levelsNested) {
-            1 => 'json-ui json-nested-level-1 text-primary-600 border-primary-600 text-opacity-100',
-            2 => 'json-ui json-nested-level-2 text-primary-600 border-primary-600 text-opacity-90',
-            3 => 'json-ui json-nested-level-3 text-primary-600 border-primary-600 text-opacity-80',
-            default => 'json-ui json-nested-level-4 text-primary-600 border-primary-600 text-opacity-70',
-        };
-    }
-
-    /**
-     * Start group
-     */
-    private function startGroup(string $groupClass): void {
-        $this->bladeCode .= '<div class="'.$groupClass.' '.$this->levelBasedColorClass().' flex flex-col mb-0 pl-5 ml-1 bg-white dark:bg-slate-600 border-slate-300">';
-        $this->levelsNested++;
-    }
-
-    /**
-     * End group
-     */
-    private function endGroup(): void {
-        $this->bladeCode .= '</div>';
-        $this->levelsNested--;
-    }
-
-    /**
-     * Display label
-     */
-    private function displayLabel(string $label, string $class = ''): void {
-        $this->bladeCode .= "<label class='$class text-sm font-bold'>$label</label>";
     }
 }
