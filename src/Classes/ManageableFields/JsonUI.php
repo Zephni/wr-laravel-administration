@@ -61,7 +61,7 @@ class JsonUI
         $jsonData = json_decode($this->getValue(), true);
 
         // Build blade code for JSON UI
-        $this->buildBladeCodeFromJsonData($jsonData, '!py-2');
+        $this->buildBladeCodeFromJsonData($jsonData, '!pt-2.5 !pb-4 border !border-slate-400 rounded');
 
         // Render view
         return view(WRLAHelper::getViewPath('components.forms.json-ui'), [
@@ -100,7 +100,7 @@ class JsonUI
         $lastKey = array_key_last($jsonData);
 
         // Arrow html
-        $arrowHtml = '<span class="!text-sm text-slate-300 ml-2">&#10148;</span>';
+        $arrowHtml = '<span class="!text-sm ml-2 opacity-50">&#10148;</span>';
 
         // Loop through each key-value pair in the JSON data
         foreach ($jsonData as $key => $value)
@@ -119,9 +119,9 @@ class JsonUI
 
                 // Display label
                 if($keyIsInt) {
-                    $this->bladeCode .= '<div class="flex flex-col h-full">';
+                    $this->bladeCode .= '<div class="flex flex-col h-full '.$this->levelBasedColorClass().'">';
                     $this->displayLabel("#$key$arrowHtml", 'relative top-[7px]');
-                    $this->bladeCode .= '<div class="flex-1 ml-1 mt-2.5 border-l-2 border-dotted '.$this->levelBasedBorderClass().' '.($this->levelsNested == 1 ? '' : 'mb-1').'"></div>';
+                    $this->bladeCode .= '<div class="flex-1 ml-1 mt-2.5 border-l-2 border-dotted '.$this->levelBasedColorClass().' '.($this->levelsNested == 1 ? '' : 'mb-1').'"></div>';
                     $this->bladeCode .= '</div>';
                 }
                 else {
@@ -129,7 +129,7 @@ class JsonUI
                 }
 
                 // Call rcursively to build the nested structure
-                $this->buildBladeCodeFromJsonData($value, (!$keyIsInt ? 'border-l-2 border-dotted '.$this->levelBasedBorderClass() : '!pb-0 !pl-2').' '.($key === $lastKey ? 'mb-1.5' : ''));
+                $this->buildBladeCodeFromJsonData($value, (!$keyIsInt ? 'border-l-2 border-dotted '.$this->levelBasedColorClass() : '!pb-0 !pl-2').' '.($key === $lastKey ? 'mb-1.5' : ''));
                 
                 // If int indexed array, end horizontal group
                 if($keyIsInt) $this->bladeCode .= '</div>';
@@ -142,7 +142,7 @@ class JsonUI
 
                 // If it's not an array, display the label and value
                 $this->displayLabel($key, '');
-                $this->bladeCode .= "<input type='text' class='w-72 px-2 py-0.5 border border-slate-400 dark:text-black rounded-md text-sm' name='{$this->getAttribute('name')}[$key]' value='$value'>";
+                $this->bladeCode .= "<input type='text' class='w-72 px-2 py-0.5 border border-slate-400 text-black dark:text-black rounded-md text-sm' name='{$this->getAttribute('name')}[$key]' value='$value'>";
 
                 // End field group
                 $this->bladeCode .= '</div>';
@@ -156,15 +156,12 @@ class JsonUI
     /**
      * Border color based on level
      */
-    private function levelBasedBorderClass(): string {
+    private function levelBasedColorClass(): string {
         return match ($this->levelsNested) {
-            1 => 'json-nested-level-0 border-teal-500',
-            2 => 'json-nested-level-1 border-blue-500',
-            3 => 'json-nested-level-2 border-green-500',
-            4 => 'json-nested-level-3 border-orange-500',
-            5 => 'json-nested-level-4 border-purple-500',
-            6 => 'json-nested-level-5 border-amber-500',
-            default => 'border-slate-400',
+            1 => 'json-ui json-nested-level-1 text-primary-600 border-primary-600 text-opacity-100',
+            2 => 'json-ui json-nested-level-2 text-primary-600 border-primary-600 text-opacity-90',
+            3 => 'json-ui json-nested-level-3 text-primary-600 border-primary-600 text-opacity-80',
+            default => 'json-ui json-nested-level-4 text-primary-600 border-primary-600 text-opacity-70',
         };
     }
 
@@ -172,7 +169,7 @@ class JsonUI
      * Start group
      */
     private function startGroup(string $groupClass): void {
-        $this->bladeCode .= '<div class="'.$groupClass.' '.$this->levelBasedBorderClass().' flex flex-col mb-0 pl-5 ml-1 pb-2 bg-white dark:bg-slate-600 border-slate-400">';
+        $this->bladeCode .= '<div class="'.$groupClass.' '.$this->levelBasedColorClass().' flex flex-col mb-0 pl-5 ml-1 bg-white dark:bg-slate-600 border-slate-300">';
         $this->levelsNested++;
     }
 
@@ -188,6 +185,6 @@ class JsonUI
      * Display label
      */
     private function displayLabel(string $label, string $class = ''): void {
-        $this->bladeCode .= "<label class='$class text-sm font-bold text-gray-700 dark:text-gray-200'>$label</label>";
+        $this->bladeCode .= "<label class='$class text-sm font-bold'>$label</label>";
     }
 }
