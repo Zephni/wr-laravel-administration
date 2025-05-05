@@ -20,7 +20,7 @@ class Heading
      */
     public static function make(string $title, string $icon = 'fas fa-info-circle', $class = ''): BladeElement
     {
-        $manageableField = new BladeElement('__wrla_no_name__', null, null);
+        $manageableField = new BladeElement(null, null, null);
         $manageableField->setOptions([
             'data' => [
                 'title' => $title,
