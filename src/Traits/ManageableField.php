@@ -59,6 +59,13 @@ trait ManageableField
     public static array $browseFilterValues = [];
 
     /**
+     * Static field index
+     *
+     * @var int
+     */
+    public static $fieldIndex = 0;
+
+    /**
      * Show on pages
      *
      * @var array
@@ -100,6 +107,9 @@ trait ManageableField
             $value = $manageableModel->getInstanceJsonValue($name);
         }
 
+        // Increment field index
+        self::$fieldIndex++;
+
         // Get name
         $name = $this->buildNameAttribute($name ?? '');
 
@@ -122,6 +132,7 @@ trait ManageableField
         $this->postConstructed();
     }
 
+
     /**
      * Build name attribute. We need this because PHP converts dots to underscores in request input, so we need to
      * convert the . to a special reversable key.
@@ -131,9 +142,9 @@ trait ManageableField
      */
     private static function buildNameAttribute(string $name): string
     {
-        // If empty, return unique random name
+        // If empty, return unique name
         if(empty($name)) {
-            return uniqid('__wrla_random_name__');
+            return 'wrla_field_'.self::$fieldIndex;
         }
 
         return str_replace('.', WRLAHelper::WRLA_REL_DOT, $name);
