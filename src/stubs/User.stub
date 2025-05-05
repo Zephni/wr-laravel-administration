@@ -16,6 +16,7 @@ use WebRegulate\LaravelAdministration\Classes\ManageableFields\JsonUI;
 use WebRegulate\LaravelAdministration\Classes\ManageableFields\Select;
 use WebRegulate\LaravelAdministration\Enums\ManageableModelPermissions;
 use \WebRegulate\LaravelAdministration\Classes\ManageableFields\Password;
+use WebRegulate\LaravelAdministration\Classes\ManageableFields\Heading;
 use WebRegulate\LaravelAdministration\Classes\BrowseColumns\BrowseColumn;
 use WebRegulate\LaravelAdministration\Classes\BrowseColumns\BrowseColumnImage;
 
@@ -117,6 +118,8 @@ class User extends ManageableModel
         $modelInstance = $this->getModelInstance();
 
         return [
+            Heading::make('User Information', 'fas fa-info-circle'),
+
             Text::make($this, 'name')
                 ->required()
                 ->validation('string|max:255')
@@ -143,6 +146,14 @@ class User extends ManageableModel
                 ->validation('image|mimes:jpeg,png,jpg,gif,svg|max:10240')
                 ->notes('<b>Required</b> - Image should be a valid JPG, PNG or GIF, no larger than 10mb.'),
 
+            Text::make($this, 'email_verified_at')
+                ->setLabel('Email Verified At')
+                ->default(date('Y-m-d H:i:s'))
+                ->validation('nullable|date')
+                ->setAttributes(['type' => 'datetime-local']),
+
+            Heading::make('User Data', 'fas fa-user-cog'),
+
             JsonUI::make($this, 'wrlaUserData.permissions')
                 ->setLabel('Permissions')
                 ->mergeDefaultKeyValues(config('wr-laravel-administration.default_user_data.permissions') ?? [
@@ -164,12 +175,6 @@ class User extends ManageableModel
 
             JsonUI::make($this, 'wrlaUserData.data')
                 ->mergeDefaultKeyValues(config('wr-laravel-administration.default_user_data.data') ?? []),
-
-            Text::make($this, 'email_verified_at')
-                ->setLabel('Email Verified At')
-                ->default(date('Y-m-d H:i:s'))
-                ->validation('nullable|date')
-                ->setAttributes(['type' => 'datetime-local']),
         ];
     }
 

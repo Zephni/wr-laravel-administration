@@ -15,11 +15,11 @@ class BladeElement
      *
      * @param ?ManageableModel $manageableModel
      * @param ?mixed $column
-     * @param string|callable $bladeCode callable passes the field instance as the first argument
+     * @param string|callable $bladeCode callable passes the field instance as the first argument. NOTE! You must use {{ \$variable }} backslashes to escape the variable in the blade code.
      * @param array $data
      * @return static
      */
-    public static function make(?ManageableModel $manageableModel, ?string $column, string|callable $bladeCode = null, array $data = []): static
+    public static function make(?ManageableModel $manageableModel, ?string $column, string|callable $bladeCode, array $data = []): static
     {
         $manageableField = new static($column, $manageableModel?->getModelInstance()->{$column}, $manageableModel);
         $manageableField->options['bladeCode'] = $bladeCode;
