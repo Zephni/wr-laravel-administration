@@ -11,7 +11,7 @@
     @themeComponent('forms.label', [
         'label' => $label,
         'attributes' => Arr::toAttributeBag([
-            'id' => $id,
+            'for' => $id,
             'class' => $options['labelClass'] ?? ''
         ])
     ])
@@ -21,6 +21,10 @@
 {{-- {!! $bladeCode !!} --}}
 @themeComponent('forms.json-ui-fields', [
     'json' => $attributes->get('value'),
+    'attributes' => Arr::toAttributeBag([
+        'id' => $id,
+        'name' => $attributes->get('name'),
+    ]),
 ])
 
 {{-- Field notes (if options has notes key) --}}

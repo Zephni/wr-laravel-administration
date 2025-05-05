@@ -204,19 +204,19 @@
                             </span>
                         </label>
                         {{-- Options --}}
-                        <div class='relative top-[-1px] opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center gap-3 ml-3 font-bold'>
-                            <button type='button' class='text-sm text-teal-600 hover:text-teal-500'
+                        <div class='relative top-[-1px] opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center gap-4 ml-3 font-bold'>
+                            <button type='button' class='text-sm text-slate-600 hover:text-teal-500'
                                 x-on:click.prevent='` + 'addAction(`group`, `' + dottedPath + '`)' + `'
                                 title='Add group'
                             >+ group</button>
-                            <button type='button' class='text-sm text-teal-600 hover:text-teal-500'
+                            <button type='button' class='text-sm text-slate-600 hover:text-teal-500'
                                 x-on:click.prevent='` + 'addAction(`item`, `' + dottedPath + '`)' + `'
                                 title='Add item'
                             >+ item</button>
-                            <button type='button' class='text-sm text-teal-600 hover:text-teal-500'
+                            <button type='button' class='text-sm text-slate-600 hover:text-teal-500'
                                 x-on:click.prevent='` + 'deleteAction(`' + dottedPath + '`)' + `'
                                 title='Delete'
-                            >x delete</button>
+                            >x remove</button>
                         </div>
                     </div>
                     <div class='flex flex-col `+(value instanceof Array ? 'border-teal-600' : 'border-amber-600')+` border-l-2 border-dotted ml-1 pl-3'>
@@ -298,11 +298,11 @@
                             })() + `
                             
 
-                            <div class='opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center gap-3 font-bold'>
-                                <button type='button' class='text-sm text-teal-600 hover:text-teal-500'
+                            <div class='opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center gap-3 font-bold ml-2'>
+                                <button type='button' class='text-sm text-slate-300 hover:text-teal-500'
                                     x-on:click.prevent='` + 'deleteAction(`'+dottedPath+'`)' + `'
                                     title='Delete'
-                                >x delete</button>
+                                >remove</button>
                             </div>
                         </div>
                     </div>
@@ -321,7 +321,13 @@
     {{-- Debug, display this.data as pure prettified json --}}
     <div class="text-sm text-slate-700 mt-7 px-6 py-4 bg-white">
         <span class="font-bold">Preview JSON (Debug):</span>
-        <pre x-html="renderDisplayJson()"></pre>
+        {{-- <pre x-html="renderDisplayJson()"></pre> --}}
+        {{-- Now put into textarea --}}
+        <textarea
+            {{ $attributes->merge()->except(['class']) }}
+            class="w-full h-64 px-2 py-0.5 border border-slate-400 text-black dark:text-black rounded-md text-sm"
+            readonly
+            x-html="renderDisplayJson()"></textarea>
     </div>
 
 </div>
