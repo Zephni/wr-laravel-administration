@@ -12,11 +12,12 @@ use \WebRegulate\LaravelAdministration\Classes\ManageableModel;
 use WebRegulate\LaravelAdministration\Classes\ManageableFields\Json;
 use \WebRegulate\LaravelAdministration\Classes\ManageableFields\Text;
 use WebRegulate\LaravelAdministration\Classes\ManageableFields\Image;
+use WebRegulate\LaravelAdministration\Classes\ManageableFields\JsonUI;
 use WebRegulate\LaravelAdministration\Classes\ManageableFields\Select;
+use WebRegulate\LaravelAdministration\Enums\ManageableModelPermissions;
 use \WebRegulate\LaravelAdministration\Classes\ManageableFields\Password;
 use WebRegulate\LaravelAdministration\Classes\BrowseColumns\BrowseColumn;
 use WebRegulate\LaravelAdministration\Classes\BrowseColumns\BrowseColumnImage;
-use WebRegulate\LaravelAdministration\Enums\ManageableModelPermissions;
 
 class User extends ManageableModel
 {
@@ -142,32 +143,27 @@ class User extends ManageableModel
                 ->validation('image|mimes:jpeg,png,jpg,gif,svg|max:10240')
                 ->notes('<b>Required</b> - Image should be a valid JPG, PNG or GIF, no larger than 10mb.'),
 
-            Json::make($this, 'wrlaUserData.permissions')
+            JsonUI::make($this, 'wrlaUserData.permissions')
                 ->setLabel('Permissions')
-                ->mergeDefaultKeyValues([
+                ->mergeDefaultKeyValues(config('wr-laravel-administration.default_user_data.permissions') ?? [
                     'master' => false,
-                    'admin' => false
+                    'admin' => false,
                 ])
                 ->jsonFormatValidation([
                     'master' => 'boolean'.(($currentUserData?->user_id == $modelInstance?->id) ? "|wrla_no_change:wrla_user_data,{$currentUserData?->id},permissions->master" : ''),
                     'admin' => 'boolean'.(($currentUserData?->user_id == $modelInstance?->id) ? "|wrla_no_change:wrla_user_data,{$currentUserData?->id},permissions->admin" : ''),
-                ])
-                ->hideContainingBraces()
-                ->setAttributes(['placeholder' => 'JSON Data', 'rows' => 4]),
+                ]),
 
-            Json::make($this, 'wrlaUserData.settings')
-                ->mergeDefaultKeyValues([
+            JsonUI::make($this, 'wrlaUserData.settings')
+                ->mergeDefaultKeyValues(config('wr-laravel-administration.default_user_data.settings') ?? [
                     'theme' => 'default'
                 ])
                 ->jsonFormatValidation([
                     'theme' => 'string|in:default'
-                ])
-                ->hideContainingBraces()
-                ->setAttributes(['placeholder' => 'JSON Data', 'rows' => 4]),
+                ]),
 
-            Json::make($this, 'wrlaUserData.data')
-                ->hideContainingBraces()
-                ->setAttributes(['placeholder' => 'JSON Data', 'rows' => 4]),
+            JsonUI::make($this, 'wrlaUserData.data')
+                ->mergeDefaultKeyValues(config('wr-laravel-administration.default_user_data.data') ?? []),
 
             Text::make($this, 'email_verified_at')
                 ->setLabel('Email Verified At')

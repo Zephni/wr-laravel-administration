@@ -179,12 +179,15 @@ class Json
      */
     public function render(): mixed
     {
+        // Get name
+        $name = $this->getName();
+
         // Check if value is set in old() and set if so
-        if(old($this->getAttribute('name')) !== null) {
-            $value = old($this->getAttribute('name'));
-            $this->setAttribute('value', $value);
+        if(old($name) !== null) {
+            $value = old($name);
+            $this->setValue($value);
         } else {
-            $value =$this->getAttribute('value');
+            $value = $this->getValue();
         }
 
         // Apply calculated value, which will apply default key values and pretty print json
@@ -195,7 +198,7 @@ class Json
             'label' => $this->getLabel(),
             'options' => $this->options,
             'attributes' => new ComponentAttributeBag(array_merge($this->htmlAttributes, [
-                'name' => $this->getAttribute('name'),
+                'name' => $name,
                 'value' => $value
             ])),
         ])->render();
