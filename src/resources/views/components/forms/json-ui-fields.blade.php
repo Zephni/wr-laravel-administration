@@ -1,4 +1,6 @@
-@props(['json' => ''])
+@props([
+    'json' => '',
+])
 
 <div x-data="{
     data: {},
@@ -58,14 +60,21 @@
         let thisType = thisData instanceof Array ? 'array' : 'object';
         {{-- alert(`This type: ${thisType}, Dotted path: ${dottedPath}`); --}}
 
+        // Values
+        let newKey, newFullKeyPath, newValue = null;
+
         // If addType is 'group'
         if(addType == 'group') {
+            newValue = {};
+
             if(thisType == 'object') {
                 let newKey = prompt('New key name', 'newKey');
                 if(newKey == null || newKey == '') return;
-                this.dataSet(this.data, `${dottedPath}.${newKey}`, {});
+                {{-- this.dataSet(this.data, `${dottedPath}.${newKey}`, {}); --}}
+                newFullKeyPath = `${dottedPath}.${newKey}`;
             } else {
-                this.dataSet(this.data, `${dottedPath}[${thisData.length}]`, {});
+                {{-- this.dataSet(this.data, `${dottedPath}[${thisData.length}]`, {}); --}}
+                newFullKeyPath = `${dottedPath}[${thisData.length}]`;
             }
         }
 
@@ -76,13 +85,30 @@
             if(newKey == null || newKey == '') return;
             
             if(thisType == 'object') {
-                this.dataSet(this.data, `${dottedPath}.${newKey}`, '');
+                newFullKeyPath = `${dottedPath}.${newKey}`;
+                newValue = '';
+                {{-- this.dataSet(this.data, `${dottedPath}.${newKey}`, ''); --}}
             } else {
-                this.dataSet(this.data, `${dottedPath}[${thisData.length}]`, '');
+                newFullKeyPath = `${dottedPath}[${thisData.length}]`;
+                newValue = '';
+                {{-- this.dataSet(this.data, `${dottedPath}[${thisData.length}]`, ''); --}}
             }
         }
 
+        // Add new key => value to data
+        this.dataSet(this.data, newFullKeyPath, newValue);
+
+        // Render the data again
         this.render(this.data, null);
+
+        // Focus new input field
+        setTimeout(() => {
+            let newInput = document.getElementById(`wrla-json-ui-input-${newFullKeyPath}`);
+            if(newInput) {
+                newInput.focus();
+                newInput.select();
+            }
+        }, 50);
     },
     renameAction(dottedPath) {
         let newKey = prompt('New key name', dottedPath.split('.').pop());
@@ -128,7 +154,7 @@
                         <label class='text-sm font-bold'>
                             <span class='`+(value instanceof Array ? 'text-teal-600' : 'text-amber-600')+`'>
                                 <i class='`+(value instanceof Array ? 'fas fa-list-ul' : 'far fa-folder')+` mr-1.5'></i>
-                                <span x-on:click='` + 'renameAction(`'+dottedPath+'`)' + `' title='Rename' class='cursor-text'>
+                                <span x-on:click='` + 'renameAction(`' + dottedPath + '`)' + `' title='Rename' class='cursor-text'>
                                     ${dottedPath == 'data' ? '' : (keyIsInt ? '#' + key : key)}
                                 </span>
                             </span>
@@ -139,15 +165,15 @@
                         {{-- Options --}}
                         <div class='relative top-[-1px] opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center gap-3 ml-3 font-bold'>
                             <button type='button' class='text-sm text-teal-600 hover:text-teal-500'
-                                x-on:click.prevent='` + 'addAction(`group`, `'+dottedPath+'`)' + `'
+                                x-on:click.prevent='` + 'addAction(`group`, `' + dottedPath + '`)' + `'
                                 title='Add group'
                             >+ group</button>
                             <button type='button' class='text-sm text-teal-600 hover:text-teal-500'
-                                x-on:click.prevent='` + 'addAction(`item`, `'+dottedPath+'`)' + `'
+                                x-on:click.prevent='` + 'addAction(`item`, `' + dottedPath + '`)' + `'
                                 title='Add item'
                             >+ item</button>
                             <button type='button' class='text-sm text-teal-600 hover:text-teal-500'
-                                x-on:click.prevent='` + 'deleteAction(`'+dottedPath+'`)' + `'
+                                x-on:click.prevent='` + 'deleteAction(`' + dottedPath + '`)' + `'
                                 title='Delete'
                             >x delete</button>
                         </div>
@@ -159,14 +185,15 @@
             } else {
                 html += `
                     <div class='group text-slate-800 flex flex-row gap-4 items-center py-1'>
-                        <label x-on:click='` + 'renameAction(`'+dottedPath+'`)' + `' title='Rename' class='cursor-text'>
+                        <label x-on:click='` + 'renameAction(`' + dottedPath + '`)' + `' title='Rename' class='cursor-text'>
                             <span class='text-sm font-bold !text-slate-600'>${key}</span>
                         </label>
                         <input type='text'
+                            id='wrla-json-ui-input-`+ dottedPath +`'
                             class='w-72 px-2 py-0.5 border border-slate-400 text-black dark:text-black rounded-md text-sm'
                             name='${key}'
                             value='${String(value)}'
-                            x-on:change='` + 'updateValueAction(`'+dottedPath+'`, $event.target.value)' + `'
+                            x-on:change='` + 'updateValueAction(`' + dottedPath + '`, $event.target.value)' + `'
                             />
                         <div class='opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center gap-3 font-bold'>
                             <button type='button' class='text-sm text-teal-600 hover:text-teal-500'
