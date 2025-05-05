@@ -103,6 +103,9 @@
     deleteAction(dottedPath) {
         this.dataDelete(this.data, dottedPath);
     },
+    updateValueAction(dottedPath, value) {
+        this.dataSet(this.data, dottedPath, value);
+    },
     render(obj, dottedPath = null) {
         let html = '';
         let baseDottedPath = dottedPath;
@@ -162,7 +165,9 @@
                         <input type='text'
                             class='w-72 px-2 py-0.5 border border-slate-400 text-black dark:text-black rounded-md text-sm'
                             name='${key}'
-                            value='${String(value)}' />
+                            value='${String(value)}'
+                            x-on:change='` + 'updateValueAction(`'+dottedPath+'`, $event.target.value)' + `'
+                            />
                         <div class='opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center gap-3 font-bold'>
                             <button type='button' class='text-sm text-teal-600 hover:text-teal-500'
                                 x-on:click.prevent='` + 'deleteAction(`'+dottedPath+'`)' + `'
