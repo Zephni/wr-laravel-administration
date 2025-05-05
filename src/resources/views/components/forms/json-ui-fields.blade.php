@@ -192,7 +192,7 @@
 
                 html += `
                     <div class='group flex flex-row items-center `+(keyIsInt ? 'mt-2.5' : 'mt-2 mb-1')+` text-slate-900'>
-                        <label class='text-sm font-bold'>
+                        <label class='text-sm font-bold whitespace-nowrap'>
                             <span class='`+(value instanceof Array ? 'text-teal-600' : 'text-amber-600')+`'>
                                 <i class='`+(value instanceof Array ? 'fas fa-list-ul' : 'far fa-folder')+` mr-1.5'></i>
                                 <span x-on:click='` + 'renameAction(`' + dottedPath + '`)' + `' title='Rename' class='cursor-text'>
@@ -252,7 +252,7 @@
 
                 html += `
                     <div class='group flex gap-4 items-center py-1 text-slate-800'>
-                        <label x-on:click='` + 'renameAction(`' + dottedPath + '`)' + `' title='Rename' class='cursor-text w-min'>
+                        <label x-on:click='` + 'renameAction(`' + dottedPath + '`)' + `' title='Rename' class='cursor-text w-min whitespace-nowrap'>
                             <span class='text-sm font-bold !text-slate-600'>${key}</span>
                         </label>
                         <div class='flex items-center gap-3'>
