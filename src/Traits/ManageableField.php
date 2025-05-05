@@ -131,6 +131,11 @@ trait ManageableField
      */
     private static function buildNameAttribute(string $name): string
     {
+        // If empty, return unique random name
+        if(empty($name)) {
+            return uniqid('__wrla_random_name__');
+        }
+
         return str_replace('.', WRLAHelper::WRLA_REL_DOT, $name);
     }
 

@@ -1142,11 +1142,14 @@ abstract class ManageableModel
         // Iterate over each manageable field
         foreach ($manageableFields as $manageableField) {
             $fieldName = $manageableField->getAttribute('name');
+            $relationshipInstance = null;            
 
-            $relationshipInstance = null;
-
-            // If doesn't exist in form key values, then skip
-            if (!array_key_exists($fieldName, $formKeyValues)) continue;
+            // If doesn't exist in form key values, just call the applySubmittedValueFinal method and skip everything else
+            // as this is likely intentional, to perhaps update another database, or something else
+            if (!array_key_exists($fieldName, $formKeyValues)) {
+                $manageableField->applySubmittedValueFinal($request, $formKeyValues[$fieldName]);
+                continue;
+            }
 
             // If manageable field is relationship, we need to temporarily deal with the relationship instance instead
             if($manageableField->isRelationshipField()) {
