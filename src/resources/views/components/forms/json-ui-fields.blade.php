@@ -122,7 +122,7 @@
 
                 html += `
                 <div class='text-slate-900'>
-                    <div class='group flex flex-row items-center `+(keyIsInt ? 'mt-1.5' : 'mt-1.5')+`'>
+                    <div class='group flex flex-row items-center `+(keyIsInt ? 'mt-2.5' : 'mt-1.5 mb-1')+`'>
                         <label class='text-sm font-bold'>
                             <i class='`+(value instanceof Array ? 'fas fa-list-ul' : 'far fa-folder')+` text-slate-500 mr-1.5'></i>
                             <span x-on:click='` + 'renameAction(`'+dottedPath+'`)' + `' title='Rename' class='cursor-text'>
@@ -148,7 +148,7 @@
                             >x delete</button>
                         </div>
                     </div>
-                    <div class='border-l-2 border-dotted ml-2 pl-2'>
+                    <div class='border-l-2 border-dotted border-slate-400 ml-1 pl-3'>
                         ${this.render(value, dottedPath)}
                     </div>
                 </div>`;
@@ -183,6 +183,9 @@
     <div x-html="render(data)"></div>
 
     {{-- Debug, display this.data as pure prettified json --}}
-    <pre x-html="renderDisplayJson()"></pre>
+    <div class="text-sm text-slate-700 mt-7 p-6 bg-white">
+        <span class="font-bold">Preview JSON:</span>
+        <pre x-html="renderDisplayJson()"></pre>
+    </div>
 
 </div>
