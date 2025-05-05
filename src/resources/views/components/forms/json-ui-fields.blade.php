@@ -52,13 +52,13 @@
         // Get data and type at dottedPath
         let thisData = this.dataGet(this.data, dottedPath, null);
         let thisType = thisData instanceof Array ? 'array' : 'object';
+        {{-- alert(`This type: ${thisType}, Dotted path: ${dottedPath}`); --}}
 
-        // Get data and type at dottedPath's parent
-        let parentDottedPath = dottedPath.split('.').slice(0, -1).join('.');
-        let parentData = this.dataGet(this.data, parentDottedPath, null);
-        let parentType = parentData instanceof Array ? 'array' : 'object';
-
-        {{-- alert('Parent type: ' + parentType + ', Dotted path: ' + parentDottedPath); --}}
+        // If parent is array, reindex the entires if the array in the data object
+        if(thisType == 'array') {
+            let updated = thisData.filter(item => item !== null && item !== undefined);
+            this.dataSet(this.data, dottedPath, updated);
+        }
 
         // If addType is 'group'
         if(addType == 'group') {
@@ -154,8 +154,15 @@
             }
         }
         return html;
+    },
+    renderDisplayJson() {
+        return JSON.stringify(this.data, null, 2);
     }
 }">
     <!-- Render element -->
     <div x-html="render(data)"></div>
+
+    {{-- Debug, display this.data as pure prettified json --}}
+    <pre x-html="renderDisplayJson()"></pre>
+
 </div>
