@@ -154,8 +154,9 @@ class User extends ManageableModel
 
             Heading::make('User Data', 'fas fa-user-cog'),
 
-            JsonUI::make($this, 'wrlaUserData.permissions')
+            Json::make($this, 'wrlaUserData.permissions')
                 ->setLabel('Permissions')
+                ->hideContainingBraces()
                 ->mergeDefaultKeyValues(config('wr-laravel-administration.default_user_data.permissions') ?? [
                     'master' => false,
                     'admin' => false,
@@ -165,7 +166,8 @@ class User extends ManageableModel
                     'admin' => 'boolean'.(($currentUserData?->user_id == $modelInstance?->id) ? "|wrla_no_change:wrla_user_data,{$currentUserData?->id},permissions->admin" : ''),
                 ]),
 
-            JsonUI::make($this, 'wrlaUserData.settings')
+            Json::make($this, 'wrlaUserData.settings')
+                ->hideContainingBraces()
                 ->mergeDefaultKeyValues(config('wr-laravel-administration.default_user_data.settings') ?? [
                     'theme' => 'default'
                 ])
