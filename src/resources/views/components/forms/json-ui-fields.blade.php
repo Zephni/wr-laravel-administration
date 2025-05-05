@@ -63,36 +63,48 @@
         // Values
         let newKey, newFullKeyPath, newValue = null;
 
-        // If addType is 'group'
-        if(addType == 'group') {
-            newValue = {};
+        let validKeyFound = false;
+        while(!validKeyFound) {    
+            // If addType is 'group'
+            if(addType == 'group') {
+                newValue = {};
 
-            if(thisType == 'object') {
+                if(thisType == 'object') {
+                    let newKey = prompt('New key name', 'newKey');
+                    if(newKey == null || newKey == '') return;
+                    {{-- this.dataSet(this.data, `${dottedPath}.${newKey}`, {}); --}}
+                    newFullKeyPath = `${dottedPath}.${newKey}`;
+                } else {
+                    {{-- this.dataSet(this.data, `${dottedPath}[${thisData.length}]`, {}); --}}
+                    newFullKeyPath = `${dottedPath}[${thisData.length}]`;
+                }
+            }
+
+            // If addType is 'item'
+            if(addType == 'item') {
+                // If type is 'obj', ask for new key name before appending
                 let newKey = prompt('New key name', 'newKey');
                 if(newKey == null || newKey == '') return;
-                {{-- this.dataSet(this.data, `${dottedPath}.${newKey}`, {}); --}}
-                newFullKeyPath = `${dottedPath}.${newKey}`;
-            } else {
-                {{-- this.dataSet(this.data, `${dottedPath}[${thisData.length}]`, {}); --}}
-                newFullKeyPath = `${dottedPath}[${thisData.length}]`;
+                
+                if(thisType == 'object') {
+                    newFullKeyPath = `${dottedPath}.${newKey}`;
+                    newValue = '';
+                    {{-- this.dataSet(this.data, `${dottedPath}.${newKey}`, ''); --}}
+                } else {
+                    newFullKeyPath = `${dottedPath}[${thisData.length}]`;
+                    newValue = '';
+                    {{-- this.dataSet(this.data, `${dottedPath}[${thisData.length}]`, ''); --}}
+                }
             }
-        }
 
-        // If addType is 'item'
-        if(addType == 'item') {
-            // If type is 'obj', ask for new key name before appending
-            let newKey = prompt('New key name', 'newKey');
-            if(newKey == null || newKey == '') return;
-            
-            if(thisType == 'object') {
-                newFullKeyPath = `${dottedPath}.${newKey}`;
-                newValue = '';
-                {{-- this.dataSet(this.data, `${dottedPath}.${newKey}`, ''); --}}
-            } else {
-                newFullKeyPath = `${dottedPath}[${thisData.length}]`;
-                newValue = '';
-                {{-- this.dataSet(this.data, `${dottedPath}[${thisData.length}]`, ''); --}}
+            // First, check if newKey already exists in this data
+            let newKeyExists = this.dataGet(this.data, newFullKeyPath, null);
+            if(newKeyExists !== null) {
+                let overrideKey = confirm('Key already exists at ' + newFullKeyPath + ', override this key?');
+                if(!overrideKey) continue;
             }
+
+            validKeyFound = true;
         }
 
         // Add new key => value to data
@@ -111,10 +123,31 @@
         }, 50);
     },
     renameAction(dottedPath) {
-        let newKey = prompt('New key name', dottedPath.split('.').pop());
-        if(newKey == null || newKey == '') return;
+        // Get parent dotted path so we can check if this key already exists
+        let parentDottedPath = dottedPath.split('.').slice(0, -1).join('.');
+
+        // Vars
+        let validKeyFound = false;
+        let newKey = null;
+
+        while(!validKeyFound) {
+            // Ask for new key name
+            newKey = prompt('New key name', dottedPath.split('.').pop());
+            if(newKey == null || newKey == '') return;
+    
+            // First, check if newKey already exists in this data
+            let newKeyExists = this.dataGet(this.data, `${parentDottedPath}.${newKey}`, null);
+            if(newKeyExists !== null) {
+                let overrideKey = confirm('Key already exists at '+parentDottedPath+'.'+newKey+', override this key?');
+                if(!overrideKey) continue;
+            }
+
+            validKeyFound = true;
+        }
+
         let thisData = this.dataGet(this.data, dottedPath, null);
         let thisType = thisData instanceof Array ? 'array' : 'object';
+
         let oldKey = dottedPath.split('.').pop();
         let newDottedPath = dottedPath.replace(oldKey, newKey);
 
