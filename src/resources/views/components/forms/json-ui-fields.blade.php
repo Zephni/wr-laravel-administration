@@ -21,9 +21,18 @@
             return defaultValue;
         }, obj);
     },
-    dataSet(obj, path, value) {
+    dataSet(obj, path, value, type = 'string') {
         var way = path.replace(/\[/g, '.').replace(/\]/g, '').split('.'),
             last = way.pop();
+
+        if (type == 'number') { 
+            value = Number(value);
+        } else if(type == 'boolean') {
+            if(value == 1) value = true;
+            else if(value == 0) value = false;
+            else if(value == 'true') value = true;
+            else if(value == 'false') value = false;
+        }
     
         way.reduce(function (o, k, i, kk) {
             return o[k] = o[k] || (isFinite(i + 1 in kk ? kk[i + 1] : last) ? [] : {});
@@ -70,12 +79,10 @@
                 newValue = {};
 
                 if(thisType == 'object') {
-                    let newKey = prompt('New key name', 'newKey');
+                    let newKey = prompt('New key name', 'new_group');
                     if(newKey == null || newKey == '') return;
-                    {{-- this.dataSet(this.data, `${dottedPath}.${newKey}`, {}); --}}
                     newFullKeyPath = `${dottedPath}.${newKey}`;
                 } else {
-                    {{-- this.dataSet(this.data, `${dottedPath}[${thisData.length}]`, {}); --}}
                     newFullKeyPath = `${dottedPath}[${thisData.length}]`;
                 }
             }
@@ -83,17 +90,15 @@
             // If addType is 'item'
             if(addType == 'item') {
                 // If type is 'obj', ask for new key name before appending
-                let newKey = prompt('New key name', 'newKey');
+                let newKey = prompt('New key name', 'new_key');
                 if(newKey == null || newKey == '') return;
                 
                 if(thisType == 'object') {
                     newFullKeyPath = `${dottedPath}.${newKey}`;
                     newValue = '';
-                    {{-- this.dataSet(this.data, `${dottedPath}.${newKey}`, ''); --}}
                 } else {
                     newFullKeyPath = `${dottedPath}[${thisData.length}]`;
                     newValue = '';
-                    {{-- this.dataSet(this.data, `${dottedPath}[${thisData.length}]`, ''); --}}
                 }
             }
 
@@ -162,8 +167,8 @@
     deleteAction(dottedPath) {
         this.dataDelete(this.data, dottedPath);
     },
-    updateValueAction(dottedPath, value) {
-        this.dataSet(this.data, dottedPath, value);
+    updateValueAction(dottedPath, value, type) {
+        this.dataSet(this.data, dottedPath, value, type);
     },
     render(obj, dottedPath = null) {
         let html = '';
@@ -176,7 +181,7 @@
             }
             // Otherwise just use key
             else { --}}
-                dottedPath = baseDottedPath !== null ? `${baseDottedPath}.${key}` : `${key}`;
+                dottedPath = (baseDottedPath !== null ? `${baseDottedPath}.` : ``) + key;
             {{-- } --}}
             
             if (this.isObject(value)) {
@@ -216,19 +221,68 @@
                     </div>
                 `;
             } else {
+                let type = 'text';
+                let fieldType = typeof value;
+                let selectoptions = null;
+
+                if(fieldType == 'number') {
+                    type = 'number';
+                } else if(fieldType == 'boolean') {
+                    type = 'select';
+                    selectOptions = {
+                        1: 'true',
+                        0: 'false'
+                    };
+                } else if(fieldType == 'non_editable') {
+                    type = 'non_editable';
+                }
+
                 html += `
                     <div class='group flex gap-4 items-center py-1 text-slate-800'>
                         <label x-on:click='` + 'renameAction(`' + dottedPath + '`)' + `' title='Rename' class='cursor-text w-min'>
                             <span class='text-sm font-bold !text-slate-600'>${key}</span>
                         </label>
                         <div class='flex items-center gap-3'>
-                            <input type='text'
-                                id='wrla-json-ui-input-`+ dottedPath +`'
+
+                            {{-- Respect the type by conditionally rendering different HTML elements --}}
+                            ` + (
+                                type === 'select'
+                                ? `
+                            <select
+                                id='wrla-json-ui-input-` + dottedPath + `'
+                                class='w-72 px-2 py-0.5 border border-slate-400 text-black dark:text-black rounded-md text-sm'
+                                name='${key}'
+                                x-on:change='updateValueAction(\`` + dottedPath + `\`, $event.target.value, \``+ fieldType +`\`)'
+                            >
+                                <template x-for='(optionLabel, optionValue) in selectOptions'>
+                                    <option :value='optionValue' x-text='optionLabel'></option>
+                                </template>
+                            </select>
+                            `
+                                : (
+                                    type === 'non_editable'
+                                    ? `
+                            <p
+                                id='wrla-json-ui-input-` + dottedPath + `'
+                                class='text-sm text-slate-800'
+                            >
+                                ${String(value)}
+                            </p>
+                            `
+                                    : `
+                            <input
+                                type='` + type + `'
+                                id='wrla-json-ui-input-` + dottedPath + `'
                                 class='w-72 px-2 py-0.5 border border-slate-400 text-black dark:text-black rounded-md text-sm'
                                 name='${key}'
                                 value='${String(value)}'
-                                x-on:change='` + 'updateValueAction(`' + dottedPath + '`, $event.target.value)' + `'
-                                />
+                                x-on:change='updateValueAction(\`` + dottedPath + `\`, $event.target.value, \``+ fieldType +`\`)'
+                            />
+                            `
+                                )
+                            ) + `
+                            
+
                             <div class='opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center gap-3 font-bold'>
                                 <button type='button' class='text-sm text-teal-600 hover:text-teal-500'
                                     x-on:click.prevent='` + 'deleteAction(`'+dottedPath+'`)' + `'
