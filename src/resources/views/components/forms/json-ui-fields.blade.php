@@ -229,12 +229,22 @@
                     type = 'number';
                 } else if(fieldType == 'boolean') {
                     type = 'select';
-                    selectOptions = {
-                        1: 'true',
-                        0: 'false'
-                    };
+                    selectOptions = [
+                        {text: 'true', value: 1},
+                        {text: 'false', value: 0}
+                    ];
+
+                    console.log('Select options:', selectOptions);
                 } else if(fieldType == 'non_editable') {
                     type = 'non_editable';
+                }
+
+                // If type is 'select', set selected to true for the current value
+                if(type == 'select') {
+                    selectOptions = selectOptions.map(option => {
+                        option.selected = (option.value == value);
+                        return option;
+                    });
                 }
 
                 html += `
@@ -254,8 +264,10 @@
                                 name='${key}'
                                 x-on:change='updateValueAction(\`` + dottedPath + `\`, $event.target.value, \``+ fieldType +`\`)'
                             >
-                                <template x-for='(optionLabel, optionValue) in selectOptions'>
-                                    <option :value='optionValue' x-text='optionLabel'></option>
+                                <template x-for='(option) in selectOptions'>
+                                    <option :value='option.value' :selected='option.selected ?? false'>
+                                        <span x-text='option.text'></span>
+                                    </option>
                                 </template>
                             </select>
                             `
