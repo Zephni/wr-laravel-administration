@@ -132,52 +132,58 @@ class ManageableModelUpsert extends Component
     /**
      * Render the component.
      *
-     * @return \Illuminate\Contracts\View\View
+     * @return \Illuminate\Contracts\View\View|string
      */
     public function render()
     {
-        $manageableModel = $this->manageableModelClass::make($this->modelId);
-        ManageableModel::$livewireFields = $this->livewireData;
-        $manageableFields = $manageableModel->getManageableFieldsFinal();
-
-        // If first render,set default livewire field values
-        $usesLivewireFields = false;
-        if($this->numberOfRenders === 0) {
-            foreach($manageableFields as $manageableField) {
-                if($manageableField->isModeledWithLivewire()) {
-                    $manageableField->render(); // This allows for fields like JSON that modify the rendered value
-                    $this->livewireData[$manageableField->getAttribute('name')] = $manageableField->getValue();
-                    $usesLivewireFields = true;
-                }
-            }
-        }
-
-        if($usesLivewireFields) {
+        try {
+            $manageableModel = $this->manageableModelClass::make($this->modelId);
             ManageableModel::$livewireFields = $this->livewireData;
             $manageableFields = $manageableModel->getManageableFieldsFinal();
-        }
-
-        // Increment number of renders
-        $this->numberOfRenders++;
-
-        // If force refresh manageable fields, set field values
-        if($this->refreshManageableFields) {
-            foreach($manageableFields as $manageableField) {
-                if($manageableField->isModeledWithLivewire()) {
-                    $manageableField->setAttribute('value', $this->livewireData[$manageableField->getAttribute('name')]);
+    
+            // If first render,set default livewire field values
+            $usesLivewireFields = false;
+            if($this->numberOfRenders === 0) {
+                foreach($manageableFields as $manageableField) {
+                    if($manageableField->isModeledWithLivewire()) {
+                        $manageableField->render(); // This allows for fields like JSON that modify the rendered value
+                        $this->livewireData[$manageableField->getAttribute('name')] = $manageableField->getValue();
+                        $usesLivewireFields = true;
+                    }
                 }
             }
+    
+            if($usesLivewireFields) {
+                ManageableModel::$livewireFields = $this->livewireData;
+                $manageableFields = $manageableModel->getManageableFieldsFinal();
+            }
+    
+            // Increment number of renders
+            $this->numberOfRenders++;
+    
+            // If force refresh manageable fields, set field values
+            if($this->refreshManageableFields) {
+                foreach($manageableFields as $manageableField) {
+                    if($manageableField->isModeledWithLivewire()) {
+                        $manageableField->setAttribute('value', $this->livewireData[$manageableField->getAttribute('name')]);
+                    }
+                }
+            }
+    
+            // Render the view
+            return view(WRLAHelper::getViewPath('livewire.manageable-models.upsert'), [
+                'manageableModel' => $manageableModel,
+                'upsertType' => $this->upsertType,
+                'usesWysiwyg' => $manageableModel->usesWysiwyg(),
+                'manageableFields' => $manageableFields,
+                'numberOfRenders' => $this->numberOfRenders,
+                'overrideTitle' => $this->overrideTitle
+            ]);
+        } catch (\Exception $e) {
+            // If an error occurs, redirect to the dashboard with an error message
+            redirect()->route('wrla.dashboard')->with('error', "Error loading manageable model `$this->manageableModelClass`: " . $e->getMessage());
+            return '<div></div>';
         }
-
-        // Render the view
-        return view(WRLAHelper::getViewPath('livewire.manageable-models.upsert'), [
-            'manageableModel' => $manageableModel,
-            'upsertType' => $this->upsertType,
-            'usesWysiwyg' => $manageableModel->usesWysiwyg(),
-            'manageableFields' => $manageableFields,
-            'numberOfRenders' => $this->numberOfRenders,
-            'overrideTitle' => $this->overrideTitle
-        ]);
     }
 
     /**
