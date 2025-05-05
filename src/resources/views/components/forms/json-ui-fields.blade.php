@@ -124,9 +124,11 @@
                 <div class='text-slate-900'>
                     <div class='group flex flex-row items-center `+(keyIsInt ? 'mt-2.5' : 'mt-1.5 mb-1')+`'>
                         <label class='text-sm font-bold'>
-                            <i class='`+(value instanceof Array ? 'fas fa-list-ul' : 'far fa-folder')+` text-slate-500 mr-1.5'></i>
-                            <span x-on:click='` + 'renameAction(`'+dottedPath+'`)' + `' title='Rename' class='cursor-text'>
-                                ${dottedPath == 'data' ? '' : (keyIsInt ? '#' + key : key)}
+                            <span class='`+(value instanceof Array ? 'text-teal-600' : 'text-amber-600')+`'>
+                                <i class='`+(value instanceof Array ? 'fas fa-list-ul' : 'far fa-folder')+` mr-1.5'></i>
+                                <span x-on:click='` + 'renameAction(`'+dottedPath+'`)' + `' title='Rename' class='cursor-text'>
+                                    ${dottedPath == 'data' ? '' : (keyIsInt ? '#' + key : key)}
+                                </span>
                             </span>
                             <span class='opacity-30'>➤
                                 {{-- ${dottedPath}: ${value instanceof Array ? 'array' : 'object'} --}}
@@ -157,7 +159,7 @@
                 <div class='group text-slate-800'>
                     <div class='flex flex-row gap-4 items-center py-1'>
                         <label x-on:click='` + 'renameAction(`'+dottedPath+'`)' + `' title='Rename' class='cursor-text'>
-                            <span class='text-sm font-bold'>${key}</span>
+                            <span class='text-sm font-bold !text-slate-600'>${key}</span>
                         </label>
                         <input type='text'
                             class='w-72 px-2 py-0.5 border border-slate-400 text-black dark:text-black rounded-md text-sm'
