@@ -30,7 +30,7 @@
     dataDelete(obj, path) {
         var way = path.replace(/\[/g, '.').replace(/\]/g, '').split('.'),
             last = way.pop();
-    
+
         let parts = path.split('.');
         let current = obj;
 
@@ -39,7 +39,11 @@
             current = current[parts[i]];
         }
 
-        delete current[parts[parts.length - 1]];
+        if (current instanceof Array && !isNaN(last)) {
+            current.splice(last, 1);
+        } else {
+            delete current[parts[parts.length - 1]];
+        }
     },
     entries(obj) {
         // Sort so that non-array items come first, as in PHP
@@ -53,12 +57,6 @@
         let thisData = this.dataGet(this.data, dottedPath, null);
         let thisType = thisData instanceof Array ? 'array' : 'object';
         {{-- alert(`This type: ${thisType}, Dotted path: ${dottedPath}`); --}}
-
-        // If parent is array, reindex the entires if the array in the data object
-        if(thisType == 'array') {
-            let updated = thisData.filter(item => item !== null && item !== undefined);
-            this.dataSet(this.data, dottedPath, updated);
-        }
 
         // If addType is 'group'
         if(addType == 'group') {
@@ -110,7 +108,9 @@
                 <div class='text-slate-900'>
                     <div class='group flex flex-row items-center `+(keyIsInt ? 'mt-1.5' : '')+`'>
                         <label class='text-sm font-bold'>
-                            ${keyIsInt ? '#' + key : key} <span class='opacity-30'>➤
+                            <i class='`+(value instanceof Array ? 'fas fa-list-ul' : 'far fa-folder')+` text-slate-500 mr-1.5'></i>
+                            ${dottedPath == 'data' ? '' : (keyIsInt ? '#' + key : key)}
+                            <span class='opacity-30'>➤
                                 {{-- ${dottedPath}: ${value instanceof Array ? 'array' : 'object'} --}}
                             </span>
                         </label>
@@ -156,7 +156,7 @@
         return html;
     },
     renderDisplayJson() {
-        return JSON.stringify(this.data, null, 2);
+        return JSON.stringify(this.data.data, null, 2);
     }
 }">
     <!-- Render element -->
