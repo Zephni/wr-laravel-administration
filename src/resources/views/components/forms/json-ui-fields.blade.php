@@ -257,45 +257,45 @@
                         </label>
                         <div class='flex items-center gap-3'>
 
-                            {{-- Respect the type by conditionally rendering different HTML elements --}}
-                            ` + (
-                                type === 'select'
-                                ? `
-                            <select
-                                id='wrla-json-ui-input-` + dottedPath + `'
-                                class='w-72 px-2 py-0.5 border border-slate-400 text-black dark:text-black rounded-md text-sm'
-                                name='${key}'
-                                x-on:change='updateValueAction(\`` + dottedPath + `\`, $event.target.value, \``+ fieldType +`\`)'
-                            >
-                                <template x-for='(option) in selectOptions'>
-                                    <option :value='option.value' :selected='option.selected ?? false'>
-                                        <span x-text='option.text'></span>
-                                    </option>
-                                </template>
-                            </select>
-                            `
-                                : (
-                                    type === 'non_editable'
-                                    ? `
-                            <p
-                                id='wrla-json-ui-input-` + dottedPath + `'
-                                class='text-sm text-slate-800'
-                            >
-                                ${String(value)}
-                            </p>
-                            `
-                                    : `
-                            <input
-                                type='` + type + `'
-                                id='wrla-json-ui-input-` + dottedPath + `'
-                                class='w-72 px-2 py-0.5 border border-slate-400 text-black dark:text-black rounded-md text-sm'
-                                name='${key}'
-                                value='${String(value)}'
-                                x-on:change='updateValueAction(\`` + dottedPath + `\`, $event.target.value, \``+ fieldType +`\`)'
-                            />
-                            `
-                                )
-                            ) + `
+                            {{-- Display HTML element based on type --}}
+                            ` + (() => {
+                                if (type === 'select') {
+                                    return `
+                                        <select
+                                            id='wrla-json-ui-input-` + dottedPath + `'
+                                            class='w-72 px-2 py-0.5 border border-slate-400 text-black dark:text-black rounded-md text-sm'
+                                            name='${key}'
+                                            x-on:change='updateValueAction(\`` + dottedPath + `\`, $event.target.value, \``+ fieldType +`\`)'
+                                        >
+                                            <template x-for='(option) in selectOptions'>
+                                                <option :value='option.value' :selected='option.selected ?? false'>
+                                                    <span x-text='option.text'></span>
+                                                </option>
+                                            </template>
+                                        </select>
+                                    `;
+                                } else if (type === 'non_editable') {
+                                    return `
+                                        <p
+                                            id='wrla-json-ui-input-` + dottedPath + `'
+                                            class='text-sm text-slate-800'
+                                        >
+                                            ${String(value)}
+                                        </p>
+                                    `;
+                                } else {
+                                    return `
+                                        <input
+                                            type='` + type + `'
+                                            id='wrla-json-ui-input-` + dottedPath + `'
+                                            class='w-72 px-2 py-0.5 border border-slate-400 text-black dark:text-black rounded-md text-sm'
+                                            name='${key}'
+                                            value='${String(value)}'
+                                            x-on:change='updateValueAction(\`` + dottedPath + `\`, $event.target.value, \``+ fieldType +`\`)'
+                                        />
+                                    `;
+                                }
+                            })() + `
                             
 
                             <div class='opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center gap-3 font-bold'>
