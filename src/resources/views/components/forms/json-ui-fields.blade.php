@@ -121,8 +121,7 @@
                 let keyIsInt = !isNaN(Number(key));
 
                 html += `
-                <div class='text-slate-900'>
-                    <div class='group flex flex-row items-center `+(keyIsInt ? 'mt-2.5' : 'mt-1.5 mb-1')+`'>
+                    <div class='group flex flex-row items-center `+(keyIsInt ? 'mt-2.5' : 'mt-1.5 mb-1')+` text-slate-900'>
                         <label class='text-sm font-bold'>
                             <span class='`+(value instanceof Array ? 'text-teal-600' : 'text-amber-600')+`'>
                                 <i class='`+(value instanceof Array ? 'fas fa-list-ul' : 'far fa-folder')+` mr-1.5'></i>
@@ -153,11 +152,10 @@
                     <div class='border-l-2 border-dotted border-slate-400 ml-1 pl-3'>
                         ${this.render(value, dottedPath)}
                     </div>
-                </div>`;
+                `;
             } else {
                 html += `
-                <div class='group text-slate-800'>
-                    <div class='flex flex-row gap-4 items-center py-1'>
+                    <div class='group text-slate-800 flex flex-row gap-4 items-center py-1'>
                         <label x-on:click='` + 'renameAction(`'+dottedPath+'`)' + `' title='Rename' class='cursor-text'>
                             <span class='text-sm font-bold !text-slate-600'>${key}</span>
                         </label>
@@ -172,7 +170,7 @@
                             >x delete</button>
                         </div>
                     </div>
-                </div>`;
+                `;
             }
         }
         return html;
