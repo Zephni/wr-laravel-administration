@@ -211,7 +211,7 @@
                             >x delete</button>
                         </div>
                     </div>
-                    <div class='border-l-2 border-dotted border-slate-400 ml-1 pl-3'>
+                    <div class='`+(value instanceof Array ? 'border-teal-600' : 'border-amber-600')+` border-l-2 border-dotted ml-1 pl-3'>
                         ${this.render(value, dottedPath)}
                     </div>
                 `;
@@ -248,8 +248,8 @@
     <div x-html="render(data)"></div>
 
     {{-- Debug, display this.data as pure prettified json --}}
-    <div class="text-sm text-slate-700 mt-7 p-6 bg-white">
-        <span class="font-bold">Preview JSON:</span>
+    <div class="text-sm text-slate-700 mt-7 px-6 py-4 bg-white">
+        <span class="font-bold">Preview JSON (Debug):</span>
         <pre x-html="renderDisplayJson()"></pre>
     </div>
 
