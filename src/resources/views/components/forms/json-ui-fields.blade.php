@@ -84,6 +84,22 @@
 
         this.render(this.data, null);
     },
+    renameAction(dottedPath) {
+        let newKey = prompt('New key name', dottedPath.split('.').pop());
+        if(newKey == null || newKey == '') return;
+        let thisData = this.dataGet(this.data, dottedPath, null);
+        let thisType = thisData instanceof Array ? 'array' : 'object';
+        let oldKey = dottedPath.split('.').pop();
+        let newDottedPath = dottedPath.replace(oldKey, newKey);
+
+        if(thisType == 'object') {
+            this.dataSet(this.data, newDottedPath, this.dataGet(this.data, dottedPath));
+            this.dataDelete(this.data, dottedPath);
+        } else {
+            this.dataSet(this.data, newDottedPath, this.dataGet(this.data, dottedPath));
+            this.dataDelete(this.data, dottedPath);
+        }
+    },
     deleteAction(dottedPath) {
         this.dataDelete(this.data, dottedPath);
     },
@@ -106,25 +122,27 @@
 
                 html += `
                 <div class='text-slate-900'>
-                    <div class='group flex flex-row items-center `+(keyIsInt ? 'mt-1.5' : '')+`'>
+                    <div class='group flex flex-row items-center `+(keyIsInt ? 'mt-1.5' : 'mt-1.5')+`'>
                         <label class='text-sm font-bold'>
                             <i class='`+(value instanceof Array ? 'fas fa-list-ul' : 'far fa-folder')+` text-slate-500 mr-1.5'></i>
-                            ${dottedPath == 'data' ? '' : (keyIsInt ? '#' + key : key)}
+                            <span x-on:click='` + 'renameAction(`'+dottedPath+'`)' + `' title='Rename' class='cursor-text'>
+                                ${dottedPath == 'data' ? '' : (keyIsInt ? '#' + key : key)}
+                            </span>
                             <span class='opacity-30'>➤
                                 {{-- ${dottedPath}: ${value instanceof Array ? 'array' : 'object'} --}}
                             </span>
                         </label>
                         {{-- Options --}}
-                        <div class='relative top-[-1px] opacity-0 group-hover:opacity-100 flex items-center gap-3 ml-3'>
-                            <button type='button' class='text-sm text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200'
+                        <div class='relative top-[-1px] opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center gap-3 ml-3 font-bold'>
+                            <button type='button' class='text-sm text-teal-600 hover:text-teal-500'
                                 x-on:click.prevent='` + 'addAction(`group`, `'+dottedPath+'`)' + `'
                                 title='Add group'
                             >+ group</button>
-                            <button type='button' class='text-sm text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200'
+                            <button type='button' class='text-sm text-teal-600 hover:text-teal-500'
                                 x-on:click.prevent='` + 'addAction(`item`, `'+dottedPath+'`)' + `'
                                 title='Add item'
                             >+ item</button>
-                            <button type='button' class='text-sm text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200'
+                            <button type='button' class='text-sm text-teal-600 hover:text-teal-500'
                                 x-on:click.prevent='` + 'deleteAction(`'+dottedPath+'`)' + `'
                                 title='Delete'
                             >x delete</button>
@@ -138,13 +156,15 @@
                 html += `
                 <div class='group text-slate-800'>
                     <div class='flex flex-row gap-4 items-center py-1'>
-                        <label class='text-sm font-bold'>${key}</label>
+                        <label x-on:click='` + 'renameAction(`'+dottedPath+'`)' + `' title='Rename' class='cursor-text'>
+                            <span class='text-sm font-bold'>${key}</span>
+                        </label>
                         <input type='text'
                             class='w-72 px-2 py-0.5 border border-slate-400 text-black dark:text-black rounded-md text-sm'
                             name='${key}'
                             value='${String(value)}' />
-                        <div class='opacity-0 group-hover:opacity-100 flex items-center gap-3'>
-                            <button type='button' class='text-sm text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200'
+                        <div class='opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center gap-3 font-bold'>
+                            <button type='button' class='text-sm text-teal-600 hover:text-teal-500'
                                 x-on:click.prevent='` + 'deleteAction(`'+dottedPath+'`)' + `'
                                 title='Delete'
                             >x delete</button>
