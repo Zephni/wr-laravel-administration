@@ -12,7 +12,7 @@
     @themeComponent('forms.label', [
         'label' => $label,
         'attributes' => Arr::toAttributeBag([
-            'id' => $id,
+            'for' => $id,
             'class' => $options['labelClass'] ?? ''
         ])
     ])
@@ -22,10 +22,10 @@
     x-data="{ displayText: '{{ $chooseFileText }}' }"
     class="relative">
     <input
+        id="{{ $id }}"
+        type="file"
         wire:key="{{ rand() }}"
         wire:loading.attr="disabled"
-        type="file"
-        id="{{ $id }}"
         class="absolute z-0 inset-0 opacity-0 w-0 h-0 !cursor-pointer"
         {{ $attributes->merge(['class' => '']) }}
         x-on:change="

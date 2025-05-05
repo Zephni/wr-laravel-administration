@@ -25,7 +25,7 @@
     @themeComponent('forms.label', [
         'label' => $label,
         'attributes' => Arr::toAttributeBag([
-            'id' => $id,
+            'for' => $id,
             'class' => $options['labelClass'] ?? ''
         ])
     ])
@@ -47,6 +47,7 @@
         <div class="flex w-full justify-between">
             {{-- File input --}}
             <input {{ $attributes->merge([
+                'id' => $id,
                 'class' => 'wrla_image_input text-sm focus:outline-none focus:ring-1 focus:ring-primary-500 dark:focus:ring-primary-500 placeholder-slate-400 dark:placeholder-slate-600'
             ]) }}
                 onchange="wrla_setPreviewImage(this)"

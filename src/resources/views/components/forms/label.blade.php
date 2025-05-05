@@ -1,12 +1,7 @@
-@props(['id' => '', 'for' => '', 'label' => 'No label set'])
-
-@php
-    // Set id from name if unset
-    $id = empty($id) ? 'wrinput-'.$for : $id;
-@endphp
+@props(['for' => '', 'label' => 'No label set'])
 
 <label
-    for="{{ $id }}"
+    for="{{ $for }}"
     {{ $attributes->merge([
         'class' => 'block text-sm font-bold text-slate-800 dark:text-slate-300'
     ]) }}

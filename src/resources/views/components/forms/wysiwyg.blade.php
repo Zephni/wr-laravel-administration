@@ -11,7 +11,7 @@
         @themeComponent('forms.label', [
             'label' => $label,
             'attributes' => Arr::toAttributeBag([
-                'id' => $id.'-label',
+                'for' => $id.'-label',
                 'class' => ($options['labelClass'] ?? ''),
                 'style' => 'margin-bottom: 5px;'
             ])

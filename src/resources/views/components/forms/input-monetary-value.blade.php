@@ -11,7 +11,7 @@
     @themeComponent('forms.label', [
         'label' => $label,
         'attributes' => Arr::toAttributeBag([
-            'id' => $id,
+            'for' => $id,
             'class' => $options['labelClass'] ?? ''
         ])
     ])

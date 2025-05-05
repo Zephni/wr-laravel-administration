@@ -11,7 +11,7 @@
     @themeComponent('forms.label', [
         'label' => $label,
         'attributes' => Arr::toAttributeBag([
-            'id' => $id,
+            'for' => $id,
             'class' => $options['labelClass'] ?? ''
         ])
     ])
@@ -61,6 +61,7 @@ style="width: 100%; max-width: 100%;"
             </span>
         </template>
         <input
+            id="{{ $id }}"
             x-ref="newTagInput"
             x-model="newTag"
             @input="handleInput($event)"

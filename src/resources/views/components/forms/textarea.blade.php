@@ -11,14 +11,13 @@
     @themeComponent('forms.label', [
         'label' => $label,
         'attributes' => Arr::toAttributeBag([
-            'id' => $id,
+            'for' => $id,
             'class' => $options['labelClass'] ?? ''
         ])
     ])
 @endif
 
 <textarea {{ $attributes->merge([
-    // Default number of lines
     'id' => $id,
     // 'rows' => $options['rows'] ?? 5, // Now using min-h below with field-sizing-content
     'style' => 'field-sizing: content;',

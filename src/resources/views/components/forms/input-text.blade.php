@@ -11,13 +11,14 @@
     @themeComponent('forms.label', [
         'label' => $label,
         'attributes' => Arr::toAttributeBag([
-            'id' => $id,
+            'for' => $id,
             'class' => $options['labelClass'] ?? ''
         ])
     ])
 @endif
 
 <input {{ $attributes->merge([
+    'id' => $id,
     'class' => 'block w-full px-3 py-1 border border-slate-400 dark:border-slate-500 bg-slate-200 dark:bg-slate-900
         focus:outline-none focus:ring-1 focus:ring-primary-500 dark:focus:ring-primary-500 rounded-md shadow-sm placeholder-slate-400 dark:placeholder-slate-600 '
 ]) }} />
