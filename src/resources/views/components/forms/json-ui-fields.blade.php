@@ -211,28 +211,30 @@
                             >x delete</button>
                         </div>
                     </div>
-                    <div class='`+(value instanceof Array ? 'border-teal-600' : 'border-amber-600')+` border-l-2 border-dotted ml-1 pl-3'>
+                    <div class='flex flex-col `+(value instanceof Array ? 'border-teal-600' : 'border-amber-600')+` border-l-2 border-dotted ml-1 pl-3'>
                         ${this.render(value, dottedPath)}
                     </div>
                 `;
             } else {
                 html += `
-                    <div class='group text-slate-800 flex flex-row gap-4 items-center py-1'>
-                        <label x-on:click='` + 'renameAction(`' + dottedPath + '`)' + `' title='Rename' class='cursor-text'>
+                    <div class='group flex gap-4 items-center py-1 text-slate-800'>
+                        <label x-on:click='` + 'renameAction(`' + dottedPath + '`)' + `' title='Rename' class='cursor-text w-min'>
                             <span class='text-sm font-bold !text-slate-600'>${key}</span>
                         </label>
-                        <input type='text'
-                            id='wrla-json-ui-input-`+ dottedPath +`'
-                            class='w-72 px-2 py-0.5 border border-slate-400 text-black dark:text-black rounded-md text-sm'
-                            name='${key}'
-                            value='${String(value)}'
-                            x-on:change='` + 'updateValueAction(`' + dottedPath + '`, $event.target.value)' + `'
-                            />
-                        <div class='opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center gap-3 font-bold'>
-                            <button type='button' class='text-sm text-teal-600 hover:text-teal-500'
-                                x-on:click.prevent='` + 'deleteAction(`'+dottedPath+'`)' + `'
-                                title='Delete'
-                            >x delete</button>
+                        <div class='flex items-center gap-3'>
+                            <input type='text'
+                                id='wrla-json-ui-input-`+ dottedPath +`'
+                                class='w-72 px-2 py-0.5 border border-slate-400 text-black dark:text-black rounded-md text-sm'
+                                name='${key}'
+                                value='${String(value)}'
+                                x-on:change='` + 'updateValueAction(`' + dottedPath + '`, $event.target.value)' + `'
+                                />
+                            <div class='opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center gap-3 font-bold'>
+                                <button type='button' class='text-sm text-teal-600 hover:text-teal-500'
+                                    x-on:click.prevent='` + 'deleteAction(`'+dottedPath+'`)' + `'
+                                    title='Delete'
+                                >x delete</button>
+                            </div>
                         </div>
                     </div>
                 `;
