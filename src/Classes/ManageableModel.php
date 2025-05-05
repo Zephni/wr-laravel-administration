@@ -1144,9 +1144,13 @@ abstract class ManageableModel
             $fieldName = $manageableField->getAttribute('name');
             $relationshipInstance = null;            
 
-            // If doesn't exist in form key values, just call the applySubmittedValueFinal method and skip everything else
-            // as this is likely intentional, to perhaps update another database, or something else
-            if (!array_key_exists($fieldName, $formKeyValues)) {
+            // If array key doesn't exist in form key values, we skip it
+            if (!array_key_exists($fieldName, $formKeyValues)) continue;
+
+
+            // If doesn't exist on model instance, we just call apply submitted value final on it, this
+            // is because the developer may need to run some logic seperate to the model instance
+            if (!$this->getModelInstance()->hasAttribute($fieldName)) { 
                 $manageableField->applySubmittedValueFinal($request, $formKeyValues[$fieldName]);
                 continue;
             }
