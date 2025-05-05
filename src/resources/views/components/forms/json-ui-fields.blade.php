@@ -86,9 +86,8 @@
                     newFullKeyPath = `${dottedPath}[${thisData.length}]`;
                 }
             }
-
             // If addType is 'item'
-            if(addType == 'item') {
+            else if(addType == 'item') {
                 // If type is 'obj', ask for new key name before appending
                 let newKey = prompt('New key name', 'new_key');
                 if(newKey == null || newKey == '') return;
@@ -102,10 +101,14 @@
                 }
             }
 
+            // Get last element of newFullKeyPath (split by .) - trust me we need to do this rather than just using newKey
+            let newKeyPathParts = newFullKeyPath.split('.');
+            let newKey = newKeyPathParts[newKeyPathParts.length - 1];
+
             // First, check if newKey already exists in this data
             let newKeyExists = this.dataGet(this.data, newFullKeyPath, null);
             if(newKeyExists !== null) {
-                let overrideKey = confirm('Key already exists at ' + newFullKeyPath + ', override this key?');
+                let overrideKey = confirm('`'+newKey+'` key already exists, override this key?');
                 if(!overrideKey) continue;
             }
 
@@ -143,7 +146,7 @@
             // First, check if newKey already exists in this data
             let newKeyExists = this.dataGet(this.data, `${parentDottedPath}.${newKey}`, null);
             if(newKeyExists !== null) {
-                let overrideKey = confirm('Key already exists at '+parentDottedPath+'.'+newKey+', override this key?');
+                let overrideKey = confirm('`'+newKey+'` key already exists, override this key?');
                 if(!overrideKey) continue;
             }
 
@@ -188,7 +191,7 @@
                 let keyIsInt = !isNaN(Number(key));
 
                 html += `
-                    <div class='group flex flex-row items-center `+(keyIsInt ? 'mt-2.5' : 'mt-1.5 mb-1')+` text-slate-900'>
+                    <div class='group flex flex-row items-center `+(keyIsInt ? 'mt-2.5' : 'mt-2 mb-1')+` text-slate-900'>
                         <label class='text-sm font-bold'>
                             <span class='`+(value instanceof Array ? 'text-teal-600' : 'text-amber-600')+`'>
                                 <i class='`+(value instanceof Array ? 'fas fa-list-ul' : 'far fa-folder')+` mr-1.5'></i>
@@ -231,7 +234,7 @@
                     type = 'select';
                     selectOptions = [
                         {text: 'true', value: 1},
-                        {text: 'false', value: 0}
+                        {text: 'false', value: 0},
                     ];
 
                     console.log('Select options:', selectOptions);
