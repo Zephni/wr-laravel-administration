@@ -318,11 +318,9 @@
     <!-- Render element -->
     <div x-html="render(data)"></div>
 
-    {{-- Debug, display this.data as pure prettified json --}}
-    <div class="text-sm text-slate-700 mt-7 px-6 py-4 bg-white">
-        <span class="font-bold">Preview JSON (Debug):</span>
-        {{-- <pre x-html="renderDisplayJson()"></pre> --}}
-        {{-- Now put into textarea --}}
+    {{-- Hidden input to store JSON data, may have options to show this at some point --}}
+    <div class="hidden text-sm text-slate-700 mt-7 px-6 py-4 bg-white">
+        <span class="font-bold">JSON:</span>
         <textarea
             {{ $attributes->merge()->except(['class']) }}
             class="w-full h-64 px-2 py-0.5 border border-slate-400 text-black dark:text-black rounded-md text-sm"
