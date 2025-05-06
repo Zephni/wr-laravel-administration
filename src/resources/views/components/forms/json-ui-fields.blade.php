@@ -199,21 +199,21 @@
                                     ${dottedPath == 'data' ? '' : (keyIsInt ? '#' + key : key)}
                                 </span>
                             </span>
-                            <span class='opacity-30'>➤
+                            <span class='opacity-30 dark:text-white'>➤
                                 {{-- ${dottedPath}: ${value instanceof Array ? 'array' : 'object'} --}}
                             </span>
                         </label>
                         {{-- Options --}}
                         <div class='relative top-[-1px] opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center gap-4 ml-3 font-bold'>
-                            <button type='button' class='text-sm text-slate-600 hover:text-teal-500'
+                            <button type='button' class='text-sm text-slate-600 dark:text-slate-300 hover:text-teal-500'
                                 x-on:click.prevent='` + 'addAction(`group`, `' + dottedPath + '`)' + `'
                                 title='Add group'
                             >+ group</button>
-                            <button type='button' class='text-sm text-slate-600 hover:text-teal-500'
+                            <button type='button' class='text-sm text-slate-600 dark:text-slate-300 hover:text-teal-500'
                                 x-on:click.prevent='` + 'addAction(`item`, `' + dottedPath + '`)' + `'
                                 title='Add item'
                             >+ item</button>
-                            <button type='button' class='text-sm text-slate-600 hover:text-teal-500'
+                            <button type='button' class='text-sm text-slate-600 dark:text-slate-300 hover:text-teal-500'
                                 x-on:click.prevent='` + 'deleteAction(`' + dottedPath + '`)' + `'
                                 title='Delete'
                             >x remove</button>
@@ -254,7 +254,7 @@
                 html += `
                     <div class='group flex gap-4 items-center py-1 text-slate-800'>
                         <label x-on:click='` + 'renameAction(`' + dottedPath + '`)' + `' title='Rename' class='cursor-text w-min whitespace-nowrap'>
-                            <span class='text-sm font-bold !text-slate-600'>${key}</span>
+                            <span class='text-sm font-bold !text-slate-600 dark:!text-white'>${key}</span>
                         </label>
                         <div class='flex items-center gap-3'>
 
@@ -281,7 +281,7 @@
                                         <input
                                             type='checkbox'
                                             id='wrla-json-ui-input-` + dottedPath + `'
-                                            class='w-4 h-4 text-teal-600 border-slate-400 rounded-md cursor-pointer'
+                                            class='w-4 h-4 accent-teal-600 border-slate-400 rounded-md cursor-pointer'
                                             name='${key}'
                                             x-on:change='updateValueAction(\`` + dottedPath + `\`, $event.target.checked ? 1 : 0, \``+ fieldType +`\`)'
                                             x-bind:checked='` + (checkboxValue ? 'true' : 'false') + `'
@@ -332,7 +332,7 @@
     <div x-html="render(data)"></div>
 
     {{-- Hidden input to store JSON data, may have options to show this at some point --}}
-    <div x-show="@js($debug)" class="text-sm text-slate-700 mt-7 px-6 py-4 bg-white">
+    <div x-show="@js($debug)" class="text-sm text-slate-700 dark:text-white mt-7 px-6 py-4 bg-white">
         <span class="font-bold">JSON:</span>
         <textarea
             {{ $attributes->merge()->except(['class']) }}

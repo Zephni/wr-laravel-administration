@@ -46,7 +46,7 @@
         class="w-full">
         @csrf
 
-        <div class="flex flex-wrap gap-6 mt-4 p-4 bg-slate-100 dark:bg-slate-700 shadow-slate-300 dark:shadow-slate-850 rounded-lg shadow-lg">
+        <div class="flex flex-wrap gap-6 mt-4 p-4 bg-slate-100 dark:bg-slate-800 dark:border-slate-700 border shadow-slate-300 dark:shadow-slate-850 rounded-lg shadow-lg">
             @if(!empty($manageableFields))
                 @foreach($manageableFields as $manageableField)
                     {!! $manageableField->renderParent($upsertType, $livewireData) !!}
