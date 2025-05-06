@@ -70,6 +70,13 @@ class ManageableModelBrowse extends Component
     public $orderDirection = 'desc';
 
     /**
+     * Livewire fields, attach with manageable model ->setAttribute('wire:model.live', 'livewireData.key')
+     *
+     * @var array
+     */
+    public array $livewireData = [];
+
+    /**
      * Success message.
      *
      * @var ?string
