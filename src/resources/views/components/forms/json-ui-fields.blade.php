@@ -88,11 +88,10 @@
             }
             // If addType is 'item'
             else if(addType == 'item') {
-                // If type is 'obj', ask for new key name before appending
-                let newKey = prompt('New key name', 'new_key');
-                if(newKey == null || newKey == '') return;
                 
                 if(thisType == 'object') {
+                    let newKey = prompt('New key name', 'new_key');
+                    if(newKey == null || newKey == '') return;
                     newFullKeyPath = `${dottedPath}.${newKey}`;
                     newValue = '';
                 } else {
