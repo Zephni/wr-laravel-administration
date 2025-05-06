@@ -230,13 +230,14 @@
                 if(fieldType == 'number') {
                     type = 'number';
                 } else if(fieldType == 'boolean') {
+                    type = 'checkbox';
+                    checkboxValue = value ? 1 : 0;
+                } else if(fieldType == 'select') {
                     type = 'select';
                     selectOptions = [
                         {text: 'true', value: 1},
                         {text: 'false', value: 0},
                     ];
-
-                    console.log('Select options:', selectOptions);
                 } else if(fieldType == 'non_editable') {
                     type = 'non_editable';
                 }
@@ -261,6 +262,7 @@
                                 if (type === 'select') {
                                     return `
                                         <select
+                                            x-ref='wrla-json-ui-input-` + dottedPath + `'
                                             id='wrla-json-ui-input-` + dottedPath + `'
                                             class='w-72 px-2 py-0.5 border border-slate-400 text-black dark:text-black rounded-md text-sm'
                                             name='${key}'
@@ -272,6 +274,17 @@
                                                 </option>
                                             </template>
                                         </select>
+                                    `;
+                                } else if (type === 'checkbox') {
+                                    return `
+                                        <input
+                                            type='checkbox'
+                                            id='wrla-json-ui-input-` + dottedPath + `'
+                                            class='w-4 h-4 text-teal-600 border-slate-400 rounded-md cursor-pointer'
+                                            name='${key}'
+                                            x-on:change='updateValueAction(\`` + dottedPath + `\`, $event.target.checked ? 1 : 0, \``+ fieldType +`\`)'
+                                            x-bind:checked='` + (checkboxValue ? 'true' : 'false') + `'
+                                        />
                                     `;
                                 } else if (type === 'non_editable') {
                                     return `
@@ -318,7 +331,7 @@
     <div x-html="render(data)"></div>
 
     {{-- Hidden input to store JSON data, may have options to show this at some point --}}
-    <div class="hidden text-sm text-slate-700 mt-7 px-6 py-4 bg-white">
+    <div class="text-sm text-slate-700 mt-7 px-6 py-4 bg-white">
         <span class="font-bold">JSON:</span>
         <textarea
             {{ $attributes->merge()->except(['class']) }}
