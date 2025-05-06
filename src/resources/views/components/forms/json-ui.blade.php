@@ -21,6 +21,7 @@
 {{-- {!! $bladeCode !!} --}}
 @themeComponent('forms.json-ui-fields', [
     'json' => $attributes->get('value'),
+    'debug' => $options['debug'] ?? false,
     'attributes' => Arr::toAttributeBag([
         'id' => $id,
         'name' => $attributes->get('name'),

@@ -1,5 +1,6 @@
 @props([
     'json' => '',
+    'debug' => false,
 ])
 
 <div x-data="{
@@ -331,7 +332,7 @@
     <div x-html="render(data)"></div>
 
     {{-- Hidden input to store JSON data, may have options to show this at some point --}}
-    <div class="text-sm text-slate-700 mt-7 px-6 py-4 bg-white">
+    <div x-show="@js($debug)" class="text-sm text-slate-700 mt-7 px-6 py-4 bg-white">
         <span class="font-bold">JSON:</span>
         <textarea
             {{ $attributes->merge()->except(['class']) }}

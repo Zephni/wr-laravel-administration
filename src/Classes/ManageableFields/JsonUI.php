@@ -45,7 +45,8 @@ class JsonUI
         if(!is_null($options)) {
             $manageableField->setOptions(array_merge([
                 'allowCreate' => true,
-            ],$options));
+                'debug' => false,
+            ], $options));
         }
 
         return $manageableField;
