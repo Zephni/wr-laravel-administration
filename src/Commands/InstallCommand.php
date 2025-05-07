@@ -182,9 +182,11 @@ class InstallCommand extends Command
                 
                 // Set user_id
                 $wrlaUserData->user_id = !empty($user->id) ? $user->id : 0;
-                    
-                // Save newly created default data for the user.
-                $user->wrlaUserData()->save($wrlaUserData);
+
+                // Save newly created default data for the user (if user exists).
+                if(!empty($user->id)) {
+                    $user->wrlaUserData()->save($wrlaUserData);
+                }
             });
     }
 ', $lastBracePosition, 0);
