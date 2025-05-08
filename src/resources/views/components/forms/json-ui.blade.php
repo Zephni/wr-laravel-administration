@@ -3,6 +3,9 @@
 @php
     // Set id from name if unset
     $id = empty($attributes->get('id')) ? 'wrinput-'.$attributes->get('name') : $attributes->get('id');
+
+    // Fix up hideKeyValues option
+    $options['hideKeyValues'] = is_string($options['hideKeyValues']) ? json_decode($options['hideKeyValues'] ?? []) : false;
 @endphp
 
 <div class="{{ $options['containerClass'] ?? 'w-full flex-1 flex flex-col gap-1 md:flex-auto' }}">
@@ -22,6 +25,7 @@
 @themeComponent('forms.json-ui-fields', [
     'json' => $attributes->get('value'),
     'debug' => $options['debug'] ?? false,
+    'hideKeyValues' => $options['hideKeyValues'],
     'attributes' => Arr::toAttributeBag([
         'id' => $id,
         'name' => $attributes->get('name'),

@@ -46,6 +46,7 @@ class JsonUI
             $manageableField->setOptions(array_merge([
                 'allowCreate' => true,
                 'debug' => false,
+                'hideKeyValues' => [],
             ], $options));
         }
 
@@ -73,6 +74,18 @@ class JsonUI
     public function mergeDefaultKeyValues(array $defaultKeyValues): static
     {
         $this->defaultKeyValues = $defaultKeyValues;
+        return $this;
+    }
+
+    /**
+     * Hide key values from the json data.
+     * 
+     * @param array $dottedKeys Array of dotted keys to hide. eg. ['*.some_key.*.some_key.*', ...]
+     * @return $this
+     */
+    public function hideKeyValues(array $dottedKeys): static
+    {
+        $this->setOption('hideKeyValues', json_encode($dottedKeys));
         return $this;
     }
 

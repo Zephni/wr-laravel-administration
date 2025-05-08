@@ -1,10 +1,14 @@
 @props([
     'json' => '',
     'debug' => false,
+    'hideKeyValues' => false, // false, or array of dotted keys to hide, can use wildcards e.g. '*.something'
 ])
+
+{{-- @dd($hideKeyValues) --}}
 
 <div x-data="{
     data: {},
+    hideKeyValues: @js($hideKeyValues),
     init() {
         try {
             this.data = { data: {{ $json }} };
@@ -178,14 +182,27 @@
         let baseDottedPath = dottedPath;
 
         for (const [key, value] of this.entries(obj)) {
-            // If obj type is array, use array[] style key within dotted path
-            {{-- if(obj instanceof Array) {
-                dottedPath = `${baseDottedPath}[0]`;
+            // Get dotted path for this key
+            dottedPath = (baseDottedPath !== null ? `${baseDottedPath}.` : ``) + key;
+
+            // If in hideKeyValues array, skip this key
+            if(this.hideKeyValues && this.hideKeyValues.length > 0) {
+                let keyExists = this.hideKeyValues.some(hideKey => {
+                    // Prepend data. to hideKey
+                    hideKey = 'data.' + hideKey;
+
+                    // Check if hideKey is a wildcard (e.g. *.something)
+                    if(hideKey.includes('*')) {
+                        // Regex fixed hideKey
+                        hideKey = hideKey.replace(/\*/g, '.*');
+                        let regex = new RegExp(hideKey.replace(/\*/g, '.*'));
+                        return regex.test(dottedPath);
+                    } else {
+                        return dottedPath == hideKey;
+                    }
+                });
+                if(keyExists) continue;
             }
-            // Otherwise just use key
-            else { --}}
-                dottedPath = (baseDottedPath !== null ? `${baseDottedPath}.` : ``) + key;
-            {{-- } --}}
             
             if (this.isObject(value)) {
                 let keyIsInt = !isNaN(Number(key));
