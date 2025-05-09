@@ -143,63 +143,6 @@ class InstallCommand extends Command
             $this->warn(' - email-template-mail.blade.php already exists at ' . WRLAHelper::removeBasePath(resource_path('views/email/wrla/email-template-mail.blade.php')) . '. To replace it delete the file and run again.');
         }
 
-        /* --- Add relationship to frontend user model --- */
-        // Get current frontend user model (which uses config('wr-laravel-administration.models.user') namespace app path)
-        // and add the wrlaUserData relationship to the end of the model
-        $userModelPath = app_path(str(config('wr-laravel-administration.models.user'))->ltrim('\\App')->replace('\\', '/')->ltrim('/').'.php');
-        $userModelContents = file_get_contents($userModelPath);
-
-        // Check if file already has the relationship
-        if (str_contains($userModelContents, 'function wrlaUserData()')) {
-            $this->warn(' - wrlaUserData relationship already exists in '.config('wr-laravel-administration.models.user').' model. To replace it delete the relationship and run again.');
-        } else {
-            // Let user know we are about to add a relationship to the User model, we use confirmation to gurantree they are aware
-            $confirm = $this->confirm('IMPORTANT: Adding wrlaUserData relationship to end of '.config('wr-laravel-administration.models.user').' model. This is nessesary for managing user\'s with WRLA', true);
-
-            if($confirm) {
-                // Find last } in file and add the relationship before it
-                $lastBracePosition = strrpos($userModelContents, '}');
-                $userModelContents = substr_replace($userModelContents, '
-    /**
-     * WRLA user data relationship, if does not exist, will be automatically created based on default config
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasOne
-     */
-    public function wrlaUserData(): \Illuminate\Database\Eloquent\Relations\HasOne
-    {
-        return $this->hasOne(\WebRegulate\LaravelAdministration\Classes\WRLAHelper::getUserDataModelClass())
-            // If user data is not found, create a new instance.
-            ->withDefault(function($wrlaUserData, $user) {
-                // Return existing data if present.
-                if (!empty($user->wrlaUserData)) {
-                    return $wrlaUserData;
-                }
-
-                // Populate default user data from configuration.
-                foreach (config(\'wr-laravel-administration.default_user_data\') as $key => $value) {
-                    $wrlaUserData->{$key} = is_array($value) ? json_encode($value) : $value;
-                }
-                
-                // Set user_id
-                $wrlaUserData->user_id = !empty($user->id) ? $user->id : 0;
-
-                // Save newly created default data for the user (if user exists).
-                if(!empty($user->id)) {
-                    $user->wrlaUserData()->save($wrlaUserData);
-                }
-            });
-    }
-', $lastBracePosition, 0);
-
-            // Save the file
-            file_put_contents($userModelPath, $userModelContents);
-
-            // Show message
-            $this->info(' - wrlaUserData relationship added to '.config('wr-laravel-administration.models.user').' model');
-            }
-        }
-        /* --- /Add relationship to frontend user model --- */
-
         // Success message
         $this->line('');
         $this->info('WRLA installed successfully.');

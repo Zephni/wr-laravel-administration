@@ -68,7 +68,7 @@ class WRLAServiceProvider extends ServiceProvider
         // Publish assets
         $this->publishableAssets();
 
-        // Main setup - Loading migrations, routes, views, etc.
+        // Main setup - Loading migrations, model setup, routes, views, etc.
         $this->mainSetup();
 
         // Build custom macros
@@ -133,6 +133,9 @@ class WRLAServiceProvider extends ServiceProvider
 
         // Load migrations
         $this->loadMigrationsFrom(__DIR__ . '/database/migrations');
+
+        // Auto relation resolving
+        $this->autoModelsSetup();
 
         // Load middleware
         $this->app['router']->aliasMiddleware('wrla_is_admin', IsAdmin::class);
@@ -365,6 +368,47 @@ class WRLAServiceProvider extends ServiceProvider
                 $carry[$newKey] = is_array($array[$key]) ? Arr::prependKeysRecursive($array[$key], $prefix) : $array[$key];
                 return $carry;
             }, []);
+        });
+    }
+
+    /**
+     * Auto models setup
+     * @return void
+     */
+    protected function autoModelsSetup(): void
+    {
+        // Add wrlaUserData relationship to the user model
+        WRLAHelper::getUserModelClass()::resolveRelationUsing('wrlaUserData', function ($user) {
+            // Get wrlaUserData model class
+            $wrlaUserDataClass = WRLAHelper::getUserDataModelClass();
+
+            return $user->hasOne($wrlaUserDataClass)
+                // If user data is not found, create a new instance.
+                ->withDefault(function($wrlaUserData, $user) use ($wrlaUserDataClass) {
+                    // Return existing data if present.
+                    if (!empty($user->wrlaUserData)) {
+                        return $wrlaUserData;
+                    }
+
+                    // Populate default user data from configuration.
+                    foreach (config('wr-laravel-administration.default_user_data') as $key => $value) {
+                        $wrlaUserData->{$key} = is_array($value) ? json_encode($value) : $value;
+                    }
+                    
+                    // Set user_id
+                    $wrlaUserData->user_id = !empty($user->id) ? $user->id : 0;
+                    
+                    // Save newly created default data for the user (if user exists, but no wrlaUserData)
+                    if(!empty($user->id)) {
+                        // Check whether wrlaUserData already exists
+                        $wrlaUserDataExists = !empty($wrlaUserDataClass::where('user_id', $wrlaUserData->user_id)->first());
+
+                        // If not, save the new instance
+                        if(!$wrlaUserDataExists) {
+                            $user->wrlaUserData()->save($wrlaUserData);
+                        }
+                    }
+            });
         });
     }
 
