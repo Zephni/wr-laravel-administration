@@ -36,6 +36,7 @@ class InstallCommand extends Command
             '--tag' => 'wrla-config',
         ]);
 
+
         // Publish assets
         $this->call('vendor:publish', [
             '--provider' => \WebRegulate\LaravelAdministration\WRLAServiceProvider::class,
@@ -44,9 +45,7 @@ class InstallCommand extends Command
 
         // Publish log-viewer assets
         $this->call('log-viewer:publish');
-        $this->call('log-viewer:publish', [
-            '--tag' => 'log-viewer-config',
-        ]);
+        $this->call('vendor:publish --tag="log-viewer-config"');
 
         // Create UserData.php model in app/Models
         $envConnection = env('DB_CONNECTION', 'mysql');
