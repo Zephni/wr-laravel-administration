@@ -10,16 +10,15 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
-use Opcodes\LogViewer\Facades\LogViewer;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\View\ComponentAttributeBag;
 use WebRegulate\LaravelAdministration\Livewire\Logs;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
-use WebRegulate\LaravelAdministration\Commands\RebuildUser;
 use WebRegulate\LaravelAdministration\Commands\WikiCommand;
 use WebRegulate\LaravelAdministration\Livewire\FileManager;
 use WebRegulate\LaravelAdministration\Commands\InstallCommand;
 use WebRegulate\LaravelAdministration\Http\Middleware\IsAdmin;
+use WebRegulate\LaravelAdministration\Commands\EditUserCommand;
 use WebRegulate\LaravelAdministration\Livewire\ImportDataModal;
 use WebRegulate\LaravelAdministration\Commands\CreateUserCommand;
 use WebRegulate\LaravelAdministration\Http\Middleware\IsNotAdmin;
@@ -120,8 +119,8 @@ class WRLAServiceProvider extends ServiceProvider
             InstallCommand::class,
             CreateManageableModelCommand::class,
             CreateUserCommand::class,
+            EditUserCommand::class,
             WikiCommand::class,
-            RebuildUser::class,
         ]);
 
         // Custom logging channels
