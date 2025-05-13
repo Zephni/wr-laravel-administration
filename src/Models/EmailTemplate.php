@@ -18,15 +18,7 @@ class EmailTemplate extends Model
     public const RENDER_MODE_BLADE = 'blade';
     public const RENDER_MODE_EMAIL = 'email';
 
-    protected $fillable = [
-        'category',
-        'alias',
-        'subject',
-        'body',
-        'mappings',
-        'description',
-        'requires_attachment',
-    ];
+    protected $guarded = [];
 
     public array $usingSMTPConfig = [];
 
