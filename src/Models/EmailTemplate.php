@@ -188,8 +188,8 @@ class EmailTemplate extends Model
                 continue;
             }
 
-            // If data is an array or string, use that
-            else if(is_array($dataOrModel) || is_string($dataOrModel)) {
+            // If data is an array, string, or numeric, use that
+            else if(is_array($dataOrModel) || is_string($dataOrModel) || is_numeric($dataOrModel)) {
                 $data[$key] = $dataOrModel;
                 continue;
             }
