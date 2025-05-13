@@ -560,7 +560,10 @@ trait ManageableField
      */
     public function setLivewireModel(string $type = 'live'): static
     {
-        $this->setAttribute("wire:model.$type", "livewireData.{$this->getAttribute('name')}");
+        // If $type is not empty, prepend .
+        $injectType = !empty($type) ? ".$type" : '';
+
+        $this->setAttribute("wire:model{$injectType}", "livewireData.{$this->getAttribute('name')}");
 
         return $this;
     }
