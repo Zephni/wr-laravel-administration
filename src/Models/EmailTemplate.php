@@ -109,6 +109,17 @@ class EmailTemplate extends Model
     }
 
     /**
+     * Get data element by dotted key.
+     * 
+     * @param string $key
+     * @return mixed
+     */
+    public function getData(string $key): mixed
+    {
+        return data_get($this->dataArray, $key, null);
+    }
+
+    /**
      * Fill missing data in data array with (key.subkey here) placeholders.
      *
      * @return static
