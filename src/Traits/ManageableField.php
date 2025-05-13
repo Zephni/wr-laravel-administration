@@ -830,6 +830,21 @@ trait ManageableField
         return false;
     }
 
+
+    /**
+     * Is using nested json.
+     * 
+     * @return bool
+     */
+    public function isUsingNestedJson(): bool
+    {
+        if(str($this->htmlAttributes['name'])->contains('->')) {
+            return true;
+        }
+
+        return false;
+    }
+
     /**
      * Get relationship name.
      *

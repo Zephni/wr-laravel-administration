@@ -1150,10 +1150,21 @@ abstract class ManageableModel
             $relationshipInstance = null;
             $isRelationshipField = $manageableField->isRelationshipField();
 
+            // Is using nested JSON
+            $isUsingNestedJson = $manageableField->isUsingNestedJson();            
+
+            // COME BACK TO DEBUG THIS, AS RELATIONSHIP JSON DOES NOT YET WORK
+            // if(str_starts_with($fieldName, 'wrlaUserData__WRLA::REL::DOT__settings')) {
+            //     dd(
+            //         $fieldName,
+            //         $this->getModelInstance()->hasAttribute($fieldName),
+            //         $isRelationshipField,
+            //     );
+            // }
 
             // If doesn't exist on model instance and not a relationship, we just call apply submitted value final on it,
             // this is because the developer may need to run some logic seperate to the model instance
-            if (!$this->getModelInstance()->hasAttribute($fieldName) && !$isRelationshipField) { 
+            if (!$this->getModelInstance()->hasAttribute($fieldName) && !$isRelationshipField && !$isUsingNestedJson) { 
                 $manageableField->applySubmittedValueFinal($request, $formKeyValues[$fieldName]);
                 continue;
             }
@@ -1168,18 +1179,17 @@ abstract class ManageableModel
             $formComponent = $formComponents->first(fn($_formComponent) => $_formComponent->getAttribute('name') === $fieldName);
 
             // Check if the field name is based on a JSON column
-            $isUsingNestedJson = false;
-            if (str_contains($fieldName, '->')) {
+            if ($isUsingNestedJson) {
                 // If form key does not exist, then skip
                 if (!array_key_exists($formComponent->getAttribute('name'), $formKeyValues)) {
                     continue;
                 }
 
-                $isUsingNestedJson = true;
                 [$fieldName, $jsonNotation] = WRLAHelper::parseJsonNotation($fieldName);
                 $newValue = $formKeyValues[$formComponent->getAttribute('name')];
             }
 
+            // Set field value to null
             $fieldValue = '';
 
             // Standard field value
