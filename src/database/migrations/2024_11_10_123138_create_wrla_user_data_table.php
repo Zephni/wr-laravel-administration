@@ -14,8 +14,8 @@ return new class extends Migration {
             // Id
             $table->id();
 
-            // User ID (foreign key to users table)
-            $table->bigInteger('user_id');
+            // User ID
+            $table->string('user_id');
 
             // Avatar
             $table->string('avatar')->nullable()->default(null);

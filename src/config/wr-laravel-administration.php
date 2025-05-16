@@ -110,6 +110,11 @@ return [
         )->get()
     ],
 
+    // Build user_id identifier for wrlaUserData, if not set will default to simply $user->id
+    'build_wrla_user_data_id' => function(mixed $user) {
+        return $user->id;
+    },
+
     // Dashboard display notifications for users / groups, use '@self' for the user's own notifications
     'dashboard' => [
         'notifications' => [
