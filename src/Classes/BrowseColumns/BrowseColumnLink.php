@@ -24,9 +24,7 @@ class BrowseColumnLink extends BrowseColumnBase
     /**
      * Create a new instance of the class
      *
-     * @param string|null $label
-     * @param callable $linkBuilderCallback Must take $value, $model as arguments and return an array of ['url' => string, 'label' => string, 'icon' => ?string, 'class' => ?string] or return null to display nothing
-     * @return static
+     * @param  callable  $linkBuilderCallback  Must take $value, $model as arguments and return an array of ['url' => string, 'label' => string, 'icon' => ?string, 'class' => ?string] or return null to display nothing
      */
     public static function make(?string $label, callable $linkBuilderCallback): static
     {
@@ -40,7 +38,7 @@ class BrowseColumnLink extends BrowseColumnBase
         $browseColumnLink->overrideRenderValue = function ($value, $model) use ($browseColumnLink) {
             $linkData = call_user_func($browseColumnLink->linkBuilderCallback, $value, $model);
 
-            if($linkData === null) {
+            if ($linkData === null) {
                 return '';
             }
 

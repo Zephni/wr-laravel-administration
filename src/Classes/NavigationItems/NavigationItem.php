@@ -1,8 +1,8 @@
 <?php
+
 namespace WebRegulate\LaravelAdministration\Classes\NavigationItems;
 
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
-use WebRegulate\LaravelAdministration\Enums\PageType;
 
 class NavigationItem
 {
@@ -30,12 +30,6 @@ class NavigationItem
 
     /**
      * Constructor
-     *
-     * @param ?string $route
-     * @param ?array $routeData
-     * @param string $name
-     * @param string $icon
-     * @param array $children
      */
     public function __construct(
         public ?string $route,
@@ -53,19 +47,12 @@ class NavigationItem
 
     /**
      * Make (static constructor)
-     *
-     * @param ?string $route
-     * @param ?array $routeData
-     * @param string $name
-     * @param string $icon
-     * @param array $children
-     * @return static
      */
     public static function make(?string $route, ?array $routeData, string $name, string $icon = 'fa fa-question', array $children = []): static
     {
         // Replace any classes (strings) by calling getNavigationItem() method on each
-        foreach($children as $key => $child) {
-            if(is_string($child)) {
+        foreach ($children as $key => $child) {
+            if (is_string($child)) {
                 $children[$key] = $children[$key]::getNavigationItem();
             }
         }
@@ -75,10 +62,6 @@ class NavigationItem
 
     /**
      * Make divider (NavigationItemDivider static constructor)
-     *
-     * @param string $title
-     * @param string $icon
-     * @return NavigationItemDivider
      */
     public static function makeDivider(string $title, string $icon = ''): NavigationItemDivider
     {
@@ -88,7 +71,6 @@ class NavigationItem
     /**
      * Make manageable models (NavigationItemsManageableModels static import)
      *
-     * @param array $models
      * @return NavigationItem[]
      */
     public static function makeManageableModels(array $models): array
@@ -98,7 +80,6 @@ class NavigationItem
 
     /**
      * Has children
-     * @return bool
      */
     public function hasChildren(): bool
     {
@@ -107,11 +88,10 @@ class NavigationItem
 
     /**
      * Get Url
-     * @return string
      */
     public function getUrl(): string
     {
-        if(empty($this->route)) {
+        if (empty($this->route)) {
             return '#';
         }
 
@@ -120,7 +100,6 @@ class NavigationItem
 
     /**
      * Is active
-     * @return bool
      */
     public function isActive(): bool
     {
@@ -129,12 +108,11 @@ class NavigationItem
 
     /**
      * Is child active
-     * @return bool
      */
     public function isChildActive(): bool
     {
-        foreach($this->children as $child) {
-            if($child->isActive()) {
+        foreach ($this->children as $child) {
+            if ($child->isActive()) {
                 return true;
             }
         }
@@ -145,23 +123,21 @@ class NavigationItem
     /**
      * Show on condition. If false will be: not shown and disabled
      *
-     * @param callable $callback
      * @return $this
      */
     public function showOnCondition(callable $callback): static
     {
         $this->showOnConditionCallback = $callback;
+
         return $this;
     }
 
     /**
      * Check show condition
-     *
-     * @return bool
      */
     public function checkShowCondition(): bool
     {
-        if($this->showOnConditionCallback === null) {
+        if ($this->showOnConditionCallback === null) {
             return true;
         }
 
@@ -171,23 +147,21 @@ class NavigationItem
     /**
      * Enable on condition, callback must return true or a string with the reason why not enabled (appears as tooltip)
      *
-     * @param callable $callback
      * @return $this
      */
     public function enableOnCondition(callable $callback): static
     {
         $this->enableOnConditionCallback = $callback;
+
         return $this;
     }
 
     /**
      * Check enabled condition, returns true or a string with the reason why not enabled (appears as tooltip)
-     *
-     * @return true|string
      */
     public function checkEnabledCondition(): true|string
     {
-        if($this->enableOnConditionCallback === null) {
+        if ($this->enableOnConditionCallback === null) {
             return true;
         }
 
@@ -197,18 +171,17 @@ class NavigationItem
     /**
      * Open in new tab
      *
-     * @param bool $openInNewTab
      * @return $this
      */
     public function openInNewTab(bool $openInNewTab = true): static
     {
         $this->openInNewTab = $openInNewTab;
+
         return $this;
     }
 
     /**
      * Render the navigation item
-     * @return string
      */
     public function render(): string
     {

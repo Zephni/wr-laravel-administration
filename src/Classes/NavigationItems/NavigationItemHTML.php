@@ -20,8 +20,6 @@ class NavigationItemHTML extends NavigationItem
 
     /**
      * Overriden render method
-     * 
-     * @return string
      */
     public function render(): string
     {

@@ -3,11 +3,11 @@
 namespace WebRegulate\LaravelAdministration\Models;
 
 use App\Models\User;
-use Illuminate\Support\Collection;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
-use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Collection;
 use WebRegulate\LaravelAdministration\Classes\NotificationBase;
+use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 
 class Notification extends Model
 {
@@ -22,11 +22,6 @@ class Notification extends Model
 
     /**
      * Make a new notification.
-     *
-     * @param string $notificationDefinitionClass
-     * @param string $userId
-     * @param array $data
-     * @return Notification
      */
     public static function make(string $notificationDefinitionClass, string $userId, array $data): Notification
     {
@@ -44,18 +39,16 @@ class Notification extends Model
 
     /**
      * Get notification definition instance.
-     *
-     * @return NotificationBase
      */
     public function getDefinition(): NotificationBase
     {
         // Now we use cache instead
-        return cache()->remember("notification.{$this->id}.definition", now()->addMinutes(5), function() {
+        return cache()->remember("notification.{$this->id}.definition", now()->addMinutes(5), function () {
             $notificationClass = $this->type;
 
             // If doesn't start with \, prepend it
             if (str_starts_with($notificationClass, '\\') === false) {
-                $notificationClass = '\\' . $notificationClass;
+                $notificationClass = '\\'.$notificationClass;
             }
 
             return new $notificationClass($this->user_id, json_decode($this->data, true));
@@ -65,6 +58,7 @@ class Notification extends Model
     public function getFinalButtons(): Collection
     {
         $definition = $this->getDefinition();
+
         return $definition->getButtons($this->defaultButtons(), $this);
     }
 
@@ -80,14 +74,13 @@ class Notification extends Model
                 [
                     'title' => $this->read_at === null ? 'Mark as read' : 'Mark as unread',
                 ]
-            )
+            ),
         ]);
     }
 
     /**
      * Mark notification as read.
      *
-     * @param bool $delete
      * @return void
      */
     public function markAsRead(bool $delete = false)
@@ -107,8 +100,7 @@ class Notification extends Model
 
     /**
      * Mark all notifications as read with an optional soft delete.
-     * 
-     * @param bool $delete
+     *
      * @return void
      */
     public static function markAllAsRead(bool $delete = false)
@@ -131,8 +123,6 @@ class Notification extends Model
 
     /**
      * Flip notification as read.
-     *
-     * @return void
      */
     public function flipMarkedAsRead(): void
     {
@@ -149,22 +139,21 @@ class Notification extends Model
 
     /**
      * Get eloquent builder for given userIds
-     * 
-     * @param array $userIds
+     *
      * @return Builder|mixed
      */
     public static function baseBuilderForUserIds(array $userIds): mixed
     {
         $userIds = WRLAHelper::interpretUserGroupsArray($userIds);
 
-        return once(fn() =>
-            static::where(function ($query) use($userIds): void {
+        return once(function () use ($userIds) {
+            return static::where(function ($query) use ($userIds): void {
                 // Loop through user ids building where / or where's
-                foreach($userIds as $userId) {
+                foreach ($userIds as $userId) {
                     $query->orWhere('user_id', $userId);
                 }
             })
-            ->orderBy('created_at', 'desc')
-        );
+                ->orderBy('created_at', 'desc');
+        });
     }
 }

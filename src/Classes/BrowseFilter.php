@@ -2,8 +2,8 @@
 
 namespace WebRegulate\LaravelAdministration\Classes;
 
-use Illuminate\Support\Collection;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Collection;
 use WebRegulate\LaravelAdministration\Traits\ManageableField;
 
 class BrowseFilter
@@ -23,21 +23,18 @@ class BrowseFilter
     /**
      * Create a new BrowseFilter instance.
      *
-     * @param ManageableField|callable $field
-     * @param callable $applicableFilter
+     * @param  ManageableField|callable  $field
      */
     public function __construct(/**
      * The field to filter by.
      */
-    public mixed $field, callable $applicableFilter)
+        public mixed $field, callable $applicableFilter)
     {
         $this->applicableFilter = $applicableFilter;
     }
 
     /**
      * Get key from field's attribute name.
-     *
-     * @return string
      */
     public function getKey(): string
     {
@@ -56,8 +53,6 @@ class BrowseFilter
 
     /**
      * Render the filter.
-     *
-     * @return string
      */
     public function render(): string
     {
@@ -68,7 +63,7 @@ class BrowseFilter
         $prependHTML = '';
 
         // If newRow option is set, prepend a new row
-        if($field->getOption('newRow')) {
+        if ($field->getOption('newRow')) {
             $prependHTML .= '<div class="basis-full"></div>';
         }
 
@@ -77,12 +72,6 @@ class BrowseFilter
 
     /**
      * Apply to query builder.
-     *
-     * @param Builder $query
-     * @param string $table
-     * @param Collection $columns
-     * @param mixed $value
-     * @return Builder
      */
     public function apply(Builder $query, string $table, Collection $columns, mixed $value): Builder
     {

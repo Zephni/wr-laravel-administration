@@ -2,12 +2,12 @@
 
 namespace WebRegulate\LaravelAdministration\Classes\ManageableFields;
 
-use WebRegulate\LaravelAdministration\Traits\ManageableField;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\View\ComponentAttributeBag;
-use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 use WebRegulate\LaravelAdministration\Classes\ManageableModel;
+use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
+use WebRegulate\LaravelAdministration\Traits\ManageableField;
 
 class File
 {
@@ -23,11 +23,7 @@ class File
     /**
      * Make method (can be used in any class that extends FormComponent).
      *
-     * @param ?ManageableModel $manageableModel
-     * @param ?mixed $column
-     * @param ?string $path
-     * @param ?string $filename
-     * @return static
+     * @param  ?mixed  $column
      */
     public static function make(?ManageableModel $manageableModel = null, ?string $column = null, ?string $path = null, ?string $filename = null): static
     {
@@ -46,15 +42,12 @@ class File
             'storeFilenameOnly' => true,
             'class' => '',
         ]);
+
         return $imageInstance;
     }
 
     /**
      * Upload the image from request and apply the value.
-     *
-     * @param Request $request
-     * @param mixed $value
-     * @return mixed
      */
     public function applySubmittedValue(Request $request, mixed $value): mixed
     {
@@ -64,6 +57,7 @@ class File
         // If value is equal to the special constant WRLA_KEY_REMOVE, we delete the image
         if ($value === WRLAHelper::WRLA_KEY_REMOVE) {
             $this->deleteFileByPath($currentImage);
+
             return null;
         }
 
@@ -71,7 +65,7 @@ class File
             $value = $this->uploadFile($request->file($this->getAttribute('name')));
 
             // If unlinkOld option set, and an image already exists with the old value, we delete it
-            if ($this->getOption('unlinkOld') == true && !empty($currentImage)) {
+            if ($this->getOption('unlinkOld') == true && ! empty($currentImage)) {
                 $this->deleteFileByPath($currentImage);
             }
 
@@ -83,6 +77,7 @@ class File
             // Otherwise, we store only the filename.ext
             $parts = explode('/', $value);
             $value = end($parts);
+
             return $value;
         }
 
@@ -92,8 +87,7 @@ class File
     /**
      * Upload file
      *
-     * @param UploadedFile $request
-     * @return string
+     * @param  UploadedFile  $request
      */
     public function uploadFile(UploadedFile $file): string
     {
@@ -102,20 +96,18 @@ class File
         $filename = $this->formatFileName($this->options['filename'] ?? $file->getClientOriginalName());
 
         // If directory doesn't exist, create it
-        if (!is_dir(public_path($path))) {
+        if (! is_dir(public_path($path))) {
             mkdir(public_path($path), 0777, true);
         }
 
         // New, save file
         $file = $file->move(public_path($path), $filename);
 
-        return '/'.rtrim(ltrim($path, '/'), '/') . '/' . $filename;
+        return '/'.rtrim(ltrim($path, '/'), '/').'/'.$filename;
     }
 
     /**
      * Get path
-     *
-     * @return string
      */
     public function getPath(): string
     {
@@ -124,8 +116,6 @@ class File
 
     /**
      * Delete file by path
-     *
-     * @param string $pathRelativeToPublic
      */
     public function deleteFileByPath(string $pathRelativeToPublic)
     {
@@ -133,7 +123,7 @@ class File
         $parts = explode('/', ltrim($pathRelativeToPublic, '/'));
         $isAFileName = count($parts) > 0 && str_contains(end($parts), '.');
 
-        if($isAFileName) {
+        if ($isAFileName) {
             $oldValue = WRLAHelper::forwardSlashPath(public_path().'/'.$this->getPath().'/'.$pathRelativeToPublic);
 
             // If is file and exists, delete it
@@ -146,15 +136,13 @@ class File
 
     /**
      * Get value
-     *
-     * @return string
      */
     public function getValue(): string
     {
         // If starts with http, return as is
         if (str_starts_with((string) $this->getAttribute('value'), 'http')) {
             return $this->getAttribute('value');
-        // Else, we apply a forward slash to the beginning of the path
+            // Else, we apply a forward slash to the beginning of the path
         } else {
             // If no value is set, return empty string
             if (empty($this->getAttribute('value'))) {
@@ -167,9 +155,6 @@ class File
 
     /**
      * Format file name
-     *
-     * @param string $name
-     * @return string
      */
     public function formatFileName(string $name): string
     {
@@ -202,42 +187,39 @@ class File
     /**
      * Set unlink old image option if new image is set
      *
-     * @param bool $unlink
      * @return $this
      */
     public function unlinkOld(bool $unlink = true): static
     {
         $this->setOption('unlinkOld', $unlink);
+
         return $this;
     }
 
     /**
      * Set allow remove option
      *
-     * @param bool $allow
      * @return $this
      */
     public function allowRemove(bool $allow = true): static
     {
         $this->setOption('allowRemove', $allow);
+
         return $this;
     }
 
     /**
      * Store filepath only
-     *
-     * @param bool $storeFilenameOnly
      */
     public function storeFilenameOnly(bool $storeFilenameOnly = true): static
     {
         $this->setOption('storeFilenameOnly', $storeFilenameOnly);
+
         return $this;
     }
 
     /**
      * Render the input field.
-     *
-     * @return mixed
      */
     public function render(): mixed
     {
@@ -251,7 +233,7 @@ class File
             'attributes' => new ComponentAttributeBag(array_merge($this->htmlAttributes, [
                 'name' => $this->getAttribute('name'),
                 'value' => $path.$this->getValue(),
-                'type' => 'file'
+                'type' => 'file',
             ])),
         ])->render();
 

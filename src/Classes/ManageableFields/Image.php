@@ -3,16 +3,16 @@
 namespace WebRegulate\LaravelAdministration\Classes\ManageableFields;
 
 use Exception;
+use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
-use Intervention\Image\ImageManager;
 use Illuminate\Support\Facades\Storage;
-use Intervention\Image\Drivers\Gd\Driver;
 use Illuminate\View\ComponentAttributeBag;
-use Illuminate\Contracts\Filesystem\Filesystem;
+use Intervention\Image\Drivers\Gd\Driver;
+use Intervention\Image\ImageManager;
+use WebRegulate\LaravelAdministration\Classes\ManageableModel;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 use WebRegulate\LaravelAdministration\Traits\ManageableField;
-use WebRegulate\LaravelAdministration\Classes\ManageableModel;
 
 class Image
 {
@@ -28,11 +28,7 @@ class Image
     /**
      * Make method (can be used in any class that extends FormComponent).
      *
-     * @param ?ManageableModel $manageableModel
-     * @param ?mixed $column
-     * @param ?string $path
-     * @param ?string $filename
-     * @return static
+     * @param  ?mixed  $column
      */
     public static function make(?ManageableModel $manageableModel = null, ?string $column = null, ?string $path = null, ?string $filename = null, string $fileSystem = 'public'): static
     {
@@ -53,16 +49,12 @@ class Image
             'storeFilenameOnly' => true,
             'class' => '',
         ]);
-        
+
         return $imageInstance;
     }
 
     /**
      * Get manageable model's absolute URL from manageable field
-     * 
-     * @param ManageableModel $manageableModel
-     * @param string $column
-     * @return string
      */
     public static function getModelURL(ManageableModel $manageableModel, string $column): string
     {
@@ -82,10 +74,6 @@ class Image
 
     /**
      * Upload the image from request and apply the value.
-     *
-     * @param Request $request
-     * @param mixed $value
-     * @return mixed
      */
     public function applySubmittedValue(Request $request, mixed $value): mixed
     {
@@ -95,6 +83,7 @@ class Image
         // If value is equal to the special constant WRLA_KEY_REMOVE, we delete the image
         if ($value === WRLAHelper::WRLA_KEY_REMOVE) {
             $this->deleteImage($currentImage);
+
             return null;
         }
 
@@ -102,7 +91,7 @@ class Image
             $value = $this->uploadImage($request->file($this->getAttribute('name')));
 
             // If unlinkOld option set, and an image already exists with the old value, we delete it
-            if ($this->getOption('unlinkOld') == true && !empty($currentImage)) {
+            if ($this->getOption('unlinkOld') == true && ! empty($currentImage)) {
                 $this->deleteImage($currentImage);
             }
 
@@ -114,6 +103,7 @@ class Image
             // Otherwise, we store only the filename.ext
             $parts = explode('/', $value);
             $value = end($parts);
+
             return $value;
         }
 
@@ -122,8 +112,6 @@ class Image
 
     /**
      * Get file system
-     * 
-     * @return FileSystem
      */
     public function getFileSystem(): FileSystem
     {
@@ -133,8 +121,7 @@ class Image
     /**
      * Upload image
      *
-     * @param UploadedFile $request
-     * @return string
+     * @param  UploadedFile  $request
      */
     public function uploadImage(UploadedFile $file): string
     {
@@ -146,22 +133,22 @@ class Image
         $filename = $this->formatImageName($this->options['filename'] ?? $file->getClientOriginalName());
 
         // If directory doesn't exist, create it
-        if (!$fileSystem->exists($path)) {
+        if (! $fileSystem->exists($path)) {
             $fileSystem->makeDirectory($path);
         }
 
         // New, we now use Intervention
-        $imageManager = new ImageManager(new Driver());
+        $imageManager = new ImageManager(new Driver);
         $image = $imageManager->read($file);
 
-        if($this->manipulateImageFunction !== null) {
+        if ($this->manipulateImageFunction !== null) {
             $manipulateImageFunction = $this->manipulateImageFunction;
             $image = $manipulateImageFunction($image);
         }
 
         // If no extension is provided in the filename, use the original file extension
-        if (!str($filename)->contains('.')) {
-            $filename .= '.' . $file->getClientOriginalExtension();
+        if (! str($filename)->contains('.')) {
+            $filename .= '.'.$file->getClientOriginalExtension();
         }
 
         // Get file system
@@ -170,28 +157,26 @@ class Image
         // Store image
         Storage::disk($fileSystem)->put("$path/$filename", $image->encode());
 
-        return ltrim(rtrim(ltrim($path, '/'), '/') . '/' . $filename, '/');
+        return ltrim(rtrim(ltrim($path, '/'), '/').'/'.$filename, '/');
     }
 
     /**
      * Manipulate image
      *
-     * @param callable $callback
      * @return $this
      */
     public function manipulateImage(callable $callback): static
     {
         $this->manipulateImageFunction = $callback;
+
         return $this;
     }
 
     /**
      * Cover fit aspect ratio
      *
-     * @param int $width
-     * @param string $aspect (4/3, 16/9, etc)
-     * @param string $position (center, top, bottom, left, right, top-left, top-right, bottom-left, bottom-right)
-     * @param int $quality
+     * @param  string  $aspect  (4/3, 16/9, etc)
+     * @param  string  $position  (center, top, bottom, left, right, top-left, top-right, bottom-left, bottom-right)
      * @return $this
      */
     public function coverFitAspect(int $width, string $aspect = '4/3', string $position = 'center', int $quality = 100): static
@@ -202,29 +187,25 @@ class Image
         // Get aspect parts
         $aspectParts = explode('/', $aspect);
 
-        return $this->manipulateImage(function($image) use ($width, $aspectParts, $position, $quality) {
+        return $this->manipulateImage(function ($image) use ($width, $aspectParts, $position, $quality) {
             $height = $width / $aspectParts[0] * $aspectParts[1];
             $image->cover($width, $height, $position);
             $image->toJpeg($quality);
+
             return $image;
         });
     }
 
-
     /**
      * Get path
-     *
-     * @return string
      */
     public function getPathOnly(): string
     {
-        return !empty($this->options['path']) ? $this->options['path'] : '';
+        return ! empty($this->options['path']) ? $this->options['path'] : '';
     }
 
     /**
      * Delete image file
-     *
-     * @param string $filePathRelativeToFileSystem
      */
     public function deleteImage(string $filePathRelativeToFileSystem)
     {
@@ -232,7 +213,7 @@ class Image
         $parts = explode('/', ltrim($filePathRelativeToFileSystem, '/'));
         $isAFileName = count($parts) > 0 && str_contains(end($parts), '.');
 
-        if($isAFileName) {
+        if ($isAFileName) {
             $oldValue = WRLAHelper::forwardSlashPath($this->getPathOnly().'/'.$filePathRelativeToFileSystem);
 
             // Get file system
@@ -245,8 +226,6 @@ class Image
 
     /**
      * Get value
-     *
-     * @return string
      */
     public function getValue(): string
     {
@@ -256,7 +235,7 @@ class Image
         // If starts with http, return as is
         if (str($value)->startsWith('http')) {
             return $value;
-        // Else, we apply a forward slash to the beginning of the path
+            // Else, we apply a forward slash to the beginning of the path
         } else {
             // If no value is set, return default image
             if (empty($value)) {
@@ -269,9 +248,6 @@ class Image
 
     /**
      * Format image name
-     *
-     * @param string $name
-     * @return string
      */
     public function formatImageName(string $name): string
     {
@@ -304,74 +280,73 @@ class Image
     /**
      * Default if no image is set
      *
-     * @param ?string $path
      * @return $this
      */
     public function defaultImage(?string $path): static
     {
         $this->setOption('defaultImage', $path);
+
         return $this;
     }
 
     /**
      * Set unlink old image option if new image is set
      *
-     * @param bool $unlink
      * @return $this
      */
     public function unlinkOld(bool $unlink = true): static
     {
         $this->setOption('unlinkOld', $unlink);
+
         return $this;
     }
 
     /**
      * Set allow remove option
      *
-     * @param bool $allow
      * @return $this
      */
     public function allowRemove(bool $allow = true): static
     {
         $this->setOption('allowRemove', $allow);
+
         return $this;
     }
 
     /**
      * Set aspect ratio using 1/1 format
-     *
-     * @param null|string $aspect
      */
     public function aspect(?string $aspect = null): static
     {
         $this->setOption('aspect', $aspect);
+
         return $this;
     }
 
     /**
      * Store filepath only
-     *
-     * @param bool $storeFilenameOnly
      */
     public function storeFilenameOnly(bool $storeFilenameOnly = true): static
     {
         $this->setOption('storeFilenameOnly', $storeFilenameOnly);
+
         return $this;
     }
 
     /**
      * Set rounded image, with false, null, or 'none' for none, true for 'full', or any tailwind string rounded available value
-     *
-     * @param null|bool|string $rounded
      */
     public function rounded(null|bool|string $rounded = true): static
     {
-        if($rounded == false) {
+        if ($rounded == false) {
             $this->options['class'] = str_replace('rounded-full', '', $this->options['class']);
+
             return $this;
         }
 
-        if($rounded === true || $rounded === null) $rounded = 'full';
+        if ($rounded === true || $rounded === null) {
+            $rounded = 'full';
+        }
 
         $this->options['class'] .= " rounded-$rounded";
 
@@ -380,8 +355,6 @@ class Image
 
     /**
      * Get disk storage path, returns the full path (including filename) relative to the filesystem
-     * 
-     * @return string
      */
     public function getDiskStoragePath(): string
     {
@@ -394,8 +367,6 @@ class Image
 
     /**
      * Get absolute path, full path to the file (including filename) on the server
-     * 
-     * @return string
      */
     public function getAbsolutePath(): string
     {
@@ -404,12 +375,10 @@ class Image
 
     /**
      * Get URL path, full URL to the file (including filename)
-     * 
-     * @return string
      */
     public function getURLPath(): string
     {
-        if(str($this->getValue())->startsWith('http')) {
+        if (str($this->getValue())->startsWith('http')) {
             return $this->getValue();
         }
 
@@ -418,29 +387,26 @@ class Image
 
     /**
      * Get public URL path without domain
-     * 
-     * @return string
      */
     public function getURLPathWithoutDomain(): string
     {
-        if(str($this->getValue())->startsWith('http')) {
+        if (str($this->getValue())->startsWith('http')) {
             return $this->getValue();
         }
 
         $url = $this->getURLPath();
+
         return parse_url($url, PHP_URL_PATH) ?? '';
     }
 
     /**
      * Render the input field.
-     *
-     * @return mixed
      */
     public function render(): mixed
     {
         $fileSystemImageExists = true;
         try {
-            if(!str($this->getValue())->startsWith('http')) {
+            if (! str($this->getValue())->startsWith('http')) {
                 $fileSystemImageExists = $this->getFileSystem()->exists($this->getDiskStoragePath());
             }
         } catch (Exception) {
@@ -457,7 +423,7 @@ class Image
             'attributes' => new ComponentAttributeBag(array_merge($this->htmlAttributes, [
                 'name' => $this->getAttribute('name'),
                 'value' => $this->getDiskStoragePath(),
-                'type' => 'file'
+                'type' => 'file',
             ])),
         ])->render();
 

@@ -19,8 +19,8 @@ class NavigationItemDivider extends NavigationItem
             []
         );
 
-        if(!empty($this->icon) || !empty($this->title)) {
-            $icon = !empty($this->icon) ? "<i class=\"$this->icon\"></i>" : '';
+        if (! empty($this->icon) || ! empty($this->title)) {
+            $icon = ! empty($this->icon) ? "<i class=\"$this->icon\"></i>" : '';
             $html = <<<HTML
                 <div class="flex items-center justify-center">
                     <div class="flex items-center justify-center w-1/2 border-t border-slate-550"></div>
@@ -32,7 +32,7 @@ class NavigationItemDivider extends NavigationItem
                 </div>
             HTML;
         } else {
-            $html = <<<HTML
+            $html = <<<'HTML'
                 <div class="w-10/12 border-t border-slate-550 mx-auto my-2"></div>
             HTML;
         }
@@ -44,8 +44,6 @@ class NavigationItemDivider extends NavigationItem
 
     /**
      * Overriden render method
-     * 
-     * @return string
      */
     public function render(): string
     {

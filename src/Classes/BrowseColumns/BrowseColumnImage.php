@@ -9,9 +9,7 @@ class BrowseColumnImage extends BrowseColumnBase
     /**
      * Create a new instance of the class
      *
-     * @param string|null $label
-     * @param string $imagePath Path to the image including filename
-     * @return static
+     * @param  string  $imagePath  Path to the image including filename
      */
     public static function make(?string $label, string $imagePath, null|string|int $width = 140): static
     {
@@ -21,15 +19,15 @@ class BrowseColumnImage extends BrowseColumnBase
             ->renderHtml(true)
             ->setOptions([
                 'width' => $width,
-                'value' => $imagePath
+                'value' => $imagePath,
             ]);
 
         // Set override render value callback
         $browseColumnImage->overrideRenderValue = function ($value, $model) use ($browseColumnImage) {
             $renderedView = view(WRLAHelper::getViewPath('components.forced-aspect-image', false), [
-                "src" => $value,
-                "class" => $browseColumnImage->getOption('class') ?? ' border border-slate-400',
-                "aspect" => $browseColumnImage->getOption('aspect')
+                'src' => $value,
+                'class' => $browseColumnImage->getOption('class') ?? ' border border-slate-400',
+                'aspect' => $browseColumnImage->getOption('aspect'),
             ])->render();
 
             return <<<BLADE
@@ -42,13 +40,13 @@ class BrowseColumnImage extends BrowseColumnBase
 
     /**
      * Set aspect ratio of the image
-     * 
-     * @param string $aspect Format 1/1 (width/height)
-     * @return static
+     *
+     * @param  string  $aspect  Format 1/1 (width/height)
      */
     public function aspect(string $aspect): static
     {
         $this->options['aspect'] = $aspect;
+
         return $this;
     }
 }

@@ -3,12 +3,9 @@
 namespace WebRegulate\LaravelAdministration\Classes\ManageableFields;
 
 use Illuminate\Support\Arr;
-use function PHPSTORM_META\type;
-use Illuminate\View\ComponentAttributeBag;
-use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
-
-use WebRegulate\LaravelAdministration\Traits\ManageableField;
 use WebRegulate\LaravelAdministration\Classes\ManageableModel;
+use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
+use WebRegulate\LaravelAdministration\Traits\ManageableField;
 
 class JsonUI
 {
@@ -16,25 +13,19 @@ class JsonUI
 
     /**
      * Levels nested
-     * @var int
      */
     private int $levelsNested = 0;
 
     /**
      * Default key values to merge with nested.key values.
-     *
-     * @var array
      */
     protected array $defaultKeyValues = [];
 
     /**
      * Make method (can be used in any class that extends FormComponent).
      *
-     * @param ?ManageableModel $manageableModel
-     * @param ?mixed $column
-     * @param ?array $fieldSettings
-     * @param ?array $options bool allowCreate (true)
-     * @return static
+     * @param  ?mixed  $column
+     * @param  ?array  $options  bool allowCreate (true)
      */
     public static function make(?ManageableModel $manageableModel, ?string $column, ?array $fieldSettings = null, ?array $options = null): static
     {
@@ -42,7 +33,7 @@ class JsonUI
 
         $options['fieldSettings'] = $fieldSettings;
 
-        if(!is_null($options)) {
+        if (! is_null($options)) {
             $manageableField->setOptions(array_merge([
                 'allowCreate' => true,
                 'debug' => false,
@@ -68,66 +59,63 @@ class JsonUI
     /**
      * Merge default keys and nested.key values before render.
      *
-     * @param array $defaultKeyValues
      * @return $this
      */
     public function mergeDefaultKeyValues(array $defaultKeyValues): static
     {
         $this->defaultKeyValues = $defaultKeyValues;
+
         return $this;
     }
 
     /**
      * Hide key values from the json data.
-     * 
-     * @param array $dottedKeys Array of dotted keys to hide. eg. ['*.some_key.*.some_key.*', ...]
+     *
+     * @param  array  $dottedKeys  Array of dotted keys to hide. eg. ['*.some_key.*.some_key.*', ...]
      * @return $this
      */
     public function hideKeyValues(array $dottedKeys): static
     {
         $this->setOption('hideKeyValues', json_encode($dottedKeys));
+
         return $this;
     }
 
     /**
      * Json format validation. Accepts a list of keys or nested.keys and their validation rules.
      *
-     * @param array $rules
      * @return $this
      */
     public function jsonFormatValidation(array $rules): static
     {
-        $this->inlineValidation(fn($value) => WRLAHelper::jsonFormatValidation($value, $rules));
+        $this->inlineValidation(fn ($value) => WRLAHelper::jsonFormatValidation($value, $rules));
 
         return $this;
     }
 
     /**
      * Calculated value
-     *
-     * @param mixed $value
-     * @return string
      */
     public function calculatedValue(mixed $value): string
     {
         // If value is empty string we are likely creating a new record, so we set it to value json so
         // that we can apply default key values
-        if($value === '') {
+        if ($value === '') {
             $value = '{}';
         }
 
         // If $value is array, convert to json first
-        if(is_array($value)) {
+        if (is_array($value)) {
             $value = json_encode($value);
         }
 
         // Check if json is valid, if not then do not format it and show as is
         $jsonData = json_decode((string) $value) ?? false;
 
-        if($jsonData !== false) {
+        if ($jsonData !== false) {
             // Now we have validation, we can loop through the merge default key values and apply them
-            foreach($this->defaultKeyValues as $key => $value) {
-                if(data_get($jsonData, $key) === null) {
+            foreach ($this->defaultKeyValues as $key => $value) {
+                if (data_get($jsonData, $key) === null) {
                     data_set($jsonData, $key, $value);
                 }
             }
@@ -136,15 +124,15 @@ class JsonUI
         $value = json_encode($jsonData);
 
         // If value is just an empty array '[]', we instead set it to an empty object '{}'
-        if($value === '[]') $value = '{}';
+        if ($value === '[]') {
+            $value = '{}';
+        }
 
         return trim($value);
     }
 
     /**
      * Render the input field.
-     *
-     * @return mixed
      */
     public function render(): mixed
     {
@@ -152,7 +140,7 @@ class JsonUI
         $name = $this->getName();
 
         // Check if value is set in old() and set if so
-        if(old($name) !== null) {
+        if (old($name) !== null) {
             $value = old($name);
             $this->setValue($value);
         } else {

@@ -2,26 +2,21 @@
 
 namespace WebRegulate\LaravelAdministration\Classes\ManageableFields;
 
-use WebRegulate\LaravelAdministration\Traits\ManageableField;
 use Illuminate\Http\Request;
 use Illuminate\View\ComponentAttributeBag;
-use WebRegulate\LaravelAdministration\Enums\PageType;
-use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 use WebRegulate\LaravelAdministration\Classes\ManageableModel;
+use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
+use WebRegulate\LaravelAdministration\Traits\ManageableField;
 
 class MonetaryValue
 {
     use ManageableField;
-    
+
     /**
      * Make method (can be used in any class that extends FormComponent).
      *
-     * @param ?ManageableModel $manageableModel
-     * @param ?mixed $column
-     * @param string $currencySymbol
-     * @param int $currencyDecimalMultiplier
-     * @param int $decimalPlaces
-     * @return static
+     * @param  ?mixed  $column
+     * @param  int  $decimalPlaces
      */
     public static function make(?ManageableModel $manageableModel = null, ?string $column = null, string $currencySymbol = '£', int $currencyDecimalMultiplier = 100, $decimalPlaces = 2): static
     {
@@ -33,17 +28,13 @@ class MonetaryValue
         ]);
 
         // Add default validation rules
-        $monetaryValueInstance->validation('numeric|min:0|decimal:0,' . $decimalPlaces);
+        $monetaryValueInstance->validation('numeric|min:0|decimal:0,'.$decimalPlaces);
 
         return $monetaryValueInstance;
     }
 
     /**
      * Upload the image from request and apply the value.
-     *
-     * @param Request $request
-     * @param mixed $value
-     * @return mixed
      */
     public function applySubmittedValue(Request $request, mixed $value): mixed
     {
@@ -55,11 +46,9 @@ class MonetaryValue
 
         return $value;
     }
-    
+
     /**
      * Render the input field.
-     *
-     * @return mixed
      */
     public function render(): mixed
     {

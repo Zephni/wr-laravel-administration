@@ -3,9 +3,9 @@
 namespace WebRegulate\LaravelAdministration\Classes\NavigationItems;
 
 use Illuminate\Support\Facades\Route;
-use WebRegulate\LaravelAdministration\Enums\PageType;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 use WebRegulate\LaravelAdministration\Enums\ManageableModelPermissions;
+use WebRegulate\LaravelAdministration\Enums\PageType;
 
 class NavigationItemManageableModel extends NavigationItem
 {
@@ -13,8 +13,8 @@ class NavigationItemManageableModel extends NavigationItem
         public string $manageableModelClass,
     ) {
         // Error handling
-        throw_if(!class_exists($manageableModelClass), new \Exception("Model class `$manageableModelClass` does not exist when passing to navigation item."));
-        throw_if(!is_subclass_of($this->manageableModelClass, \WebRegulate\LaravelAdministration\Classes\ManageableModel::class), new \Exception("Model class `$this->manageableModelClass` must extend ManageableModel when passing to navigation item."));
+        throw_if(! class_exists($manageableModelClass), new \Exception("Model class `$manageableModelClass` does not exist when passing to navigation item."));
+        throw_if(! is_subclass_of($this->manageableModelClass, \WebRegulate\LaravelAdministration\Classes\ManageableModel::class), new \Exception("Model class `$this->manageableModelClass` must extend ManageableModel when passing to navigation item."));
 
         // Get child navigation from model
         // $childNavigationItems = $this->manageableModelClass::getChildNavigationItems();
@@ -30,19 +30,18 @@ class NavigationItemManageableModel extends NavigationItem
 
     /**
      * Is active
-     * @return bool
      */
     public function isChildActive(): bool
     {
         // If current page is edit
-        if(WRLAHelper::getCurrentPageType() === PageType::EDIT) {
+        if (WRLAHelper::getCurrentPageType() === PageType::EDIT) {
             // If modelUrlAlias doesn't exist, return false
-            if(!isset(Route::current()->parameters['modelUrlAlias']) || !isset($this->routeData['modelUrlAlias'])) {
+            if (! isset(Route::current()->parameters['modelUrlAlias']) || ! isset($this->routeData['modelUrlAlias'])) {
                 return false;
             }
 
             // If the current route data modelUrlAlias is same as $this->routeData
-            if(Route::current()->parameters['modelUrlAlias'] == $this->routeData['modelUrlAlias']) {
+            if (Route::current()->parameters['modelUrlAlias'] == $this->routeData['modelUrlAlias']) {
                 return true;
             }
         }
@@ -52,12 +51,10 @@ class NavigationItemManageableModel extends NavigationItem
 
     /**
      * Check show condition
-     *
-     * @return bool
      */
     public function checkShowCondition(): bool
     {
-        if(!$this->manageableModelClass::getPermission(ManageableModelPermissions::ENABLED)) {
+        if (! $this->manageableModelClass::getPermission(ManageableModelPermissions::ENABLED)) {
             return false;
         }
 

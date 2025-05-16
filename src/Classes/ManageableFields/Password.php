@@ -2,13 +2,13 @@
 
 namespace WebRegulate\LaravelAdministration\Classes\ManageableFields;
 
-use WebRegulate\LaravelAdministration\Traits\ManageableField;
-use Illuminate\View\ComponentAttributeBag;
-use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use WebRegulate\LaravelAdministration\Enums\PageType;
+use Illuminate\Support\Str;
+use Illuminate\View\ComponentAttributeBag;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
+use WebRegulate\LaravelAdministration\Enums\PageType;
+use WebRegulate\LaravelAdministration\Traits\ManageableField;
 
 class Password
 {
@@ -30,10 +30,6 @@ class Password
 
     /**
      * Apply submitted value. May be overriden in special cases, such as when applying a hash to a password.
-     *
-     * @param Request $request
-     * @param mixed $value
-     * @return mixed
      */
     public function applySubmittedValue(Request $request, mixed $value): mixed
     {
@@ -43,8 +39,6 @@ class Password
 
     /**
      * Render the input field.
-     *
-     * @return mixed
      */
     public function render(): mixed
     {
@@ -52,9 +46,9 @@ class Password
 
         $pageType = WRLAHelper::getCurrentPageType();
 
-        if($pageType == PageType::EDIT) {
+        if ($pageType == PageType::EDIT) {
             // Check if wrla_show_name is set
-            $wrla_show = old('wrla_show_' . $this->getAttribute('name')) == '1' ? 'true' : 'false';
+            $wrla_show = old('wrla_show_'.$this->getAttribute('name')) == '1' ? 'true' : 'false';
 
             // Contain password and checkbox within a parent div
             $HTML .= <<<HTML
@@ -65,7 +59,7 @@ class Password
                 'label' => $this->getLabel(),
                 'attributes' => new ComponentAttributeBag(array_merge($this->htmlAttributes, [
                     'for' => $this->getAttribute('name'),
-                    'class' => 'mb-2'
+                    'class' => 'mb-2',
                 ])),
             ])->render();
 
@@ -74,14 +68,14 @@ class Password
 
             // Checkbox to show/enable password field
             $HTML .= view(WRLAHelper::getViewPath('components.forms.input-checkbox'), [
-                'label' => 'Change ' . Str::title(str_replace('_', ' ', $this->getLabel())),
+                'label' => 'Change '.Str::title(str_replace('_', ' ', $this->getLabel())),
                 'attributes' => new ComponentAttributeBag(array_merge($this->htmlAttributes, [
-                    'name' => 'wrla_show_' . $this->getAttribute('name'),
+                    'name' => 'wrla_show_'.$this->getAttribute('name'),
                     'value' => $wrla_show == 'true',
                     '@click' => 'userWantsToChange = !userWantsToChange;
                         if (userWantsToChange) {
                             $nextTick(() => { $refs.passwordField.focus(); });
-                        }'
+                        }',
                 ])),
             ])->render();
         }
@@ -97,7 +91,7 @@ class Password
                 'x-ref' => 'passwordField',
                 'x-show' => 'userWantsToChange',
                 'x-bind:disabled' => '!userWantsToChange',
-            ] : []))
+            ] : [])),
         ])->render();
 
         // Render confirm password field (hide if checkbox not checked)
@@ -106,16 +100,16 @@ class Password
                 'name' => $this->getAttribute('name').'_confirmation',
                 'value' => '',
                 'type' => 'password',
-                'placeholder' => 'Confirm ' . strtolower((string) $this->getLabel()),
+                'placeholder' => 'Confirm '.strtolower((string) $this->getLabel()),
             ], $pageType == PageType::EDIT ? [
                 'x-show' => 'userWantsToChange',
                 'x-bind:disabled' => '!userWantsToChange',
             ] : [])),
         ])->render();
 
-        if($pageType == PageType::EDIT) {
+        if ($pageType == PageType::EDIT) {
             // Close parent div
-            $HTML .= <<<HTML
+            $HTML .= <<<'HTML'
                     </div>
                 </div>
             HTML;

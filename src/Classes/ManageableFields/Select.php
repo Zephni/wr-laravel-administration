@@ -5,10 +5,9 @@ namespace WebRegulate\LaravelAdministration\Classes\ManageableFields;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\View\ComponentAttributeBag;
-use WebRegulate\LaravelAdministration\Enums\PageType;
+use WebRegulate\LaravelAdministration\Classes\ManageableModel;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 use WebRegulate\LaravelAdministration\Traits\ManageableField;
-use WebRegulate\LaravelAdministration\Classes\ManageableModel;
 
 class Select
 {
@@ -16,8 +15,6 @@ class Select
 
     /**
      * Items
-     *
-     * @var array
      */
     protected array $items = [];
 
@@ -25,7 +22,6 @@ class Select
      * Set items for the options list. $items must use the following format:
      * key => display_value,...
      *
-     * @param array|Collection $items
      * @return $this
      */
     public function setItems(array|Collection $items): static
@@ -40,9 +36,9 @@ class Select
     /**
      * Set items from collection key and value.
      *
-     * @param Collection $collection eg. User::all()
-     * @param string $key eg. 'id'
-     * @param string $value eg. 'name'
+     * @param  Collection  $collection  eg. User::all()
+     * @param  string  $key  eg. 'id'
+     * @param  string  $value  eg. 'name'
      * @return $this
      */
     public function setItemsFromCollection(Collection $collection, string $key, string $value): static
@@ -57,10 +53,8 @@ class Select
     /**
      * Set items from model, with optional query amd prepended all option.
      *
-     * @param string $modelClass
-     * @param string $displayColumn
-     * @param ?callable $queryBuilderFunction Takes query builder as argument and returns query builder
-     * @param ?callable $postModifyFunction Takes items array as argument and returns items array
+     * @param  ?callable  $queryBuilderFunction  Takes query builder as argument and returns query builder
+     * @param  ?callable  $postModifyFunction  Takes items array as argument and returns items array
      * @return $this
      */
     public function setItemsFromModel(string $modelClass, string $displayColumn, ?callable $queryBuilderFunction = null, ?callable $postModifyFunction = null): static
@@ -70,10 +64,10 @@ class Select
 
         if ($model instanceof \Illuminate\Database\Eloquent\Model) {
             // Do nothing
-        } else if($model instanceof ManageableModel) {
+        } elseif ($model instanceof ManageableModel) {
             $model = $model->getModelInstance();
         } else {
-            throw new \Exception("In Select ManageableField: Model must be an instance of ManageableModel");
+            throw new \Exception('In Select ManageableField: Model must be an instance of ManageableModel');
         }
 
         $table = $model->getTable();
@@ -93,8 +87,7 @@ class Select
             $query->select('id', $displayColumn);
         }
 
-        try
-        {
+        try {
             $this->items = $query->pluck($displayColumn, "$table.id")->toArray();
 
             if ($postModifyFunction !== null) {
@@ -103,10 +96,8 @@ class Select
             }
 
             $this->setToFirstValueIfNotSet();
-        }
-        catch (\Exception $e)
-        {
-            throw new \Exception("Error in Select->setItemsFromModel on table '$table': ". $e->getMessage());
+        } catch (\Exception $e) {
+            throw new \Exception("Error in Select->setItemsFromModel on table '$table': ".$e->getMessage());
         }
 
         return $this;
@@ -125,7 +116,7 @@ class Select
         }
 
         // If $this->htmlAttributes['value'] is not set, set it to the first key in the items array
-        if (!isset($this->htmlAttributes['value']) || empty($this->getAttribute('value'))) {
+        if (! isset($this->htmlAttributes['value']) || empty($this->getAttribute('value'))) {
             $this->setAttribute('value', array_key_first($this->items));
         }
 
@@ -134,8 +125,6 @@ class Select
 
     /**
      * Render the input field.
-     *
-     * @return mixed
      */
     public function render(): mixed
     {
@@ -147,7 +136,7 @@ class Select
             'items' => $this->items,
             'attributes' => new ComponentAttributeBag(array_merge($this->htmlAttributes, [
                 'name' => $this->getAttribute('name'),
-                'value' => $this->getValue()
+                'value' => $this->getValue(),
             ])),
         ])->render();
     }

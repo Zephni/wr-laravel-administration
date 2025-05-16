@@ -2,9 +2,9 @@
 
 namespace WebRegulate\LaravelAdministration\Classes\ManageableFields;
 
-use WebRegulate\LaravelAdministration\Traits\ManageableField;
 use Illuminate\View\ComponentAttributeBag;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
+use WebRegulate\LaravelAdministration\Traits\ManageableField;
 
 class Json
 {
@@ -17,8 +17,6 @@ class Json
 
     /**
      * Default key values to merge with nested.key values.
-     *
-     * @var array
      */
     protected array $defaultKeyValues = [];
 
@@ -37,18 +35,17 @@ class Json
     /**
      * Pre validation method, called before validation rules are set.
      *
-     * @param ?string $value
      * @return bool Return true if we have changed the value and want to force merge into request input
      */
     public function preValidation(?string $value): bool
     {
-        if(!$this->getOption(static::OPTION_HIDE_CONTAINING_BRACES)) {
+        if (! $this->getOption(static::OPTION_HIDE_CONTAINING_BRACES)) {
             return false;
         }
 
         // Trim, if null, or starts or ends with curly or square braces, handle as normal
         $value = trim((string) $value);
-        if(
+        if (
             $value == 'null' ||
             (str_starts_with($value, '{') && str_ends_with($value, '}')) ||
             (str_starts_with($value, '[') && str_ends_with($value, ']'))
@@ -57,19 +54,19 @@ class Json
         }
 
         // First try with curly braces
-        $correctedValue = '{' . $value . '}';
+        $correctedValue = '{'.$value.'}';
         $jsonDecoded = json_decode($correctedValue, true);
         $correctedValue = json_encode($jsonDecoded, JSON_UNESCAPED_SLASHES);
 
         // If not valid json, try with square braces
-        if($correctedValue === 'null') {
-            $correctedValue = '[' . $value . ']';
+        if ($correctedValue === 'null') {
+            $correctedValue = '['.$value.']';
             $jsonDecoded = json_decode($correctedValue);
             $correctedValue = json_encode($jsonDecoded, JSON_UNESCAPED_SLASHES);
         }
 
         // If still not valid json, return false and let the validator handle it
-        if($correctedValue === 'null') {
+        if ($correctedValue === 'null') {
             return false;
         }
 
@@ -82,72 +79,68 @@ class Json
     /**
      * Merge default keys and nested.key values before render.
      *
-     * @param array $defaultKeyValues
      * @return $this
      */
     public function mergeDefaultKeyValues(array $defaultKeyValues): static
     {
         $this->defaultKeyValues = $defaultKeyValues;
+
         return $this;
     }
 
     /**
      * Hide containing braces.
      *
-     * @param bool $hide
      * @return $this
      */
     public function hideContainingBraces(bool $hide = true): static
     {
         $this->setOption(static::OPTION_HIDE_CONTAINING_BRACES, $hide);
+
         return $this;
     }
 
     /**
      * Json format validation. Accepts a list of keys or nested.keys and their validation rules.
      *
-     * @param array $rules
      * @return $this
      */
     public function jsonFormatValidation(array $rules): static
     {
-        $this->inlineValidation(fn($value) => WRLAHelper::jsonFormatValidation($value, $rules));
+        $this->inlineValidation(fn ($value) => WRLAHelper::jsonFormatValidation($value, $rules));
 
         return $this;
     }
 
     /**
      * Calculated value
-     *
-     * @param mixed $value
-     * @return string
      */
     public function calculatedValue(mixed $value): string
     {
         // If value is empty string we are likely creating a new record, so we set it to value json so
         // that we can apply default key values
-        if($value === '') {
+        if ($value === '') {
             $value = '[]';
         }
 
         // If $value is array, convert to json first
-        if(is_array($value)) {
+        if (is_array($value)) {
             $value = json_encode($value);
         }
 
         // Check if json is valid, if not then do not format it and show as is
         $jsonData = json_decode((string) $value) ?? false;
 
-        if($jsonData !== false) {
+        if ($jsonData !== false) {
             // Now we have validation, we can loop through the merge default key values and apply them
-            foreach($this->defaultKeyValues as $key => $value) {
-                if(data_get($jsonData, $key) === null) {
+            foreach ($this->defaultKeyValues as $key => $value) {
+                if (data_get($jsonData, $key) === null) {
                     data_set($jsonData, $key, $value);
                 }
             }
 
             // If not empty, pretty print json
-            $value = !empty($jsonData)
+            $value = ! empty($jsonData)
                 ? json_encode($jsonData, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)
                 : '{}';
         }
@@ -156,9 +149,9 @@ class Json
         $value = trim((string) $value);
 
         // If hide braces option set, we need to do a final check to remove any outer braces
-        if($this->getOption(static::OPTION_HIDE_CONTAINING_BRACES)) {
+        if ($this->getOption(static::OPTION_HIDE_CONTAINING_BRACES)) {
             // If value has outer braces, remove them
-            if(
+            if (
                 (str_starts_with($value, '{') && str_ends_with($value, '}')) ||
                 (str_starts_with($value, '[') && str_ends_with($value, ']'))
             ) {
@@ -174,8 +167,6 @@ class Json
 
     /**
      * Render the input field.
-     *
-     * @return mixed
      */
     public function render(): mixed
     {
@@ -183,7 +174,7 @@ class Json
         $name = $this->getName();
 
         // Check if value is set in old() and set if so
-        if(old($name) !== null) {
+        if (old($name) !== null) {
             $value = old($name);
             $this->setValue($value);
         } else {
@@ -199,7 +190,7 @@ class Json
             'options' => $this->options,
             'attributes' => new ComponentAttributeBag(array_merge($this->htmlAttributes, [
                 'name' => $name,
-                'value' => $value
+                'value' => $value,
             ])),
         ])->render();
     }

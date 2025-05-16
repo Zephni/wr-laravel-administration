@@ -9,8 +9,6 @@ class NavigationItemsManageableModels extends NavigationItem
 {
     /**
      * Import all manageable models as array of nav items
-     *
-     * @return array
      */
     public static function import(array $manageableModelClasses = []): array
     {
@@ -26,19 +24,19 @@ class NavigationItemsManageableModels extends NavigationItem
     {
         $navItems = [];
 
-        if(empty(ManageableModel::$manageableModels)) {
+        if (empty(ManageableModel::$manageableModels)) {
             return $navItems;
         }
 
         // If passed manageable model classes array is empty, get all manageable model classes
-        if(empty($manageableModelClasses)) {
+        if (empty($manageableModelClasses)) {
             $manageableModelClasses = array_keys(WRLAHelper::$globalManageableModelData);
         }
 
         foreach ($manageableModelClasses as $manageableModelClass) {
             $nimm = $manageableModelClass::getNavigationItem();
-            
-            if(WRLAHelper::$globalManageableModelData[ltrim((string) $manageableModelClass, '\\')]['hideFromNavigation']) {
+
+            if (WRLAHelper::$globalManageableModelData[ltrim((string) $manageableModelClass, '\\')]['hideFromNavigation']) {
                 continue;
             }
 

@@ -2,19 +2,16 @@
 
 namespace WebRegulate\LaravelAdministration\Classes\ManageableFields;
 
-use WebRegulate\LaravelAdministration\Traits\ManageableField;
 use Illuminate\View\ComponentAttributeBag;
-use WebRegulate\LaravelAdministration\Enums\PageType;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
+use WebRegulate\LaravelAdministration\Traits\ManageableField;
 
 class Hidden
 {
     use ManageableField;
-    
+
     /**
      * Render the input field.
-     *
-     * @return mixed
      */
     public function render(): mixed
     {

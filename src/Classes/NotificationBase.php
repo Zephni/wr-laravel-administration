@@ -4,9 +4,8 @@ namespace WebRegulate\LaravelAdministration\Classes;
 
 use App\Models\User;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Str;
 use Illuminate\Support\Collection;
-use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
+use Illuminate\Support\Str;
 use WebRegulate\LaravelAdministration\Models\Notification;
 
 class NotificationBase
@@ -66,7 +65,7 @@ class NotificationBase
         $message = str_replace('<a href=', '<a target="_blank" href=', $message);
 
         // Return markdown
-        if(!$asHtml) {
+        if (! $asHtml) {
             return $message;
         }
 
@@ -105,7 +104,7 @@ class NotificationBase
         return NotificationBase::staticBuildNotificationButton(
             $notification,
             array_merge([
-                'onclick' => ""
+                'onclick' => '',
             ], $htmlAttributes),
             $text,
             $icon,
@@ -118,7 +117,7 @@ class NotificationBase
         return NotificationBase::staticBuildNotificationButton(
             $notification,
             array_merge([
-                'wire:click.prevent' => "callNotificationDefinitionMethod({$notification->id}, '{$localMethod}', '" . json_encode($methodData) . "')",
+                'wire:click.prevent' => "callNotificationDefinitionMethod({$notification->id}, '{$localMethod}', '".json_encode($methodData)."')",
             ], $additionalHtmlAttributes),
             $text,
             $icon,
@@ -131,7 +130,7 @@ class NotificationBase
         return NotificationBase::staticBuildNotificationButton(
             $notification,
             array_merge([
-                'wire:click.prevent' => "callNotificationDefinitionMethod({$notification->id}, '{$localMethod}', '" . json_encode($methodData) . "')",
+                'wire:click.prevent' => "callNotificationDefinitionMethod({$notification->id}, '{$localMethod}', '".json_encode($methodData)."')",
             ], $additionalHtmlAttributes),
             $text,
             $icon,
@@ -150,13 +149,13 @@ class NotificationBase
                         });
                     }));
                 ",
-            ],$htmlAttributes)),
+            ], $htmlAttributes)),
             'text' => $text,
             'icon' => $icon,
             'color' => $color,
             'size' => 'small',
             'type' => 'button',
-            'class' => 'px-4'
+            'class' => 'px-4',
         ]);
     }
 
