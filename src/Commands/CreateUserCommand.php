@@ -2,8 +2,8 @@
 
 namespace WebRegulate\LaravelAdministration\Commands;
 
-use Faker;
 use App\Models\User;
+use Faker;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Hash;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
@@ -40,16 +40,16 @@ class CreateUserCommand extends Command
         $defaults = [
             'name' => $faker->name,
             'email' => $faker->email,
-            'password' => $faker->password(8, 20)
+            'password' => $faker->password(8, 20),
         ];
 
         // If master isn't passed, check if the user wants to create a master user
-        if (!$master) {
+        if (! $master) {
             $master = $this->confirm('Should we create a master user?', false);
         }
 
         // If not master, then ask if the user should be an admin
-        if (!$master) {
+        if (! $master) {
             $admin = $this->confirm('Should the user be an admin?', false);
         } else {
             $admin = true;
@@ -62,9 +62,9 @@ class CreateUserCommand extends Command
         $name = $this->ask('Enter the name for the '.$userText->lower(), $defaults['name']);
 
         $emailSuccess = false;
-        while($emailSuccess === false) {
+        while ($emailSuccess === false) {
             // Ask for the email
-            $email = $this->ask('Enter the email for the user', $defaults['email'] );
+            $email = $this->ask('Enter the email for the user', $defaults['email']);
 
             // Check if user already exists
             $user = User::where('email', $email)->first();
@@ -81,7 +81,7 @@ class CreateUserCommand extends Command
         $password = $this->ask('Enter the password for the '.$userText->lower(), $defaultPassword);
 
         // Create a standard user
-        $user = new User();
+        $user = new User;
         $user->name = $name;
         $user->email = $email;
         $user->password = Hash::make($password);
@@ -92,8 +92,8 @@ class CreateUserCommand extends Command
         $wrlaUserData->setConnection(config('wr-laravel-administration.wrla_user_data.connection'));
         $wrlaUserData->user_id = $user->id;
         $wrlaUserData->permissions = json_encode([
-            "master" => $master,
-            "admin" => $admin,
+            'master' => $master,
+            'admin' => $admin,
 
         ]);
         $wrlaUserData->settings = json_encode([]);

@@ -2,8 +2,8 @@
 
 namespace WebRegulate\LaravelAdministration\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
@@ -13,7 +13,7 @@ class WRLAAuthController extends Controller
 {
     /**
      * Login view
-     * @param Request $request
+     *
      * @return \Illuminate\Contracts\View\View
      */
     public function login(Request $request)
@@ -23,7 +23,7 @@ class WRLAAuthController extends Controller
 
     /**
      * Login post
-     * @param Request $request
+     *
      * @return \Illuminate\Http\RedirectResponse
      */
     public function loginPost(Request $request)
@@ -51,7 +51,7 @@ class WRLAAuthController extends Controller
         // Attempt login
         if (WRLAHelper::getUserDataModelClass()::attemptLogin($request->get('email'), $request->get('password'), $request->has('remember'))) {
             // If wrla_impersonating_user is in session, forget it
-            if($request->session()->has('wrla_impersonating_user')) {
+            if ($request->session()->has('wrla_impersonating_user')) {
                 $request->session()->forget('wrla_impersonating_user');
             }
 
@@ -63,9 +63,6 @@ class WRLAAuthController extends Controller
 
     /**
      * Impersonate / Login as user
-     *
-     * @param Request $request
-     * @param int $userId
      */
     public function impersonateLoginAs(Request $request, int $userId)
     {
@@ -73,7 +70,7 @@ class WRLAAuthController extends Controller
         $origionalUserId = WRLAHelper::getCurrentUser()?->id;
 
         // If null, redirect to login
-        if($origionalUserId === null) {
+        if ($origionalUserId === null) {
             return redirect()->route('wrla.login');
         }
 
@@ -82,12 +79,12 @@ class WRLAAuthController extends Controller
         $userData = WRLAHelper::getUserDataModelClass()::where('user_id', $userId)->first();
 
         // Check has impersonate permission
-        if(!\App\WRLA\User::getPermission(\App\WRLA\User::IMPERSONATE)) {
-            return redirect()->route('wrla.dashboard')->with('error', "You do not have permission to login as another user.");
+        if (! \App\WRLA\User::getPermission(\App\WRLA\User::IMPERSONATE)) {
+            return redirect()->route('wrla.dashboard')->with('error', 'You do not have permission to login as another user.');
         }
 
         // Check user exists
-        if($user == null) {
+        if ($user == null) {
             return redirect()->route('wrla.dashboard')->with('error', "User with ID `$userId` not found.");
         }
 
@@ -98,7 +95,7 @@ class WRLAAuthController extends Controller
         session()->put('wrla_impersonating_user', $origionalUserId);
 
         // If user has admin privilege redirect to dashboard, otherwise redirect to frontend
-        if($userData !== null && $userData->isAdmin()) {
+        if ($userData !== null && $userData->isAdmin()) {
             return redirect()->route('wrla.dashboard');
         } else {
             return redirect('/');
@@ -108,13 +105,12 @@ class WRLAAuthController extends Controller
     /**
      * Impersonate / Switch back
      *
-     * @param Request $request
      * @return \Illuminate\Http\RedirectResponse
      */
     public function impersonateSwitchBack(Request $request)
     {
         // If wrla_impersonating_user is not in session, return invalid request
-        if (!$request->session()->has('wrla_impersonating_user')) {
+        if (! $request->session()->has('wrla_impersonating_user')) {
             abort(403, 'Invalid request');
         }
 
@@ -136,7 +132,7 @@ class WRLAAuthController extends Controller
 
     /**
      * Forgot password view
-     * @param Request $request
+     *
      * @return \Illuminate\Contracts\View\View
      */
     public function forgotPassword(Request $request)
@@ -146,7 +142,7 @@ class WRLAAuthController extends Controller
 
     /**
      * Forgot password post
-     * @param Request $request
+     *
      * @return \Illuminate\Http\RedirectResponse
      */
     public function forgotPasswordPost(Request $request)
@@ -171,14 +167,14 @@ class WRLAAuthController extends Controller
 
         // Validate
         $request->validate([
-            'email' => $forgotPasswordValidation
+            'email' => $forgotPasswordValidation,
         ]);
 
         // Get user
         $user = WRLAHelper::getUserModelClass()::where('email', $request->input('email'))->first();
 
         // Check user
-        if (!$user) {
+        if (! $user) {
             return redirect()->back()->withInput()->with('error', 'We could not find a user with that email address');
         }
 
@@ -187,13 +183,13 @@ class WRLAAuthController extends Controller
         $user->sendPasswordResetNotification($token);
 
         // Return user with success
-        return redirect()->route('wrla.login')->with('success', 'Password reset link has been sent to: <br />' . $user->email);
+        return redirect()->route('wrla.login')->with('success', 'Password reset link has been sent to: <br />'.$user->email);
     }
 
     /**
      * Reset password view
-     * @param Request $request
-     * @param string $token
+     *
+     * @param  string  $token
      * @return \Illuminate\Contracts\View\View | \Illuminate\Http\RedirectResponse
      */
     public function resetPassword(Request $request, $email, $token)
@@ -202,7 +198,7 @@ class WRLAAuthController extends Controller
         $user = WRLAHelper::getUserModelClass()::where('email', $email)->first();
 
         // Check if token is valid
-        if (!Password::tokenExists($user, $token)) {
+        if (! Password::tokenExists($user, $token)) {
             return redirect()->route('wrla.login')->with('error', 'Invalid token');
         }
 
@@ -214,8 +210,8 @@ class WRLAAuthController extends Controller
 
     /**
      * Reset password post
-     * @param Request $request
-     * @param string $token
+     *
+     * @param  string  $token
      * @return \Illuminate\Http\RedirectResponse
      */
     public function resetPasswordPost(Request $request, $token)
@@ -231,14 +227,14 @@ class WRLAAuthController extends Controller
 
         // Validate
         $request->validate([
-            'email' => $resetPasswordValidation
+            'email' => $resetPasswordValidation,
         ]);
 
         // Get user
         $user = WRLAHelper::getUserModelClass()::where('email', $request->input('email'))->first();
 
         // Check user
-        if (!$user) {
+        if (! $user) {
             return redirect()->back()->withInput()->with('error', 'We could not find a user with that email address');
         }
 
@@ -252,7 +248,7 @@ class WRLAAuthController extends Controller
 
     /**
      * logout
-     * @param Request $request
+     *
      * @return \Illuminate\Http\RedirectResponse
      */
     public function logout(Request $request)
@@ -261,7 +257,7 @@ class WRLAAuthController extends Controller
         Auth::logout();
 
         // If wrla_impersonating_user is in session, forget it
-        if($request->session()->has('wrla_impersonating_user')) {
+        if ($request->session()->has('wrla_impersonating_user')) {
             $request->session()->forget('wrla_impersonating_user');
         }
 

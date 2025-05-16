@@ -38,7 +38,7 @@ class RebuildUser extends Command
 
         // If the user model was created, show a message
         if ($createdUserAt !== false) {
-            $this->info('User model created/replaced successfully here: ' . $createdUserAt);
+            $this->info('User model created/replaced successfully here: '.$createdUserAt);
         } else {
             $this->warn('Creating user model failed.');
         }

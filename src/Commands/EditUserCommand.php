@@ -4,9 +4,6 @@ namespace WebRegulate\LaravelAdministration\Commands;
 
 use App\Models\User;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Pluralizer;
-use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
@@ -34,7 +31,7 @@ class EditUserCommand extends Command
      */
     public function handle()
     {
-        while(true) {
+        while (true) {
             // Ask which column to search user by
             $column = $this->ask('Which user column do you want to search by');
 
@@ -45,7 +42,9 @@ class EditUserCommand extends Command
             $user = WRLAHelper::getUserModelClass()::where($column, $value)->first();
 
             // If user found, break the loop
-            if ($user) break;
+            if ($user) {
+                break;
+            }
 
             // Otherwise, inform the user and ask again
             $this->error('User not found. Please try again.');
@@ -58,14 +57,14 @@ class EditUserCommand extends Command
             [$user->toArray()]
         );
 
-        while(true) {
+        while (true) {
             // Special cases
             $specialCases = [
                 'password' => [
                     'message' => 'Enter new password, min 6 characters (will be hashed)',
                     'validation' => 'required|string|min:6',
-                    'function' => fn($value) => Hash::make($value)
-                ]
+                    'function' => fn ($value) => Hash::make($value),
+                ],
             ];
 
             // Ask for the field to edit
@@ -76,7 +75,7 @@ class EditUserCommand extends Command
                 $message = $specialCases[$field]['message'];
                 $validation = $specialCases[$field]['validation'];
                 $function = $specialCases[$field]['function'];
-            // Default case
+                // Default case
             } else {
                 $message = "What is the new value for the {$field} field?";
                 $validation = 'required|string';
@@ -84,13 +83,15 @@ class EditUserCommand extends Command
             }
 
             // Ask and validate new value for this field
-            while(true) {
+            while (true) {
                 $newValue = $this->ask($message);
-        
+
                 // Validate the input
-                if($validation) {
+                if ($validation) {
                     $validator = Validator::make([$field => $newValue], [$field => $validation]);
-                    if (!$validator->fails()) break;
+                    if (! $validator->fails()) {
+                        break;
+                    }
                 }
 
                 $this->error($validator->errors()->first($field));
@@ -100,7 +101,7 @@ class EditUserCommand extends Command
             if ($function) {
                 $newValue = $function($newValue);
             }
-    
+
             // Update the user
             $user->$field = $newValue;
             $user->save();
@@ -112,7 +113,7 @@ class EditUserCommand extends Command
 
             // Ask if the user wants to edit another field
             $anotherField = $this->confirm('Do you want to edit another field?', true);
-            if (!$anotherField) {
+            if (! $anotherField) {
                 break;
             }
         }

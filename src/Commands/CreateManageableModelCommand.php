@@ -3,7 +3,6 @@
 namespace WebRegulate\LaravelAdministration\Commands;
 
 use Illuminate\Console\Command;
-use Illuminate\Support\Pluralizer;
 use Illuminate\Support\Facades\File;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 
@@ -32,13 +31,10 @@ class CreateManageableModelCommand extends Command
     {
 
         // Check if model argument is set
-        if (!$this->argument('model'))
-        {
+        if (! $this->argument('model')) {
             // Ask user to present model name
             $model = $this->ask('Please provide a model class using studly case (eg. ModelName)');
-        }
-        else
-        {
+        } else {
             // Get the model name from the argument
             $model = $this->argument('model');
         }
@@ -48,11 +44,12 @@ class CreateManageableModelCommand extends Command
 
         // Check if file already exists, if so ask the user if they want to overwrite it
         $forceOverwrite = false;
-        if (File::exists(app_path('WRLA/' . $filePath . '.php'))) {
+        if (File::exists(app_path('WRLA/'.$filePath.'.php'))) {
             if ($this->confirm('The model already exists. Do you want to overwrite it?', false)) {
                 $forceOverwrite = true;
             } else {
                 $this->warn('Model creation cancelled.');
+
                 return 0;
             }
         }
@@ -64,24 +61,23 @@ class CreateManageableModelCommand extends Command
         WRLAHelper::generateFileFromStub(
             'ManageableModel.stub',
             static::getStubVariables($model, $icon),
-            app_path('WRLA/' . $filePath . '.php'),
+            app_path('WRLA/'.$filePath.'.php'),
             $forceOverwrite
         );
 
         // Success message
-        $this->info("Manageable model $model created successfully here: " . WRLAHelper::removeBasePath(app_path('WRLA/' . $filePath . '.php')));
+        $this->info("Manageable model $model created successfully here: ".WRLAHelper::removeBasePath(app_path('WRLA/'.$filePath.'.php')));
 
         // New line for separation
         $this->line('');
 
         // Check whether model exists
-        $baseModelExists = File::exists(app_path('Models/' . $filePath . '.php'));
+        $baseModelExists = File::exists(app_path('Models/'.$filePath.'.php'));
 
         // Question 2: Ask if user wants to create the model
-        $createModel = $this->confirm(!$baseModelExists
+        $createModel = $this->confirm(! $baseModelExists
             ? 'Create the '.$model.' model?'
-            : 'The base model already exists. Override '.$model.' model?'
-        , !$baseModelExists);
+            : 'The base model already exists. Override '.$model.' model?', ! $baseModelExists);
 
         // If create model, use the make:model command to create the model
         if ($createModel) {
@@ -101,10 +97,9 @@ class CreateManageableModelCommand extends Command
         }
 
         // Question 3: Ask if user wants to create the migration, either no, or the migration name
-        $createMigration = $this->confirm(!$migrationExists
+        $createMigration = $this->confirm(! $migrationExists
             ? 'Create the create_'.str($model)->plural()->snake()->lower()->__toString().'_table migration?'
-            : 'The migration already exists. Override create_'.str($model)->plural()->snake()->lower()->__toString().'_table migration?'
-        , !$migrationExists);
+            : 'The migration already exists. Override create_'.str($model)->plural()->snake()->lower()->__toString().'_table migration?', ! $migrationExists);
 
         // If create migration, use the make:migration command to create the migration
         if ($createMigration) {
@@ -119,8 +114,6 @@ class CreateManageableModelCommand extends Command
 
     /**
      * Get stub variables
-     *
-     * @return array
      */
     public static function getStubVariables(string $model, string $icon, array $overrides = []): array
     {
@@ -128,9 +121,9 @@ class CreateManageableModelCommand extends Command
 
         // If the model contains a backslash, it means it's namespaced
         if (str($model)->contains('\\')) {
-            $namespace = 'App\\WRLA\\' . str($model)->beforeLast('\\')->__toString();
+            $namespace = 'App\\WRLA\\'.str($model)->beforeLast('\\')->__toString();
             $model = str($modelWithPath)->afterLast('\\')->__toString();
-        // Otherwise, it's just the model
+            // Otherwise, it's just the model
         } else {
             $namespace = 'App\\WRLA';
         }

@@ -36,7 +36,6 @@ class InstallCommand extends Command
             '--tag' => 'wrla-config',
         ]);
 
-
         // Publish assets
         $this->call('vendor:publish', [
             '--provider' => \WebRegulate\LaravelAdministration\WRLAServiceProvider::class,
@@ -69,9 +68,9 @@ class InstallCommand extends Command
 
         // If the user model was created, show a message
         if ($createdUserAt !== false) {
-            $this->info(' - User model created successfully here: ' . $createdUserAt);
+            $this->info(' - User model created successfully here: '.$createdUserAt);
         } else {
-            $this->warn(' - User model already exists at ' . WRLAHelper::removeBasePath(app_path('WRLA/User.php')) . '. To replace it delete the file and run again.');
+            $this->warn(' - User model already exists at '.WRLAHelper::removeBasePath(app_path('WRLA/User.php')).'. To replace it delete the file and run again.');
         }
 
         // Create EmailTemplate manageable model
@@ -83,9 +82,9 @@ class InstallCommand extends Command
 
         // If the EmailTemplate model was created, show a message
         if ($createdEmailTemplateAt !== false) {
-            $this->info(' - EmailTemplate model created successfully here: ' . $createdEmailTemplateAt);
+            $this->info(' - EmailTemplate model created successfully here: '.$createdEmailTemplateAt);
         } else {
-            $this->warn(' - EmailTemplate model already exists at ' . WRLAHelper::removeBasePath(app_path('WRLA/EmailTemplate.php')) . '. To replace it delete the file and run again.');
+            $this->warn(' - EmailTemplate model already exists at '.WRLAHelper::removeBasePath(app_path('WRLA/EmailTemplate.php')).'. To replace it delete the file and run again.');
         }
 
         // Create WRLASettings class
@@ -97,9 +96,9 @@ class InstallCommand extends Command
 
         // If the WRLASettings class was created
         if ($createdWRLASettingsAt !== false) {
-            $this->info(' - WRLASettings class created successfully here: ' . $createdWRLASettingsAt);
+            $this->info(' - WRLASettings class created successfully here: '.$createdWRLASettingsAt);
         } else {
-            $this->warn(' - WRLASettings class already exists at ' . WRLAHelper::removeBasePath(app_path('WRLA/WRLASettings.php')) . '. To replace it delete the file and run again.');
+            $this->warn(' - WRLASettings class already exists at '.WRLAHelper::removeBasePath(app_path('WRLA/WRLASettings.php')).'. To replace it delete the file and run again.');
         }
 
         // Create NotificationCustom class
@@ -111,9 +110,9 @@ class InstallCommand extends Command
 
         // If the NotificationExample class was created
         if ($notificationBaseFile !== false) {
-            $this->info(' - NotificationCustom class created successfully here: ' . $notificationBaseFile);
+            $this->info(' - NotificationCustom class created successfully here: '.$notificationBaseFile);
         } else {
-            $this->warn(' - NotificationCustom class already exists at ' . WRLAHelper::removeBasePath(app_path('WRLA/NotificationDefinitions/NotificationCustom.php')) . '. To replace it delete the file and run again.');
+            $this->warn(' - NotificationCustom class already exists at '.WRLAHelper::removeBasePath(app_path('WRLA/NotificationDefinitions/NotificationCustom.php')).'. To replace it delete the file and run again.');
         }
 
         // Create NotificationMail class
@@ -125,9 +124,9 @@ class InstallCommand extends Command
 
         // If the NotificationMail class was created
         if ($emailTemplateMailFile !== false) {
-            $this->info(' - EmailTemplateMail class created successfully here: ' . $emailTemplateMailFile);
+            $this->info(' - EmailTemplateMail class created successfully here: '.$emailTemplateMailFile);
         } else {
-            $this->warn(' - EmailTemplateMail class already exists at ' . WRLAHelper::removeBasePath(app_path('Mail/WRLA/NotificationMail.php')) . '. To replace it delete the file and run again.');
+            $this->warn(' - EmailTemplateMail class already exists at '.WRLAHelper::removeBasePath(app_path('Mail/WRLA/NotificationMail.php')).'. To replace it delete the file and run again.');
         }
 
         // Create notification-mail.blade.php file
@@ -139,9 +138,9 @@ class InstallCommand extends Command
 
         // If the notification-mail.blade.php file was created
         if ($emailTemplateMailBladeFile !== false) {
-            $this->info(' - email-template-mail.blade.php created successfully here: ' . $emailTemplateMailBladeFile);
+            $this->info(' - email-template-mail.blade.php created successfully here: '.$emailTemplateMailBladeFile);
         } else {
-            $this->warn(' - email-template-mail.blade.php already exists at ' . WRLAHelper::removeBasePath(resource_path('views/email/wrla/email-template-mail.blade.php')) . '. To replace it delete the file and run again.');
+            $this->warn(' - email-template-mail.blade.php already exists at '.WRLAHelper::removeBasePath(resource_path('views/email/wrla/email-template-mail.blade.php')).'. To replace it delete the file and run again.');
         }
 
         // Success message
@@ -161,13 +160,13 @@ class InstallCommand extends Command
         }
 
         // Would you like to run the migrations, default to true
-        $runMigrations = $this->confirm('Would you like to run the migrations'.($databaseConnectionExists ? " (Connected to $databaseName)" : "").'?', true);
+        $runMigrations = $this->confirm('Would you like to run the migrations'.($databaseConnectionExists ? " (Connected to $databaseName)" : '').'?', true);
         if ($runMigrations) {
             $this->call('migrate');
         }
 
         // Add symlink for storage (if doesn't already exist)
-        if (!file_exists(public_path('storage'))) {
+        if (! file_exists(public_path('storage'))) {
             if ($this->confirm('Would you like to create a symlink for the storage folder?', true)) {
                 $this->call('storage:link');
             }
@@ -176,19 +175,19 @@ class InstallCommand extends Command
         }
 
         // If ran migrations or database connection exists, ask user if wants to create a master user
-        if($runMigrations || $databaseConnectionExists) {
+        if ($runMigrations || $databaseConnectionExists) {
             // Check to see if there are any users exist in the database already
             $anyUsersExist = $databaseConnectionExists ? User::limit(1)->count() > 0 : false;
 
             // Ask if the user wants to create a default master user, default to true if no users exist
-            if ($this->confirm('Would you like to create a master user?', !$anyUsersExist)) {
+            if ($this->confirm('Would you like to create a master user?', ! $anyUsersExist)) {
                 // Run wrla:user command
                 $this->call('wrla:user', ['master' => true]);
             }
         }
 
         // Show link to documentation
-        $this->alert('Please visit ' . WRLAHelper::getDocumentationUrl() . ' for documentation.');
+        $this->alert('Please visit '.WRLAHelper::getDocumentationUrl().' for documentation.');
 
         // New line for separation
         $this->line('');
