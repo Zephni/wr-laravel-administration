@@ -2,8 +2,8 @@
 
 namespace WebRegulate\LaravelAdministration\Livewire;
 
-use Livewire\Component;
 use Illuminate\Support\Facades\File;
+use Livewire\Component;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 
 class Logs extends Component
@@ -11,9 +11,13 @@ class Logs extends Component
     /* Properties
     --------------------------------------------------------------------------*/
     public string $viewingLogsDirectory = '';
+
     public array $logDirectoriesAndFiles = [];
+
     public ?string $viewingLogFile = null;
+
     public string $viewingLogContent = 'No content 1';
+
     public int $viewLogMaxCharacters = 0;
 
     /* Livewire Methods / Hooks
@@ -38,7 +42,7 @@ class Logs extends Component
             : data_get($this->logDirectoriesAndFiles, $this->viewingLogsDirectory, []);
 
         // Prepend .. directory if viewing a subdirectory
-        if (!empty($this->viewingLogsDirectory)) {
+        if (! empty($this->viewingLogsDirectory)) {
             $currentDirectoriesAndFiles = ['..' => '..'] + $currentDirectoriesAndFiles;
         }
 
@@ -57,22 +61,23 @@ class Logs extends Component
 
     private function getLogContent(string $logFile): string
     {
-        $fullPath = storage_path('logs/' . str($logFile)->ltrim('/'));
+        $fullPath = storage_path('logs/'.str($logFile)->ltrim('/'));
 
-        if(file_exists($fullPath)) {
+        if (file_exists($fullPath)) {
             // If not file
-            if(!is_file($fullPath)) {
+            if (! is_file($fullPath)) {
                 return "Error: {$fullPath} is not a file";
-            // If is .gz file
-            } elseif(str($fullPath)->endsWith('.gz')) {
-                return "Cannot view .gz files";
-            // Valid
+                // If is .gz file
+            } elseif (str($fullPath)->endsWith('.gz')) {
+                return 'Cannot view .gz files';
+                // Valid
             } else {
                 return str(file_get_contents($fullPath))->limit($this->viewLogMaxCharacters, '... (truncated)');
             }
         }
 
         $this->viewingLogFile = null;
+
         return '';
     }
 
@@ -80,24 +85,25 @@ class Logs extends Component
     {
         // If directory is empty, just pass the file
         if (empty($directory)) {
-            return str_replace('\\', '/', storage_path('logs/' . $file));
+            return str_replace('\\', '/', storage_path('logs/'.$file));
         }
 
         // Swap .'s for /'s
         $directory = str_replace('.', '/', $directory);
 
-        return str_replace('\\', '/', storage_path('logs/' . $directory . '/' . $file));
+        return str_replace('\\', '/', storage_path('logs/'.$directory.'/'.$file));
     }
 
     public function switchDirectory(string $directory)
     {
         // If $directory is .., go up a directory
-        if ($directory === '..' && !empty($this->viewingLogsDirectory)) {
-            $this->viewingLogsDirectory = !str($this->viewingLogsDirectory)->contains('.')
+        if ($directory === '..' && ! empty($this->viewingLogsDirectory)) {
+            $this->viewingLogsDirectory = ! str($this->viewingLogsDirectory)->contains('.')
                 ? ''
                 : str($this->viewingLogsDirectory)->beforeLast('.');
 
             $this->selectFirstLogFileInCurrentDirectory();
+
             return;
         }
 
@@ -108,7 +114,7 @@ class Logs extends Component
 
     public function viewLogFile(string $directoryPath, ?string $logFile)
     {
-        if($logFile === null) {
+        if ($logFile === null) {
             return;
         }
 
@@ -121,7 +127,7 @@ class Logs extends Component
     {
         $fullPath = $this->getFullPath($directoryPath, $logFile);
 
-        if(file_exists($fullPath)) {
+        if (file_exists($fullPath)) {
             if (is_file($fullPath)) {
                 // Use Laravel file facade to delete file
                 File::delete($fullPath);
@@ -133,7 +139,7 @@ class Logs extends Component
                 );
             }
 
-            if(is_dir($fullPath)) {
+            if (is_dir($fullPath)) {
                 // Use Laravel file facade to delete directory
                 File::deleteDirectory($fullPath);
 

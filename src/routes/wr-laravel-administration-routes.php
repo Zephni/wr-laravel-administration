@@ -1,8 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use WebRegulate\LaravelAdministration\Http\Controllers\WRLAAuthController;
 use WebRegulate\LaravelAdministration\Http\Controllers\WRLAAdminController;
+use WebRegulate\LaravelAdministration\Http\Controllers\WRLAAuthController;
 
 Route::group(['namespace' => 'WebRegulate\LaravelAdministration\Http\Controllers'], function (): void {
 
@@ -10,13 +10,13 @@ Route::group(['namespace' => 'WebRegulate\LaravelAdministration\Http\Controllers
     Route::prefix(config('wr-laravel-administration.base_url', 'wr-admin'))->name('wrla.')->group(function (): void {
 
         // Other
-        Route::get('to-frontend', fn() => redirect('/'))->name('to-frontend');
+        Route::get('to-frontend', fn () => redirect('/'))->name('to-frontend');
         Route::post('upload-wysiwyg-image', [WRLAAdminController::class, 'uploadWysiwygImage'])->name('upload-wysiwyg-image');
 
         // Auth controller
         Route::group(['controller' => WRLAAuthController::class, 'middleware' => ['wrla_is_not_admin']], function (): void {
             // Base Url if not logged in
-            Route::get('', fn() => redirect()->route('wrla.login'));
+            Route::get('', fn () => redirect()->route('wrla.login'));
 
             // Login
             Route::get('login', 'login')->name('login');
@@ -32,7 +32,7 @@ Route::group(['namespace' => 'WebRegulate\LaravelAdministration\Http\Controllers
         // Administration controller
         Route::group(['controller' => WRLAAdminController::class, 'middleware' => ['wrla_is_admin']], function (): void {
             // Base Url if logged in
-            Route::get('', fn() => redirect()->route('wrla.dashboard'));
+            Route::get('', fn () => redirect()->route('wrla.dashboard'));
 
             // Dashboard
             Route::get('dashboard', 'index')->name('dashboard');

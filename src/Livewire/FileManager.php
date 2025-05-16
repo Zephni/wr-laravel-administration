@@ -3,9 +3,9 @@
 namespace WebRegulate\LaravelAdministration\Livewire;
 
 use Exception;
-use Livewire\Component;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
+use Livewire\Component;
 use Livewire\WithFileUploads;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 
@@ -16,15 +16,25 @@ class FileManager extends Component
     /* Properties
     --------------------------------------------------------------------------*/
     public ?string $currentFileSystemName = null; // Set on mount
+
     public string $viewingDirectory = '';
+
     public array $currentDirectories = [];
+
     public array $currentFiles = [];
+
     public ?string $highlightedItem = null;
+
     public string $viewingItemContent = 'No content 1';
+
     public ?string $viewingItemType = null; // null, text, image, video, file (link)
+
     public ?string $viewingItemData = null;
+
     public ?string $viewingItemPublicUrl = null;
+
     public int $viewFileMaxCharacters = 0;
+
     public $listeners = [
         'createDirectory' => 'createDirectory',
         'deleteFile' => 'deleteFile',
@@ -32,8 +42,11 @@ class FileManager extends Component
     ];
 
     public $uploadFile; // Modelled, used for file upload
+
     public $uploadFilePath; // Absolute path to directory for upload
+
     public $replaceFile; // Modelled, used for individual file replacement
+
     public $replaceFilePath; // Absolute path to file for replacement
 
     /* Update fields
@@ -89,7 +102,7 @@ class FileManager extends Component
     public function mount()
     {
         // Redirect if file manager is not enabled in config
-        if(config('wr-laravel-administration.file_manager.enabled', false) !== true) {
+        if (config('wr-laravel-administration.file_manager.enabled', false) !== true) {
             session()->flash('error', 'Access to file manager permission denied.');
             $this->redirect(route('wrla.dashboard'));
         }
@@ -140,7 +153,7 @@ class FileManager extends Component
         }
 
         // Append the highlighted item to the directory path
-        $filePath = $directoryPath . '/' . $this->highlightedItem;
+        $filePath = $directoryPath.'/'.$this->highlightedItem;
 
         return $absolute
             ? str_replace('\\', '/', $this->getCurrentFileSystem()->path($filePath))
@@ -153,17 +166,18 @@ class FileManager extends Component
         if ($this->currentFileSystemName === null) {
             $this->currentDirectories = [];
             $this->currentFiles = [];
+
             return;
         }
 
         // Get all directories within given path and get last part of path
         $this->currentDirectories = $this->getCurrentFileSystem()->directories(str_replace('.', '/', $this->viewingDirectory));
-        $this->currentDirectories = array_map(fn($directory) => str($directory)->afterLast('/')->toString(), $this->currentDirectories);
-        
+        $this->currentDirectories = array_map(fn ($directory) => str($directory)->afterLast('/')->toString(), $this->currentDirectories);
+
         // Get all files but ignore hidden files and get last part of path
         $this->currentFiles = $this->getCurrentFileSystem()->files(str_replace('.', '/', $this->viewingDirectory));
-        $this->currentFiles = array_filter($this->currentFiles, fn($file) => !str($file)->afterLast('/')->startsWith('.'));
-        $this->currentFiles = array_map(fn($file) => str($file)->afterLast('/')->toString(), $this->currentFiles);
+        $this->currentFiles = array_filter($this->currentFiles, fn ($file) => ! str($file)->afterLast('/')->startsWith('.'));
+        $this->currentFiles = array_map(fn ($file) => str($file)->afterLast('/')->toString(), $this->currentFiles);
     }
 
     private function getFileContent(string $filePath): string
@@ -185,7 +199,7 @@ class FileManager extends Component
         }
 
         // Match type of file
-        $this->viewingItemType = match($mimeType) {
+        $this->viewingItemType = match ($mimeType) {
             'image/jpeg', 'image/png', 'image/gif', 'image/svg+xml', 'image/webp' => 'image',
             'video/mp4' => 'video',
             'text/plain', 'text/html', 'application/json', 'application/javascript' => 'text',
@@ -195,13 +209,10 @@ class FileManager extends Component
         };
 
         // If file is text, return content
-        if ($this->viewingItemType === 'text')
-        {
+        if ($this->viewingItemType === 'text') {
             // Use storage to get file contents
             return $this->getCurrentFileSystem()->get($filePath);
-        }
-        elseif ($this->viewingItemType === 'image')
-        {
+        } elseif ($this->viewingItemType === 'image') {
             // Get raw image data and convert to base64
             try {
                 $rawImageData = $this->getCurrentFileSystem()->get($filePath);
@@ -210,36 +221,33 @@ class FileManager extends Component
                 $imageMeta = getimagesizefromstring($rawImageData);
                 $fileSize = $this->getCurrentFileSystem()->fileSize($filePath);
                 $humanReadableFileSize = $this->humanReadableSize($fileSize ?? 0);
-                $this->viewingItemData = "Width: <b>{$imageMeta[0]}</b>px, Height: <b>{$imageMeta[1]}</b>px, Size: <b>".$humanReadableFileSize."</b>";
+                $this->viewingItemData = "Width: <b>{$imageMeta[0]}</b>px, Height: <b>{$imageMeta[1]}</b>px, Size: <b>".$humanReadableFileSize.'</b>';
 
-                return 'data:image/'.str($mimeType)->afterLast('/').';base64,' . base64_encode((string) $rawImageData);;
-            // If fails, get public path to image file
+                return 'data:image/'.str($mimeType)->afterLast('/').';base64,'.base64_encode((string) $rawImageData);
+                // If fails, get public path to image file
             } catch (Exception) {
                 return $this->getCurrentFileSystem()->url($filePath);
             }
-        }
-        elseif ($this->viewingItemType === 'video')
-        {
+        } elseif ($this->viewingItemType === 'video') {
             // Get public path to video file
             return $this->getCurrentFileSystem()->url($filePath);
-        }
-        elseif ($this->viewingItemType === 'pdf')
-        {
+        } elseif ($this->viewingItemType === 'pdf') {
             return '❌ Cannot display PDF contents...';
-        }
-        elseif ($this->viewingItemType === 'error')
-        {
+        } elseif ($this->viewingItemType === 'error') {
             return '❌ Cannot display file contents...';
         }
 
         $this->highlightedItem = null;
+
         return '❌ Mime type not handled...';
     }
 
-    public function humanReadableSize($bytes, $decimals = 2) {
+    public function humanReadableSize($bytes, $decimals = 2)
+    {
         $sizeUnits = ['B', 'KB', 'MB', 'GB', 'TB'];
         $factor = floor((strlen((string) $bytes) - 1) / 3);
-        return sprintf("%.{$decimals}f", $bytes / 1024 ** $factor) . $sizeUnits[$factor];
+
+        return sprintf("%.{$decimals}f", $bytes / 1024 ** $factor).$sizeUnits[$factor];
     }
 
     public function getFullPath(string $directory, string $file): string
@@ -252,7 +260,7 @@ class FileManager extends Component
         // Swap .'s for /'s
         $directory = str_replace('.', '/', $directory);
 
-        return str_replace('\\', '/', $this->getCurrentFileSystem()->path(str($directory . '/' . $file)->rtrim('/')));
+        return str_replace('\\', '/', $this->getCurrentFileSystem()->path(str($directory.'/'.$file)->rtrim('/')));
     }
 
     public function switchDirectory(string $directory)
@@ -261,15 +269,13 @@ class FileManager extends Component
         $this->viewingItemType = null;
 
         // If $directory is .., go up a directory
-        if (!empty($this->viewingDirectory) && $directory === '..')
-        {
-            $this->viewingDirectory = !str($this->viewingDirectory)->contains('.')
+        if (! empty($this->viewingDirectory) && $directory === '..') {
+            $this->viewingDirectory = ! str($this->viewingDirectory)->contains('.')
                 ? ''
                 : str($this->viewingDirectory)->beforeLast('.');
         }
         // Otherwise set viewing directory
-        else
-        {
+        else {
             $this->viewingDirectory = trim($directory, '.');
         }
 
@@ -280,7 +286,7 @@ class FileManager extends Component
 
     public function viewFile(string $directoryPath, ?string $filePath)
     {
-        if($filePath === null) {
+        if ($filePath === null) {
             return;
         }
 
@@ -326,11 +332,12 @@ class FileManager extends Component
         // Check if directory already exists
         if ($this->getCurrentFileSystem()->exists($fullPath)) {
             $this->addError('directory', 'Directory already exists.');
+
             return;
         }
 
         // Create the new directory
-        $this->getCurrentFileSystem()->makeDirectory($this->viewingDirectory . '/' . $newDirectoryName);
+        $this->getCurrentFileSystem()->makeDirectory($this->viewingDirectory.'/'.$newDirectoryName);
 
         // Refresh the directories and files list
         $this->refresh();
@@ -342,8 +349,9 @@ class FileManager extends Component
         $availableFileSystemNames = $this->getAvailableFileSystemNames();
 
         // If the file system name is not in the available file systems, return
-        if ($fileSystemName !== '' && !in_array($fileSystemName, $availableFileSystemNames)) {
+        if ($fileSystemName !== '' && ! in_array($fileSystemName, $availableFileSystemNames)) {
             $this->addError('error', "File system '$fileSystemName' not available or enabled in wr-laravel-administration.file_manager config.");
+
             return;
         }
 
@@ -351,7 +359,7 @@ class FileManager extends Component
         $this->currentFileSystemName = $fileSystemName;
 
         // If empty
-        if(empty($this->currentFileSystemName)) {
+        if (empty($this->currentFileSystemName)) {
             $this->viewingDirectory = '';
             $this->highlightedItem = null;
             $this->currentDirectories = [];
@@ -380,7 +388,7 @@ class FileManager extends Component
     {
         $this->highlightedItem = null;
 
-        if(count($this->currentFiles) === 0) {
+        if (count($this->currentFiles) === 0) {
             return;
         }
 
@@ -408,6 +416,6 @@ class FileManager extends Component
     private function getAvailableFileSystemConfigs(): array
     {
         // Only where where enabled
-        return collect(config('wr-laravel-administration.file_manager.file_systems', []))->filter(fn($fileSystem) => $fileSystem['enabled'] ?? false)->toArray();
+        return collect(config('wr-laravel-administration.file_manager.file_systems', []))->filter(fn ($fileSystem) => $fileSystem['enabled'] ?? false)->toArray();
     }
 }

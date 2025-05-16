@@ -2,8 +2,8 @@
 
 namespace WebRegulate\LaravelAdministration\Livewire;
 
-use Livewire\Component;
 use Illuminate\Contracts\View\View;
+use Livewire\Component;
 use Livewire\WithPagination;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 use WebRegulate\LaravelAdministration\Models\Notification;
@@ -13,11 +13,13 @@ class NotificationsWidget extends Component
     use WithPagination;
 
     public string $statusFilter = 'unread';
+
     public array $statusFilterOptions = [
         'unread' => 'Outstanding',
         'read' => 'Completed',
         'all' => 'All',
     ];
+
     public array $userIds = []; // Set in mount
 
     public function updatedStatusFilter()
@@ -33,12 +35,12 @@ class NotificationsWidget extends Component
     public function render(): View
     {
         $notifications = Notification::baseBuilderForUserIds($this->userIds)
-            ->when($this->statusFilter === 'unread', fn($query) => $query->whereNull('read_at'))
-            ->when($this->statusFilter === 'read', fn($query) => $query->whereNotNull('read_at'))
+            ->when($this->statusFilter === 'unread', fn ($query) => $query->whereNull('read_at'))
+            ->when($this->statusFilter === 'read', fn ($query) => $query->whereNotNull('read_at'))
             ->paginate(15);
 
         return view(WRLAHelper::getViewPath('livewire.notifications-widget'), [
-            'notifications' => $notifications
+            'notifications' => $notifications,
         ]);
     }
 
@@ -55,7 +57,7 @@ class NotificationsWidget extends Component
     public function callNotificationDefinitionMethod(int $notificationId, string $methodName, ?string $methodData = null)
     {
         // Decode method data
-        if($methodData !== null) {
+        if ($methodData !== null) {
             $methodData = json_decode($methodData, true);
         }
 
@@ -66,9 +68,9 @@ class NotificationsWidget extends Component
         $notificationDefinition = $notification->getDefinition();
 
         // If method data null, call method without data
-        if($methodData === null) {
+        if ($methodData === null) {
             $notificationDefinition->$methodName();
-        // Otherwise, call method with data array
+            // Otherwise, call method with data array
         } else {
             $notificationDefinition->$methodName(...$methodData);
         }

@@ -2,17 +2,15 @@
 
 namespace WebRegulate\LaravelAdministration\Livewire\ManageableModels;
 
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Collection;
 use Livewire\Component;
 use Livewire\WithPagination;
-use Illuminate\Support\Collection;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Pagination\LengthAwarePaginator;
 use Symfony\Component\HttpFoundation\StreamedResponse;
-use WebRegulate\LaravelAdministration\Classes\CSVHelper;
-use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
-use WebRegulate\LaravelAdministration\Classes\ManageableModel;
-use WebRegulate\LaravelAdministration\Enums\ManageableModelPermissions;
 use WebRegulate\LaravelAdministration\Classes\BrowseColumns\BrowseColumnBase;
+use WebRegulate\LaravelAdministration\Classes\CSVHelper;
+use WebRegulate\LaravelAdministration\Classes\ManageableModel;
+use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 
 /**
  * Class ManageableModelBrowse
@@ -43,15 +41,11 @@ class ManageableModelBrowse extends Component
     /**
      * Filters (array of BrowseFilter's). The manageable model's filters key => value pairs. key being the
      * filter key and value being the current value of the filter.
-     *
-     * @var array
      */
     public array $filters = [];
 
     /**
      * Dynamic filter inputs
-     *
-     * @var array
      */
     public array $dynamicFilterInputs = [];
 
@@ -71,8 +65,6 @@ class ManageableModelBrowse extends Component
 
     /**
      * Livewire fields, attach with manageable model ->setAttribute('wire:model.live', 'livewireData.key')
-     *
-     * @var array
      */
     public array $livewireData = [];
 
@@ -92,15 +84,11 @@ class ManageableModelBrowse extends Component
 
     /**
      * Debug message
-     *
-     * @var ?string
      */
     public ?string $debugMessage = null;
 
     /**
      * Renders
-     *
-     * @var int
      */
     public int $renders = 0;
 
@@ -120,8 +108,7 @@ class ManageableModelBrowse extends Component
     /**
      * Filters updated outside
      *
-     * @param array $dynamicFilterInputs
-     * @param array $filters
+     * @param  array  $filters
      */
     public function filtersUpdatedOutside(array $dynamicFilterInputs): void
     {
@@ -134,9 +121,6 @@ class ManageableModelBrowse extends Component
 
     /**
      * Updates fields
-     *
-     * @param string $field
-     * @return void
      */
     public function updatedFilters(string $field): void
     {
@@ -144,14 +128,10 @@ class ManageableModelBrowse extends Component
     }
 
     /**
-     *
-     */
-
-    /**
      * Mount the component.
      *
-     * @param string $manageableModelClass The class name of the manageable model.
-     * @param ?array $preFilters Pre filters passed from the AdminController::browse -> livewire-content view
+     * @param  string  $manageableModelClass  The class name of the manageable model.
+     * @param  ?array  $preFilters  Pre filters passed from the AdminController::browse -> livewire-content view
      * @return \Illuminate\Http\RedirectResponse|null
      */
     public function mount(string $manageableModelClass, ?array $preFilters = null)
@@ -167,7 +147,7 @@ class ManageableModelBrowse extends Component
         $modelClass = $manageableModelInstance::getBaseModelClass();
 
         // If the model class does not exist, redirect to the dashboard
-        if(!class_exists($modelClass)) {
+        if (! class_exists($modelClass)) {
             return redirect()->route('wrla.dashboard')->with('error', "Model `$modelClass` not found while loading manageable model `$manageableModelClass`.");
         }
 
@@ -176,19 +156,19 @@ class ManageableModelBrowse extends Component
 
         // Build parent columns from manageable model
         $columns = $manageableModelInstance->getBrowseColumns();
-        $this->columns = collect($columns)->map(fn($column) => $column instanceof BrowseColumnBase ? $column->label : $column);
+        $this->columns = collect($columns)->map(fn ($column) => $column instanceof BrowseColumnBase ? $column->label : $column);
 
         // Get manageable model filter keys from collection
         $manageableModelFilters = $manageableModelClass::getBrowseFilters();
 
-        foreach($manageableModelFilters as $browseFilter) {
+        foreach ($manageableModelFilters as $browseFilter) {
             $this->filters[$browseFilter->getKey()] = $browseFilter->getField()->getValue();
         }
 
         // Check the pre filters and override default browse filters if so
-        if(!empty($preFilters)) {
-            foreach($preFilters as $key => $value) {
-                if(array_key_exists($key, $this->filters)) {
+        if (! empty($preFilters)) {
+            foreach ($preFilters as $key => $value) {
+                if (array_key_exists($key, $this->filters)) {
                     $this->filters[$key] = $value;
                 }
             }
@@ -202,18 +182,15 @@ class ManageableModelBrowse extends Component
 
     /**
      * Get manageable model instance
-     *
-     * @return ManageableModel
      */
-    public function getModelInstance(): ManageableModel {
+    public function getModelInstance(): ManageableModel
+    {
         return new $this->manageableModelClass;
     }
 
     /**
      * Order by
      *
-     * @param string $column
-     * @param string $direction
      * @return void
      */
     public function reOrderAction(string $column, string $direction)
@@ -226,22 +203,25 @@ class ManageableModelBrowse extends Component
     /**
      * Export as CSV action
      *
-     * @param ?string $manageableModelStaticExportMethod The static export method to use in place of the standard export, method name must begin with 'export', takes collection of models and optional &$fileName, returns [string filename, array rowData (with keys as headings)]
-     * @return StreamedResponse
+     * @param  ?string  $manageableModelStaticExportMethod  The static export method to use in place of the standard export, method name must begin with 'export', takes collection of models and optional &$fileName, returns [string filename, array rowData (with keys as headings)]
      */
     public function exportAsCSVAction(?string $manageableModelStaticExportMethod = null): StreamedResponse
     {
         // File name
-        $fileName = $this->manageableModelClass::getDisplayName(true) . ' ' . date('Y-m-d H:i') . '.csv';
+        $fileName = $this->manageableModelClass::getDisplayName(true).' '.date('Y-m-d H:i').'.csv';
 
         // Get current data set
         $models = $this->browseModels()->get();
 
         // If a static export method is provided, use that
-        if($manageableModelStaticExportMethod !== null) {
+        if ($manageableModelStaticExportMethod !== null) {
             // If the method does not exist, or does not start with 'export', dd
-            if(!str($manageableModelStaticExportMethod)->startsWith('export')) dd("Export method name must begin with 'export', $manageableModelStaticExportMethod provided.");
-            if(!method_exists($this->manageableModelClass, $manageableModelStaticExportMethod)) dd("Export method $manageableModelStaticExportMethod does not exist on {$this->manageableModelClass}.");
+            if (! str($manageableModelStaticExportMethod)->startsWith('export')) {
+                dd("Export method name must begin with 'export', $manageableModelStaticExportMethod provided.");
+            }
+            if (! method_exists($this->manageableModelClass, $manageableModelStaticExportMethod)) {
+                dd("Export method $manageableModelStaticExportMethod does not exist on {$this->manageableModelClass}.");
+            }
 
             $models = $this->manageableModelClass::$manageableModelStaticExportMethod($models, $fileName);
         }
@@ -250,7 +230,7 @@ class ManageableModelBrowse extends Component
         $headings = array_keys(is_array($models->first()) ? $models->first() : $models->toArray());
 
         // Sort data
-        if(!is_array($models->first()) && isset($models->first()['id'])) {
+        if (! is_array($models->first()) && isset($models->first()['id'])) {
             $rowData = $models->sortBy('id');
         }
 
@@ -291,7 +271,7 @@ class ManageableModelBrowse extends Component
      */
     public function getStandardColumns()
     {
-        return collect($this->columns)->filter(fn($label, $column) => !WRLAHelper::isBrowseColumnRelationship($column) && !str_contains((string) $column, '->'));
+        return collect($this->columns)->filter(fn ($label, $column) => ! WRLAHelper::isBrowseColumnRelationship($column) && ! str_contains((string) $column, '->'));
     }
 
     /**
@@ -301,7 +281,7 @@ class ManageableModelBrowse extends Component
      */
     public function getJsonReferenceColumns()
     {
-        return collect($this->columns)->filter(fn($label, $column) => str_contains((string) $column, '->'));
+        return collect($this->columns)->filter(fn ($label, $column) => str_contains((string) $column, '->'));
     }
 
     /**
@@ -312,13 +292,11 @@ class ManageableModelBrowse extends Component
     public function getRelationshipColumns()
     {
         // Get any keys from columns that have a relationship
-        return collect($this->columns)->filter(fn($label, $column) => WRLAHelper::isBrowseColumnRelationship($column));
+        return collect($this->columns)->filter(fn ($label, $column) => WRLAHelper::isBrowseColumnRelationship($column));
     }
 
     /**
      * Browse the models.
-     *
-     * @return Builder
      */
     protected function browseModels(): Builder
     {
@@ -327,7 +305,7 @@ class ManageableModelBrowse extends Component
         $baseModelInstance = new $baseModelClass;
 
         // Run browse setup method
-        if($this->renders > 1) {
+        if ($this->renders > 1) {
             $this->manageableModelClass::browseSetupFinal($this->filters);
         }
 
@@ -335,9 +313,10 @@ class ManageableModelBrowse extends Component
         $tableName = $baseModelInstance->getTable();
 
         // If table does not exist in database, redirect to dashboard with error
-        if(!WRLAHelper::tableExists($baseModelInstance, $tableName)) {
-            session()->flash('error', 'Table `' . $tableName . '` does not exist in the database.');
+        if (! WRLAHelper::tableExists($baseModelInstance, $tableName)) {
+            session()->flash('error', 'Table `'.$tableName.'` does not exist in the database.');
             $this->redirectRoute('wrla.dashboard');
+
             // Now we just return builder
             return $baseModelClass::query();
         }
@@ -358,16 +337,18 @@ class ManageableModelBrowse extends Component
         // Relationship named columns look like this relationship->remote_column, so we need to split them
         // and add left joins and selects to the query
         $joinsMade = [];
-        if($relationshipColumns->count() > 0) {
+        if ($relationshipColumns->count() > 0) {
             // We used to use localcolumn::relationship_table.remote_column, but now we use relationship_method->remote_column
             // So we can just use the relationship method to get the relationship
-            foreach($relationshipColumns as $relationshipKey => $label) {
+            foreach ($relationshipColumns as $relationshipKey => $label) {
                 // Get the relationship method and remote column
                 [$relationshipMethod, $remoteColumn] = WRLAHelper::parseBrowseColumnRelationship($relationshipKey);
 
                 // Get relation information
                 $relation = $eloquent->getRelation($relationshipMethod);
-                if($relation === null) continue;
+                if ($relation === null) {
+                    continue;
+                }
 
                 // With relationship
                 $eloquent->with($relationshipMethod);
@@ -377,7 +358,7 @@ class ManageableModelBrowse extends Component
                 $relationTable = $related->getTable();
 
                 // If join already made, skip
-                if(in_array($relationTable, $joinsMade)) {
+                if (in_array($relationTable, $joinsMade)) {
                     continue;
                 }
 
@@ -385,25 +366,30 @@ class ManageableModelBrowse extends Component
 
                 // Add to joins made (And check for any joins added by the relationship's joins)
                 $joinsMade[] = $relationTable;
-                foreach($eloquent->getQuery()->joins as $join) {
-                    if(in_array($join->table, $joinsMade)) continue;
+                foreach ($eloquent->getQuery()->joins as $join) {
+                    if (in_array($join->table, $joinsMade)) {
+                        continue;
+                    }
                     $joinsMade[] = $join->table;
                 }
             }
         }
 
         // If Json reference columns exist, add them to the query
-        if($jsonReferenceColumns->count() > 0) {
-            foreach($jsonReferenceColumns as $column => $label) {
+        if ($jsonReferenceColumns->count() > 0) {
+            foreach ($jsonReferenceColumns as $column => $label) {
                 [$relationshipMethod, $remoteColumn] = WRLAHelper::parseBrowseColumnRelationship($column);
                 $relation = $eloquent->getRelation($relationshipMethod);
-                if($relation === null) continue;
+                if ($relation === null) {
+                    continue;
+                }
                 $related = $relation->getRelated();
 
                 // If in relationship columns
-                if($relationshipColumns->has($column)) {
+                if ($relationshipColumns->has($column)) {
                     $relationTable = $related->getTable();
                     $eloquent->addSelect("{$relationTable}.$remoteColumn as $column");
+
                     continue;
                 }
 
@@ -416,25 +402,22 @@ class ManageableModelBrowse extends Component
         // Now we loop through the filterable fields and apply them to the query
         $manageableModelFilters = [];
 
-        if(empty($this->dynamicFilterInputs))
-        {
+        if (empty($this->dynamicFilterInputs)) {
             $manageableModelFilters = $this->manageableModelClass::getBrowseFilters($this->filters);
 
-            foreach($manageableModelFilters as $browseFilter) {
+            foreach ($manageableModelFilters as $browseFilter) {
                 $key = $browseFilter->getKey();
 
-                if(empty($this->dynamicFilterInputs)) {
-                    if(empty($this->filters[$key])) {
+                if (empty($this->dynamicFilterInputs)) {
+                    if (empty($this->filters[$key])) {
                         continue;
                     }
 
                     $eloquent = $browseFilter->apply($eloquent, $tableName, $this->columns, $this->filters[$key]);
                 }
             }
-        }
-        else
-        {
-            foreach($this->dynamicFilterInputs as $item) {
+        } else {
+            foreach ($this->dynamicFilterInputs as $item) {
                 $browseFilter = ManageableModelDynamicBrowseFilters::buildBrowseFilter($item);
                 $browseFilter->field->setAttribute('value', $item['value'] ?? '');
                 $manageableModelFilters[] = $browseFilter;
@@ -443,12 +426,11 @@ class ManageableModelBrowse extends Component
             }
         }
 
-
         // Order by
         // If orderBy is standard column, order by that column
-        if(!$orderByIsRelationship) {
+        if (! $orderByIsRelationship) {
             $eloquent = $eloquent->orderBy("$tableName.$this->orderBy", $this->orderDirection);
-        // If orderBy is a relationship column, order by the relationship column
+            // If orderBy is a relationship column, order by the relationship column
         } else {
             // Get relationship method and remote column
             [$relationshipMethod, $remoteColumn] = WRLAHelper::parseBrowseColumnRelationship($this->orderBy);
@@ -457,12 +439,12 @@ class ManageableModelBrowse extends Component
             $relation = $eloquent->getRelation($relationshipMethod);
 
             // TODO: This needs fixing as we cannot currently order by through style relationships eg. $this->relationship->belongsTo()
-            if($relation !== null) {
+            if ($relation !== null) {
                 $related = $relation->getRelated();
                 $relationTable = $related->getTable();
 
                 // Apply join for relationship and order by relationship column (if not already joined)
-                if(!in_array($relationTable, $joinsMade)) {
+                if (! in_array($relationTable, $joinsMade)) {
                     $eloquent = $eloquent->leftJoinRelation($relationshipMethod);
                     $joinsMade[] = $relationTable;
                 }
@@ -480,8 +462,8 @@ class ManageableModelBrowse extends Component
     /**
      * Delete a model.
      *
-     * @param string $modelUrlAlias The URL alias of the model to delete.
-     * @param int $id The ID of the model to delete.
+     * @param  string  $modelUrlAlias  The URL alias of the model to delete.
+     * @param  int  $id  The ID of the model to delete.
      */
     public function deleteModel(string $modelUrlAlias, int $id)
     {
@@ -489,15 +471,16 @@ class ManageableModelBrowse extends Component
         $manageableModel = new $this->{'manageableModelClass'}($id);
 
         // Check that model URL alias matches the manageable model class URL alias
-        if($modelUrlAlias != $this->manageableModelClass::getUrlAlias()) {
+        if ($modelUrlAlias != $this->manageableModelClass::getUrlAlias()) {
             $this->errorMessage = 'Model URL alias does not match the manageable model class URL alias.';
+
             return;
         }
 
         // Delete the model and deconstruct the response
         [$success, $message] = WRLAHelper::deleteModel($manageableModel, $id);
 
-        if($success) {
+        if ($success) {
             $this->successMessage = $message;
             $this->errorMessage = null;
         } else {
@@ -509,8 +492,8 @@ class ManageableModelBrowse extends Component
     /**
      * Restore a model.
      *
-     * @param string $modelUrlAlias The URL alias of the model to restore.
-     * @param int $id The ID of the model to restore.
+     * @param  string  $modelUrlAlias  The URL alias of the model to restore.
+     * @param  int  $id  The ID of the model to restore.
      */
     public function restoreModel(int $id)
     {
@@ -532,14 +515,14 @@ class ManageableModelBrowse extends Component
     public function hasFilters()
     {
         // If manageable model uses dynamic browse filters, return true
-        if($this->manageableModelClass::getStaticOption($this->manageableModelClass, 'browse.useDynamicFilters')) {
+        if ($this->manageableModelClass::getStaticOption($this->manageableModelClass, 'browse.useDynamicFilters')) {
             return true;
         }
 
         // Loop through the filters and compare their values with the default values
-        foreach($this->filters as $value) {
+        foreach ($this->filters as $value) {
             // Return true If any filter value is not null
-            if($value != null) {
+            if ($value != null) {
                 return true;
             }
         }

@@ -2,13 +2,11 @@
 
 namespace WebRegulate\LaravelAdministration\Livewire;
 
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Attributes\Rule;
 use Livewire\WithFileUploads;
 use LivewireUI\Modal\ModalComponent;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Facades\Storage;
-use Livewire\Features\SupportRedirects\Redirector;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 
 /**
@@ -36,15 +34,11 @@ class ImportDataModal extends ModalComponent
 
     /**
      * Headers mapped to columns
-     *
-     * @var array
      */
     public array $headersMappedToColumns = [];
 
     /**
      * Data related to the CSV file.
-     *
-     * @var array
      */
     public array $data = [
         'wrlaTmpFilePath' => '',
@@ -65,8 +59,6 @@ class ImportDataModal extends ModalComponent
 
     /**
      * Debug information.
-     *
-     * @var array
      */
     public array $debugInfo;
 
@@ -78,7 +70,10 @@ class ImportDataModal extends ModalComponent
     protected $listeners = ['process-next-batch' => 'processBatch'];
 
     // Modal config
-    public static function modalMaxWidth(): string { return '7xl'; }
+    public static function modalMaxWidth(): string
+    {
+        return '7xl';
+    }
 
     /**
      * Hook that runs after the file attribute is validated.
@@ -88,19 +83,20 @@ class ImportDataModal extends ModalComponent
     public function updatedFile()
     {
         // If there are validation errors, delete the uploaded file and reset the file attribute
-        if (!$this->getErrorBag()->isEmpty()) {
+        if (! $this->getErrorBag()->isEmpty()) {
             if ($this->file) {
-                Storage::disk('local')->delete('livewire-tmp/' . $this->file->getFilename());
+                Storage::disk('local')->delete('livewire-tmp/'.$this->file->getFilename());
             }
             $this->file = null;
+
             return;
         }
 
         // Store file (that we will progressivly read and remove rows from later), and remove tmp file
         // File name should be tablename-import-Y-m-d-H-i-s.csv
-        $fileName = (new ($this->manageableModelClass::getBaseModelClass()))->getTable() . '-import-' . now()->format('Y-m-d-H-i-s') . '.csv';
+        $fileName = (new ($this->manageableModelClass::getBaseModelClass()))->getTable().'-import-'.now()->format('Y-m-d-H-i-s').'.csv';
         $this->data['wrlaTmpFilePath'] = $this->file->storeAs('wrla-tmp', $fileName);
-        Storage::disk('local')->delete('livewire-tmp/' . $this->file->getFilename());
+        Storage::disk('local')->delete('livewire-tmp/'.$this->file->getFilename());
 
         // Get the real path of the uploaded file and read its contents
         $file = file(storage_path('app/'.$this->data['wrlaTmpFilePath']));
@@ -180,11 +176,9 @@ class ImportDataModal extends ModalComponent
         }
     }
 
-
     /**
      * Initializes the component with the given manageable model class.
      *
-     * @param string $manageableModelClass
      * @return void
      */
     public function mount(string $manageableModelClass)
@@ -202,15 +196,15 @@ class ImportDataModal extends ModalComponent
     public function render()
     {
         $previewRows = array_slice($this->data['rows'], 0, $this->data['previewRowsMax']);
+
         return view(WRLAHelper::getViewPath('livewire.import-data-modal'), [
-            'previewRows' => $previewRows
+            'previewRows' => $previewRows,
         ]);
     }
 
     /**
      * Go to step X
      *
-     * @param int $step
      * @return void
      */
     public function goToStep(int $step)
@@ -220,8 +214,6 @@ class ImportDataModal extends ModalComponent
 
     /**
      * Import data
-     *
-     * @return void
      */
     public function importData(): void
     {
@@ -234,8 +226,6 @@ class ImportDataModal extends ModalComponent
 
     /**
      * Process a batch of data.
-     *
-     * @return void
      */
     public function processBatch(): void
     {
@@ -245,12 +235,12 @@ class ImportDataModal extends ModalComponent
         // Note that the array_splice function will modify the original array (passed by reference)
         $batchData = array_splice($this->data['rows'], 0, $batchSize);
 
-        if (!empty($batchData)) {
+        if (! empty($batchData)) {
             $formattedBatchData = [];
             foreach ($batchData as $row) {
                 $rowData = [];
                 foreach ($this->headersMappedToColumns as $index => $column) {
-                    if (!empty($column)) {
+                    if (! empty($column)) {
                         $rowData[$column] = $row[$index];
                     }
                 }
@@ -299,7 +289,6 @@ class ImportDataModal extends ModalComponent
     /**
      * Cleans all data (headers and rows) from the provided file data.
      *
-     * @param array $fileData
      * @return void
      */
     public function cleanAllFileData(array $fileData): array
@@ -329,7 +318,7 @@ class ImportDataModal extends ModalComponent
 
         return [
             $headers,
-            $rows
+            $rows,
         ];
     }
 
@@ -351,7 +340,7 @@ class ImportDataModal extends ModalComponent
             foreach ($this->data['tableColumns'] as $actualColumn) {
                 $header = str($header)->lower()->replace(' ', '_')->__toString();
 
-                if (!in_array($actualColumn, $alreadyMappedColoumns) && str($actualColumn) == $header) {
+                if (! in_array($actualColumn, $alreadyMappedColoumns) && str($actualColumn) == $header) {
                     $this->headersMappedToColumns["$headerIndex"] = $actualColumn;
                     $alreadyMappedColoumns[] = $actualColumn;
                 }
