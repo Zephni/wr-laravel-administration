@@ -3,6 +3,7 @@
 namespace WebRegulate\LaravelAdministration\Livewire\ManageableModels;
 
 use Livewire\Component;
+use Livewire\WithFileUploads;
 use WebRegulate\LaravelAdministration\Classes\ManageableModel;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 use WebRegulate\LaravelAdministration\Enums\PageType;
@@ -14,6 +15,10 @@ use WebRegulate\LaravelAdministration\Enums\PageType;
  */
 class ManageableModelUpsert extends Component
 {
+    /* Traits
+    --------------------------------------------------------------------------*/
+    use WithFileUploads;
+
     /* Properties
     --------------------------------------------------------------------------*/
 
