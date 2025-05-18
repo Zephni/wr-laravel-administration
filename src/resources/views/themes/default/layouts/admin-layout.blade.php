@@ -48,6 +48,6 @@
     @livewire('wrla.wire-elements-modal')
 
     {{-- Append body stack --}}
-    @stack('appendBody')
+    @stack('append-body')
 </body>
 </html>

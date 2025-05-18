@@ -98,9 +98,8 @@
     <div class="block h-24"></div>
 </div>
 
-
 @if($usesWysiwyg === true)
-    @push('appendBody')
+    @push('append-body')
         {!! $WRLAHelper::getWysiwygEditorSetupJS() !!}
     @endpush
 @endif

@@ -188,5 +188,5 @@
 
 </div>
 
-@push('appendBody')
+@push('append-body')
 @endpush
