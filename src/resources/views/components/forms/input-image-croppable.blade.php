@@ -98,7 +98,7 @@
 </div>
 
 {{-- Cropper JS preview / cropper area --}}
-<div id="imageToCropContainer" class="flex justify-center items-center bg-slate-100 dark:bg-slate-900 p-3">
+<div id="imageToCropContainer" class="flex justify-center items-center mt-4 p-3 bg-slate-200 dark:bg-slate-900 rounded-md">
     <div style="width: 100%; max-width: 600px; margin-auto;">
         <img id="imageToCrop" src="" alt="Image to crop" style="max-width: 100%;">
     </div>
@@ -170,7 +170,7 @@
                 // Create a URL for the blob and set it as the src of the preview image
                 const url = URL.createObjectURL(blob);
                 croppedImagePreview.src = url;
-                croppedImagePreview.style.display = 'flex'; // Show the preview
+                croppedImagePreview.style.display = 'block'; // Show the preview
             }, 'image/png'); // Specify the output format
         }
 
@@ -181,7 +181,7 @@
                 const reader = new FileReader();
 
                 // Show image preview on crop
-                imageToCropContainer.style.display = 'block';
+                imageToCropContainer.style.display = 'flex';
 
                 reader.onload = function (event) {
                     imageToCrop.src = event.target.result;
@@ -193,7 +193,7 @@
 
                     // Initialize Cropper.js
                     cropper = new Cropper(imageToCrop, {
-                        aspectRatio: 16 / 12, // Or your desired aspect ratio
+                        // aspectRatio: 16 / 12, // Or your desired aspect ratio
                         viewMode: 1, // Define the view mode
                         // Add other Cropper.js options here
 
