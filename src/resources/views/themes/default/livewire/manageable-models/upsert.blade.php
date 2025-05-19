@@ -37,6 +37,7 @@
 
     {{-- Form --}}
     <form
+        id="upsert-form"
         action="{{ route('wrla.manageable-models.upsert.post', [
             'modelUrlAlias' => $manageableModel->getUrlAlias(),
             'modelId' => $manageableModel->getmodelInstance()->id,

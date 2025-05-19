@@ -14,6 +14,11 @@ use WebRegulate\LaravelAdministration\Classes\ManageableModel;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 use WebRegulate\LaravelAdministration\Traits\ManageableField;
 
+/**
+ * Class ImageCroppable
+ *
+ * NOTE: For now you can only use 1 croppable image per manageable model form elements.
+ */
 class ImageCroppable
 {
     use ManageableField;

@@ -148,6 +148,7 @@
     }
 
     document.addEventListener('DOMContentLoaded', function () {
+        const form = document.querySelector('#upsert-form');
         const imageInput = document.getElementById('imageInput');
         const imageToCrop = document.getElementById('imageToCrop');
         const imageToCropContainer = document.getElementById('imageToCropContainer');
@@ -224,44 +225,25 @@
             }
         });
 
-        // uploadButton.addEventListener('click', function () {
-        //     if (cropper) {
-        //         // Get the cropped canvas
-        //         const canvas = cropper.getCroppedCanvas({
-        //             width: 500, // Set desired width
-        //             height: 500, // Set desired height
-        //             // Add other getCroppedCanvas options
-        //         });
+        // Override standard form submission
+        form.addEventListener('submit', function (e) {
+            if (!cropper) return; // No cropper, let it submit normally
 
-        //         // Convert canvas to a Blob
-        //         canvas.toBlob(function (blob) {
-        //             // Use FormData to send the file and other data
-        //             const formData = new FormData();
-        //             formData.append('_token', '{{ csrf_token() }}'); // Add CSRF token
-        //             formData.append('cropped_image', blob, 'cropped_image.png'); // Append the cropped image blob
+            e.preventDefault(); // Stop it briefly while we insert the cropped file
 
-        //             // Send the data to the backend using AJAX
-        //             fetch('/upload-cropped-image', { // Replace with your backend route
-        //                 method: 'POST',
-        //                 body: formData,
-        //             })
-        //             .then(response => response.json())
-        //             .then(data => {
-        //                 console.log('Upload successful:', data);
-        //                 // Display the uploaded image preview (optional)
-        //                 if (data.url) {
-        //                     croppedImagePreview.src = data.url;
-        //                     croppedImagePreview.style.display = 'block';
-        //                 }
-        //                 // Handle success (e.g., show a success message, redirect)
-        //             })
-        //             .catch(error => {
-        //                 console.error('Upload failed:', error);
-        //                 // Handle errors (e.g., show an error message)
-        //             });
-        //         }, 'image/png'); // Specify the output format
-        //     }
-        // });
+            cropper.getCroppedCanvas().toBlob(function (blob) {
+                const file = new File([blob], 'cropped.png', { type: 'image/png' });
+
+                // Create a DataTransfer to simulate file input
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(file);
+
+                // Replace the hidden file input's files
+                imageInput.files = dataTransfer.files;
+
+                form.submit(); // Now submit the form normally
+            }, 'image/png');
+        });
     });
 </script>
 @endonce
