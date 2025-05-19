@@ -183,6 +183,21 @@
                 // Show image preview on crop
                 imageToCropContainer.style.display = 'flex';
 
+                // Calculated aspect ratio from setting, is a string with format "1/2" or "16/9" etc, needs to be calculated
+                let aspectRatioCalculation = @js($options['aspect']);
+                if (aspectRatioCalculation) {
+                    const parts = aspectRatioCalculation.split('/');
+                    try {
+                        aspectRatioCalculation = parseFloat(parts[0]) / parseFloat(parts[1]);
+                    }
+                    catch (error) {
+                        console.error('Invalid aspect ratio:', aspectRatioCalculation, error);
+                        aspectRatioCalculation = 1; // Default to 1 if not valid
+                    }
+                } else {
+                    aspectRatioCalculation = null; // Default to 1 if not set
+                }
+
                 reader.onload = function (event) {
                     imageToCrop.src = event.target.result;
 
@@ -193,8 +208,8 @@
 
                     // Initialize Cropper.js
                     cropper = new Cropper(imageToCrop, {
-                        // aspectRatio: 16 / 12, // Or your desired aspect ratio
-                        viewMode: 1, // Define the view mode
+                        aspectRatio: aspectRatioCalculation,
+                        viewMode: 1,
                         // Add other Cropper.js options here
 
                         // Update preview on ready and cropend
