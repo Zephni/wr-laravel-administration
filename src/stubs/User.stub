@@ -7,18 +7,18 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Builder;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
-use WebRegulate\LaravelAdministration\Classes\BrowseFilter;
 use \WebRegulate\LaravelAdministration\Classes\ManageableModel;
 use WebRegulate\LaravelAdministration\Classes\ManageableFields\Json;
 use \WebRegulate\LaravelAdministration\Classes\ManageableFields\Text;
 use WebRegulate\LaravelAdministration\Classes\ManageableFields\Image;
 use WebRegulate\LaravelAdministration\Classes\ManageableFields\JsonUI;
 use WebRegulate\LaravelAdministration\Classes\ManageableFields\Select;
+use WebRegulate\LaravelAdministration\Classes\ManageableFields\Heading;
 use WebRegulate\LaravelAdministration\Enums\ManageableModelPermissions;
 use \WebRegulate\LaravelAdministration\Classes\ManageableFields\Password;
-use WebRegulate\LaravelAdministration\Classes\ManageableFields\Heading;
 use WebRegulate\LaravelAdministration\Classes\BrowseColumns\BrowseColumn;
 use WebRegulate\LaravelAdministration\Classes\BrowseColumns\BrowseColumnImage;
+use WebRegulate\LaravelAdministration\Classes\ManageableFields\ImageCroppable;
 
 class User extends ManageableModel
 {
@@ -134,17 +134,16 @@ class User extends ManageableModel
 
             Password::make($this, 'password'),
 
-            Image::make($this, 'wrlaUserData.avatar', 'images/avatars', '{id}-avatar-{time}.jpg', 'public')
+            ImageCroppable::make($this, 'wrlaUserData.avatar', 'images/avatars', '{id}-avatar-{time}.jpg', 'public')
                 ->defaultImage($modelInstance->wrlaUserData?->getProfileAvatar())
                 ->aspect('1/1')
                 ->rounded('full')
                 ->manipulateImage(function($image) {
-                    $image->cover(300, 300, 'center');
                     $image->toJpeg(100);
                     return $image;
                 })
-                ->validation('image|mimes:jpeg,png,jpg,gif,svg|max:10240')
-                ->notes('<b>Required</b> - Image should be a valid JPG, PNG or GIF, no larger than 10mb.'),
+                ->validation('image|mimes:jpeg,png,jpg,gif,svg')
+                ->notes('<b>Required</b> - Image should be a valid JPG, PNG or GIF.'),
 
             Text::make($this, 'email_verified_at')
                 ->setLabel('Email Verified At')
