@@ -48,6 +48,7 @@
             {{-- File input --}}
             <input {{ $attributes->merge([
                 'id' => $id,
+                'accept' => 'image/*',
                 'class' => 'wrla_image_input text-sm focus:outline-none focus:ring-1 focus:ring-primary-500 dark:focus:ring-primary-500 placeholder-slate-400 dark:placeholder-slate-600'
             ]) }}
                 onchange="wrla_setPreviewImage(this)"

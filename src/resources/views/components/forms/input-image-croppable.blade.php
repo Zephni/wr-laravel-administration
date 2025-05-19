@@ -54,7 +54,8 @@
             {{-- File input --}}
             <input {{ $attributes->merge([
                 'id' => 'imageInput',
-                'class' => 'wrla_image_input text-sm focus:outline-none focus:ring-1 focus:ring-primary-500 dark:focus:ring-primary-500 placeholder-slate-400 dark:placeholder-slate-600'
+                'accept' => 'image/*',
+                'class' => 'wrla_image_input text-sm focus:outline-none focus:ring-1 focus:ring-primary-500 dark:focus:ring-primary-500 placeholder-slate-400 dark:placeholder-slate-600',
             ]) }}
                 onchange="wrla_setPreviewImage(this)"
             />
@@ -227,22 +228,26 @@
 
         // Override standard form submission
         form.addEventListener('submit', function (e) {
-            if (!cropper) return; // No cropper, let it submit normally
-
-            e.preventDefault(); // Stop it briefly while we insert the cropped file
-
-            cropper.getCroppedCanvas().toBlob(function (blob) {
-                const file = new File([blob], 'cropped.png', { type: 'image/png' });
-
-                // Create a DataTransfer to simulate file input
-                const dataTransfer = new DataTransfer();
-                dataTransfer.items.add(file);
-
-                // Replace the hidden file input's files
-                imageInput.files = dataTransfer.files;
-
-                form.submit(); // Now submit the form normally
-            }, 'image/png');
+            try {
+                if (!cropper) return; // No cropper, let it submit normally
+    
+                e.preventDefault(); // Stop it briefly while we insert the cropped file
+    
+                cropper.getCroppedCanvas().toBlob(function (blob) {
+                    const file = new File([blob], 'cropped.png', { type: 'image/png' });
+    
+                    // Create a DataTransfer to simulate file input
+                    const dataTransfer = new DataTransfer();
+                    dataTransfer.items.add(file);
+    
+                    // Replace the hidden file input's files
+                    imageInput.files = dataTransfer.files;
+    
+                    form.submit(); // Now submit the form normally
+                }, 'image/png');
+            } catch (error) {
+                alert('Error during form submission:' + error);
+            }
         });
     });
 </script>
