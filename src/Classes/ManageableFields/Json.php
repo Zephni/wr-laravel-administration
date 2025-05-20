@@ -129,7 +129,7 @@ class Json
         }
 
         // Check if json is valid, if not then do not format it and show as is
-        $jsonData = json_decode((string) $value) ?? false;
+        $jsonData = json_decode((string) $value, true) ?? false;
 
         if ($jsonData !== false) {
             // Set default values recursilvely if they are not set

@@ -122,8 +122,24 @@ class JsonUI
                         }
                         $jsonData[$key] = $recursive($jsonData[$key], $value);
                     } else {
-                        if (! isset($jsonData[$key])) {
+                        // Get type of default value
+                        $type = gettype($value);
+
+                        // If not set at all, set it
+                        if (!isset($jsonData[$key])) {
                             $jsonData[$key] = $value;
+                        }
+                        // Otherwise we can adjust the type to use the same type as the default value
+                        elseif ($type === 'string' && !is_string($jsonData[$key])) {
+                            $jsonData[$key] = (string) $jsonData[$key];
+                        } elseif ($type === 'integer' && !is_int($jsonData[$key])) {
+                            $jsonData[$key] = (int) $jsonData[$key];
+                        } elseif ($type === 'double' && !is_double($jsonData[$key])) {
+                            $jsonData[$key] = (float) $jsonData[$key];
+                        } elseif ($type === 'float' && !is_float($jsonData[$key])) {
+                            $jsonData[$key] = (float) $jsonData[$key];                        
+                        } elseif ($type === 'boolean' && !is_bool($jsonData[$key])) {
+                            $jsonData[$key] = (bool) $jsonData[$key];
                         }
                     }
                 }
