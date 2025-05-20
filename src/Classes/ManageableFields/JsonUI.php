@@ -114,9 +114,19 @@ class JsonUI
 
         if ($jsonData !== false) {
             // Now we have validation, we can loop through the merge default key values and apply them
-            foreach ($this->defaultKeyValues as $key => $value) {
-                if (data_get($jsonData, $key) === null) {
-                    data_set($jsonData, $key, $value);
+            foreach ($this->defaultKeyValues as $key => $defaultValue) {
+                $existingValue = data_get($jsonData, $key);
+
+                if (is_array($defaultValue)) {
+                    if (!is_array($existingValue)) {
+                        data_set($jsonData, $key, $defaultValue);
+                    } else {
+                        data_set($jsonData, $key, array_replace_recursive($defaultValue, $existingValue));
+                    }
+                } else {
+                    if ($existingValue === null) {
+                        data_set($jsonData, $key, $defaultValue);
+                    }
                 }
             }
         }
@@ -153,6 +163,10 @@ class JsonUI
 
         // Get decoded JSON data
         $jsonData = json_decode($value, true);
+
+        if(str_contains($name, 'custom_data')) {
+            dd($jsonData);
+        }
 
         // Render view
         return view(WRLAHelper::getViewPath('components.forms.json-ui'), [
