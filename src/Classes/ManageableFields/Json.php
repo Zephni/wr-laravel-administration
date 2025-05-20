@@ -132,22 +132,26 @@ class Json
         $jsonData = json_decode((string) $value) ?? false;
 
         if ($jsonData !== false) {
-            // Now we have validation, we can loop through the merge default key values and apply them
-            foreach ($this->defaultKeyValues as $key => $defaultValue) {
-                $existingValue = data_get($jsonData, $key);
-
-                if (is_array($defaultValue)) {
-                    if (!is_array($existingValue)) {
-                        data_set($jsonData, $key, $defaultValue);
+            // Set default values recursilvely if they are not set
+            $recursive = function ($jsonData, $defaultKeyValues) use (&$recursive) {
+                foreach ($defaultKeyValues as $key => $value) {
+                    if (is_array($value)) {
+                        if (! isset($jsonData[$key])) {
+                            $jsonData[$key] = [];
+                        }
+                        $jsonData[$key] = $recursive($jsonData[$key], $value);
                     } else {
-                        data_set($jsonData, $key, array_replace_recursive($defaultValue, $existingValue));
-                    }
-                } else {
-                    if ($existingValue === null) {
-                        data_set($jsonData, $key, $defaultValue);
+                        if (! isset($jsonData[$key])) {
+                            $jsonData[$key] = $value;
+                        }
                     }
                 }
-            }
+
+                return $jsonData;
+            };
+
+            // Merge default key values with json data
+            $jsonData = $recursive($jsonData, $this->defaultKeyValues);
 
             // If not empty, pretty print json
             $value = ! empty($jsonData)
