@@ -164,10 +164,6 @@ class JsonUI
         // Get decoded JSON data
         $jsonData = json_decode($value, true);
 
-        if(str_contains($name, 'custom_data')) {
-            dd($jsonData);
-        }
-
         // Render view
         return view(WRLAHelper::getViewPath('components.forms.json-ui'), [
             'label' => $this->getLabel(),
