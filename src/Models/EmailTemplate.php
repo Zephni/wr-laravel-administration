@@ -372,7 +372,10 @@ class EmailTemplate extends Model
             $toAddresses = array_filter($toAddresses, fn ($toAddress) => ! empty($toAddress) && str($toAddress)->contains('@'));
 
             foreach ($toAddresses as $toAddress) {
-                Log::channel('smtp')->info("Sending {$this->alias} email template ({$smtpHost})", ['to' => $toAddress]);
+                Log::channel('smtp')->info("Sending {$this->alias} email template ({$smtpHost})", [
+                    'mappings' => $this->dataArray,
+                    'to' => $toAddress
+                ]);
 
                 $mail = Mail::mailer($smtpKey)
                     ->send(new EmailTemplateMail(
@@ -393,7 +396,10 @@ class EmailTemplate extends Model
             return true;
         }
 
-        Log::channel('smtp')->info("Sending {$this->alias} email template ({$smtpHost})", ['to' => $toAddresses]);
+        Log::channel('smtp')->info("Sending {$this->alias} email template ({$smtpHost})", [
+            'mappings' => $this->dataArray,
+            'to' => $toAddresses
+        ]);
 
         // Send as one email with first as to, and rest as cc mode
         $mail = Mail::mailer($smtpKey)->send(new EmailTemplateMail(
