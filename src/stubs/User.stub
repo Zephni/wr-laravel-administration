@@ -245,11 +245,11 @@ class User extends ManageableModel
     }
 
     /**
-     * Post delete model instance hook
+     * Pre delete model instance hook
      *
      * @return void
      */
-    public function postDeleteModelInstance(Request $request, int $oldId, bool $soft): void
+    public function preDeleteModelInstance(Request $request, int $oldId, bool $soft): void
     {
         // Get the user by their old id
         $user = WRLAHelper::getUserModelClass()::find($oldId);

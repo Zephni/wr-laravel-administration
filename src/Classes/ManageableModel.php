@@ -1196,6 +1196,14 @@ abstract class ManageableModel
     }
 
     /**
+     * Pre delete model instance hook
+     */
+    public function preDeleteModelInstance(Request $request, int $oldId, bool $soft): void
+    {
+        // Override this method in your model to add custom logic before deleting the model instance
+    }
+
+    /**
      * Post delete model instance hook
      */
     public function postDeleteModelInstance(Request $request, int $oldId, bool $soft): void

@@ -1259,11 +1259,13 @@ class WRLAHelper
             // If model found, soft delete
             if ($model !== null) {
                 $model = $baseModelClass::find($id);
+                $manageableModel->preDeleteModelInstance(request(), $id, true);
                 $model->delete();
                 $manageableModel->postDeleteModelInstance(request(), $id, true);
                 // Otherwise try finding with trashed and permanently delete
             } else {
                 $model = $baseModelClass::withTrashed()->find($id);
+                $manageableModel->preDeleteModelInstance(request(), $id, false);
                 $model->forceDelete();
                 $permanent = 1;
                 $manageableModel->postDeleteModelInstance(request(), $id, false);
