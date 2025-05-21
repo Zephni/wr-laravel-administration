@@ -251,10 +251,17 @@ class User extends ManageableModel
      */
     public function postDeleteModelInstance(Request $request, int $oldId, bool $soft): void
     {
-        // If not soft delete then delete user data record
-        if(!$soft) {
-            WRLAHelper::getUserDataModelClass()::where('user_id', $oldId)->delete();
-        }
+        // Get the user by their old id
+        $user = WRLAHelper::getUserModelClass()::find($oldId);
+
+        // Get the build wrla user id callable from config
+        $buildWRLAUserIdFunc = config('wr-laravel-administration.build_wrla_user_data_id');
+
+        // Get the user id to delete from the wrla_user_data table
+        $userIdToDelete = is_callable($buildWRLAUserIdFunc) ? $buildWRLAUserIdFunc($user) : $user->id;
+
+        // Delete the user data
+        WRLAHelper::getUserDataModelClass()::where('user_id', $userIdToDelete)->delete();
     }
 
     /**
