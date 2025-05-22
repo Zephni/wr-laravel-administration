@@ -96,7 +96,7 @@ return [
     // Default user data fields (JSON)
     'default_user_data' => [
         'permissions' => ['admin' => false, 'master' => false],
-        'settings' => ['theme' => 'default'],
+        'settings' => [],
         'data' => [],
     ],
 
