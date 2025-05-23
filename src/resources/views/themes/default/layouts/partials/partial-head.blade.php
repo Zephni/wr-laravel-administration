@@ -18,8 +18,8 @@
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         // Livewire browserAlert event
-        Livewire.on('browserAlert', (message) => {
-            alert(message);
+        Livewire.on('browserAlert', (event) => {
+            alert(event.message);
         });
 
         // Auto focus
