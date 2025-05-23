@@ -2,21 +2,23 @@
 
 namespace WebRegulate\LaravelAdministration\Classes;
 
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\MessageBag;
+use Illuminate\Contracts\View\View;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\View\ComponentAttributeBag;
+use WebRegulate\LaravelAdministration\Enums\PageType;
+use WebRegulate\LaravelAdministration\Classes\ManageableFields\Text;
+use WebRegulate\LaravelAdministration\Classes\ManageableFields\Select;
+use WebRegulate\LaravelAdministration\Enums\ManageableModelPermissions;
 use WebRegulate\LaravelAdministration\Classes\BrowseColumns\BrowseColumn;
 use WebRegulate\LaravelAdministration\Classes\BrowseColumns\BrowseColumnBase;
-use WebRegulate\LaravelAdministration\Classes\ManageableFields\Select;
-use WebRegulate\LaravelAdministration\Classes\ManageableFields\Text;
 use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItem;
 use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItemManageableModel;
-use WebRegulate\LaravelAdministration\Enums\ManageableModelPermissions;
-use WebRegulate\LaravelAdministration\Enums\PageType;
 
 abstract class ManageableModel
 {
@@ -39,6 +41,11 @@ abstract class ManageableModel
      * Browse filter fields
      */
     public static array $browseFilterFields = [];
+
+    /**
+     * Registered instance actions
+     */
+    public array $registeredInstanceActions = [];
 
     /**
      * Uses wysiwyg editor
@@ -998,6 +1005,67 @@ abstract class ManageableModel
 
         // Return
         return $tableData;
+    }
+
+    /**
+     * Register instance action
+     * @param callable $action
+     * @return string
+     */
+    public function registerInstanceAction(callable $action): string
+    {
+        $actionKey = 'action'.count($this->registeredInstanceActions);
+        $this->registeredInstanceActions[$actionKey] = $action;
+        return $actionKey;
+    }
+
+    /**
+     * Call a registered instance action by it's key
+     * @param string $actionKey
+     * @throws \Exception
+     * @return mixed
+     */
+    public function callAction(string $actionKey): mixed
+    {
+        if (! array_key_exists($actionKey, $this->registeredInstanceActions)) {
+            throw new \Exception("Action not found: $actionKey");
+        }
+
+        return call_user_func($this->registeredInstanceActions[$actionKey], [$this->getModelInstance()]);
+    }
+
+    /**
+     * Create instance action button
+     * @param string $text
+     * @param mixed $icon
+     * @param mixed $color
+     * @param callable|string $action
+     * @throws \Exception
+     * @return View
+     */
+    public function createInstanceAction(string $text, ?string $icon, ?string $color, callable|string $action, array $additonalAttributes = []): View
+    {
+        // Get instance id
+        $instanceId = $this->getModelInstance()->id;
+
+        // Attributes
+        if (is_string($action)) {
+            $attributes = ['href' => $action];
+        } elseif (is_callable($action)) {            
+            $actionKey = $this->registerInstanceAction($action);
+            $attributes = ['wire:click' => "callManageableModelAction('{$instanceId}', '{$actionKey}')"];
+        } else {
+            throw new \Exception('Action must be a string or callable');
+        }
+
+        // Return view
+        return view(WRLAHelper::getViewPath('components.forms.button'), [
+            'text' => $text,
+            'icon' => $icon ?? 'fa fa-cog',
+            'color' => $color ?? 'primary',
+            'size' => 'small',
+            'attributes' => Arr::toAttributeBag(array_merge($attributes, $additonalAttributes)),
+        ]);
     }
 
     /**

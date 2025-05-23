@@ -1,4 +1,11 @@
-@props(['text' => 'Submit', 'icon' => '', 'size' => 'small', 'color' => 'primary', 'href' => null, 'error' => null])
+@props([
+    'text' => 'Submit',
+    'icon' => '',
+    'size' => 'small',
+    'color' => 'primary',
+    'href' => null,
+    'error' => null
+])
 
 @php
     // Set id from name if unset

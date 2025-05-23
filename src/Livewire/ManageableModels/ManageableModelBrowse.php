@@ -530,4 +530,15 @@ class ManageableModelBrowse extends Component
         // Return false if no filters are set
         return false;
     }
+
+    /**
+     * Call manageable model action.
+     * @param string $actionKey
+     * @return void
+     */
+    public function callManageableModelAction(int $instanceId, string $actionKey) {
+        $manageableModelInstance = $this->manageableModelClass::make($instanceId);
+        $manageableModelInstance->getInstanceActions(collect());
+        $manageableModelInstance->callAction($actionKey);
+    }
 }
