@@ -240,7 +240,7 @@ trait ManageableField
             ])
             ->setLabel($filterLabel, !empty($filterIcon) ? "$filterIcon text-slate-400 mr-1" : null)
             ->setAttributes([
-                'wire:model.debounce.300ms' => 'filters.'.$filterAlias,
+                'wire:model.live' => 'filters.'.$filterAlias,
             ]);
     }
 
