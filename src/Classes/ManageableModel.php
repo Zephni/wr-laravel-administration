@@ -1031,7 +1031,7 @@ abstract class ManageableModel
             throw new \Exception("Action not found: $actionKey");
         }
 
-        return call_user_func($this->registeredInstanceActions[$actionKey], [$this->getModelInstance()]);
+        return call_user_func($this->registeredInstanceActions[$actionKey], $this->getModelInstance());
     }
 
     /**
