@@ -1074,7 +1074,7 @@ class WRLAHelper
 
         // If returned value is a string, dispatch browserAlert
         if (is_string($returnedValue)) {
-            $livewireComponent->dispatch('browserAlert', ['message' => $returnedValue]);
+            $livewireComponent->dispatch('browserAlert', message: $returnedValue);
         }
     }
 
