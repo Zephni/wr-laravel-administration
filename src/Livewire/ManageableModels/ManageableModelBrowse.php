@@ -539,6 +539,11 @@ class ManageableModelBrowse extends Component
     public function callManageableModelAction(int $instanceId, string $actionKey) {
         $manageableModelInstance = $this->manageableModelClass::make($instanceId);
         $manageableModelInstance->getInstanceActions(collect());
-        $manageableModelInstance->callAction($actionKey);
+        $returnedValue = $manageableModelInstance->callAction($actionKey);
+
+        // If returned value is a string, dispatch browserAlert
+        if (is_string($returnedValue)) {
+            $this->dispatchBrowserEvent('browserAlert', ['message' => $returnedValue]);
+        }
     }
 }
