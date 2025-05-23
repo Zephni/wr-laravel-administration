@@ -229,17 +229,8 @@ class ManageableModelUpsert extends Component
 
     /**
      * Call manageable model action.
-     * @param string $actionKey
-     * @return void
      */
     public function callManageableModelAction(int $instanceId, string $actionKey) {
-        $manageableModelInstance = $this->manageableModelClass::make($instanceId);
-        $manageableModelInstance->getInstanceActions(collect());
-        $returnedValue = $manageableModelInstance->callAction($actionKey);
-
-        // If returned value is a string, dispatch browserAlert
-        if (is_string($returnedValue)) {
-            $this->dispatchBrowserEvent('browserAlert', ['message' => $returnedValue]);
-        }
+        WRLAHelper::callManageableModelAction($this, $this->manageableModelClass, $instanceId, $actionKey);
     }
 }

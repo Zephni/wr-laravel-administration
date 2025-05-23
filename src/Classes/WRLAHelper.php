@@ -1064,6 +1064,21 @@ class WRLAHelper
     }
 
     /**
+     * Call manageable model instance action
+     */
+    public static function callManageableModelAction(mixed $livewireComponent, string $manageableModelClass, int $modelInstanceId, string $actionKey)
+    {
+        $manageableModelInstance = $manageableModelClass::make($modelInstanceId);
+        $manageableModelInstance->getInstanceActions(collect());
+        $returnedValue = $manageableModelInstance->callAction($actionKey);
+
+        // If returned value is a string, dispatch browserAlert
+        if (is_string($returnedValue)) {
+            $livewireComponent->dispatch('browserAlert', ['message' => $returnedValue]);
+        }
+    }
+
+    /**
      * Is current route allowed (Based on NavigationItem show and enabled conditions)
      */
     public static function isCurrentRouteAllowed(): bool|string
