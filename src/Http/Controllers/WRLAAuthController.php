@@ -94,6 +94,9 @@ class WRLAAuthController extends Controller
         // Set wrla_impersonating_user in session to original user id
         session()->put('wrla_impersonating_user', $origionalUserId);
 
+        // Set wrla_impersonating_previous_url in session to url before this impersonate request
+        session()->put('wrla_impersonating_previous_url', $request->headers->get('referer', route('wrla.dashboard')));
+
         // If user has admin privilege redirect to dashboard, otherwise redirect to frontend
         if ($userData !== null && $userData->isAdmin()) {
             return redirect()->route('wrla.dashboard');
@@ -126,8 +129,10 @@ class WRLAAuthController extends Controller
         // Forget wrla_impersonating_user from session
         $request->session()->forget('wrla_impersonating_user');
 
-        // Redirect back
-        return redirect()->back();
+        // Redirect to wrla_impersonating_previous_url or back if not set
+        return redirect()->to(
+            $request->session()->get('wrla_impersonating_previous_url', route('wrla.dashboard'))
+        )->with('success', 'Switched back to your original account.');
     }
 
     /**
