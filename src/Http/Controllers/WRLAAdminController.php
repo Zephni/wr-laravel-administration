@@ -75,8 +75,9 @@ class WRLAAdminController extends Controller
      */
     public function upsert(Request $request, string $modelUrlAlias, ?int $modelId = null): View|RedirectResponse
     {
-        // Get the manageable model by its URL alias
+        // Get the manageable model and instance by its URL alias and id
         $manageableModelClass = ManageableModel::getByUrlAlias($modelUrlAlias);
+        $manageableModelInstance = $manageableModelClass::make($modelId);
 
         // If the manageable model is null, redirect to the dashboard with error
         if (is_null($manageableModelClass)) {
@@ -88,7 +89,7 @@ class WRLAAdminController extends Controller
         WRLAHelper::setCurrentActiveManageableModelClass($manageableModelClass);
 
         // If model id doesn't exist then return to dashboard with error
-        if ($modelId != null && $manageableModelClass::getBaseModelClass()::find($modelId) == null) {
+        if ($modelId != null && $manageableModelInstance->getModelInstance() == null) {
             return redirect()->route('wrla.dashboard')->with('error', 'Model '.$manageableModelClass." with ID `$modelId` not found.");
         }
 

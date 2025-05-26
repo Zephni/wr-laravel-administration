@@ -54,6 +54,11 @@ abstract class ManageableModel
     public bool $usesWysiwygEditor = false;
 
     /**
+     * Model instance cache using {manageable model class} => [{model id} => {model instance}]
+     */
+    public static array $modelInstanceCache = [];
+
+    /**
      * Register the manageable model.
      */
     public static function register(): void
@@ -108,7 +113,28 @@ abstract class ManageableModel
         }
         // If model ID is passed, get the model instance by ID
         elseif (is_numeric($modelInstanceOrId)) {
-            $this->setModelInstance(static::getBaseModelClass()::find($modelInstanceOrId));
+            // If static class not found, add array
+            if (!array_key_exists(static::class, self::$modelInstanceCache)) {
+                self::$modelInstanceCache[static::class] = [];
+            }
+
+            // If array key does not exist for this model id, find it and cache it
+            if(!array_key_exists($modelInstanceOrId, self::$modelInstanceCache[static::class]) ) {
+                dump("Model instance with ID {$modelInstanceOrId} not found in cache for manageable model ".static::class);
+                // Find the model instance by ID
+                $modelInstance = static::getBaseModelClass()::find($modelInstanceOrId);
+                
+                // If model instance is not found, throw an exception
+                if ($modelInstance == null) {
+                    throw new \Exception("Model instance with ID {$modelInstanceOrId} not found for manageable model ".static::class);
+                }
+
+                // Cache the model instance
+                self::$modelInstanceCache[static::class][$modelInstanceOrId] = $modelInstance;
+            }
+
+            // Set model instance
+            $this->setModelInstance(self::$modelInstanceCache[static::class][$modelInstanceOrId]);
         }
         // If model instance (extends base model) is passed, set it as the model instance
         elseif ($modelInstanceOrId instanceof (static::getBaseModelClass())) {
