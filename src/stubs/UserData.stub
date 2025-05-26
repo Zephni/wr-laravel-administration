@@ -124,7 +124,7 @@ class UserData extends Model
      * @param mixed $fullName
      * @return string
      */
-    public static function getAvatarStatic(string $avatar, ?string $fullName = null): string
+    public static function getAvatarStatic(?string $avatar, ?string $fullName = null): string
     {
         // If avatar is set, return it
         if (!empty($avatar)) {
