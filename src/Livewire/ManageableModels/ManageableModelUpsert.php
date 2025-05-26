@@ -94,7 +94,6 @@ class ManageableModelUpsert extends Component
         $this->modelId = $modelId;
         $this->upsertType = $upsertType;
         $this->overrideTitle = $overrideTitle;
-
     }
 
     /**
@@ -130,6 +129,11 @@ class ManageableModelUpsert extends Component
     public function render()
     {
         try {
+            // Set page type
+            WRLAHelper::setCurrentPageType($this->upsertType);
+            WRLAHelper::setCurrentActiveManageableModelClass($this->manageableModelClass);
+
+            // Get manageable model and fields data
             $manageableModel = $this->manageableModelClass::make($this->modelId);
             ManageableModel::$livewireFields = $this->livewireData;
             $manageableFields = $manageableModel->getManageableFieldsFinal();
