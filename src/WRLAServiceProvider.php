@@ -388,11 +388,12 @@ class WRLAServiceProvider extends ServiceProvider
                     $userId = WRLAHelper::buildUserId($user);
 
                     if(!empty($user->id)) {
-                        $existingWrlaUserData = $wrlaUserDataClass::where('user_id', $userId)->first();
+                        $existingWrlaUserData = (new $wrlaUserDataClass())->attachUser($user);
 
                         // Return existing data if present
                         if (!empty($existingWrlaUserData)) {
-                            return $existingWrlaUserData;
+                            $wrlaUserData = $existingWrlaUserData;
+                            return;
                         }
                     }
 
