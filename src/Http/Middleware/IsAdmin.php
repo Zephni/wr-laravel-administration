@@ -32,15 +32,15 @@ class IsAdmin
         WRLAHelper::loadNavigationItems();
 
         // Check that current route is both shown and enabled, otherwise redirect to the dashboard with error
-        $isRouteAllowed = WRLAHelper::isCurrentRouteAllowed();
+        // $isRouteAllowed = WRLAHelper::isCurrentRouteAllowed();
 
-        if ($isRouteAllowed !== true) {
-            $message = is_string($isRouteAllowed)
-                ? "Cannot access requested route: $isRouteAllowed"
-                : 'The current route is not enabled or does not exist.';
+        // if ($isRouteAllowed !== true) {
+        //     $message = is_string($isRouteAllowed)
+        //         ? "Cannot access requested route: $isRouteAllowed"
+        //         : 'The current route is not enabled or does not exist.';
 
-            return redirect()->route('wrla.dashboard')->with('error', $message);
-        }
+        //     return redirect()->route('wrla.dashboard')->with('error', $message);
+        // }
 
         return $next($request);
     }
