@@ -27,6 +27,13 @@
     else if($color == 'danger') $colorClasses = 'bg-rose-500 dark:bg-rose-700 text-white dark:text-rose-100 hover:brightness-110 border-rose-500 shadow-lg shadow-slate-400 dark:shadow-slate-700';
 
     $wireClick = $attributes->get('wire:click');
+    if($wireClick) {
+        $attributes = $attributes->merge([
+            'wire:loading.attr' => 'disabled',
+            'wire:loading.class' => 'opacity-80 cursor-not-allowed',
+            'wire:target' => $wireClick
+        ]);
+    }
 @endphp
 
 @if(empty($href))

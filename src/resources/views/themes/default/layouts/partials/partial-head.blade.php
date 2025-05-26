@@ -19,7 +19,9 @@
     document.addEventListener('DOMContentLoaded', function() {
         // Livewire browserAlert event
         Livewire.on('browserAlert', (event) => {
-            setTimeout(() => alert(event.message), 1);
+            setTimeout(() => {
+                alert(event.message);
+            }, 1);
         });
 
         // Auto focus
