@@ -24,6 +24,15 @@
             }, 1);
         });
 
+        // Livewire redirect event
+        Livewire.on('redirect', (event) => {
+            setTimeout(() => {
+                if (event.url) {
+                    window.location.href = event.url;
+                }
+            }, 1);
+        });
+
         // Auto focus
         setTimeout(() => {
             // If field exists with "autofocus" attribute, set focus on it

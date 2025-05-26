@@ -10,6 +10,7 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\View\ComponentAttributeBag;
 use WebRegulate\LaravelAdministration\Enums\PageType;
 use WebRegulate\LaravelAdministration\Classes\ManageableFields\Text;
@@ -1023,9 +1024,9 @@ abstract class ManageableModel
      * Call a registered instance action by it's key
      * @param string $actionKey
      * @throws \Exception
-     * @return mixed
+     * @return string|RedirectResponse String shows message in browser alert message, RedirectResponse redirects to the specified URL
      */
-    public function callAction(string $actionKey): mixed
+    public function callInstanceAction(string $actionKey): mixed
     {
         if (! array_key_exists($actionKey, $this->registeredInstanceActions)) {
             throw new \Exception("Action not found: $actionKey");

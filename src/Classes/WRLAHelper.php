@@ -2,25 +2,26 @@
 
 namespace WebRegulate\LaravelAdministration\Classes;
 
-use Illuminate\Cache\RateLimiting\Limit;
-use Illuminate\Database\Eloquent\Builder;
+use Livewire\Livewire;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\RateLimiter;
+use Intervention\Image\ImageManager;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Validator;
 use Intervention\Image\Drivers\Gd\Driver;
-use Intervention\Image\ImageManager;
-use Livewire\Livewire;
-use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItem;
-use WebRegulate\LaravelAdministration\Enums\ManageableModelPermissions;
+use Illuminate\Support\Facades\RateLimiter;
 use WebRegulate\LaravelAdministration\Enums\PageType;
+use WebRegulate\LaravelAdministration\Enums\ManageableModelPermissions;
+use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItem;
 
 class WRLAHelper
 {
@@ -1070,11 +1071,19 @@ class WRLAHelper
     {
         $manageableModelInstance = $manageableModelClass::make($modelInstanceId);
         $manageableModelInstance->getInstanceActions(collect());
-        $returnedValue = $manageableModelInstance->callAction($actionKey);
+        $returnedValue = $manageableModelInstance->callInstanceAction($actionKey);
 
         // If returned value is a string, dispatch browserAlert
         if (is_string($returnedValue)) {
             $livewireComponent->dispatch('browserAlert', message: $returnedValue);
+        }
+        // If is RedirectResponse, redirect to the given route
+        elseif ($returnedValue instanceof RedirectResponse) {
+            return redirect($returnedValue->getTargetUrl());
+        }
+        // Otherwise, throw exception that given type is not supported as returned value from an instance action
+        elseif (! is_null($returnedValue)) {
+            throw new \Exception('Returned value type "'.gettype($returnedValue).'" is not supported from manageable model instance action. Expected string or RedirectResponse.');
         }
     }
 
