@@ -158,10 +158,7 @@ class User extends ManageableModel
             Json::make($this, 'wrlaUserData.permissions')
                 ->setLabel('Permissions')
                 ->hideContainingBraces()
-                ->mergeDefaultKeyValues(config('wr-laravel-administration.default_user_data.permissions') ?? [
-                    'master' => false,
-                    'admin' => false,
-                ])
+                ->mergeDefaultKeyValues(config('wr-laravel-administration.default_user_data.permissions'))
                 ->jsonFormatValidation([
                     'master' => 'boolean'.(($currentUserData?->user_id == $modelInstance?->id) ? "|wrla_no_change:wrla_user_data,{$currentUserData?->id},permissions->master" : ''),
                     'admin' => 'boolean'.(($currentUserData?->user_id == $modelInstance?->id) ? "|wrla_no_change:wrla_user_data,{$currentUserData?->id},permissions->admin" : ''),
@@ -169,15 +166,14 @@ class User extends ManageableModel
 
             Json::make($this, 'wrlaUserData.settings')
                 ->hideContainingBraces()
-                ->mergeDefaultKeyValues(config('wr-laravel-administration.default_user_data.settings') ?? [
-                    'theme' => 'default'
-                ])
+                ->mergeDefaultKeyValues(config('wr-laravel-administration.default_user_data.settings'))
                 ->jsonFormatValidation([
                     'theme' => 'string|in:default'
                 ]),
 
-            JsonUI::make($this, 'wrlaUserData.data')
-                ->mergeDefaultKeyValues(config('wr-laravel-administration.default_user_data.data') ?? []),
+            Json::make($this, 'wrlaUserData.data')
+                ->hideContainingBraces()
+                ->mergeDefaultKeyValues(config('wr-laravel-administration.default_user_data.data')),
         ];
     }
 
