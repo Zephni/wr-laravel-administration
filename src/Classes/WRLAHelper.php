@@ -177,11 +177,11 @@ class WRLAHelper
         }
 
         // Get current active manageable model and check it has ENABLED permission
-        $activeManageableModelClass = static::getCurrentActiveManageableModelClass();
-        if ($activeManageableModelClass::getPermission(ManageableModelPermissions::ENABLED) !== true) {
-            $message = 'Cannot access requested route: You do not have access to the '.$activeManageableModelClass::getDisplayName().' manageable model.';
-            abort(redirect()->route('wrla.dashboard')->with('error', $message));
-        }
+        // $activeManageableModelClass = static::getCurrentActiveManageableModelClass();
+        // if ($activeManageableModelClass::getPermission(ManageableModelPermissions::ENABLED) !== true) {
+        //     $message = 'Cannot access requested route: You do not have access to the '.$activeManageableModelClass::getDisplayName().' manageable model.';
+        //     abort(redirect()->route('wrla.dashboard')->with('error', $message));
+        // }
 
         // Set the current active manageable model instance
         static::$currentActiveManageableModelInstance = $manageableModelInstance;
