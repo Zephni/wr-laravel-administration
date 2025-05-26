@@ -381,7 +381,7 @@ class WRLAServiceProvider extends ServiceProvider
             // Get wrlaUserData model class
             $wrlaUserDataClass = WRLAHelper::getUserDataModelClass();
 
-            return $user->hasOne($wrlaUserDataClass, 'id', 'user_id')
+            return $user->hasOne($wrlaUserDataClass)
                 // If user data is not found, create a new instance.
                 ->withDefault(function($wrlaUserData, $user) use ($wrlaUserDataClass) {
                     // Get the build user id function from configuration
