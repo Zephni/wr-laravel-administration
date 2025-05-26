@@ -1055,7 +1055,7 @@ abstract class ManageableModel
             $actionKey = $this->registerInstanceAction($action);
             $attributes = ['wire:click' => "callManageableModelAction('{$instanceId}', '{$actionKey}')"];
         } else {
-            throw new \Exception('Action must be a string or callable');
+            throw new \Exception('Action must be a string URL or callable');
         }
 
         // If display on condition is false, return empty view

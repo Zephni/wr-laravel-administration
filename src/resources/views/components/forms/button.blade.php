@@ -25,6 +25,8 @@
     else if($color == 'secondary') $colorClasses = 'bg-slate-700 dark:bg-slate-700 text-slate-100 dark:text-slate-200 hover:brightness-110 border-slate-500 dark:border-slate-600 shadow-lg shadow-slate-400 dark:shadow-slate-700 bg-opacity-90';
     else if($color == 'muted') $colorClasses = 'bg-slate-500 dark:bg-slate-600 text-white dark:text-slate-200 hover:brightness-110 border-slate-700 dark:border-slate-500 shadow-lg shadow-slate-400 dark:shadow-slate-700';
     else if($color == 'danger') $colorClasses = 'bg-rose-500 dark:bg-rose-700 text-white dark:text-rose-100 hover:brightness-110 border-rose-500 shadow-lg shadow-slate-400 dark:shadow-slate-700';
+
+    $wireClick = $attributes->get('wire:click');
 @endphp
 
 @if(empty($href))
@@ -36,7 +38,10 @@
         'class' => "flex justify-center items-center gap-1 whitespace-nowrap $sizeClasses font-semibold border $colorClasses rounded-md shadow-sm whitespace-nowrap"
     ]) }}>
     @if(!empty($icon))
-        <i class="{{ $icon }} text-[13px] mr-1"></i>
+        <i class="{{ $icon }} text-[13px] mr-1" @if(!empty($wireClick)) wire:loading.remove wire:target="{{ $wireClick }}" @endif></i>
+    @endif
+    @if(!empty($wireClick))
+        <i class="fa fa-spinner fa-spin text-[13px] mr-1" wire:loading.flex wire:target="{{ $wireClick }}"></i>
     @endif
     <div class="inline">{!! $text !!}</div>
 @if(empty($href))
