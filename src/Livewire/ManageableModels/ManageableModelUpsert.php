@@ -82,7 +82,7 @@ class ManageableModelUpsert extends Component
 
         // Get the manageable model and base model class
         $this->manageableModelClass = $manageableModelClass;
-        $manageableModelInstance = $this->getModelInstance();
+        $manageableModelInstance = $this->manageableModelClass::make($this->modelId);
         $modelClass = $manageableModelInstance::getBaseModelClass();
 
         // If the model class does not exist, redirect to the dashboard
