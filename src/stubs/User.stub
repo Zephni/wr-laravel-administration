@@ -19,6 +19,7 @@ use \WebRegulate\LaravelAdministration\Classes\ManageableFields\Password;
 use WebRegulate\LaravelAdministration\Classes\BrowseColumns\BrowseColumn;
 use WebRegulate\LaravelAdministration\Classes\BrowseColumns\BrowseColumnImage;
 use WebRegulate\LaravelAdministration\Classes\ManageableFields\ImageCroppable;
+use WebRegulate\LaravelAdministration\Classes\InstanceAction;
 
 class User extends ManageableModel
 {
@@ -187,23 +188,22 @@ class User extends ManageableModel
      */
     public final function getInstanceActions(Collection $instanceActions): Collection
     {
+        // Get user model instance
         $model = $this->getModelInstance();
 
-        // If not current user
-        if($model->id !== Auth::id()) {
-            // If not soft deleted and has impersonate permission, add login as browse action
-            if(method_exists($model, 'trashed') && !$model->trashed() && static::getPermission(self::IMPERSONATE)) {
-                $instanceActions->prepend(
-                    $this->createInstanceAction('Login', null, 'secondary', route('wrla.impersonate.login-as', ['id' => $model->id]), [
-                        'onclick' => "if(!confirm('Login as ' + '{$model->email}' + '?')) { event.preventDefault(); }"
-                    ])
-                );
-            }
-        // Remove delete browse action if current user
-        } else {
+        // Impersonate action
+        $instanceActions->prepend(
+            InstanceAction::make($this, 'Login', 'fas fa-sign-in-alt', 'secondary')
+                ->enableOnCondition($model->id !== Auth::id() && (!method_exists($model, 'trashed') || !$model->trashed()) && static::getPermission(self::IMPERSONATE))
+                ->confirm("Login as {$model->email}?")
+                ->setAction(route('wrla.impersonate.login-as', ['id' => $model->id]))
+        );
+
+        // If the model is the current user, remove the delete action
+        if($model->id == Auth::id()) {
             $instanceActions->forget('delete');
         }
-
+        
         return $instanceActions;
     }
 

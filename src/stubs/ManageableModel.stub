@@ -2,6 +2,7 @@
 
 namespace {{ $NAMESPACE }};
 
+use Illuminate\Support\Collection;
 use WebRegulate\LaravelAdministration\Classes\ManageableModel;
 use WebRegulate\LaravelAdministration\Classes\BrowseColumns\BrowseColumn;
 use WebRegulate\LaravelAdministration\Classes\ManageableFields\Text;
@@ -10,7 +11,7 @@ use WebRegulate\LaravelAdministration\Classes\ManageableFields\TextArea;
 use WebRegulate\LaravelAdministration\Classes\ManageableFields\Select;
 use WebRegulate\LaravelAdministration\Classes\ManageableFields\Heading;
 use WebRegulate\LaravelAdministration\Enums\ManageableModelPermissions;
-use Illuminate\Support\Collection;
+use WebRegulate\LaravelAdministration\Classes\InstanceAction;
 
 class {{ $MODEL }} extends ManageableModel
 {
