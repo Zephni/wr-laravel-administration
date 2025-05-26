@@ -26,9 +26,10 @@ class InstanceAction
      * @param mixed $color
      * @param null|callable|string $action Takes model instance, returns string message or RedirectResponse
      * @param null|bool|callable $enableOnCondition
+     * @param null|array $additonalAttributes
      * @return InstanceAction
      */
-    public static function make(mixed $manageableModelInstance, string $text, ?string $icon = null, ?string $color = null, null|callable|string $action = null, ?array $additonalAttributes = null, null|bool|callable $enableOnCondition = null): InstanceAction
+    public static function make(mixed $manageableModelInstance, string $text, ?string $icon = null, ?string $color = null, null|callable|string $action = null, null|bool|callable $enableOnCondition = null, ?array $additonalAttributes = null): InstanceAction
     {
         // New static instance action
         $instanceAction = new static();
