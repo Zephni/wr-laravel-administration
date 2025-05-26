@@ -70,12 +70,12 @@ abstract class ManageableModel
         WRLAHelper::$globalManageableModelData[static::class] = [
             'baseModelClass' => null,
             'permissions' => [
-                ManageableModelPermissions::ENABLED->value => true,
-                ManageableModelPermissions::CREATE->value => true,
-                ManageableModelPermissions::BROWSE->value => true,
-                ManageableModelPermissions::EDIT->value => true,
-                ManageableModelPermissions::DELETE->value => true,
-                ManageableModelPermissions::RESTORE->value => true,
+                ManageableModelPermissions::ENABLED->value => self::getDefaultPermission(ManageableModelPermissions::ENABLED),
+                ManageableModelPermissions::CREATE->value => self::getDefaultPermission(ManageableModelPermissions::CREATE),
+                ManageableModelPermissions::BROWSE->value => self::getDefaultPermission(ManageableModelPermissions::BROWSE),
+                ManageableModelPermissions::EDIT->value => self::getDefaultPermission(ManageableModelPermissions::EDIT),
+                ManageableModelPermissions::DELETE->value => self::getDefaultPermission(ManageableModelPermissions::DELETE),
+                ManageableModelPermissions::RESTORE->value => self::getDefaultPermission(ManageableModelPermissions::RESTORE),
             ],
             'urlAlias' => 'model',
             'displayName' => [
@@ -85,6 +85,11 @@ abstract class ManageableModel
             'icon' => 'fa fa-cube',
             'hideFromNavigation' => false,
         ];
+    }
+
+    public static function getDefaultPermission(ManageableModelPermissions $permission): bool|callable
+    {
+        return config('wr-laravel-administration.default_manageable_model_permissions.'.$permission->value, true);
     }
 
     /**
@@ -254,6 +259,8 @@ abstract class ManageableModel
 
     /**
      * Set permission.
+     * @param $permission Permission key
+     * @param bool|callable $value Value to set, can be a boolean or a callable that takes $wrlaUserData and returns a boolean.
      */
     public static function setPermission(mixed $permission, bool|callable $value): void
     {
@@ -282,7 +289,7 @@ abstract class ManageableModel
         $value = static::getStaticOption(static::class, 'permissions.'.$permissionKey);
 
         if (is_callable($value)) {
-            return $value();
+            return $value(WRLAHelper::getCurrentUserData());
         }
 
         return $value;
