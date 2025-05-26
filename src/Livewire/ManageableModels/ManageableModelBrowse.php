@@ -2,16 +2,17 @@
 
 namespace WebRegulate\LaravelAdministration\Livewire\ManageableModels;
 
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Collection;
 use Livewire\Component;
 use Livewire\WithPagination;
+use Illuminate\Support\Collection;
+use Illuminate\Database\Eloquent\Builder;
 use Symfony\Component\HttpFoundation\StreamedResponse;
-use WebRegulate\LaravelAdministration\Classes\BrowseColumns\BrowseColumnBase;
+use Livewire\Features\SupportRedirects\HandlesRedirects;
 use WebRegulate\LaravelAdministration\Classes\CSVHelper;
-use WebRegulate\LaravelAdministration\Classes\ManageableModel;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
+use WebRegulate\LaravelAdministration\Classes\ManageableModel;
 use WebRegulate\LaravelAdministration\Enums\ManageableModelPermissions;
+use WebRegulate\LaravelAdministration\Classes\BrowseColumns\BrowseColumnBase;
 
 /**
  * Class ManageableModelBrowse
@@ -20,7 +21,7 @@ use WebRegulate\LaravelAdministration\Enums\ManageableModelPermissions;
  */
 class ManageableModelBrowse extends Component
 {
-    use WithPagination;
+    use HandlesRedirects, WithPagination;
 
     /* Properties
     --------------------------------------------------------------------------*/

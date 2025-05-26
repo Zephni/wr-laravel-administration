@@ -3,6 +3,7 @@
 namespace WebRegulate\LaravelAdministration\Livewire\ManageableModels;
 
 use Livewire\Component;
+use Livewire\Features\SupportRedirects\HandlesRedirects;
 use Livewire\WithFileUploads;
 use WebRegulate\LaravelAdministration\Classes\ManageableModel;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
@@ -17,7 +18,7 @@ class ManageableModelUpsert extends Component
 {
     /* Traits
     --------------------------------------------------------------------------*/
-    use WithFileUploads;
+    use HandlesRedirects, WithFileUploads;
 
     /* Properties
     --------------------------------------------------------------------------*/
