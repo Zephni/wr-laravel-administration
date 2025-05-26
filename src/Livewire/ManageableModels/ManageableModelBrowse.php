@@ -11,6 +11,7 @@ use WebRegulate\LaravelAdministration\Classes\BrowseColumns\BrowseColumnBase;
 use WebRegulate\LaravelAdministration\Classes\CSVHelper;
 use WebRegulate\LaravelAdministration\Classes\ManageableModel;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
+use WebRegulate\LaravelAdministration\Enums\ManageableModelPermissions;
 
 /**
  * Class ManageableModelBrowse
@@ -470,10 +471,19 @@ class ManageableModelBrowse extends Component
         // Get manageable model instance
         $manageableModel = new $this->{'manageableModelClass'}($id);
 
+        // Set current manageable model class and instance
+        WRLAHelper::setCurrentActiveManageableModelClass($this->manageableModelClass);
+        WRLAHelper::setCurrentActiveManageableModelInstance($manageableModel);
+
+        // Check has permission to delete
+        if(!$this->manageableModelClass::getPermission(ManageableModelPermissions::DELETE)) {
+            $this->errorMessage = 'You do not have permission to delete this model.';
+            return;
+        }
+
         // Check that model URL alias matches the manageable model class URL alias
         if ($modelUrlAlias != $this->manageableModelClass::getUrlAlias()) {
             $this->errorMessage = 'Model URL alias does not match the manageable model class URL alias.';
-
             return;
         }
 

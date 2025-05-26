@@ -58,6 +58,11 @@ class WRLAHelper
     public static ?string $currentActiveManageableModelClass = null;
 
     /**
+     * Current active manageable model instance
+     */
+    public static ?ManageableModel $currentActiveManageableModelInstance = null;
+
+    /**
      * Get documenation URL
      */
     public static function getDocumentationUrl(): string
@@ -140,7 +145,7 @@ class WRLAHelper
     }
 
     /**
-     * Set currently active manageable model, if user does not have HAS_ACCESS permission then redirect to dashboard.
+     * Set currently active manageable model, if user does not have ENABLED permission then redirect to dashboard.
      *
      * @param  ?string  $manageableModel  The manageable model to set as active.
      */
@@ -148,7 +153,7 @@ class WRLAHelper
     {
         static::$currentActiveManageableModelClass = $manageableModelClass;
 
-        // Get current active manageable model and check it has HAS_ACCESS permission
+        // Get current active manageable model and check it has ENABLED permission
         if (static::$currentActiveManageableModelClass::getPermission(ManageableModelPermissions::ENABLED) !== true) {
             $message = 'Cannot access requested route: You do not have access to the '.static::$currentActiveManageableModelClass::getDisplayName().' manageable model.';
             abort(redirect()->route('wrla.dashboard')->with('error', $message));
@@ -158,11 +163,66 @@ class WRLAHelper
     }
 
     /**
-     * Get currently active manageable model
+     * Get currently active manageable model class
      */
     public static function getCurrentActiveManageableModelClass(): ?string
     {
         return static::$currentActiveManageableModelClass;
+    }
+
+    /**
+     * Set currently active manageable model instance.
+     * 
+     * @param mixed $manageableModelInstance  The manageable model instance to set as active.
+     */
+    public static function setCurrentActiveManageableModelInstance(mixed $manageableModelInstance): mixed
+    {
+        // If manageable model instance is not an instance of ManageableModel then throw error
+        if (! $manageableModelInstance instanceof ManageableModel) {
+            throw new \Exception('The manageable model instance must be an instance of ManageableModel.');
+        }
+
+        // Set the current active manageable model instance
+        static::$currentActiveManageableModelInstance = $manageableModelInstance;
+
+        return static::$currentActiveManageableModelInstance;
+    }
+
+    /**
+     * Get currently active manageable model instance.
+     */
+    public static function getCurrentActiveManageableModelInstance(): ?ManageableModel
+    {
+        // If current active manageable model instance is not set then return null
+        if (static::$currentActiveManageableModelInstance === null) {
+            return null;
+        }
+
+        // If current active manageable model instance is not an instance of ManageableModel then throw error
+        if (! static::$currentActiveManageableModelInstance instanceof ManageableModel) {
+            throw new \Exception('The current active manageable model instance must be an instance of ManageableModel.');
+        }
+
+        return static::$currentActiveManageableModelInstance;
+    }
+
+    /**
+     * Get currently active manageable model's -> model instance.
+     */
+    public static function getActiveModelInstance(): mixed
+    {
+        // If current active manageable model instance is not set then return null
+        if (static::$currentActiveManageableModelInstance === null) {
+            return null;
+        }
+
+        // If current active manageable model instance is not an instance of ManageableModel then throw error
+        if (! static::$currentActiveManageableModelInstance instanceof ManageableModel) {
+            throw new \Exception('The current active manageable model instance must be an instance of ManageableModel.');
+        }
+
+        // Return the model instance of the current active manageable model instance
+        return static::$currentActiveManageableModelInstance->getModelInstance();
     }
 
     /**

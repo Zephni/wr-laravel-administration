@@ -129,14 +129,15 @@ class ManageableModelUpsert extends Component
     public function render()
     {
         try {
-            // Set page type
-            WRLAHelper::setCurrentPageType($this->upsertType);
-            WRLAHelper::setCurrentActiveManageableModelClass($this->manageableModelClass);
-
             // Get manageable model and fields data
             $manageableModel = $this->manageableModelClass::make($this->modelId);
             ManageableModel::$livewireFields = $this->livewireData;
             $manageableFields = $manageableModel->getManageableFieldsFinal();
+
+            // Set page type
+            WRLAHelper::setCurrentPageType($this->upsertType);
+            WRLAHelper::setCurrentActiveManageableModelClass($this->manageableModelClass);
+            WRLAHelper::setCurrentActiveManageableModelInstance($manageableModel);
 
             // If first render,set default livewire field values
             $usesLivewireFields = false;
