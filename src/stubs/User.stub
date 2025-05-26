@@ -100,7 +100,7 @@ class User extends ManageableModel
     public final function getBrowseColumns(): array
     {
         return [
-            'wrlaUserData.data->profile->avatar' => BrowseColumnImage::make('Avatar', $this->getModelInstance()->wrlaUserData?->getProfileAvatar(), 80)->class('rounded-full')->aspect('1/1'),
+            'wrlaUserData.avatar' => BrowseColumnImage::make('Avatar', $this->getModelInstance()->wrlaUserData?->getProfileAvatar(), 80)->class('rounded-full')->aspect('1/1'),
             'name' => 'Name',
             'email' => 'Email',
             'created_at' => 'Created',

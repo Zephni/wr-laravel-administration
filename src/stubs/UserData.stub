@@ -101,21 +101,8 @@ class UserData extends Model
             return $userAvatarConfig($this->user);
         }
 
-        // If has avatar, return it
-        $avatar = $this->avatar;
-        if (!empty($avatar)) {
-            return '/'.ltrim("storage/images/avatars/$avatar", '/');
-        }
-
-        // Get full name, if empty use 'U'
-        $fullName = $this->getFullName();
-        $fullName = !empty($fullName) ? $fullName : 'U';
-
-        // Get just the first characters of all the words
-        $name = preg_replace('/\b(\w)|./', '$1', $fullName);
-
-        // Otherwise return default
-        return 'https://ui-avatars.com/api/?name=' . urlencode($name) . '&color='.ltrim(config('wr-laravel-administration.colors.primary.50'), '#').'&background='.ltrim(config('wr-laravel-administration.colors.primary.500'), '#').'&size=128&font-size=0.5&rounded=true';
+        // Use static avatar method
+        return self::getAvatarStatic($this->avatar, $this->getFullName());
     }
 
     /**
@@ -130,6 +117,30 @@ class UserData extends Model
 
     /* Static methods
     --------------------------------------------- */
+    /**
+     * Get profile avatar statically
+     * 
+     * @param string $avatar
+     * @param mixed $fullName
+     * @return string
+     */
+    public static function getAvatarStatic(string $avatar, ?string $fullName = null): string
+    {
+        // If avatar is set, return it
+        if (!empty($avatar)) {
+            return '/'.ltrim("storage/images/avatars/$avatar", '/');
+        }
+
+        // Get full name, if empty use 'U'
+        $fullName = !empty($fullName) ? $fullName : 'U';
+
+        // Get just the first characters of all the words
+        $name = preg_replace('/\b(\w)|./', '$1', $fullName);
+
+        // Otherwise return default
+        return 'https://ui-avatars.com/api/?name=' . urlencode((string) $name) . '&color='.ltrim((string) config('wr-laravel-administration.colors.primary.50'), '#').'&background='.ltrim((string) config('wr-laravel-administration.colors.primary.500'), '#').'&size=128&font-size=0.5&rounded=true';
+    }
+    
     /**
      * Get user by email
      * @param string $email

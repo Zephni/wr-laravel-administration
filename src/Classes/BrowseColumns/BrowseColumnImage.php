@@ -9,9 +9,9 @@ class BrowseColumnImage extends BrowseColumnBase
     /**
      * Create a new instance of the class
      *
-     * @param  string  $imagePath  Path to the image including filename
+     * @param string $imagePath Path to the image including filename. If callable is provided it takes the value as a parameter and must return an image path
      */
-    public static function make(?string $label, string $imagePath, null|string|int $width = 140): static
+    public static function make(?string $label, string|callable $imagePath, null|string|int $width = 140): static
     {
         // Build base browse column image
         $browseColumnImage = (new self($label))
@@ -19,11 +19,13 @@ class BrowseColumnImage extends BrowseColumnBase
             ->renderHtml(true)
             ->setOptions([
                 'width' => $width,
-                'value' => $imagePath,
+                'value' => is_string($imagePath) ? $imagePath : null,
             ]);
 
         // Set override render value callback
-        $browseColumnImage->overrideRenderValue = function ($value, $model) use ($browseColumnImage) {
+        $browseColumnImage->overrideRenderValue = function ($value, $model) use ($browseColumnImage, $imagePath) {
+            $value = is_string($imagePath) ? $imagePath : $imagePath($value, $model);
+
             $renderedView = view(WRLAHelper::getViewPath('components.forced-aspect-image', false), [
                 'src' => $value,
                 'class' => $browseColumnImage->getOption('class') ?? ' border border-slate-400',
