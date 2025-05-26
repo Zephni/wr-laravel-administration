@@ -758,6 +758,9 @@ abstract class ManageableModel
             return collect();
         }
 
+        // Set currently active manageable model instance
+        WRLAHelper::setCurrentActiveManageableModelInstance($this);
+
         return $this->getInstanceActions($this->getDefaultInstanceActions());
     }
 

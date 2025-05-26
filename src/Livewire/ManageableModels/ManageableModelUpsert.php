@@ -94,6 +94,10 @@ class ManageableModelUpsert extends Component
         $this->modelId = $modelId;
         $this->upsertType = $upsertType;
         $this->overrideTitle = $overrideTitle;
+
+        // Set page type
+        WRLAHelper::setCurrentPageType($this->upsertType);
+        WRLAHelper::setCurrentActiveManageableModelClass($this->manageableModelClass);
     }
 
     /**
