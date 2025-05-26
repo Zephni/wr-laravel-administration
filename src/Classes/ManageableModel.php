@@ -1036,48 +1036,6 @@ abstract class ManageableModel
     }
 
     /**
-     * Create instance action button
-     * @param string $text
-     * @param mixed $icon
-     * @param mixed $color
-     * @param callable|string $action
-     * @throws \Exception
-     * @return View|null
-     */
-    public function createInstanceAction(string $text, ?string $icon, ?string $color, callable|string $action, ?array $additonalAttributes = [], null|bool|callable $displayOnCondition = null): View|null
-    {
-        // Get instance id
-        $instanceId = $this->getModelInstance()->id;
-
-        // Attributes
-        if (is_string($action)) {
-            $attributes = ['href' => $action];
-        } elseif (is_callable($action)) {            
-            $actionKey = $this->registerInstanceAction($action);
-            $attributes = ['wire:click' => "callManageableModelAction('{$instanceId}', '{$actionKey}')"];
-        } else {
-            throw new \Exception('Action must be a string URL or callable');
-        }
-
-        // If display on condition is false, return empty view
-        if ($displayOnCondition) {
-            $displayOnCondition = is_callable($displayOnCondition) ? $displayOnCondition() : $displayOnCondition;
-            if(!$displayOnCondition) {
-                return null;
-            }
-        }
-        
-        // Return view
-        return view(WRLAHelper::getViewPath('components.forms.button'), [
-            'text' => $text,
-            'icon' => $icon ?? 'fa fa-cog',
-            'color' => $color ?? 'primary',
-            'size' => 'small',
-            'attributes' => Arr::toAttributeBag(array_merge($attributes, $additonalAttributes ?? [])),
-        ]);
-    }
-
-    /**
      * Update the properties of the model instance based on the request and form data.
      *
      * @param  Request  $request  The HTTP request object.
