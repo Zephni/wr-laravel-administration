@@ -385,11 +385,9 @@ class WRLAServiceProvider extends ServiceProvider
                 // If user data is not found, create a new instance.
                 ->withDefault(function($wrlaUserData, $user) use ($wrlaUserDataClass) {
                     // Get the build user id function from configuration
-                    $buildUserIdFunc = config('wr-laravel-administration.build_wrla_user_data_id', null);
+                    $userId = WRLAHelper::buildUserId($user);
 
-                    if(!empty($user->id)) {
-                        $userId = is_callable($buildUserIdFunc) ? $buildUserIdFunc($user) : $user->id;
-
+                    if(!empty($userId)) {
                         $existingWrlaUserData = $wrlaUserDataClass::where('user_id', $userId)->first();
 
                         // Return existing data if present

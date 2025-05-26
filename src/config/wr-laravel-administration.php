@@ -61,7 +61,7 @@ return [
     // Default manageable model permissions, must be a boolean or function that returns a boolean.
     // Can be overriden in a manageable model's mainSetup method.
     'default_manageable_model_permissions' => [
-        ManageableModelPermissions::ENABLED->value => fn($wrlaUserData) => $wrlaUserData->isAdmin(),
+        ManageableModelPermissions::ENABLED->value => fn($wrlaUserData) => $wrlaUserData?->isAdmin() ?? false,
         ManageableModelPermissions::CREATE->value => true,
         ManageableModelPermissions::BROWSE->value => true,
         ManageableModelPermissions::EDIT->value => true,

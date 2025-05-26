@@ -64,7 +64,7 @@
 
     {{-- Impersonating user bar --}}
     @if($WRLAHelper::isImpersonatingUser())
-        <div class="w-full px-5 py-2 bg-slate-850 text-slate-200 overflow-hidden text-sm border-b border-slate-600">
+        <div class="w-full px-5 pt-2 pb-3 bg-slate-850 text-slate-200 overflow-hidden text-sm border-b border-slate-600">
             <a href="{{ route('wrla.impersonate.switch-back') }}" class="text-primary-500">
                 <i class="fa fa-key mr-1"></i>
                 Switch back

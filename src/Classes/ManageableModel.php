@@ -76,6 +76,7 @@ abstract class ManageableModel
                 ManageableModelPermissions::EDIT->value => self::getDefaultPermission(ManageableModelPermissions::EDIT),
                 ManageableModelPermissions::DELETE->value => self::getDefaultPermission(ManageableModelPermissions::DELETE),
                 ManageableModelPermissions::RESTORE->value => self::getDefaultPermission(ManageableModelPermissions::RESTORE),
+                ManageableModelPermissions::SHOW_IN_NAV->value => self::getDefaultPermission(ManageableModelPermissions::SHOW_IN_NAV),
             ],
             'urlAlias' => 'model',
             'displayName' => [
@@ -97,18 +98,20 @@ abstract class ManageableModel
      * If model ID is passed, get the model instance by ID.
      * Otherwise, set the model instance to a new instance of the base model.
      *
-     * @param  mixed|int|null  $modelInstance
+     * @param  null|int|mixed  $modelInstance
      */
     public function __construct($modelInstanceOrId = null)
     {
         // If model instance or id is null, set the model instance to a new instance of the base model
         if ($modelInstanceOrId == null) {
             $this->setModelInstance(new (static::getBaseModelClass()));
-            // If model ID is passed, get the model instance by ID
-        } elseif (is_numeric($modelInstanceOrId)) {
+        }
+        // If model ID is passed, get the model instance by ID
+        elseif (is_numeric($modelInstanceOrId)) {
             $this->setModelInstance(static::getBaseModelClass()::find($modelInstanceOrId));
-            // If model instance (extends base model) is passed, set it as the model instance
-        } elseif ($modelInstanceOrId instanceof (static::getBaseModelClass())) {
+        }
+        // If model instance (extends base model) is passed, set it as the model instance
+        elseif ($modelInstanceOrId instanceof (static::getBaseModelClass())) {
             $this->setModelInstance($modelInstanceOrId);
         }
     }
@@ -289,7 +292,7 @@ abstract class ManageableModel
         $value = static::getStaticOption(static::class, 'permissions.'.$permissionKey);
 
         if (is_callable($value)) {
-            return $value(WRLAHelper::getCurrentUserData());
+            return $value(WRLAHelper::getCurrentUserData()) ?? false;
         }
 
         return $value;
@@ -792,9 +795,9 @@ abstract class ManageableModel
      */
     public function getManageableFieldsFinal(): array
     {
-        if (! static::getPermission(ManageableModelPermissions::ENABLED)) {
-            return [];
-        }
+        // if (! static::getPermission(ManageableModelPermissions::ENABLED)) {
+        //     return [];
+        // }
 
         // Simply remove any null values from the manageable fields
         $manageableFields = once(fn () => array_filter($this->getManageableFields()));

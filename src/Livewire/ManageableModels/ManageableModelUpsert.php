@@ -7,6 +7,7 @@ use Livewire\Features\SupportRedirects\HandlesRedirects;
 use Livewire\WithFileUploads;
 use WebRegulate\LaravelAdministration\Classes\ManageableModel;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
+use WebRegulate\LaravelAdministration\Enums\ManageableModelPermissions;
 use WebRegulate\LaravelAdministration\Enums\PageType;
 
 /**
@@ -102,7 +103,7 @@ class ManageableModelUpsert extends Component
         WRLAHelper::setCurrentActiveManageableModelInstance($manageableModelInstance);
 
         // If the user does not have permission to edit the manageable model, redirect to the dashboard
-        if(!$this->manageableModelClass::getPermission($this->upsertType)) {
+        if(!$this->manageableModelClass::getPermission(ManageableModelPermissions::ENABLED) || !$this->manageableModelClass::getPermission($this->upsertType)) {
             $formattedUpsertType = str($this->upsertType->value)->lower()->toString();
             return redirect()->route('wrla.dashboard')->with('error', "You do not have permission to {$formattedUpsertType} this manageable model.");
         }

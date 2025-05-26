@@ -103,6 +103,24 @@ class WRLAHelper
     }
 
     /**
+     * Build user id from user model instance.
+     * 
+     * @param mixed $user  The user model instance to build the user id from.
+     * @return mixed
+     */
+    public static function buildUserId(mixed $user): mixed
+    {
+        // Get the build user id function from configuration
+        $buildUserIdFunc = config('wr-laravel-administration.build_wrla_user_data_id', null);
+
+        if(empty($user?->id)) {
+            return null;
+        }
+
+        return is_callable($buildUserIdFunc) ? $buildUserIdFunc($user) : $user->id;
+    }
+
+    /**
      * Builds page title from 'title_template' config which uses the format '{page_title} - WebRegulate Admin'.
      *
      * @param  string  $pageTitle  The page title to build.
@@ -180,7 +198,7 @@ class WRLAHelper
         // $activeManageableModelClass = static::getCurrentActiveManageableModelClass();
         // if ($activeManageableModelClass::getPermission(ManageableModelPermissions::ENABLED) !== true) {
         //     $message = 'Cannot access requested route: You do not have access to the '.$activeManageableModelClass::getDisplayName().' manageable model.';
-        //     abort(redirect()->route('wrla.dashboard')->with('error', $message));
+        //     return redirect()->route('wrla.dashboard')->with('error', $message);
         // }
 
         // Set the current active manageable model instance

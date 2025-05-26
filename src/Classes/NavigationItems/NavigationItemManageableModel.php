@@ -54,7 +54,10 @@ class NavigationItemManageableModel extends NavigationItem
      */
     public function checkShowCondition(): bool
     {
-        if (! $this->manageableModelClass::getPermission(ManageableModelPermissions::ENABLED)) {
+        if (
+            !$this->manageableModelClass::getPermission(ManageableModelPermissions::ENABLED)
+            || !$this->manageableModelClass::getPermission(ManageableModelPermissions::SHOW_IN_NAV)
+        ) {
             return false;
         }
 

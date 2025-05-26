@@ -10,4 +10,5 @@ enum ManageableModelPermissions: string
     case EDIT = 'EDIT';
     case DELETE = 'DELETE';
     case RESTORE = 'RESTORE';
+    case SHOW_IN_NAV = 'SHOW_IN_NAV';
 }
