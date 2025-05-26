@@ -387,8 +387,8 @@ class WRLAServiceProvider extends ServiceProvider
                     // Get the build user id function from configuration
                     $userId = WRLAHelper::buildUserId($user);
 
-                    if(!empty($userId)) {
-                        $existingWrlaUserData = (new $wrlaUserDataClass())->attachUser($user);
+                    if(!empty($user->id)) {
+                        $existingWrlaUserData = $wrlaUserDataClass::where('user_id', $userId)->first();
 
                         // Return existing data if present
                         if (!empty($existingWrlaUserData)) {

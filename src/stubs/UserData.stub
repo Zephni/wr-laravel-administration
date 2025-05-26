@@ -46,7 +46,7 @@ class UserData extends Model
     public function attachUser(mixed $user): static
     {
         $this->user = $user;
-        $this->user_id = $user->id;
+        $this->user_id = WRLAHelper::buildUserId($user);
         return $this;
     }
 
