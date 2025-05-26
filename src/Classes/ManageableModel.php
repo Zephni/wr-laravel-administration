@@ -120,7 +120,6 @@ abstract class ManageableModel
 
             // If array key does not exist for this model id, find it and cache it
             if(!array_key_exists($modelInstanceOrId, self::$modelInstanceCache[static::class]) ) {
-                dump("Model instance with ID {$modelInstanceOrId} not found in cache for manageable model ".static::class);
                 // Find the model instance by ID
                 $modelInstance = static::getBaseModelClass()::find($modelInstanceOrId);
                 
