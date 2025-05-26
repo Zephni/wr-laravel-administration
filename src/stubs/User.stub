@@ -44,7 +44,8 @@ class User extends ManageableModel
         static::setIcon('fa fa-user');
 
         // Permissions
-        static::setPermission(self::IMPERSONATE, function() { return WRLAHelper::getCurrentUserData()->isMaster(); });
+        static::setPermission(ManageableModelPermissions::DELETE, fn($wrlaUserData) => $wrlaUserData->user_id != WRLAHelper::getCurrentUserData()?->user_id);
+        static::setPermission(self::IMPERSONATE, fn($wrlaUserData) => $wrlaUserData->isMaster());
     }
 
     /**
