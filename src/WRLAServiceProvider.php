@@ -381,19 +381,18 @@ class WRLAServiceProvider extends ServiceProvider
             // Get wrlaUserData model class
             $wrlaUserDataClass = WRLAHelper::getUserDataModelClass();
 
-            return $user->hasOne($wrlaUserDataClass)
+            return $user->hasOne($wrlaUserDataClass, 'id', 'user_id')
                 // If user data is not found, create a new instance.
                 ->withDefault(function($wrlaUserData, $user) use ($wrlaUserDataClass) {
                     // Get the build user id function from configuration
                     $userId = WRLAHelper::buildUserId($user);
 
                     if(!empty($user->id)) {
-                        $existingWrlaUserData = (new $wrlaUserDataClass())->attachUser($user);
+                        $existingWrlaUserData = $wrlaUserDataClass::where('user_id', $userId)->first();
 
                         // Return existing data if present
                         if (!empty($existingWrlaUserData)) {
-                            $wrlaUserData = $existingWrlaUserData;
-                            return;
+                            return $existingWrlaUserData;
                         }
                     }
 
@@ -415,6 +414,8 @@ class WRLAServiceProvider extends ServiceProvider
                             $wrlaUserData->save();
                         }
                     }
+
+                    return $wrlaUserData;
                 });
         });
     }
