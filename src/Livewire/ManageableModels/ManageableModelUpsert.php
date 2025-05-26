@@ -98,6 +98,13 @@ class ManageableModelUpsert extends Component
         // Set page type
         WRLAHelper::setCurrentPageType($this->upsertType);
         WRLAHelper::setCurrentActiveManageableModelClass($this->manageableModelClass);
+        WRLAHelper::setCurrentActiveManageableModelInstance($manageableModelInstance);
+
+        // If the user does not have permission to edit the manageable model, redirect to the dashboard
+        if(!$this->manageableModelClass::getPermission($this->upsertType)) {
+            $formattedUpsertType = str($this->upsertType->value)->lower()->toString();
+            return redirect()->route('wrla.dashboard')->with('error', "You do not have permission to {$formattedUpsertType} this manageable model.");
+        }
     }
 
     /**
