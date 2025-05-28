@@ -307,7 +307,7 @@ class SearchableValue
             'itemsCallable' => $this->itemsCallable,
             'selectedValueText' => $selectedValueText,
             'searchAttributes' => new ComponentAttributeBag([
-                'wire:model.live' => "livewireData.{$attributes['name']}_searchable_value",
+                'wire:model.live.debounce.400ms' => "livewireData.{$attributes['name']}_searchable_value",
                 'placeholder' => $this->getAttribute('placeholder') ?? 'Search...',
             ]),
             'attributes' => new ComponentAttributeBag(collect($this->htmlAttributes)->merge([
