@@ -882,7 +882,7 @@ trait ManageableField
     {
         return once(function() {
             try {
-                // Get model instance, field name and relationship parts
+                // Get model instance, field name and relationship parts.
                 $modelInstance = $this->manageableModel->getModelInstance();
                 $fieldName = str($this->htmlAttributes['name'])->replace(WRLAHelper::WRLA_REL_DOT, '.');
                 $relationshipParts = WRLAHelper::parseBrowseColumnRelationship($fieldName);
