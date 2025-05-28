@@ -881,32 +881,38 @@ trait ManageableField
     public function getRelationshipInstance(): mixed
     {
         return once(function() {
-            try {
-                // Get model instance, field name and relationship parts.
-                $modelInstance = $this->manageableModel->getModelInstance();
-                $fieldName = str($this->htmlAttributes['name'])->replace(WRLAHelper::WRLA_REL_DOT, '.');
-                $relationshipParts = WRLAHelper::parseBrowseColumnRelationship($fieldName);
-    
-    
-                if($modelInstance == null) {
-                    dd($modelInstance, $fieldName, $relationshipParts);
-                }
-    
+            // Get model instance, field name and relationship parts.
+            $modelInstance = $this->manageableModel->getModelInstance();
+            $fieldName = str($this->htmlAttributes['name'])->replace(WRLAHelper::WRLA_REL_DOT, '.');
+            $relationshipParts = WRLAHelper::parseBrowseColumnRelationship($fieldName);
+
+
+            if($modelInstance == null) {
+                dd('This model instance no longer exists', $modelInstance, $fieldName, $relationshipParts);
+            }
+
+            // Check relation exists on model instance
+            if(method_exists($modelInstance, $relationshipParts[0])) {
                 // Reload and get relationship instance
                 $modelInstance->load($relationshipParts[0]);
                 $relationshipInstance = $modelInstance->{$relationshipParts[0]};
-    
-                // If relationship instance is not null, return it
-                if($relationshipInstance != null) return $relationshipInstance;
-    
-                // Get model class from relationship and return new instance
-                $relationship = $modelInstance->{$relationshipParts[0]}();
-                $relationshipClass = $relationship->getRelated()::class;
-                return new $relationshipClass;
-            } catch (\Exception $e) {
-                // If any error occurs, return null
-                return null;
             }
+
+            // Check whether dynamic relationship exists
+            if(!isset($relationshipInstance) || $relationshipInstance === null) {
+                // If relationshipParts has more than 1 part, we need to get the nested relationship
+                if(count($relationshipParts) > 1) {
+                    $relationshipInstance = $modelInstance->{$relationshipParts[0]}()->first();
+                }
+            }
+
+            // If relationship instance is not null, return it
+            if($relationshipInstance != null) return $relationshipInstance;
+
+            // Get model class from relationship and return new instance
+            $relationship = $modelInstance->{$relationshipParts[0]}();
+            $relationshipClass = $relationship->getRelated()::class;
+            return new $relationshipClass;
         });
     }
 
