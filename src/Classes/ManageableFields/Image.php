@@ -407,7 +407,7 @@ class Image
         $fileSystemImageExists = true;
         try {
             if (! str($this->getValue())->startsWith('http')) {
-                $fileSystemImageExists = $this->getFileSystem()->exists($this->getDiskStoragePath());
+                // $fileSystemImageExists = $this->getFileSystem()->exists($this->getDiskStoragePath());
             }
         } catch (Exception) {
             // $fileSystemImageExists = false;
