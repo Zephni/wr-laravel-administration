@@ -7,12 +7,19 @@
 ])
 
 {{-- Need to work on the below --}}
-{{-- @php
-    if(empty($originalSrc) && !str_starts_with($src, 'http') && !file_exists($WRLAHelper::forwardSlashPath($src))) {
+@php
+    if(
+        empty($originalSrc)
+        && !str_starts_with($src, 'http')
+        && (
+            !is_file(public_path($WRLAHelper::forwardSlashPath($src)))
+            || !file_exists(public_path($WRLAHelper::forwardSlashPath($src))
+        )
+    )) {
         $originalSrc = $src;
         $src = $WRLAHelper::forwardSlashPath($WRLAHelper::getCurrentThemeData('no_image_src'));
     }
-@endphp --}}
+@endphp
 
 <img
     src="{{ $src }}"
