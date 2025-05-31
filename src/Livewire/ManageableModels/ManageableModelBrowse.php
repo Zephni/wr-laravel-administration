@@ -229,7 +229,7 @@ class ManageableModelBrowse extends Component
         }
 
         // Get all headings (array of all column names)
-        $headings = array_keys(is_array($models->first()) ? $models->first() : $models->toArray());
+        $headings = $this->manageableModelClass::getTableColumns(); 
 
         // Sort data
         if (! is_array($models->first()) && isset($models->first()['id'])) {

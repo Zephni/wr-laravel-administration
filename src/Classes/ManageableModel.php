@@ -1021,9 +1021,23 @@ abstract class ManageableModel
     }
 
     /**
+     * Get all columns
+     * 
+     * @return array
+     */
+    public static function getAllColumns(): array
+    {
+        // Get the table data for each column, allow for failure in case where this isn't a mysql database
+        $tableData = static::getTableData();
+
+        // Return the columns as an array
+        return collect($tableData)->pluck('Field')->toArray();
+    }
+
+    /**
      * Store and get table data for the base model
      */
-    public function getTableData(): array
+    public static function getTableData(): array
     {
         // If already set, return the table data
         $tableData = static::getStaticOption(static::class, 'tableData');
