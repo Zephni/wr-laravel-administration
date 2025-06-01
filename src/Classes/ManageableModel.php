@@ -1045,9 +1045,12 @@ abstract class ManageableModel
             return $tableData;
         }
 
+        // Create dummy base model instance
+        $modelInstance = new (static::getBaseModelClass());
+
         // Get table data
         try {
-            $tableData = once(fn () => $this->getModelInstance()->getConnection()->select("SHOW COLUMNS FROM {$this->getModelInstance()->getTable()}")
+            $tableData = once(fn () => $modelInstance->getConnection()->select("SHOW COLUMNS FROM {$modelInstance->getTable()}")
             );
         } catch (\Exception) {
             return [];
