@@ -704,6 +704,7 @@ abstract class ManageableModel
                 ->setAttributes([
                     'autofocus' => true,
                     'placeholder' => 'Search filter...',
+                    'autocomplete' => "off"
                 ])
                 ->browseFilterApply(fn (Builder $query, $table, $columns, $value) => $query->where(function ($query) use ($table, $columns, $value): void {
                     $whereIndex = 0;
