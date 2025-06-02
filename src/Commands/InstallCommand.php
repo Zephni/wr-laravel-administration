@@ -2,8 +2,8 @@
 
 namespace WebRegulate\LaravelAdministration\Commands;
 
-use App\Models\User;
 use Illuminate\Console\Command;
+use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 

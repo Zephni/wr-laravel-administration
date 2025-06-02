@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\View\ComponentAttributeBag;
+use WebRegulate\LaravelAdministration\Commands\UninstallCommand;
 use WebRegulate\LaravelAdministration\Livewire\Logs;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 use WebRegulate\LaravelAdministration\Commands\WikiCommand;
@@ -121,6 +122,7 @@ class WRLAServiceProvider extends ServiceProvider
             CreateUserCommand::class,
             EditUserCommand::class,
             WikiCommand::class,
+            UninstallCommand::class,
         ]);
 
         // Custom logging channels
