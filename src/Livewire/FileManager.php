@@ -54,6 +54,12 @@ class FileManager extends Component
     public function updatedUploadFile($value)
     {
         if ($value && $this->uploadFilePath !== null) {
+            // File must be an image or video
+            if (! in_array($value->getMimeType(), ['image/jpeg', 'image/png', 'image/gif', 'image/svg+xml', 'image/webp', 'video/mp4'])) {
+                $this->addError('uploadFile', 'Only images and videos are allowed.');
+                return;
+            }
+
             // Get full file name
             $fileName = $value->getClientOriginalName();
 
