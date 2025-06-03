@@ -15,18 +15,26 @@ Route::group(['namespace' => 'WebRegulate\LaravelAdministration\Http\Controllers
 
         // Auth controller
         Route::group(['controller' => WRLAAuthController::class, 'middleware' => ['wrla_is_not_admin']], function (): void {
-            // Base Url if not logged in
-            Route::get('', fn () => redirect()->route('wrla.login'));
+            // Login - If wrla_auth_routes_enabled is true
+            if (config('wr-laravel-administration.wrla_auth_routes_enabled', false)) {
+                // Base Url if not logged in
+                Route::get('', fn () => redirect()->route('wrla.login'));
 
-            // Login
-            Route::get('login', 'login')->name('login');
-            Route::post('login', 'loginPost')->name('login.post');
+                // Login
+                Route::get('login', 'login')->name('login');
+                Route::post('login', 'loginPost')->name('login.post');
+            
 
-            // Forgot / Reset password
-            Route::get('forgot-password', 'forgotPassword')->name('forgot-password');
-            Route::post('forgot-password', 'forgotPasswordPost')->name('forgot-password.post');
-            Route::get('reset-password/{email}/{token}', 'resetPassword')->name('reset-password');
-            Route::post('reset-password/{token}', 'resetPasswordPost')->name('reset-password.post');
+                // Forgot / Reset password
+                Route::get('forgot-password', 'forgotPassword')->name('forgot-password');
+                Route::post('forgot-password', 'forgotPasswordPost')->name('forgot-password.post');
+                Route::get('reset-password/{email}/{token}', 'resetPassword')->name('reset-password');
+                Route::post('reset-password/{token}', 'resetPasswordPost')->name('reset-password.post');
+            }
+            // If wrla_auth_routes_enabled is false, redirect to the frontend 
+            else {
+                Route::get('', fn () => redirect('/'))->name('login');
+            }
         });
 
         // Administration controller

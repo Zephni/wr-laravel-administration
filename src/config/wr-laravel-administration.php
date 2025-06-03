@@ -23,6 +23,9 @@ return [
         SECURITY CONFIGURATION
     --------------------------------------------------------------------------*/
 
+    // WRLA auth routes enabled (Disable to switch off WRLA's login, forgot password, reset password, etc.)
+    'wrla_auth_routes_enabled' => true,
+
     // Captcha configuration (used for login and forgot password)
     'captcha' => [
         // Use 'turnstile' for CloudFlare Turnstile, or null to disable
