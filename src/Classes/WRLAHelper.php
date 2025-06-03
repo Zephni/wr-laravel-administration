@@ -479,28 +479,30 @@ class WRLAHelper
      * Inline rate limit
      * 
      * @param int $maxAttemptsPerMinute - Number of attempts allowed per minute
-     * @param ?callback $callback - Optional callback to execute if rate limit is exceeded, otherwise we abort the request
-     * @return void
+     * @param bool $autoAbort - Whether to automatically abort the request if rate limit has exceeded.
+     * @return bool Returns true if rate limit has exceeded, otherwise it will increment the rate limit count and return false.
      */
-    public static function rateLimit(int $maxAttemptsPerMinute, ?callable $callback = null): void
+    public static function rateLimit(int $maxAttemptsPerMinute, bool $autoAbort = true): bool
     {
         // Unique key
         $key = Auth::id() ?: request()->ip();
 
         // Check if the user has hit the rate limit
         if (RateLimiter::tooManyAttempts($key, $maxAttemptsPerMinute)) {
-            // If a callback is provided, execute it
-            if (is_callable($callback)) {
-                $callback();
-            }
-            // Otherwise, abort the request with a 429 Too Many Requests response
-            else {
+            // If auto abort is true, then abort the request with a 429 Too Many Requests response
+            if ($autoAbort) {
                 abort(429, 'Too many requests. Please try again later.');
             }
+            
+            // Return true to indicate that the rate limit has been exceeded
+            return true;
         }
 
         // Record a hit (increment the rate limit count)
         RateLimiter::hit($key, 60); // Limit resets after 60 seconds
+
+        // Return false to indicate that the rate limit has not been exceeded
+        return false;
     }
 
     /**
