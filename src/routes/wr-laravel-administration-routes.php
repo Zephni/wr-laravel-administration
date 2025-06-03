@@ -16,7 +16,7 @@ Route::group(['namespace' => 'WebRegulate\LaravelAdministration\Http\Controllers
         // Auth controller
         Route::group(['controller' => WRLAAuthController::class, 'middleware' => ['wrla_is_not_admin']], function (): void {
             // Login - If wrla_auth_routes_enabled is true
-            if (config('wr-laravel-administration.wrla_auth_routes_enabled', false)) {
+            if (config('wr-laravel-administration.wrla_auth_routes_enabled')) {
                 // Base Url if not logged in
                 Route::get('', fn () => redirect()->route('wrla.login'));
 
