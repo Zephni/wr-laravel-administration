@@ -53,6 +53,11 @@ class FileManager extends Component
     --------------------------------------------------------------------------*/
     public function updatedUploadFile($value)
     {
+        if(config('wr-laravel-administration.file_manager.enabled', false) !== true) {
+            abort(403, 'Access to file manager permission denied.');
+            return;
+        }
+
         if ($value && $this->uploadFilePath !== null) {
             // Use config can_upload_mime_types to check if the file type is allowed
             $canUploadMimeTypes = config('wr-laravel-administration.file_manager.can_upload_mime_types', []);
