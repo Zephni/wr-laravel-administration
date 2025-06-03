@@ -267,6 +267,10 @@ class WRLAAuthController extends Controller
         }
 
         // Redirect to login
-        return redirect()->route('wrla.login');
+        if(config('wr-laravel-administration.wrla_auth_routes_enabled')) {
+            return redirect()->route('wrla.login');
+        } {
+            return redirect('/');
+        }
     }
 }
