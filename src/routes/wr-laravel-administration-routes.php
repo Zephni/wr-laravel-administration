@@ -46,7 +46,9 @@ Route::group(['namespace' => 'WebRegulate\LaravelAdministration\Http\Controllers
             Route::get('dashboard', 'index')->name('dashboard');
 
             // View file manager
-            Route::get('file-manager', 'fileManager')->name('file-manager');
+            if(config('wr-laravel-administration.file_manager.enabled', false)) {
+                Route::get('file-manager', 'fileManager')->name('file-manager');
+            }
 
             // View logs
             Route::get('logs', 'logs')->name('logs');
