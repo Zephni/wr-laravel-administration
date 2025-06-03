@@ -54,9 +54,10 @@ class FileManager extends Component
     public function updatedUploadFile($value)
     {
         if ($value && $this->uploadFilePath !== null) {
-            // File must be an image or video
-            if (! in_array($value->getMimeType(), ['image/jpeg', 'image/png', 'image/gif', 'image/svg+xml', 'image/webp', 'video/mp4'])) {
-                $this->addError('uploadFile', 'Only images and videos are allowed.');
+            // Use config can_upload_mime_types to check if the file type is allowed
+            $canUploadMimeTypes = config('wr-laravel-administration.file_manager.can_upload_mime_types', []);
+            if (!in_array($value->getMimeType(), $canUploadMimeTypes)) {
+                $this->addError('uploadFile', 'Can only upload files of type: '.implode(', ', $canUploadMimeTypes));
                 return;
             }
 

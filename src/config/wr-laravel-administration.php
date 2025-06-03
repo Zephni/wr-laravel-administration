@@ -142,6 +142,14 @@ return [
         'enabled' => true,
         'max_characters' => 500000,
         'default_filesystem' => 'public', // Use null or empty string to display all filesystems
+        'can_upload_mime_types' => [
+            'image/jpeg',
+            'image/png',
+            'image/gif',
+            'image/svg+xml',
+            'image/webp',
+            'video/mp4'
+        ],
         'file_systems' => [
             'public' => [
                 'enabled' => true,
