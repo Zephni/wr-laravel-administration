@@ -31,6 +31,8 @@
         }
     },
     addTag(tag) {
+        tag = tag.trim();
+        
         if (tag && !this.tags.includes(tag)) {
             this.tags.push(tag);
             this.newTag = '';
@@ -65,6 +67,7 @@ style="width: 100%; max-width: 100%;"
             x-ref="newTagInput"
             x-model="newTag"
             @input="handleInput($event)"
+            @blur="addTag(newTag)"
             @keydown.enter.prevent="addTag(newTag)"
             @keydown.backspace="if (!newTag) removeTag(tags.length - 1)"
             class="border-none outline-none focus:ring-0 flex-1 bg-transparent
