@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
 use Intervention\Image\ImageManager;
@@ -472,6 +473,34 @@ class WRLAHelper
         }
 
         return $rateLimitByCompiled;
+    }
+
+    /**
+     * Inline rate limit
+     * 
+     * @param int $maxAttemptsPerMinute - Number of attempts allowed per minute
+     * @param ?callback $callback - Optional callback to execute if rate limit is exceeded, otherwise we abort the request
+     * @return void
+     */
+    public static function rateLimit(int $maxAttemptsPerMinute, ?callable $callback = null): void
+    {
+        // Unique key
+        $key = Auth::id() ?: request()->ip();
+
+        // Check if the user has hit the rate limit
+        if (RateLimiter::tooManyAttempts($key, $maxAttemptsPerMinute)) {
+            // If a callback is provided, execute it
+            if (is_callable($callback)) {
+                $callback();
+            }
+            // Otherwise, abort the request with a 429 Too Many Requests response
+            else {
+                abort(429, 'Too many requests. Please try again later.');
+            }
+        }
+
+        // Record a hit (increment the rate limit count)
+        RateLimiter::hit($key, 60); // Limit resets after 60 seconds
     }
 
     /**
