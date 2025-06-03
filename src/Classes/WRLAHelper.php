@@ -441,7 +441,7 @@ class WRLAHelper
         }
 
         // If auth routes are not enabled, 404
-        abort(404, 'You must be logged in as an administrator to access this page.');
+        abort(404);
     }
 
     /**
