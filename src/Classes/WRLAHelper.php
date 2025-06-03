@@ -430,6 +430,23 @@ class WRLAHelper
         return $flattenedNavigationItems;
     }
 
+    public static function handleRedirectOnFailedLogin()
+    {
+        if(config('wr-laravel-administration.wrla_auth_routes_enabled')) {
+            // If auth routes are enabled, redirect to login
+            return redirect()->route('wrla.login')->with(
+                'error',
+                'You must be logged in as an administrator to access this page.'
+            );
+        }
+
+        // If auth routes are not enabled, redirect to the frontend
+        return redirect('/')->with(
+            'error',
+            'You must be logged in as an administrator to access this page.'
+        );
+    }
+
     /**
      * Build rate limiter from rate_limiting configuration array item.
      *

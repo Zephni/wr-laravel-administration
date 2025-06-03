@@ -22,10 +22,7 @@ class IsAdmin
 
         // Check if not logged in or not admin
         if ($wrlaUserData == null || ($wrlaUserData?->getPermission('admin') ?? false) !== true) {
-            return redirect()->route('wrla.login')->with(
-                'error',
-                'You do not have permission to access this page.'
-            );
+            return WRLAHelper::handleRedirectOnFailedLogin();
         }
 
         // Load navigation items into static array

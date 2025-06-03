@@ -33,7 +33,7 @@ Route::group(['namespace' => 'WebRegulate\LaravelAdministration\Http\Controllers
             }
             // If wrla_auth_routes_enabled is false, redirect to the frontend 
             else {
-                Route::get('', fn () => redirect('/'))->name('login');
+                Route::get('', fn () => redirect('/'));
             }
         });
 
