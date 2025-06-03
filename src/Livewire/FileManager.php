@@ -61,6 +61,14 @@ class FileManager extends Component
                 return;
             }
 
+            // If ends with .php*, or .sh*, or .bat*, or .exe*, or .js*, or .py*, or .pl*, or .rb*, or .go*
+            $disallowedExtensions = ['php', 'sh', 'bat', 'exe', 'js', 'py', 'pl', 'rb', 'go'];
+            $fileExtension = strtolower($value->getClientOriginalExtension());
+            if (in_array($fileExtension, $disallowedExtensions)) {
+                $this->addError('uploadFile', 'Cannot upload files with the following extensions: '.implode(', ', $disallowedExtensions));
+                return;
+            }
+
             // Get full file name
             $fileName = $value->getClientOriginalName();
 
