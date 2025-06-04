@@ -106,7 +106,7 @@ return [
 
     // User avatar, override the default user image path with a callback function that passes the \App\Models\User model as an argument
     'user_avatar' => null,
-    // 'user_avatar' => fn(\App\Models\User $user) => $user->profile_image,
+    // 'user_avatar' => fn(?\App\Models\User $user) => $user?->profile_image,
 
     // Default user data fields (JSON)
     'default_user_data' => [
