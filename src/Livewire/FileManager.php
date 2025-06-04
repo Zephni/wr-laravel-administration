@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
 use Livewire\WithFileUploads;
+use Symfony\Component\Mime\MimeTypes;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 
 class FileManager extends Component
@@ -58,19 +59,30 @@ class FileManager extends Component
             return;
         }
 
-        if ($value && $this->uploadFilePath !== null) {
-            // Use config can_upload_mime_types to check if the file type is allowed
+        if ($value && $this->uploadFilePath !== null) {#
+            // Get can uplpoad mime types from config
             $canUploadMimeTypes = config('wr-laravel-administration.file_manager.can_upload_mime_types', []);
+
+            // Use config can_upload_mime_types to check if the file type is allowed
             if (!in_array($value->getMimeType(), $canUploadMimeTypes)) {
                 $this->addError('uploadFile', 'Can only upload files of type: '.implode(', ', $canUploadMimeTypes));
                 return;
             }
 
-            // If ends with .php*, or .sh*, or .bat*, or .exe*, or .js*, or .py*, or .pl*, or .rb*, or .go*
-            $disallowedExtensions = ['php', 'sh', 'bat', 'exe', 'js', 'py', 'pl', 'rb', 'go'];
-            $fileExtension = strtolower($value->getClientOriginalExtension());
-            if (in_array($fileExtension, $disallowedExtensions)) {
-                $this->addError('uploadFile', 'Cannot upload files with the following extensions: '.implode(', ', $disallowedExtensions));
+            // Get allowed extensions from the mime types
+            $allowedExtensions = [];
+            $mimeTypes = new MimeTypes();
+            foreach ($canUploadMimeTypes as $mimeType) {
+                $extensions = $mimeTypes->getExtensions($mimeType);
+                if (!empty($extensions)) {
+                    $allowedExtensions = array_merge($allowedExtensions, $extensions);
+                }
+            }
+            
+            // Check if the file has an allowed extension
+            $fileExtension = $value->getClientOriginalExtension();
+            if (!in_array($fileExtension, $allowedExtensions)) {
+                $this->addError('uploadFile', 'Can only upload files with extensions: '.implode(', ', $allowedExtensions));
                 return;
             }
 
