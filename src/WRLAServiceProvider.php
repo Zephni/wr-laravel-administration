@@ -380,17 +380,17 @@ class WRLAServiceProvider extends ServiceProvider
     {
         // Add wrlaUserData relationship to the user model
         WRLAHelper::getUserModelClass()::resolveRelationUsing('wrlaUserData', function ($user) {
-            // If user id is empty, return null
-            if(empty($user->id)) {
-                return null;
-            }
-
             // Get wrlaUserData model class
             $wrlaUserDataClass = WRLAHelper::getUserDataModelClass();
 
             return $user->hasOne($wrlaUserDataClass, 'user_id', 'id')
                 // If user data is not found, create a new instance.
                 ->withDefault(function($wrlaUserData, $user) use ($wrlaUserDataClass) {
+                    // If user id is empty, return empty relationship instance
+                    if(empty($user->id)) {
+                        return new $wrlaUserDataClass();
+                    }
+
                     // Get the build user id function from configuration
                     $userId = WRLAHelper::buildUserId($user);
 
@@ -401,6 +401,8 @@ class WRLAServiceProvider extends ServiceProvider
                         if (!empty($existingWrlaUserData)) {
                             return $existingWrlaUserData;
                         }
+                    } else {
+                        dd($wrlaUserDataClass . '::where("user_id", ' . $userId . ') does not return any data, user id is empty.');
                     }
 
                     // Populate default user data from configuration.
