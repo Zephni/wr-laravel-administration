@@ -95,10 +95,13 @@ class UserData extends Model
      * @return string
      */
     public function getProfileAvatar(): string {
+        // Get related user
+        $user = $this->user;
+
         // If user_avatar callback is set in config, use that
         $userAvatarConfig = config('wr-laravel-administration.user_avatar');
-        if ($userAvatarConfig != null && is_callable($userAvatarConfig)) {
-            return $userAvatarConfig($this->user);
+        if ($user != null && $userAvatarConfig != null && is_callable($userAvatarConfig)) {
+            return $userAvatarConfig($user);
         }
 
         // Use static avatar method
