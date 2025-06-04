@@ -55,7 +55,7 @@ class CreateManageableModelCommand extends Command
         }
 
         // Question 1: Icon for the model (default: fa fa-question-circle)
-        $icon = $this->ask('Icon for the model (https://fontawesome.com/v5/search)', 'fa fa-question-circle');
+        $icon = $this->ask('Icon for the model (https://fontawesome.com/v6/search)', 'fa fa-question-circle');
 
         // Now we use WRLAHelper to generate the file from the stub
         WRLAHelper::generateFileFromStub(
