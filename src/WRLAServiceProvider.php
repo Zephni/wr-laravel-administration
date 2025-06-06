@@ -13,6 +13,7 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\View\ComponentAttributeBag;
 use WebRegulate\LaravelAdministration\Commands\UninstallCommand;
+use WebRegulate\LaravelAdministration\Commands\UpdateCommand;
 use WebRegulate\LaravelAdministration\Livewire\Logs;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 use WebRegulate\LaravelAdministration\Commands\WikiCommand;
@@ -118,6 +119,7 @@ class WRLAServiceProvider extends ServiceProvider
         // Commands
         $this->commands([
             InstallCommand::class,
+            UpdateCommand::class,
             CreateManageableModelCommand::class,
             CreateUserCommand::class,
             EditUserCommand::class,
