@@ -1104,6 +1104,9 @@ abstract class ManageableModel
         // Perform any necessary actions before updating the model instance
         $request = $this->preUpdateModelInstance($request);
 
+        // Merge the request data into formKeyValues
+        $formKeyValues = array_merge($formKeyValues, $request->all());
+
         // Check id request has any values that start with wrla_remove_ and apply to formKeyValues if so
         if (count($request->all()) > 0) {
             // Collect all keys that start with wrla_remove_ and have a value of true
@@ -1158,7 +1161,7 @@ abstract class ManageableModel
 
             // If doesn't exist on model instance and not a relationship, we just call apply submitted value final on it,
             // this is because the developer may need to run some logic seperate to the model instance
-            if (! $this->getModelInstance()->hasAttribute($fieldName) && ! $isRelationshipField && ! $isUsingNestedJson) {
+            if (! $this->getModelInstance()->hasAttribute($fieldName) && !$isRelationshipField && !$isUsingNestedJson) {
                 $manageableField->applySubmittedValueFinal($request, $formKeyValues[$fieldName]);
 
                 continue;
