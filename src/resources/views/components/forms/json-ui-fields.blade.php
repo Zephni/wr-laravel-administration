@@ -179,13 +179,16 @@
     },
     switchTypeAction(dottedPath) {
         let currentValue = this.dataGet(this.data, dottedPath, null);
+
         let newType = prompt(
             'Switch to type: string, number, boolean, object, array',
             (Array.isArray(currentValue) 
                 || this.isObject(currentValue)) ? 'string' : 'number'
         );
+
         if(!newType) return; 
         let newValue;
+
         switch(newType) {
             case 'number':
                 newValue = Number(currentValue) || 0; 
@@ -202,6 +205,7 @@
             default:
                 newValue = String(currentValue);
         }
+        
         this.dataSet(this.data, dottedPath, newValue, newType);
         this.render(this.data, null);
     },
@@ -249,23 +253,31 @@
                             </span>
                         </label>
                         {{-- Options --}}
-                        <div class='relative top-[-1px] opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center gap-4 ml-3 font-bold'>
+                        <div class='relative top-[-1px] flex items-center gap-5 ml-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300 font-bold'>
                             <button type='button' class='text-sm text-slate-600 dark:text-slate-300 hover:text-teal-500'
                                 x-on:click.prevent='` + 'addAction(`group`, `' + dottedPath + '`)' + `'
                                 title='Add group'
-                            >+ group</button>
+                            >
+                                <i class='fa-solid fa-plus fa-xs align-middle'></i> group
+                            </button>
                             <button type='button' class='text-sm text-slate-600 dark:text-slate-300 hover:text-teal-500'
                                 x-on:click.prevent='` + 'addAction(`item`, `' + dottedPath + '`)' + `'
                                 title='Add item'
-                            >+ item</button>
-                            <button type='button' class='text-sm text-slate-600 dark:text-slate-300 hover:text-teal-500'
-                                x-on:click.prevent='` + 'deleteAction(`' + dottedPath + '`)' + `'
-                                title='Delete'
-                            >x remove</button>
+                            >
+                                <i class='fa-solid fa-plus fa-xs align-middle'></i> item
+                            </button>
                             <button type='button' class='text-sm text-slate-600 dark:text-slate-300 hover:text-teal-500'
                                 x-on:click.prevent='switchTypeAction(\`${dottedPath}\`)'
                                 title='Switch type'
-                            >switch</button>
+                            >
+                                <i class='fa-solid fa-arrows-rotate fa-xs align-middle'></i> switch
+                            </button>
+                            <button type='button' class='text-sm text-slate-600 dark:text-slate-300 hover:text-teal-500'
+                                x-on:click.prevent='` + 'deleteAction(`' + dottedPath + '`)' + `'
+                                title='Delete'
+                            >
+                                <i class='fa-solid fa-trash fa-xs align-middle mr-0.5'></i> remove
+                            </button>
                         </div>
                     </div>
                     <div class='flex flex-col `+(value instanceof Array ? 'border-teal-600' : 'border-amber-600')+` border-l-2 border-dotted ml-1 pl-3'>
@@ -360,19 +372,21 @@
                             })() + `
                             
 
-                            <div class='opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center gap-3 font-bold ml-2'>
+                            <div class='flex items-center gap-5 ml-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 font-bold'>
                                 <button
                                     type='button'
                                     class='text-sm text-slate-300 hover:text-teal-500'
                                     x-on:click.prevent='switchTypeAction(\`${dottedPath}\`)'
                                     title='Switch type'
                                 >
-                                    switch
+                                    <i class='fa-solid fa-arrows-rotate fa-xs align-middle mr-0.5'></i> switch
                                 </button>
                                 <button type='button' class='text-sm text-slate-300 hover:text-teal-500'
                                     x-on:click.prevent='` + 'deleteAction(`'+dottedPath+'`)' + `'
                                     title='Delete'
-                                >remove</button>
+                                >
+                                    <i class='fa-solid fa-trash fa-xs align-middle mr-0.5'></i> remove
+                                </button>
                             </div>
                         </div>
                     </div>
