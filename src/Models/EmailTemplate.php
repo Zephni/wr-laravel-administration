@@ -432,9 +432,9 @@ class EmailTemplate extends Model
     public function getMappingsListFormattedHTML(): string
     {
         $mappings = $this->getKeyMappings();
+        
         $html = '<ul class="list-disc list-inside">';
         foreach ($mappings as $key => $mapping) {
-            // Build a list like this: key.mapping[0], key.mapping[1], key.mapping[2]...
             if (is_array($mapping)) {
                 $html .= "<li>$key: &nbsp;";
                 $html .= implode(', ', array_map(fn ($item) => <<<HTML
@@ -443,6 +443,14 @@ class EmailTemplate extends Model
                         " class="select-none cursor-pointer text-primary-700 font-medium">$key.$item</span>
                     HTML, array_keys($mapping)));
                 $html .= '</li>';
+            } else {
+                $html .= <<<HTML
+                    <li>$key: &nbsp;
+                        <span onclick="
+                            window.wrlaInsertTextAtCursor('@{{ $key }}');
+                        " class="select-none cursor-pointer text-primary-700 font-medium">$key</span>
+                    </li>
+                HTML;
             }
         }
         $html .= '</ul>';
