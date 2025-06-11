@@ -12,6 +12,7 @@ use WebRegulate\LaravelAdministration\Classes\ManageableModel;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 use WebRegulate\LaravelAdministration\Enums\ManageableModelPermissions;
 use WebRegulate\LaravelAdministration\Enums\PageType;
+use WebRegulate\LaravelAdministration\Classes\ConfiguredModeBasedHandlers\LogsConfiguredModeHandler;
 
 /**
  * Class WRLAAdminController
@@ -255,40 +256,10 @@ class WRLAAdminController extends Controller
     /**
      * View logs
      */
-    public function logs(Request $request): View|RedirectResponse
+    public function logs(Request $request): View|RedirectResponse|string
     {
-        // Get current log mode
-        $configLogsCurrent = config('wr-laravel-administration.logs.current');
-
-        // opcodesio/log-viewer
-        if ($configLogsCurrent == 'opcodesio/log-viewer') {
-            if (config('wr-laravel-administration.logs.opcodesio/log-viewer.display_within_wrla') == true) {
-                return view(WRLAHelper::getViewPath('standard-content'), [
-                    'title' => 'View Logs',
-                    'content' => <<<'BLADE'
-                        <iframe
-                            wire:ignore
-                            src="/log-viewer"
-                            class="relative border-0"
-                            style="
-                                left: -50px;
-                                top: -30px;
-                                width: calc(100% + 85px);
-                                height: calc(100% - 0px);
-                            "></iframe>
-                    BLADE
-                ]);
-            } else {
-                return redirect()->to('/log-viewer');
-            }
-        }
-
-        // wrla / fallback
-        return view(WRLAHelper::getViewPath('livewire-content'), [
-            'title' => 'View Logs',
-            'livewireComponentAlias' => 'wrla.logs',
-            'livewireComponentData' => [],
-        ]);
+        $logsHandler = new LogsConfiguredModeHandler();
+        return $logsHandler->getView();
     }
 
     /**
