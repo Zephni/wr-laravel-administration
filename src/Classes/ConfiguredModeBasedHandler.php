@@ -36,4 +36,12 @@ abstract class ConfiguredModeBasedHandler
         // Get mode configuration
         $this->currentConfiguration = $baseConfiguration[$this->mode] ?? [];
     }
+
+    /**
+     * Get current mode configuration.
+     */
+    public function getCurrentConfiguration(): array
+    {
+        return $this->currentConfiguration;
+    }
 }

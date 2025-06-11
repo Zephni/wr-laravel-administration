@@ -10,7 +10,6 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
-use Intervention\Image\ImageManager;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Route;
@@ -18,11 +17,11 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Validator;
-use Intervention\Image\Drivers\Gd\Driver;
 use Illuminate\Support\Facades\RateLimiter;
 use WebRegulate\LaravelAdministration\Enums\PageType;
 use WebRegulate\LaravelAdministration\Enums\ManageableModelPermissions;
 use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItem;
+use WebRegulate\LaravelAdministration\Classes\ConfiguredModeBasedHandlers\WysiwygHandler;
 
 class WRLAHelper
 {
@@ -818,9 +817,9 @@ class WRLAHelper
 
                 // If only one value
                 if (count($inValues) === 1) {
-                    $mergeErrorMessages[$key] = "The $key field must be set to `<b>{$inValues[0]}</b>.`";
+                    $mergeErrorMessages[$key] = "The $key field must be set to <b>{$inValues[0]}</b>.";
                 } else {
-                    $mergeErrorMessages[$key] = "The $key field must set to one of the following: `<b>".implode('</b>`, `<b>', $inValues).'</b>`.';
+                    $mergeErrorMessages[$key] = "The $key field must set to one of the following: <b>".implode('</b>, <b>', $inValues).'</b>.';
                 }
             }
         }
@@ -860,73 +859,12 @@ class WRLAHelper
     }
 
     /**
-     * Get current Wysiwyg editor settings from config
-     */
-    public static function getWysiwygEditorSettings(): array
-    {
-        $wysiwygEditorsConfig = config('wr-laravel-administration.wysiwyg_editors');
-
-        return $wysiwygEditorsConfig[$wysiwygEditorsConfig['current']];
-    }
-
-    /**
      * Get current Wysiwyg editor setup JS
      */
     public static function getWysiwygEditorSetupJS(): string
     {
-        if (config('wr-laravel-administration.wysiwyg_editors.current') == 'tinymce') {
-            return Blade::render(<<<'HTML'
-                <script src="https://cdn.tiny.cloud/1/{{ $currentWysiwygEditorSettings['apikey'] }}/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
-                <script>
-                    tinymce.init({
-                        selector: '.wrla_wysiwyg',
-                        plugins: '{{ $currentWysiwygEditorSettings["plugins"] }}',
-                        menubar: '{{ $currentWysiwygEditorSettings["menubar"] }}',
-                        toolbar: '{{ $currentWysiwygEditorSettings["toolbar"] }}',
-                        paste_data_images: true,
-                        // images_upload_url: '{{ route("wrla.upload-wysiwyg-image") }}',
-                        images_upload_handler: (blobInfo, progress) => new Promise((resolve, reject) => {
-                            var xhr, formData;
-                            xhr = new XMLHttpRequest();
-                            xhr.withCredentials = false;
-
-                            xhr.open('POST', '{{ route("wrla.upload-wysiwyg-image") }}');
-                            var token = document.head.querySelector("[name=csrf-token]").content;
-                            xhr.setRequestHeader("X-CSRF-Token", token);
-
-                            xhr.onload = function() {
-                                var json;
-
-                                if (xhr.status != 200) {
-                                    reject('HTTP Error: ' + xhr.status + '. ' + xhr.statusText);
-                                    return;
-                                }
-
-                                json = JSON.parse(xhr.responseText);
-
-                                if (!json || typeof json.location != 'string') {
-                                    reject('Invalid JSON: ' + xhr.responseText);
-                                    return;
-                                }
-
-                                resolve(json.location);
-                            };
-
-                            formData = new FormData();
-                            formData.append('image', blobInfo.blob(), blobInfo.filename());
-
-                            xhr.send(formData);
-                        }),
-                        relative_urls : false,
-                        content_style: `{{ config('wr-laravel-administration.wysiwyg_css') }}`,
-                    });
-                </script>
-            HTML, [
-                'currentWysiwygEditorSettings' => static::getWysiwygEditorSettings(),
-            ]);
-        }
-
-        return '';
+        $wysiwygHandler = new WysiwygHandler();
+        return $wysiwygHandler->getWysiwygEditorSetupJS();
     }
 
     /**
@@ -994,52 +932,8 @@ class WRLAHelper
      */
     public static function uploadWysiwygImage(Request $request): mixed
     {
-        // Get current wysiwyg editor settings
-        $wysiwygEditorSettings = static::getWysiwygEditorSettings();
-
-        // TinyMCE
-        if (config('wr-laravel-administration.wysiwyg_editors.current') == 'tinymce') {
-            if ($request->hasFile('image')) {  // 'image' is the default name TinyMCE sends
-
-                $image = $request->file('image');
-
-                // Intervention image
-                $interventionImage = new ImageManager(new Driver);
-                $imageInterface = $interventionImage->read($image);
-
-                // If invalid image, return error
-                if ($imageInterface === false) {
-                    return response()->json(['error' => 'File must be an image.'], 400); // Handle errors
-                }
-
-                // Limit image to 1000px on either side but keep aspect ratio
-                if ($imageInterface->width() > 1000) {
-                    $imageInterface = $imageInterface->scaleDown(1000, null);
-                }
-                if ($imageInterface->height() > 1000) {
-                    $imageInterface = $imageInterface->scaleDown(null, 1000);
-                }
-                $imageInterface = $imageInterface->encode();
-
-                // Get path
-                $publicPath = str_replace('\\', '/', public_path($wysiwygEditorSettings['image_uploads']['path']));
-
-                // If directory doesn't exist, create it
-                if (! is_dir($publicPath)) {
-                    mkdir($publicPath, 0777, true);
-                }
-
-                $finalPath = '/'.ltrim((string) $wysiwygEditorSettings['image_uploads']['path'], '/').'/'.$image->hashName();
-                $finalPathAbsolute = public_path($finalPath);
-                $imageInterface->save($finalPathAbsolute);
-
-                return response()->json(['location' => $finalPath]); // MUST return location key!
-            }
-
-            return response()->json(['error' => 'No image uploaded.'], 400); // Handle errors
-        }
-
-        return response()->json(['error' => 'Wysiwyg editor not set to TinyMCE.'], 400); // Handle errors
+        $wysiwygHandler = new WysiwygHandler();
+        return $wysiwygHandler->uploadWysiwygImage($request);
     }
 
     /**

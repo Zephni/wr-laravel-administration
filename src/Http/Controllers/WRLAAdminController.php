@@ -12,7 +12,7 @@ use WebRegulate\LaravelAdministration\Classes\ManageableModel;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 use WebRegulate\LaravelAdministration\Enums\ManageableModelPermissions;
 use WebRegulate\LaravelAdministration\Enums\PageType;
-use WebRegulate\LaravelAdministration\Classes\ConfiguredModeBasedHandlers\LogsConfiguredModeHandler;
+use WebRegulate\LaravelAdministration\Classes\ConfiguredModeBasedHandlers\LogsHandler;
 
 /**
  * Class WRLAAdminController
@@ -258,7 +258,7 @@ class WRLAAdminController extends Controller
      */
     public function logs(Request $request): View|RedirectResponse|string
     {
-        $logsHandler = new LogsConfiguredModeHandler();
+        $logsHandler = new LogsHandler();
         return $logsHandler->getView();
     }
 

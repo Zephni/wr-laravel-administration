@@ -4,7 +4,7 @@ namespace WebRegulate\LaravelAdministration\Classes\ConfiguredModeBasedHandlers;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 use WebRegulate\LaravelAdministration\Classes\ConfiguredModeBasedHandler;
 
-class LogsConfiguredModeHandler extends ConfiguredModeBasedHandler
+class LogsHandler extends ConfiguredModeBasedHandler
 {
     /**
      * Base configuration path
@@ -24,6 +24,8 @@ class LogsConfiguredModeHandler extends ConfiguredModeBasedHandler
         };
     }
 
+    /* WRLA
+    ----------------------------------------------------------------------------*/
     /**
      * Get WRLA logs view.
      */
@@ -35,6 +37,8 @@ class LogsConfiguredModeHandler extends ConfiguredModeBasedHandler
         ]);
     }
 
+    /* OPCODES.IO LOG VIEWER
+    ----------------------------------------------------------------------------*/
     /**
      * Get opcodesio log viewer view.
      */
