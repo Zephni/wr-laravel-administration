@@ -1163,7 +1163,6 @@ abstract class ManageableModel
             // this is because the developer may need to run some logic seperate to the model instance
             if (! $this->getModelInstance()->hasAttribute($fieldName) && !$isRelationshipField && !$isUsingNestedJson) {
                 $manageableField->applySubmittedValueFinal($request, $formKeyValues[$fieldName]);
-
                 continue;
             }
 

@@ -2,6 +2,7 @@
 
 namespace WebRegulate\LaravelAdministration\Traits;
 
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use WebRegulate\LaravelAdministration\Classes\BrowseFilter;
 use WebRegulate\LaravelAdministration\Enums\PageType;
@@ -902,7 +903,14 @@ trait ManageableField
             if(!isset($relationshipInstance) || $relationshipInstance === null) {
                 // If relationshipParts has more than 1 part, we need to get the nested relationship
                 if(count($relationshipParts) > 1) {
-                    $relationshipInstance = $modelInstance->{$relationshipParts[0]}()->first();
+                    $potentialRelationship = $modelInstance->{$relationshipParts[0]};
+
+                    // First check if relationship is already resolved (this can also happen if relationship is set using dynamic resolveRelationUsing)
+                    if($potentialRelationship instanceof Model) {
+                        $relationshipInstance = $potentialRelationship;
+                    } else {
+                        $relationshipInstance = $potentialRelationship()->first();
+                    }
                 }
             }
 
