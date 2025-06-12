@@ -31,7 +31,7 @@ class MFAHandler extends ConfiguredModeBasedHandler
                 return [
                     'secretKey' => $secretKey,
                     'qrImage' => $google2fa->getQRCodeInline(
-                        config('app.name'),
+                        WRLAHelper::insertConfigStrings($this->currentConfiguration['title']),
                         $userEmail,
                         $secretKey
                     )

@@ -950,6 +950,28 @@ class WRLAHelper
     }
 
     /**
+     * Allow inserting config strings into the given string, eg: "Hello {app.name} - {app.env}" would return "Hello MyApp - production" if the config is set as ['app.name' => 'MyApp', 'app.env' => 'production'].
+     */
+    public static function insertConfigStrings(string $string): string
+    {
+        // Preg replace all {config.type.keys} with the given config value by it's dotted path
+        $string = preg_replace_callback('/\{([a-zA-Z0-9_.]+)\}/', function ($matches) {
+            // Get the config value by the dotted path
+            $configValue = config($matches[1]);
+
+            // If config value is null, return the original match
+            if ($configValue === null) {
+                return $matches[0];
+            }
+
+            // Return the config value
+            return $configValue;
+        }, $string);
+
+        return $string;
+    }
+
+    /**
      * Upload wysiwyg image
      *
      * @param  Request  $request  The request object.
