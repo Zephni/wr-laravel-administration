@@ -43,8 +43,7 @@ return [
         // Supports:
         // null - to disable MFA
         // 'pragmarx/google2fa' To use:
-        //      1. run `composer require pragmarx/google2fa-qrcode`
-        //      2. run `composer require bacon/bacon-qr-code`
+        //      1. run: composer require 'pragmarx/google2fa-qrcode' 'bacon/bacon-qr-code';
         //      2. Setup related env variables in your .env, names shown within the pragmarx/google2fa configuration below
         'current' => null,
 
