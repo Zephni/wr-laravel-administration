@@ -92,7 +92,7 @@ class WRLAAuthController extends Controller
         }
 
         // If password is incorrect, redirect back with error
-        if (!Hash::check($password, $user->password)) {
+        if (!WRLAHelper::getUserDataModelClass()::checkPassword($email, $password)) {
             return redirect()->back()->withInput()->with('error', 'Invalid credentials, please try again');
         }
 
