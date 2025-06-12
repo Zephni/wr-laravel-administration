@@ -7,7 +7,7 @@ abstract class ConfiguredModeBasedHandler
     /**
      * Current mode
      */
-    protected string $mode;
+    protected ?string $mode;
 
     /**
      * Mode configuration
@@ -30,11 +30,22 @@ abstract class ConfiguredModeBasedHandler
         // Get the current mode
         $this->mode = $baseConfiguration['current'] ?? null;
 
-        // If mode is empty, it means we are not using this feature
-        if (empty($this->mode)) return;
+        // If mode is empty, or mode does not exist in configuration, return
+        if (empty($this->mode) || !isset($baseConfiguration[$this->mode])) {
+            $this->mode = null;
+            return;
+        }
 
         // Get mode configuration
         $this->currentConfiguration = $baseConfiguration[$this->mode] ?? [];
+    }
+
+    /**
+     * Get current mode.
+     */
+    public function getCurrentMode(): ?string
+    {
+        return $this->mode;
     }
 
     /**
@@ -43,5 +54,13 @@ abstract class ConfiguredModeBasedHandler
     public function getCurrentConfiguration(): array
     {
         return $this->currentConfiguration;
+    }
+
+    /**
+     * Feature is enabled
+     */
+    public function isEnabled(): bool
+    {
+        return $this->getCurrentMode() !== null;
     }
 }

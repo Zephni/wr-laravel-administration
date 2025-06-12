@@ -28,6 +28,9 @@ return new class extends Migration {
 
             // Add data JSON column
             $table->json('data')->nullable()->default(null);
+
+            // Add mfa_secret column
+            $table->string('mfa_secret')->nullable()->default(null);
         });
     }
 

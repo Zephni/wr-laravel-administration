@@ -51,6 +51,38 @@ class UserData extends Model
     }
 
     /**
+     * Get User model by email
+     */
+    public static function getUserByEmail(string $email): mixed
+    {
+        return WRLAHelper::getUserModelClass()::where('email', $email)->first();
+    }
+
+    /**
+     * Requires MFA
+     */
+    public function requiresMFA(): bool
+    {
+        return $this->getSetting('mfa.require') ?? false;
+    }
+
+    /**
+     * Set MFA secret key
+     */
+    public function setMFASecretKey(string $secretKey): ?string
+    {
+        return $this->mfa_secret = $secretKey;
+    }
+
+    /**
+     * Get MFA secret key
+     */
+    public function getMFASecretKey(): ?string
+    {
+        return $this->mfa_secret;
+    }
+
+    /**
      * Attempt login
      *
      * @param string $identifier
