@@ -52,6 +52,14 @@ class MFAHandler extends ConfiguredModeBasedHandler
      * Render 2FA form initial setup
      */
     public function render2FAFormInitialSetup(string $email, string $password, string $qrImage, string $mfaSecret): string {
+        // Trim the QR image to remove any extra whitespace
+        $qrImage = trim($qrImage);
+
+        // If $qrImage is a base64 encoded image, we need to convert it to an <img> tag
+        if (str_starts_with($qrImage, 'data:image/png;base64')) {
+            $qrImage = '<img src="' . $qrImage . '" alt="QR Code" style="width: 200px; height: 200px;" />';
+        }
+
         return Blade::render(<<<BLADE
             <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; row-gap: 20px; width: 100%; margin-bottom: 10px; color: #888888; text-align: center; padding: 0px 20px;">
                 <div>
