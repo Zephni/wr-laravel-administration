@@ -2,16 +2,17 @@
 
 namespace WebRegulate\LaravelAdministration\Http\Controllers;
 
-use App\Http\Controllers\Controller;
+use Exception;
 use App\WRLA\User;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\View\View;
-use WebRegulate\LaravelAdministration\Classes\ManageableModel;
-use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
-use WebRegulate\LaravelAdministration\Enums\ManageableModelPermissions;
+use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Validator;
 use WebRegulate\LaravelAdministration\Enums\PageType;
+use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
+use WebRegulate\LaravelAdministration\Classes\ManageableModel;
+use WebRegulate\LaravelAdministration\Enums\ManageableModelPermissions;
 use WebRegulate\LaravelAdministration\Classes\ConfiguredModeBasedHandlers\LogsHandler;
 
 /**
@@ -112,32 +113,33 @@ class WRLAAdminController extends Controller
      */
     public function upsertPost(Request $request, string $modelUrlAlias, ?int $modelId = null): RedirectResponse
     {
-        try {
-            // Get manageable model class by its URL alias
-            $manageableModelClass = ManageableModel::getByUrlAlias($modelUrlAlias);
+        // Get manageable model class by its URL alias
+        $manageableModelClass = ManageableModel::getByUrlAlias($modelUrlAlias);
 
-            // Check model class exists
-            if (is_null($manageableModelClass) || ! class_exists($manageableModelClass)) {
-                return redirect()->route('wrla.dashboard')->with('error', "Manageable model `$manageableModelClass` not found.");
+        // Check model class exists
+        if (is_null($manageableModelClass) || ! class_exists($manageableModelClass)) {
+            return redirect()->route('wrla.dashboard')->with('error', "Manageable model `$manageableModelClass` not found.");
+        }
+
+        // Set page type and manageable model class
+        WRLAHelper::setCurrentPageType($modelId == null ? PageType::CREATE : PageType::EDIT);
+        WRLAHelper::setCurrentActiveManageableModelClass($manageableModelClass);
+
+        if ($modelId == null) {
+            // Create new model instance
+            $manageableModel = $manageableModelClass::make();
+        } else {
+            // Get model by it's id
+            $manageableModel = $manageableModelClass::make($modelId);
+
+            // Check model id exists
+            if ($manageableModel == null) {
+                return redirect()->route('wrla.dashboard')->with('error', 'Model '.$manageableModelClass." with ID `$modelId` not found.");
             }
+        }
 
-            // Set page type and manageable model class
-            WRLAHelper::setCurrentPageType($modelId == null ? PageType::CREATE : PageType::EDIT);
-            WRLAHelper::setCurrentActiveManageableModelClass($manageableModelClass);
-
-            if ($modelId == null) {
-                // Create new model instance
-                $manageableModel = $manageableModelClass::make();
-            } else {
-                // Get model by it's id
-                $manageableModel = $manageableModelClass::make($modelId);
-
-                // Check model id exists
-                if ($manageableModel == null) {
-                    return redirect()->route('wrla.dashboard')->with('error', 'Model '.$manageableModelClass." with ID `$modelId` not found.");
-                }
-            }
-
+        // Catch if configured to do so in config -> catch_errors.upsert
+        return WRLAHelper::catchIfConfiguredTo('upsert', function() use ($request, $modelUrlAlias, $modelId, &$manageableModel) {
             // Set currently active manageable model instance
             WRLAHelper::setCurrentActiveManageableModelInstance($manageableModel);
 
@@ -210,10 +212,9 @@ class WRLAAdminController extends Controller
 
             // Default success message
             $defaultSuccessMessage = 'Saved '.$manageableModel->getDisplayName().' #'.$manageableModel->getmodelInstance()->id.' successfully.';
-            $defaultSuccessMessage .= ' <a href="'.route('wrla.manageable-models.create', ['modelUrlAlias' => $manageableModel->getUrlAlias()]).'" class="font-bold underline">Click here</a>';
             $defaultSuccessMessage .= $modelId == null
-                ? ' to create another '.$manageableModel->getDisplayName(false).' record.'
-                : ' to create a new '.$manageableModel->getDisplayName(false).' record.';
+                ? ' <a href="'.route('wrla.manageable-models.create', ['modelUrlAlias' => $manageableModel->getUrlAlias()]).'" class="font-bold underline">Click here</a> to create another '.$manageableModel->getDisplayName(false).' record.'
+                : '';
 
             // If wrla_override_redirect_route passed as GET parameter, redirect to that route
             if ($request->has('wrla_override_redirect_route')) {
@@ -224,16 +225,18 @@ class WRLAAdminController extends Controller
 
                 return redirect()->route($request->get('wrla_override_redirect_route'))->with('success', $message);
             }
-        } catch (\Exception $e) {
+
+            // Redirect with success
+            return redirect()->route('wrla.manageable-models.edit', [
+                'modelUrlAlias' => $manageableModel->getUrlAlias(),
+                'id' => $manageableModel->getmodelInstance()->id,
+            ])->with('success', $defaultSuccessMessage);
+
+        // Catch
+        }, function(Exception $e) {
             // Redirect back with error message
             return redirect()->back()->withInput()->withErrors(['error' => $e->getMessage()]);
-        }
-
-        // Redirect with success
-        return redirect()->route('wrla.manageable-models.edit', [
-            'modelUrlAlias' => $manageableModel->getUrlAlias(),
-            'id' => $manageableModel->getmodelInstance()->id,
-        ])->with('success', $defaultSuccessMessage);
+        });
     }
 
     public function uploadWysiwygImage(Request $request)

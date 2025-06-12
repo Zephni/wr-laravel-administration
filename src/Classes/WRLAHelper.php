@@ -925,6 +925,31 @@ class WRLAHelper
     }
 
     /**
+     * Catch if confirgured to within config: catch_errors.{alias}
+     * 
+     * @param string $alias If alias is found in catch_errors config, we run within a try catch block and catch the error, otherwise we run the callback as normal.
+     */
+    public static function catchIfConfiguredTo(string $alias, callable $callback, ?callable $catchCallback = null): mixed
+    {
+        // If catch_errors config is not set or does not contain the alias, run the callback as normal
+        if (! config("wr-laravel-administration.catch_errors.$alias", false)) {
+            return $callback();
+        }
+
+        // If catch_callback is not set, use a default one that just returns the error message
+        if ($catchCallback === null) {
+            $catchCallback = fn (\Throwable $e) => $e->getMessage();
+        }
+
+        // Run the callback within a try catch block and catch the error
+        try {
+            return $callback();
+        } catch (\Throwable $e) {
+            return $catchCallback($e);
+        }
+    }
+
+    /**
      * Upload wysiwyg image
      *
      * @param  Request  $request  The request object.

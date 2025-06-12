@@ -104,6 +104,11 @@ return [
         ]
     ],
 
+    // Error catching, in certain locations we can catch errors and display them in the UI instead of throwing exceptions
+    'catch_errors' => [
+        'upsert' => true, // Catch errors during upsert operations
+    ],
+
     // User avatar, override the default user image path with a callback function that passes the \App\Models\User model as an argument
     'user_avatar' => null,
     // 'user_avatar' => fn(\App\Models\User $user) => $user->profile_image,
