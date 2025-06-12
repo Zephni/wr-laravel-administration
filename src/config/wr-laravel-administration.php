@@ -38,6 +38,22 @@ return [
         ],
     ],
 
+    // Multi factor authentication (MFA) configuration
+    'mfa' => [
+        // Supports:
+        // null - to disable MFA
+        // 'pragmarx/google2fa' To use:
+        //      1. run `composer require pragmarx/google2fa-qrcode`
+        //      2. run `composer require bacon/bacon-qr-code`
+        //      2. Setup related env variables in your .env, names shown within the pragmarx/google2fa configuration below
+        'current' => null,
+
+        // 'pragmarx/google2fa'
+        'pragmarx/google2fa' => [
+            'title' => '{app.name}' // Must not be empty. You can use any config string here, e.g. '{app.name}' will be replaced with the value from your .env file
+        ]
+    ],
+
     // Rate limiting for wrla. routes
     // Note: each key is bound to middleware 'throttle:route_name' in routes automatically (Within WRLAServicesProvider.php)
     'rate_limiting' => [
