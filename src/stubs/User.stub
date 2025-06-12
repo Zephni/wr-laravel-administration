@@ -186,8 +186,18 @@ class User extends ManageableModel
      */
     public final function getInstanceActions(Collection $instanceActions): Collection
     {
-        // Get user model instance
+        // Get user model and user data
         $model = $this->getModelInstance();
+        $wrlaUserData = $model->wrlaUserData;
+
+        // Reset 2FA
+        $instanceActions->prepend(
+            InstanceAction::make($this, 'Reset 2FA', 'fas fa-key', 'secondary', function($user) use ($wrlaUserData) {
+                $wrlaUserData->mfa_secret = null;
+                $wrlaUserData->save();
+                return "Successfully reset 2FA for {$user->email}";
+            })->enableOnCondition(fn() => WRLAHelper::getCurrentPageType() === PageType::EDIT && $wrlaUserData->mfa_secret !== null)
+        );
 
         // Impersonate action
         $instanceActions->prepend(
