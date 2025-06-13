@@ -1,6 +1,7 @@
 <?php
 namespace WebRegulate\LaravelAdministration\Classes\ConfiguredModeBasedHandlers;
 
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Blade;
 use PragmaRX\Google2FAQRCode\Google2FA;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
@@ -13,6 +14,100 @@ class MFAHandler extends ConfiguredModeBasedHandler
      */
     public function baseConfigurationPath(): string {
         return 'mfa';
+    }
+
+    /**
+     * Handle all with redirects
+     */
+    public static function handleAllWithRedirects(Request $request, string $useRoute, string $email, string $password): mixed
+    {
+        $mfaHandler = new MFAHandler();
+
+        // If MFA is not in use, return null
+        if(!$mfaHandler->isEnabled()) {
+            return null;
+        }
+
+        // Get user and user data
+        $user = WRLAHelper::getUserDataModelClass()::getUserByEmail($email);
+
+        // If user doesn't exist, redirect back with error
+        if ($user === null) {
+            return redirect()->route($useRoute)->withInput()->with('error', 'Invalid credentials, please try again');
+        }
+
+        // If password is incorrect, redirect back with error
+        if (!WRLAHelper::getUserDataModelClass()::checkPassword($email, $password)) {
+            return redirect()->route($useRoute)->withInput()->with('error', 'Invalid credentials, please try again');
+        }
+
+        // Get wrla user data
+        $wrlaUserData = $user->wrlaUserData;
+
+        // If wrla user data does not require MFA, return null
+        if (empty($wrlaUserData) || $wrlaUserData->user_id == null || !$wrlaUserData->requiresMFA()) {
+            return null;
+        }
+
+        // Get user's MFA secret key
+        $secretKey = $wrlaUserData->getMFASecretKey();
+
+        /* User does not yet have their secret key set and no MFA code passed
+        -----------------------------------------------------------------*/
+        if(empty($secretKey) && !$request->has('mfa_code')) {
+            // Generate secret key and QR image
+            $secretAndQrImage = $mfaHandler->generateSecretAndQRImage($email);
+
+            // Render 2FA initial setup
+            return redirect()->route($useRoute)->with([
+                'mfa' => $mfaHandler->render2FAFormInitialSetup($email, $password, $secretAndQrImage['qrImage'], $secretAndQrImage['secretKey']),
+            ]);
+        }
+        /* User does not yet have their secret key set but has passed an MFA code
+        ---------------------------------------------------------------*/
+        elseif(empty($secretKey) && $request->has('mfa_code')) {
+            // Get mfa code and secret key from request
+            $mfaCode = $request->get('mfa_code');
+            $secretKey = $request->get('mfa_secret_key');
+
+            // If invalid, redirect back with error
+            if (!$mfaHandler->validateMFACode($mfaCode, $secretKey)) {
+                return redirect()->route($useRoute)->withInput()->with('error', 'Invalid MFA code, please try again');
+            }
+            // If MFA code is valid, set the secret key and allow login process continue
+            else {
+                // Set secret key on wrla user data and save
+                $wrlaUserData->setMFASecretKey($secretKey);
+                $wrlaUserData->save();
+                return null;
+            }
+        }
+        /* User has a secret key set but no MFA code passed
+        ---------------------------------------------------------------*/
+        elseif(!empty($secretKey) && !$request->has('mfa_code')) {
+            // Render MFA verify form
+            return redirect()->route($useRoute)->with([
+                'mfa' => $mfaHandler->render2FAValidationForm($email, $password),
+            ]);
+        }
+        /* User has a secret key set and has passed an MFA code
+        ---------------------------------------------------------------*/
+        elseif(!empty($secretKey) && $request->has('mfa_code')) {
+            // Get mfa code from request
+            $mfaCode = $request->get('mfa_code');
+
+            // If invalid, redirect back with error
+            if (!$mfaHandler->validateMFACode($mfaCode, $secretKey)) {
+                return redirect()->route($useRoute)->withInput()->with('error', 'Invalid MFA code, please try again');
+            }
+            // If MFA code is valid, allow login process continue
+            else {
+                return null;
+            }
+        }
+
+        // Invalid request, redirect back with error
+        return redirect()->route($useRoute)->withInput()->with('error', 'Invalid MFA request, something went wrong');
     }
 
     /**
@@ -61,7 +156,7 @@ class MFAHandler extends ConfiguredModeBasedHandler
         }
 
         return Blade::render(<<<BLADE
-            <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; row-gap: 20px; width: 100%; margin-bottom: 10px; color: #888888; text-align: center; padding: 0px 20px;">
+            <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; row-gap: 10px; width: 100%; margin-bottom: 10px; color: #888888; text-align: center; padding: 0px 20px;">
                 <div>
                     Please scan the QR code below using your prefered authenticator app.
                 </div>
@@ -71,7 +166,7 @@ class MFAHandler extends ConfiguredModeBasedHandler
                 <div>
                     And then enter the one time password below.
                 </div>
-                <input type="text" name="mfa_code" placeholder="Enter MFA code" required autofocus style="width: 200px; padding: 5px 10px; border: 1px solid #CCCCCC; border-radius: 8px; text-align: center;" />
+                <input type="text" name="mfa_code" placeholder="Enter MFA code" required autofocus style="width: 200px; padding: 5px 10px; border: 1px solid #AAAAAA; border-radius: 8px; text-align: center; font-size: 18px; font-weight: bold;" />
                 <input type="hidden" name="email" value="{{ \$email }}" />
                 <input type="hidden" name="password" value="{{ \$password }}" />
                 <input type="hidden" name="mfa_secret_key" value="{{ \$mfaSecret }}" />
@@ -89,11 +184,11 @@ class MFAHandler extends ConfiguredModeBasedHandler
      */
     public function render2FAValidationForm(string $email, string $password): string {
         return Blade::render(<<<BLADE
-            <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; row-gap: 20px; width: 100%; margin-bottom: 10px; color: #888888; text-align: center; padding: 0px 20px;">
+            <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; row-gap: 10px; width: 100%; margin-bottom: 10px; color: #888888; text-align: center; padding: 0px 20px;">
                 <div style="">
                     Please enter the one time password below from your prefered authenticator app.
                 </div>
-                <input type="text" name="mfa_code" placeholder="Enter MFA code" required autofocus style="width: 200px; padding: 5px 10px; border: 1px solid #CCCCCC; border-radius: 8px; text-align: center;" />
+                <input type="text" name="mfa_code" placeholder="Enter MFA code" required autofocus style="width: 200px; padding: 5px 10px; border: 1px solid #CCCCCC; border-radius: 8px; text-align: center; font-size: 18px; font-weight: bold;" />
                 <input type="hidden" name="email" value="{{ \$email }}" />
                 <input type="hidden" name="password" value="{{ \$password }}" />
             </div>

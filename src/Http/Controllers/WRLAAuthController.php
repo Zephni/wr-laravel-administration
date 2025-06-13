@@ -53,7 +53,7 @@ class WRLAAuthController extends Controller
         ]);
 
         // Handle MFA if enabled
-        $mfaResult = $this->handleMFA($request, $request->get('email'), $request->get('password'));
+        $mfaResult = MFAHandler::handleAllWithRedirects($request, 'wrla.login', $request->get('email'), $request->get('password'));
         if(!empty($mfaResult)) {
             return $mfaResult;
         }
@@ -69,100 +69,6 @@ class WRLAAuthController extends Controller
         }
 
         return redirect()->back()->withInput()->with('error', 'Invalid credentials, please try again');
-    }
-
-    /**
-     * Handle MFA Step 1
-     */
-    protected function handleMFA(Request $request, string $email, string $password): mixed
-    {
-        $mfaHandler = new MFAHandler();
-
-        // TODO: If MFA is not in use, return null
-        if(!$mfaHandler->isEnabled()) {
-            return null;
-        }
-
-        // Get user and user data
-        $user = WRLAHelper::getUserDataModelClass()::getUserByEmail($email);
-
-        // If user doesn't exist, redirect back with error
-        if ($user === null) {
-            return redirect()->back()->withInput()->with('error', 'Invalid credentials, please try again');
-        }
-
-        // If password is incorrect, redirect back with error
-        if (!WRLAHelper::getUserDataModelClass()::checkPassword($email, $password)) {
-            return redirect()->back()->withInput()->with('error', 'Invalid credentials, please try again');
-        }
-
-        // Get wrla user data
-        $wrlaUserData = $user->wrlaUserData;
-
-        // If wrla user data does not require MFA, return null
-        if (empty($wrlaUserData) || $wrlaUserData->user_id == null || !$wrlaUserData->requiresMFA()) {
-            return null;
-        }
-
-        // Get user's MFA secret key
-        $secretKey = $wrlaUserData->getMFASecretKey();
-
-        /* User does not yet have their secret key set and no MFA code passed
-        -----------------------------------------------------------------*/
-        if(empty($secretKey) && !$request->has('mfa_code')) {
-            // Generate secret key and QR image
-            $secretAndQrImage = $mfaHandler->generateSecretAndQRImage($email);
-
-            // Render 2FA initial setup
-            return redirect()->back()->with([
-                'mfa' => $mfaHandler->render2FAFormInitialSetup($email, $password, $secretAndQrImage['qrImage'], $secretAndQrImage['secretKey']),
-            ]);
-        }
-        /* User does not yet have their secret key set but has passed an MFA code
-        ---------------------------------------------------------------*/
-        elseif(empty($secretKey) && $request->has('mfa_code')) {
-            // Get mfa code and secret key from request
-            $mfaCode = $request->get('mfa_code');
-            $secretKey = $request->get('mfa_secret_key');
-
-            // If invalid, redirect back with error
-            if (!$mfaHandler->validateMFACode($mfaCode, $secretKey)) {
-                return redirect()->back()->withInput()->with('error', 'Invalid MFA code, please try again');
-            }
-            // If MFA code is valid, set the secret key and allow login process continue
-            else {
-                // Set secret key on wrla user data and save
-                $wrlaUserData->setMFASecretKey($secretKey);
-                $wrlaUserData->save();
-                return null;
-            }
-        }
-        /* User has a secret key set but no MFA code passed
-        ---------------------------------------------------------------*/
-        elseif(!empty($secretKey) && !$request->has('mfa_code')) {
-            // Render MFA verify form
-            return redirect()->back()->with([
-                'mfa' => $mfaHandler->render2FAValidationForm($email, $password),
-            ]);
-        }
-        /* User has a secret key set and has passed an MFA code
-        ---------------------------------------------------------------*/
-        elseif(!empty($secretKey) && $request->has('mfa_code')) {
-            // Get mfa code from request
-            $mfaCode = $request->get('mfa_code');
-
-            // If invalid, redirect back with error
-            if (!$mfaHandler->validateMFACode($mfaCode, $secretKey)) {
-                return redirect()->back()->withInput()->with('error', 'Invalid MFA code, please try again');
-            }
-            // If MFA code is valid, allow login process continue
-            else {
-                return null;
-            }
-        }
-
-        // Invalid request, redirect back with error
-        return redirect()->back()->withInput()->with('error', 'Invalid MFA request, something went wrong');
     }
 
     /**
