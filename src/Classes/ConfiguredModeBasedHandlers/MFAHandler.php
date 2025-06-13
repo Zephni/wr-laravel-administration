@@ -72,7 +72,13 @@ class MFAHandler extends ConfiguredModeBasedHandler
 
             // If invalid, redirect back with error
             if (!$mfaHandler->validateMFACode($mfaCode, $secretKey)) {
-                return redirect()->route($useRoute)->withInput()->with('error', 'Invalid MFA code, please try again');
+                // Generate a new secret key and QR image
+                $secretAndQrImage = $mfaHandler->generateSecretAndQRImage($email);
+
+                return redirect()->route($useRoute)->withInput()->with([
+                    'error' => 'Invalid MFA code, please try again',
+                    'mfa' => $mfaHandler->render2FAFormInitialSetup($email, $password, $secretAndQrImage['qrImage'], $secretAndQrImage['secretKey']),
+                ]);
             }
             // If MFA code is valid, set the secret key and allow login process continue
             else {
@@ -98,7 +104,10 @@ class MFAHandler extends ConfiguredModeBasedHandler
 
             // If invalid, redirect back with error
             if (!$mfaHandler->validateMFACode($mfaCode, $secretKey)) {
-                return redirect()->route($useRoute)->withInput()->with('error', 'Invalid MFA code, please try again');
+                return redirect()->route($useRoute)->withInput()->with([
+                    'error' => 'Invalid MFA code, please try again',
+                    'mfa' => $mfaHandler->render2FAValidationForm($email, $password),
+                ]);
             }
             // If MFA code is valid, allow login process continue
             else {
