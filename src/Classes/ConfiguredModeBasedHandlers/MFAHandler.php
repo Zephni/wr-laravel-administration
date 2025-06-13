@@ -175,7 +175,7 @@ class MFAHandler extends ConfiguredModeBasedHandler
                 <div>
                     And then enter the one time password below.
                 </div>
-                <input type="text" name="mfa_code" placeholder="Enter MFA code" required autofocus style="width: 200px; padding: 5px 10px; border: 1px solid #AAAAAA; border-radius: 8px; text-align: center; font-size: 18px; font-weight: bold;" />
+                <input type="text" name="mfa_code" placeholder="Enter 2FA code" required autofocus style="width: 200px; padding: 5px 10px; border: 1px solid #AAAAAA; border-radius: 8px; text-align: center; font-size: 18px; font-weight: 600; letter-spacing: 2px;" />
                 <input type="hidden" name="email" value="{{ \$email }}" />
                 <input type="hidden" name="password" value="{{ \$password }}" />
                 <input type="hidden" name="mfa_secret_key" value="{{ \$mfaSecret }}" />
@@ -193,11 +193,11 @@ class MFAHandler extends ConfiguredModeBasedHandler
      */
     public function render2FAValidationForm(string $email, string $password): string {
         return Blade::render(<<<BLADE
-            <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; row-gap: 10px; width: 100%; margin-bottom: 10px; color: #888888; text-align: center; padding: 0px 20px;">
+            <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; row-gap: 20px; width: 100%; margin-bottom: 10px; color: #888888; text-align: center; padding: 0px 20px;">
                 <div style="">
                     Please enter the one time password below from your prefered authenticator app.
                 </div>
-                <input type="text" name="mfa_code" placeholder="Enter MFA code" required autofocus style="width: 200px; padding: 5px 10px; border: 1px solid #CCCCCC; border-radius: 8px; text-align: center; font-size: 18px; font-weight: bold;" />
+                <input type="text" name="mfa_code" placeholder="Enter 2FA code" required autofocus style="width: 200px; padding: 5px 10px; border: 1px solid #CCCCCC; border-radius: 8px; text-align: center; font-size: 18px; font-weight: 600; letter-spacing: 2px;" />
                 <input type="hidden" name="email" value="{{ \$email }}" />
                 <input type="hidden" name="password" value="{{ \$password }}" />
             </div>
