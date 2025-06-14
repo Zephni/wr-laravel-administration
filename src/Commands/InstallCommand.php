@@ -115,20 +115,6 @@ class InstallCommand extends Command
             $this->warn(' - NotificationCustom class already exists at '.WRLAHelper::removeBasePath(app_path('WRLA/NotificationDefinitions/NotificationCustom.php')).'. To replace it delete the file and run again.');
         }
 
-        // Create NotificationMail class
-        $emailTemplateMailFile = WRLAHelper::generateFileFromStub(
-            'EmailTemplateMail.stub',
-            [],
-            app_path('Mail/WRLA/EmailTemplateMail.php')
-        );
-
-        // If the NotificationMail class was created
-        if ($emailTemplateMailFile !== false) {
-            $this->info(' - EmailTemplateMail class created successfully here: '.$emailTemplateMailFile);
-        } else {
-            $this->warn(' - EmailTemplateMail class already exists at '.WRLAHelper::removeBasePath(app_path('Mail/WRLA/NotificationMail.php')).'. To replace it delete the file and run again.');
-        }
-
         // Create notification-mail.blade.php file
         $emailTemplateMailBladeFile = WRLAHelper::generateFileFromStub(
             'email-template-mail.blade.stub',

@@ -2,11 +2,12 @@
 
 namespace WebRegulate\LaravelAdministration\Models;
 
+use Illuminate\Mail\SentMessage;
+use Illuminate\Support\Facades\Log;
 use App\Mail\WRLA\EmailTemplateMail;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 
 class EmailTemplate extends Model
@@ -28,6 +29,17 @@ class EmailTemplate extends Model
     public bool $errorFound = false;
 
     public string $errorMessage = '';
+
+    public null|string|array $replyTo = null;
+
+    /**
+     * Call before sendEmail() to set the reply-to address.
+     */
+    public function replyTo(string|array $replyTo): static
+    {
+        $this->replyTo = $replyTo;
+        return $this;
+    }
 
     /**
      * Get by alias.
@@ -362,61 +374,83 @@ class EmailTemplate extends Model
             $smtpData['from']['name'] = config('mail.from.name');
         }
 
-        // Send as seperate emails mode
-        if ($sendSeperateEmails) {
-            if (is_string($toAddresses)) {
-                $toAddresses = [$toAddresses];
-            }
-
-            // Remove any empty values or values without @ symbol
-            $toAddresses = array_filter($toAddresses, fn ($toAddress) => ! empty($toAddress) && str($toAddress)->contains('@'));
-
-            foreach ($toAddresses as $toAddress) {
-                Log::channel('smtp')->info("Sending {$this->alias} email template ({$smtpHost})", [
-                    'mappings' => $this->dataArray,
-                    'to' => $toAddress
-                ]);
-
-                $mail = Mail::mailer($smtpKey)
-                    ->send(new EmailTemplateMail(
-                        $this,
-                        $toAddress,
-                        $attachments,
-                        $smtpData
-                    ));
-
-                // If not null, log it
-                if ($mail === null) {
-                    Log::channel('smtp')->error('Email failed to send', ['to' => $toAddress]);
-
-                    continue;
-                }
-            }
-
-            return true;
+        // If send seperate emails is false, set the toAddresses to an array
+        if (!is_array($toAddresses)) {
+            $toAddresses = [$toAddresses];
         }
 
-        Log::channel('smtp')->info("Sending {$this->alias} email template ({$smtpHost})", [
-            'mappings' => $this->dataArray,
-            'to' => $toAddresses
-        ]);
+        // Remove any empty values or values without @ symbol
+        $toAddresses = array_filter($toAddresses, fn ($toAddress) => ! empty($toAddress) && str($toAddress)->contains('@'));
 
-        // Send as one email with first as to, and rest as cc mode
-        $mail = Mail::mailer($smtpKey)->send(new EmailTemplateMail(
-            $this,
-            $toAddresses,
-            $attachments,
-            $smtpData
-        ));
+        // If no to addresses, log and return false
+        if (empty($toAddresses)) {
+            Log::channel('smtp')->error('Email failed to send, no to addresses provided', [
+                'email_template' => $this->alias,
+                'smtp_key' => $smtpKey,
+            ]);
+            return false;
+        }
 
-        // If not null, we assume success
-        return $mail !== null;
+        // Any failures check
+        $failures = [];
+
+        // Loop through to address and build / send email
+        foreach ($toAddresses as $toAddress) {
+            Log::channel('smtp')->info("Sending {$this->alias} email template ({$smtpHost})", [
+                'mappings' => $this->dataArray,
+                'to' => $toAddress
+            ]);
+
+            // Build and send email
+            $mail = $this->buildAndSendMail($smtpKey ?? 'smtp', $smtpData, $toAddresses, $attachments, $this->replyTo);
+
+            // If not null, log it
+            if ($mail === null) {
+                $failures[] = $toAddress;
+                Log::channel('smtp')->error('Email failed to send', ['to' => $toAddress]);
+                continue;
+            }
+        }
+
+        // Return success if no failures found
+        return empty($failures);
+    }
+
+    /**
+     * Build and send mail
+     */
+    private function buildAndSendMail(string $smtpKey, array $smtpData, array $toAddresses, ?array $attachments, null|string|array $replyTo): ?SentMessage
+    {
+        return Mail::mailer($smtpKey)->send([], [], function($mail) use($smtpData, $toAddresses, $attachments, $replyTo) {
+            // Main
+            $mail->from($smtpData['from']['address'], $smtpData['from']['name']);
+            $mail->subject($this->getFinalSubject());
+            $mail->html($this->renderEmail(EmailTemplate::RENDER_MODE_EMAIL));
+            $mail->to($toAddresses[0]);
+
+            // Get the rest as cc addresses if there are any, also remove any empty values or values without @ symbol from these
+            $ccAddresses = array_slice($toAddresses, 1);
+            $ccAddresses = array_filter($ccAddresses, fn($ccAddress) => !empty($ccAddress) && str($ccAddress)->contains('@'));
+            if(!empty($ccAddresses)) {
+                $mail->cc($ccAddresses);
+            }
+
+            // Attachments
+            if(!empty($attachments)) {
+                foreach ($attachments as $attachment) {
+                    $mail->attach($attachment);
+                }
+            }
+            
+            // If replyTo is set, add it
+            if($replyTo !== null) {
+                $mail->replyTo($replyTo);
+            }
+        });
     }
 
     /**
      * Render email, returning the HTML.
-     *
-     * @return string
      */
     public function renderEmail(string $renderMode = EmailTemplate::RENDER_MODE_EMAIL)
     {
