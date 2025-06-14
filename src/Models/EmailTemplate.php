@@ -425,8 +425,14 @@ class EmailTemplate extends Model
             // Main
             $mail->from($smtpData['from']['address'], $smtpData['from']['name']);
             $mail->subject($this->getFinalSubject());
-            $mail->html($this->renderEmail(EmailTemplate::RENDER_MODE_EMAIL));
             $mail->to($toAddresses[0]);
+
+            // Body
+            match(config('wr-laravel-administration.email_templates.render_mode', 'markdown')) {
+                'markdown' => $mail->markdown($this->renderEmail(self::RENDER_MODE_EMAIL)),
+                'html' => $mail->html($this->renderEmail(self::RENDER_MODE_EMAIL)),
+                default => $mail->text($this->getFinalBody(self::RENDER_MODE_EMAIL)),
+            };
 
             // Get the rest as cc addresses if there are any, also remove any empty values or values without @ symbol from these
             $ccAddresses = array_slice($toAddresses, 1);

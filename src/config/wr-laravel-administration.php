@@ -150,6 +150,11 @@ return [
         return $user->id;
     },
 
+    // Email templates
+    'email_templates' => [
+        'render_mode' => 'markdown', // 'markdown', 'html', or 'text'
+    ],
+
     // Dashboard display notifications for users / groups, use '@self' for the user's own notifications
     'dashboard' => [
         'notifications' => [
