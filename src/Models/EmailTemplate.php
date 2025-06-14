@@ -394,21 +394,42 @@ class EmailTemplate extends Model
         // Any failures check
         $failures = [];
 
-        // Loop through to address and build / send email
-        foreach ($toAddresses as $toAddress) {
-            Log::channel('smtp')->info("Sending {$this->alias} email template ({$smtpHost})", [
+        // If sendSeperateEmails is false, we will send the email to all addresses in one go
+        if (!$sendSeperateEmails) {
+            Log::channel('smtp')->info("Sending {$this->alias} email template ({$smtpHost}) to multiple addresses", [
                 'mappings' => $this->dataArray,
-                'to' => $toAddress
+                'to' => $toAddresses
             ]);
 
-            // Build and send email
-            $mail = $this->buildAndSendMail($smtpKey ?? 'smtp', $smtpData, $toAddresses, $attachments, $this->replyTo);
+            // Build and send email (pass all to-addresses)
+            $mail = $this->buildAndSendMail($smtpKey, $smtpData, $toAddresses, $attachments, $this->replyTo);
 
             // If not null, log it
             if ($mail === null) {
-                $failures[] = $toAddress;
-                Log::channel('smtp')->error('Email failed to send', ['to' => $toAddress]);
-                continue;
+                Log::channel('smtp')->error('Email failed to send', ['to' => $toAddresses]);
+                return false;
+            }
+
+            return true;
+        }
+        // Otherwise, we will loop through each address and send the email separately
+        else {
+            // Loop through to address and build / send email
+            foreach ($toAddresses as $toAddress) {
+                Log::channel('smtp')->info("Sending {$this->alias} email template ({$smtpHost})", [
+                    'mappings' => $this->dataArray,
+                    'to' => $toAddress
+                ]);
+    
+                // Build and send email (pass only the current to-address to prevent duplicate sends)
+                $mail = $this->buildAndSendMail($smtpKey ?? 'smtp', $smtpData, [$toAddress], $attachments, $this->replyTo);
+    
+                // If not null, log it
+                if ($mail === null) {
+                    $failures[] = $toAddress;
+                    Log::channel('smtp')->error('Email failed to send', ['to' => $toAddress]);
+                    continue;
+                }
             }
         }
 
