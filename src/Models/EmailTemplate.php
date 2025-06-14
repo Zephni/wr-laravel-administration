@@ -2,9 +2,9 @@
 
 namespace WebRegulate\LaravelAdministration\Models;
 
+use Illuminate\Mail\Markdown;
 use Illuminate\Mail\SentMessage;
 use Illuminate\Support\Facades\Log;
-use App\Mail\WRLA\EmailTemplateMail;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -429,7 +429,7 @@ class EmailTemplate extends Model
 
             // Body
             match(config('wr-laravel-administration.email_templates.render_mode', 'markdown')) {
-                'markdown' => $mail->markdown($this->renderEmail(self::RENDER_MODE_EMAIL)),
+                'markdown' => $mail->html($this->renderEmail(self::RENDER_MODE_EMAIL)),
                 'html' => $mail->html($this->renderEmail(self::RENDER_MODE_EMAIL)),
                 default => $mail->text($this->getFinalBody(self::RENDER_MODE_EMAIL)),
             };
@@ -460,10 +460,19 @@ class EmailTemplate extends Model
      */
     public function renderEmail(string $renderMode = EmailTemplate::RENDER_MODE_EMAIL)
     {
-        return view('email.wrla.email-template-mail', [
-            'emailTemplate' => $this,
-            'renderMode' => $renderMode,
-        ])->render();
+        return match(config('wr-laravel-administration.email_templates.render_mode', 'markdown')) {
+            'markdown' => app(Markdown::class)->render('email.wrla.email-template-mail', [
+                'emailTemplate' => $this,
+                'renderMode' => $renderMode,
+            ])->toHtml(),
+
+            'html' => view('email.wrla.email-template-mail', [
+                'emailTemplate' => $this,
+                'renderMode' => $renderMode,
+            ])->render(),
+
+            default => $this->getFinalBody($renderMode),
+        };
     }
 
     /**
