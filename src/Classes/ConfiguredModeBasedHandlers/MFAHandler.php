@@ -55,8 +55,16 @@ class MFAHandler extends ConfiguredModeBasedHandler
         /* User does not yet have their secret key set and no MFA code passed
         -----------------------------------------------------------------*/
         if(empty($secretKey) && !$request->has('mfa_code')) {
-            // Generate secret key and QR image
-            $secretAndQrImage = $mfaHandler->generateSecretAndQRImage($email);
+            if(!session()->has('mfa_initial_setup')) {
+                // Generate secret key and QR image
+                $secretAndQrImage = $mfaHandler->generateSecretAndQRImage($email);
+    
+                // Store in session incase user cancels or fails to complete the setup
+                $request->session()->put('mfa_initial_setup', $secretAndQrImage);
+            } else {
+                // Get secret key and QR image from session
+                $secretAndQrImage = $request->session()->get('mfa_initial_setup');
+            }
 
             // Render 2FA initial setup
             return redirect()->route($useRoute)->with([
@@ -82,6 +90,9 @@ class MFAHandler extends ConfiguredModeBasedHandler
             }
             // If MFA code is valid, set the secret key and allow login process continue
             else {
+                // Remove mfa_initial_setup from session
+                $request->session()->forget('mfa_initial_setup');
+
                 // Set secret key on wrla user data and save
                 $wrlaUserData->setMFASecretKey($secretKey);
                 $wrlaUserData->save();
@@ -111,6 +122,9 @@ class MFAHandler extends ConfiguredModeBasedHandler
             }
             // If MFA code is valid, allow login process continue
             else {
+                // Remove mfa_initial_setup from session (just in case it exists somehow)
+                $request->session()->forget('mfa_initial_setup');
+
                 return null;
             }
         }
