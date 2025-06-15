@@ -564,7 +564,13 @@ trait ManageableField
         // If $type is not empty, prepend .
         $injectType = !empty($type) ? ".$type" : '';
 
+        // Set wire:model attribute
         $this->setAttribute("wire:model{$injectType}", "livewireData.{$this->getAttribute('name')}");
+
+        // If manageable model is not null, set the livewire field value
+        if($this->manageableModel !== null) {
+            $this->setValue($this->manageableModel->getModelInstance()->{$this->getName()} ?? null);
+        }
 
         return $this;
     }
