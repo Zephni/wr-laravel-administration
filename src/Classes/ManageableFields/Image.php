@@ -349,7 +349,7 @@ class Image
             ? '/'.$this->getPathOnly()
             : '';
 
-        return $path.$this->getValue();
+        return str_replace('//', '/', $path.'/'.$this->getValue());
     }
 
     /**
