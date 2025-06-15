@@ -177,7 +177,7 @@ class MFAHandler extends ConfiguredModeBasedHandler
                 </div>
                 <input type="text" name="mfa_code" placeholder="Enter 2FA code" required autofocus style="width: 200px; padding: 5px 10px; border: 1px solid #AAAAAA; border-radius: 8px; text-align: center; font-size: 18px; font-weight: 600; letter-spacing: 2px;" />
                 <input type="hidden" name="email" value="{{ \$email }}" />
-                <input type="hidden" name="password" value="{{ \$password }}" />
+                <input type="password" name="password" value="{{ \$password }}" class="hidden" />
                 <input type="hidden" name="mfa_secret_key" value="{{ \$mfaSecret }}" />
             </div>
         BLADE, [
