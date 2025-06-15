@@ -12,9 +12,8 @@
     $isHttpImage = preg_match('/^http(s)?:\/\//', $value);
 
     // Check that $value exists as an image, if not then we use the $options['defaultImage']
-    $imageExists = !empty($value) && $fileSystemImageExists && $value != $WRLAHelper::getCurrentThemeData('no_image_src');
-    $src = $imageExists ? $publicUrl : $options['defaultImage'];
-    $imageExistsHtml = $imageExists
+    $src = $fileSystemImageExists ? $publicUrl : $options['defaultImage'];
+    $imageExistsHtml = $fileSystemImageExists
         ? '<span class="float-right text-green-500">Image found</span>'
         : '<span class="float-right text-red-500">Image not found</span>';
 @endphp
@@ -37,7 +36,7 @@
         @themeComponent('forced-aspect-image', [
             'src' => $src,
             'originalSrc' => $publicUrlWithoutDomain,
-            'class' => "wrla_image_preview {$options['class']} ".($imageExists ? '' : 'wrla_no_image'),
+            'class' => "wrla_image_preview {$options['class']} ".($fileSystemImageExists ? '' : 'wrla_no_image'),
             'aspect' => $options["aspect"],
         ])
     </div>
@@ -55,7 +54,7 @@
             />
 
             {{-- Remove button (if image does not yet exist anyway, or options has allowRemove true) --}}
-            @if(!$imageExists || ($imageExists && $options['allowRemove'] == true))
+            @if(!$fileSystemImageExists || ($fileSystemImageExists && $options['allowRemove'] == true))
                 @themeComponent('forms.button', [
                     'size' => 'small',
                     'color' => 'danger',
@@ -66,7 +65,7 @@
                         'title' => 'Remove',
                         'class' => 'text-sm',
                         'onclick' => 'wrla_removeImage(this)',
-                        'style' => $imageExists ? 'display: block;' : 'display: none;'
+                        'style' => $fileSystemImageExists ? 'display: block;' : 'display: none;'
                     ])
                 ])
 
@@ -79,9 +78,9 @@
             @themeComponent('forms.field-notes', ['notes' => $options['notes']])
         @endif
 
-        @if($imageExists)
+        @if($fileSystemImageExists)
             @themeComponent('forms.field-notes', [
-                'notes' => $imageExists || (!$isHttpImage && !$imageExists)
+                'notes' => $fileSystemImageExists || (!$isHttpImage && !$fileSystemImageExists)
                     ? '<a href="'.$publicUrl.'" target="_blank" class="underline">'.$publicUrlWithoutDomain.'</a>'.$imageExistsHtml
                     : 'No image set',
                 'attributes' => Arr::toAttributeBag([
@@ -126,8 +125,8 @@
         previewImageElement.src = '{{ $WRLAHelper::getCurrentThemeData('no_image_src') }}';
         previewImageElement.classList.add('wrla_no_image');
 
-        // Pass $imageExists to JS
-        var imageExists = @json($imageExists);
+        // Pass $fileSystemImageExists to JS
+        var imageExists = @json($fileSystemImageExists);
 
         // We only need to set the removeInput value to true if a file already exists
         if(imageExists) {

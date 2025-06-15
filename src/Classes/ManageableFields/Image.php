@@ -230,20 +230,7 @@ class Image
     public function getValue(): string
     {
         // Get value attriubute
-        $value = $this->getAttribute('value');
-
-        // If starts with http, return as is
-        if (str($value)->startsWith('http')) {
-            return $value;
-            // Else, we apply a forward slash to the beginning of the path
-        } else {
-            // If no value is set, return default image
-            if (empty($value)) {
-                return $this->getOption('defaultImage') ?? '';
-            }
-
-            return '/'.ltrim(WRLAHelper::forwardSlashPath($value), '/');
-        }
+        return $this->getAttribute('value');
     }
 
     /**
@@ -407,10 +394,11 @@ class Image
         $fileSystemImageExists = true;
         try {
             if (! str($this->getValue())->startsWith('http')) {
-                // $fileSystemImageExists = $this->getFileSystem()->exists($this->getDiskStoragePath());
+                $file = $this->getFileSystem()->get($this->getDiskStoragePath());
+                $fileSystemImageExists = !empty($file);
             }
         } catch (Exception) {
-            // $fileSystemImageExists = false;
+            $fileSystemImageExists = false;
         }
 
         $HTML = view(WRLAHelper::getViewPath('components.forms.input-image'), [
@@ -421,7 +409,7 @@ class Image
             'publicUrlWithoutDomain' => $this->getURLPathWithoutDomain(),
             'fileSystemImageExists' => $fileSystemImageExists,
             'attributes' => new ComponentAttributeBag(array_merge($this->htmlAttributes, [
-                'name' => $this->getAttribute('name'),
+                'name' => $this->getName(),
                 'value' => $this->getDiskStoragePath(),
                 'type' => 'file',
             ])),
