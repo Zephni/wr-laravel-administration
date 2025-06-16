@@ -3,6 +3,7 @@
 namespace WebRegulate\LaravelAdministration\Classes\VersionHandler;
 
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Http;
 
 class VersionHandler
 {
@@ -116,5 +117,51 @@ class VersionHandler
 
         // Indicate that all updates have successfully run
         return true;
+    }
+
+
+    public static $localPackageCurrentVersion = null;
+    public static $localPackageCurrentSha = null;
+    public static $remotePackageLatestSha = null;
+
+    /**
+     * Sets properties for local and remote package information.
+     */
+    public static function buildLocalAndRemotePackageInformation(): void
+    {
+        /* Local
+        ----------------------------------------------------------------*/
+        // Get actual version from composer.lock instead
+        $composerLockPath = base_path('composer.lock');
+
+        // Find applicable package data in composer.lock
+        $composerData = json_decode(file_get_contents($composerLockPath), true);
+        if (isset($composerData['packages'])) {
+            foreach ($composerData['packages'] as $package) {
+                if ($package['name'] === 'webregulate/laravel-administration') {
+                    VersionHandler::$localPackageCurrentVersion = $package['version'] ?? null;
+                    VersionHandler::$localPackageCurrentSha = $package['dist']['reference'] ?? null;
+                }
+            }
+        }
+
+        /* Remote
+        ----------------------------------------------------------------*/
+        try {
+            $context = stream_context_create([
+                'http' => [
+                    'method' => 'GET',
+                    'header' => 'User-Agent: WebRegulate Laravel Administration - '.env('APP_NAME', 'No App Name')
+                ]
+            ]);
+            
+            $branchData = json_decode(
+                file_get_contents('https://api.github.com/repos/Zephni/wr-laravel-administration/branches/main', false, $context)
+            , true);
+    
+            VersionHandler::$remotePackageLatestSha = $branchData['commit']['sha'] ?? null;
+        } catch (\Exception $e) {
+            // Do nothing
+        }
     }
 }

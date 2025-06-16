@@ -12,19 +12,20 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\View\ComponentAttributeBag;
-use WebRegulate\LaravelAdministration\Commands\UninstallCommand;
-use WebRegulate\LaravelAdministration\Commands\UpdateCommand;
 use WebRegulate\LaravelAdministration\Livewire\Logs;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 use WebRegulate\LaravelAdministration\Commands\WikiCommand;
 use WebRegulate\LaravelAdministration\Livewire\FileManager;
+use WebRegulate\LaravelAdministration\Commands\UpdateCommand;
 use WebRegulate\LaravelAdministration\Commands\InstallCommand;
 use WebRegulate\LaravelAdministration\Http\Middleware\IsAdmin;
 use WebRegulate\LaravelAdministration\Commands\EditUserCommand;
 use WebRegulate\LaravelAdministration\Livewire\ImportDataModal;
+use WebRegulate\LaravelAdministration\Commands\UninstallCommand;
 use WebRegulate\LaravelAdministration\Commands\CreateUserCommand;
 use WebRegulate\LaravelAdministration\Http\Middleware\IsNotAdmin;
 use WebRegulate\LaravelAdministration\Livewire\NotificationsWidget;
+use WebRegulate\LaravelAdministration\Classes\VersionHandler\VersionHandler;
 use WebRegulate\LaravelAdministration\Commands\CreateManageableModelCommand;
 use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItem;
 use WebRegulate\LaravelAdministration\Classes\ManageableFields\SearchableValue;
@@ -146,6 +147,9 @@ class WRLAServiceProvider extends ServiceProvider
 
         // Define gates
         $this->defineGates();
+
+        // Get version information
+        VersionHandler::buildLocalAndRemotePackageInformation();
 
         // Load routes
         Route::middleware('web')->group(function (): void {
