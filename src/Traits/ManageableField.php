@@ -36,6 +36,7 @@ trait ManageableField
         'ifNullThenString' => false,
         'beginGroup' => false,
         'endGroup' => false,
+        'active' => true, // If false, this field will not be displayed, submitted / validated
     ];
 
     /**
@@ -133,6 +134,21 @@ trait ManageableField
         $this->postConstructed();
     }
 
+    /**
+     * Set active, must be the last method called in the chain as returns null if not active.
+     */
+    public function setActive(bool|callable $active): ?static
+    {
+        // If callable, call it with $this as parameter
+        if(is_callable($active)) {
+            $active = $active($this);
+        }
+
+        // Set active option
+        $this->options['active'] = $active;
+
+        return $this->options['active'] ? $this : null;
+    }
 
     /**
      * Build name attribute. We need this because PHP converts dots to underscores in request input, so we need to
