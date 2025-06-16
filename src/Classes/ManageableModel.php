@@ -34,6 +34,11 @@ abstract class ManageableModel
     public static ?Collection $manageableModels = null;
 
     /**
+     * Number of renders, used in browse and upsert livewire components
+     */
+    public static int $numberOfRenders = 0;
+
+    /**
      * Livewire fields
      */
     public static array $livewireFields = [];

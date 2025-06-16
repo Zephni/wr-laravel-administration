@@ -142,6 +142,9 @@ class ManageableModelUpsert extends Component
     public function render()
     {
         try {
+            // Set manageable model number of renders
+            ManageableModel::$numberOfRenders = $this->numberOfRenders;
+
             // Get manageable model and fields data
             $manageableModel = $this->manageableModelClass::make($this->modelId);
             ManageableModel::$livewireFields = $this->livewireData;
@@ -169,9 +172,6 @@ class ManageableModelUpsert extends Component
                 $manageableFields = $manageableModel->getManageableFieldsFinal();
             }
 
-            // Increment number of renders
-            $this->numberOfRenders++;
-
             // If force refresh manageable fields, set field values
             if ($this->refreshManageableFields) {
                 foreach ($manageableFields as $manageableField) {
@@ -180,6 +180,9 @@ class ManageableModelUpsert extends Component
                     }
                 }
             }
+
+            // Increment number of renders
+            $this->numberOfRenders++;
 
             // Render the view
             return view(WRLAHelper::getViewPath('livewire.manageable-models.upsert'), [

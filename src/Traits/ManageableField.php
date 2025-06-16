@@ -567,6 +567,11 @@ trait ManageableField
         // Set wire:model attribute
         $this->setAttribute("wire:model{$injectType}", "livewireData.{$this->getAttribute('name')}");
 
+        // If first render, set livewire field
+        if(ManageableModel::$numberOfRenders === 0) {
+            ManageableModel::setLivewireField($this->getName(), $this->getValue());
+        }
+
         return $this;
     }
 
