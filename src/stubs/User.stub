@@ -8,9 +8,9 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Builder;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 use \WebRegulate\LaravelAdministration\Classes\ManageableModel;
-use WebRegulate\LaravelAdministration\Classes\ManageableFields\Json;
 use \WebRegulate\LaravelAdministration\Classes\ManageableFields\Text;
 use WebRegulate\LaravelAdministration\Classes\ManageableFields\Image;
+use WebRegulate\LaravelAdministration\Classes\ManageableFields\Json;
 use WebRegulate\LaravelAdministration\Classes\ManageableFields\JsonUI;
 use WebRegulate\LaravelAdministration\Classes\ManageableFields\Select;
 use WebRegulate\LaravelAdministration\Classes\ManageableFields\Heading;
@@ -156,7 +156,7 @@ class User extends ManageableModel
 
             Heading::make('User Data', 'fas fa-user-cog'),
 
-            Json::make($this, 'wrlaUserData.permissions')
+            JsonUI::make($this, 'wrlaUserData.permissions')
                 ->setLabel('Permissions')
                 ->hideContainingBraces()
                 ->mergeDefaultKeyValues(config('wr-laravel-administration.default_user_data.permissions'))
@@ -166,14 +166,14 @@ class User extends ManageableModel
                 ])
                 ->setActive(fn() => WRLAHelper::getCurrentUserData()?->isMaster()),
 
-            Json::make($this, 'wrlaUserData.settings')
+            JsonUI::make($this, 'wrlaUserData.settings')
                 ->hideContainingBraces()
                 ->mergeDefaultKeyValues(config('wr-laravel-administration.default_user_data.settings'))
                 ->jsonFormatValidation([
                     'theme' => 'string|in:default'
                 ]),
 
-            Json::make($this, 'wrlaUserData.data')
+            JsonUI::make($this, 'wrlaUserData.data')
                 ->hideContainingBraces()
                 ->mergeDefaultKeyValues(config('wr-laravel-administration.default_user_data.data')),
         ];
