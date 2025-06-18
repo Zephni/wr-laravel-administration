@@ -4,9 +4,14 @@ namespace WebRegulate\LaravelAdministration\Classes\VersionHandler;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
+use WebRegulate\LaravelAdministration\Classes\VersionHandler\VersionHandler;
 
 class VersionHandler
 {
+    public static $localPackageCurrentVersion = null;
+    public static $localPackageCurrentSha = null;
+    public static $remotePackageLatestSha = null;
+    
     private string $versionFilePath = 'vendor/wr-laravel-administration/version.json';
     private Command $command;
 
@@ -119,11 +124,6 @@ class VersionHandler
         return true;
     }
 
-
-    public static $localPackageCurrentVersion = null;
-    public static $localPackageCurrentSha = null;
-    public static $remotePackageLatestSha = null;
-
     /**
      * Sets properties for local and remote package information.
      */
@@ -148,24 +148,25 @@ class VersionHandler
         /* Remote
         ----------------------------------------------------------------*/
         try {
-            // Temporarily set the remote package latest SHA to the local one
+            $appKey = config('app.key', config('app.url', 'invalid-key'));
+            VersionHandler::$remotePackageLatestSha = cache()->remember("wrla.$appKey.remotePackageLatestSha", 3600, function () {
+                $context = stream_context_create([
+                    'http' => [
+                        'method' => 'GET',
+                        'header' => 'User-Agent: WebRegulate Laravel Administration - '.env('APP_NAME', 'No App Name')
+                    ]
+                ]);
+                
+                $branchData = json_decode(
+                    file_get_contents('https://api.github.com/repos/Zephni/wr-laravel-administration/branches/main', false, $context)
+                , true);
+        
+                return $branchData['commit']['sha'] ?? null;
+            });
+        }
+        // Just in case we cannot retrieve the remote SHA, we set it to the local one so no update 
+        catch (\Exception $e) {
             VersionHandler::$remotePackageLatestSha = VersionHandler::$localPackageCurrentSha;
-
-            // TODO: Below does not work because we hit a 403 rate limit very quickly. Need to find a different way around this.
-            $context = stream_context_create([
-                'http' => [
-                    'method' => 'GET',
-                    'header' => 'User-Agent: WebRegulate Laravel Administration - '.env('APP_NAME', 'No App Name')
-                ]
-            ]);
-            
-            $branchData = json_decode(
-                file_get_contents('https://api.github.com/repos/Zephni/wr-laravel-administration/branches/main', false, $context)
-            , true);
-    
-            VersionHandler::$remotePackageLatestSha = $branchData['commit']['sha'] ?? null;
-        } catch (\Exception $e) {
-            // Do nothing
         }
     }
 }
