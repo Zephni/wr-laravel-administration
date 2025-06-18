@@ -163,7 +163,8 @@ class User extends ManageableModel
                 ->jsonFormatValidation([
                     'master' => 'boolean'.(($currentUserData?->user_id == $modelInstance?->id) ? "|wrla_no_change:wrla_user_data,{$currentUserData?->id},permissions->master" : ''),
                     'admin' => 'boolean'.(($currentUserData?->user_id == $modelInstance?->id) ? "|wrla_no_change:wrla_user_data,{$currentUserData?->id},permissions->admin" : ''),
-                ]),
+                ])
+                ->setActive(fn() => WRLAHelper::getCurrentUserData()?->isMaster()),
 
             Json::make($this, 'wrlaUserData.settings')
                 ->hideContainingBraces()
