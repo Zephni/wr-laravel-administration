@@ -18,14 +18,17 @@
                     {{ $localComposerVersion }}
                     <span class="px-1.5">-</span>
                     @if($localCurrentSha === $remotePackageLatestSha)
-                        <b class="cursor-help" title="Current sha: {{ $localCurrentSha }}">
+                        <b onclick="window.loadLivewireModal(this, 'dev-tools.dev-tools-modal')"
+                            class="cursor-help"
+                            title="Current sha: {{ $localCurrentSha }}">
                             <i class="fas fa-info-circle text-xs text-slate-400"></i>
                             <span class="pl-1">Up to date</span>
                         </b>
                     @else
                         <button
                             onclick="window.loadLivewireModal(this, 'dev-tools.dev-tools-modal')"
-                            class="text-sky-600 font-semibold cursor-pointer" title="Current sha: {{ $localCurrentSha }} - Latest sha: {{ $remotePackageLatestSha }}">
+                            class="text-sky-600 font-semibold cursor-pointer"
+                            title="Current sha: {{ $localCurrentSha }} - Latest sha: {{ $remotePackageLatestSha }}">
                             <i class="fas fa-exclamation-triangle text-sky-600"></i>
                             <span class="pl-1">Update available</span>
                         </button>
