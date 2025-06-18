@@ -67,13 +67,15 @@
 
         // Remove the current icon class and replace with spinner
         iconElement.classList.remove(currentIconClass);
-        iconElement.classList.add('fa-spinner', 'fa-spin');
+        iconElement.classList.add('fa-spinner');
+        iconElement.classList.add('animate-spin');
 
         // Await the waitUntil promise to be resolved
         await waitUntil();
 
         // Revert to the original icon
-        iconElement.classList.remove('fa-spinner', 'fa-spin');
+        iconElement.classList.remove('fa-spinner');
+        iconElement.classList.remove('animate-spin');
         iconElement.classList.add(currentIconClass);
     }
 
@@ -93,7 +95,7 @@
             });
 
             // Listen for the Livewire 'modalOpened' event
-            Livewire.on(`${modalComponent}.opened`, () => { resolve(); });
+            Livewire.on(`${modalComponent}.opened`, () => resolve());
         }));
     };
 

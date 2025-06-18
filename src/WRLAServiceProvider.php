@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\View\ComponentAttributeBag;
+use WebRegulate\LaravelAdministration\Livewire\DevToolsModal;
 use WebRegulate\LaravelAdministration\Livewire\Logs;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 use WebRegulate\LaravelAdministration\Commands\WikiCommand;
@@ -183,6 +184,7 @@ class WRLAServiceProvider extends ServiceProvider
         Livewire::component('wrla.manageable-models.upsert', ManageableModelUpsert::class);
         Livewire::component('wrla.notifications-widget', NotificationsWidget::class);
         Livewire::component('wrla.import-data-modal', ImportDataModal::class);
+        Livewire::component('wrla.dev-tools-modal', DevToolsModal::class);
         Livewire::component('wrla.wire-elements-modal', \LivewireUI\Modal\Modal::class);
         Livewire::component('wrla.manageable-fields.searchable-value', SearchableValue::class);
         Livewire::component('wrla.file-manager', FileManager::class);
