@@ -148,6 +148,10 @@ class VersionHandler
         /* Remote
         ----------------------------------------------------------------*/
         try {
+            // Temporarily set the remote package latest SHA to the local one
+            VersionHandler::$remotePackageLatestSha = VersionHandler::$localPackageCurrentSha;
+
+            // TODO: Below does not work because we hit a 403 rate limit very quickly. Need to find a different way around this.
             $context = stream_context_create([
                 'http' => [
                     'method' => 'GET',
