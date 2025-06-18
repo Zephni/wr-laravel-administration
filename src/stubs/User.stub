@@ -44,7 +44,7 @@ class User extends ManageableModel
         static::setIcon('fa fa-user');
 
         // Permissions
-        static::setPermission(self::IMPERSONATE, fn($wrlaUserData) => $wrlaUserData->isMaster());
+        static::setPermission(self::IMPERSONATE, fn($wrlaUserData) => false); // Note if enabled for certain users, they can impersonate your account also unless you actively condition against it
         static::setPermission(ManageableModelPermissions::ENABLED, fn($wrlaUserData) => $wrlaUserData->isMaster() || $wrlaUserData->user_id == WRLAHelper::buildUserId(WRLAHelper::getActiveModelInstance()));
         static::setPermission(ManageableModelPermissions::DELETE, fn($wrlaUserData) => $wrlaUserData->isMaster() && $wrlaUserData->user_id != WRLAHelper::buildUserId(WRLAHelper::getActiveModelInstance()));
     }

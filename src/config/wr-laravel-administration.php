@@ -87,6 +87,9 @@ return [
         ManageableModelPermissions::RESTORE->value => true,
     ],
 
+    // Callback for enabling developer tools, takes wrlaUserData and must return boolean.
+    'enable_developer_tools' => fn($wrlaUserData) => false, // EG. use: $wrlaUserData->isMaster() to enable for master users only
+
 
     /*-------------------------------------------------------------------------
         GENERAL CONFIGURATION

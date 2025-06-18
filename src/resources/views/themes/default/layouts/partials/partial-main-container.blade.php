@@ -6,28 +6,30 @@
     <div style="z-index: 5;" class="relative left-0 flex w-full gap-5 h-9 justify-between items-center border-b-2 border-slate-300 dark:border-slate-700 shadow-md dark:shadow-slate-900 bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-400">
         {{-- Version --}}
         <div>
-            <div class="hidden md:inline-block pl-6 text-sm">
-                @php
-                    $versionHandlerClass = \WebRegulate\LaravelAdministration\Classes\VersionHandler\VersionHandler::class;
-                    $localComposerVersion = $versionHandlerClass::$localPackageCurrentVersion;
-                    $localCurrentSha = $versionHandlerClass::$localPackageCurrentSha;
-                    $remotePackageLatestSha = $versionHandlerClass::$remotePackageLatestSha;
-                @endphp
-                Version:
-                {{ $localComposerVersion }}
-                <span class="px-1.5">-</span>
-                @if($localCurrentSha === $remotePackageLatestSha)
-                    <b class="cursor-help" title="Current sha: {{ $localCurrentSha }}">
-                        <i class="fas fa-info-circle text-xs text-slate-400 pr-1"></i>
-                        Up to date
-                    </b>
-                @else
-                    <button onclick="alert('Feature coming soon...')" class="text-sky-600 font-semibold cursor-pointer" title="Current sha: {{ $localCurrentSha }} - Latest sha: {{ $remotePackageLatestSha }}">
-                        <i class="fas fa-exclamation-triangle text-sky-600 pr-1"></i>
-                        Update available
-                    </button>
-                @endif
-            </div>
+            @if($WRLAHelper::userIsDev())
+                <div class="hidden md:inline-block pl-6 text-sm">
+                    @php
+                        $versionHandlerClass = \WebRegulate\LaravelAdministration\Classes\VersionHandler\VersionHandler::class;
+                        $localComposerVersion = $versionHandlerClass::$localPackageCurrentVersion;
+                        $localCurrentSha = $versionHandlerClass::$localPackageCurrentSha;
+                        $remotePackageLatestSha = $versionHandlerClass::$remotePackageLatestSha;
+                    @endphp
+                    Version:
+                    {{ $localComposerVersion }}
+                    <span class="px-1.5">-</span>
+                    @if($localCurrentSha === $remotePackageLatestSha)
+                        <b class="cursor-help" title="Current sha: {{ $localCurrentSha }}">
+                            <i class="fas fa-info-circle text-xs text-slate-400 pr-1"></i>
+                            Up to date
+                        </b>
+                    @else
+                        <button onclick="alert('Feature coming soon...')" class="text-sky-600 font-semibold cursor-pointer" title="Current sha: {{ $localCurrentSha }} - Latest sha: {{ $remotePackageLatestSha }}">
+                            <i class="fas fa-exclamation-triangle text-sky-600 pr-1"></i>
+                            Update available
+                        </button>
+                    @endif
+                </div>
+            @endif
         </div>
 
         <div class="flex flex-row h-full items-center">

@@ -756,6 +756,25 @@ class WRLAHelper
     }
 
     /**
+     * User has dev tools enabled
+     */
+    public static function userIsDev(): bool
+    {
+        return once(function() {
+            $enableDeveloperToolsConfig = config('wr-laravel-administration.enable_developer_tools');
+
+            // If the config is callable, invoke it
+            if(is_callable($enableDeveloperToolsConfig)) {
+                $userData = WRLAHelper::getCurrentUserData();
+                if(empty($userData)) return false;
+                $enableDeveloperToolsConfig = call_user_func($enableDeveloperToolsConfig, $userData);
+            }
+
+            return $enableDeveloperToolsConfig;
+        });
+    }
+
+    /**
      * Is JSON
      *
      * @param  string  $string  The string to check if is json.
