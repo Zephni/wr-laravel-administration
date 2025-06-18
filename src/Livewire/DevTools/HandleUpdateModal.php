@@ -1,11 +1,11 @@
 <?php
 
-namespace WebRegulate\LaravelAdministration\Livewire;
+namespace WebRegulate\LaravelAdministration\Livewire\DevTools;
 
 use LivewireUI\Modal\ModalComponent;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 
-class DevToolsModal extends ModalComponent
+class HandleUpdateModal extends ModalComponent
 {
     public function mount()
     {
@@ -15,11 +15,11 @@ class DevToolsModal extends ModalComponent
         }
 
         // Dispatch an event indicating that the modal has been opened
-        $this->dispatch('dev-tools-modal.opened');
+        $this->dispatch('dev-tools.handle-update-modal.opened');
     }
 
     public function render()
     {
-        return view(WRLAHelper::getViewPath('livewire.dev-tools-modal'));
+        return view(WRLAHelper::getViewPath('livewire.dev-tools.handle-update-modal'));
     }
 }
