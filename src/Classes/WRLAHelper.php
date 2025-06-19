@@ -770,7 +770,7 @@ class WRLAHelper
                 $enableDeveloperToolsConfig = call_user_func($enableDeveloperToolsConfig, $userData);
             }
 
-            return $enableDeveloperToolsConfig;
+            return $enableDeveloperToolsConfig ?? false;
         });
     }
 
