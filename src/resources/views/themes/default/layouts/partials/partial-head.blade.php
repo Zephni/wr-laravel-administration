@@ -65,6 +65,9 @@
         // Get current icon class
         let currentIconClass = iconElement.classList[1];
 
+        // Disable button
+        element.disabled = true;
+
         // Remove the current icon class and replace with spinner
         iconElement.classList.remove(currentIconClass);
         iconElement.classList.add('fa-spinner');
@@ -77,6 +80,9 @@
         iconElement.classList.remove('fa-spinner');
         iconElement.classList.remove('animate-spin');
         iconElement.classList.add(currentIconClass);
+
+        // Re-enable the button
+        element.disabled = false;
     }
 
     /**
