@@ -43,6 +43,7 @@ class ImageCroppable
         }
 
         $imageInstance = new static($column, $manageableModel?->getModelInstance()->{$column}, $manageableModel);
+        $imageInstance->validation('image|max:4096|mimes:jpg,jpeg,png,gif,webp,svg|extensions:jpg,jpeg,png,gif,webp,svg');
         $imageInstance->setOptions([
             'fileSystem' => $fileSystem,
             'path' => $path,
