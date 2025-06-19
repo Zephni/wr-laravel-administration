@@ -2,6 +2,8 @@
 
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 use WebRegulate\LaravelAdministration\Enums\ManageableModelPermissions;
+use WebRegulate\LaravelAdministration\Classes\ManageableFields\Image;
+use WebRegulate\LaravelAdministration\Classes\ManageableFields\ImageCroppable;
 
 return [
 
@@ -74,6 +76,12 @@ return [
             'decay_minutes' => 10,
             'message' => 'Too many reset password requests. Please try again in :decay_minutes minutes.',
         ],
+    ],
+
+    // Default validation rules for manageable fields
+    'default_validation_rules' => [
+        Image::class => 'nullable|image|max:4096|mimes:jpg,jpeg,png,gif,webp,svg|extensions:jpg,jpeg,png,gif,webp,svg',
+        ImageCroppable::class => 'nullable|image|max:4096|mimes:jpg,jpeg,png,gif,webp,svg|extensions:jpg,jpeg,png,gif,webp,svg',
     ],
 
     // Default manageable model permissions, must be a boolean or function that returns a boolean.

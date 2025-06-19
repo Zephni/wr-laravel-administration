@@ -102,11 +102,20 @@ trait ManageableField
     public function __construct(?string $name, ?string $value, ?ManageableModel $manageableModel = null)
     {
         // Check if name has . (relationship) or -> (json seperator) in it we need to get the appropriate value
-        if(str_contains($name ?? '', '.')) {
+        if(WRLAHelper::isBrowseColumnRelationship($name ?? '')) {
             $value = $manageableModel->getInstanceRelationValue($name);
         }
         elseif(str_contains($name ?? '', '->')) {
             $value = $manageableModel->getInstanceJsonValue($name);
+        }
+
+        // Get parent class of this trait
+        $parentClass = get_class($this);
+
+        // Get default validation rules if exists
+        $defaultValidationRules = config("wr-laravel-administration.default_validation_rules.$parentClass");
+        if(!empty($defaultValidationRules)) {
+            $this->validation($defaultValidationRules);
         }
 
         // Increment field index

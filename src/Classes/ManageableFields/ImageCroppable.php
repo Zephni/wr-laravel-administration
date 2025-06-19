@@ -39,11 +39,10 @@ class ImageCroppable
     {
         // If path is empty, we throw an exception
         if (empty($path)) {
-            throw new \Exception('Path is required for Image '.$column.' field');
+            throw new Exception('Path is required for Image '.$column.' field');
         }
 
         $imageInstance = new static($column, $manageableModel?->getModelInstance()->{$column}, $manageableModel);
-        $imageInstance->validation('image|max:4096|mimes:jpg,jpeg,png,gif,webp,svg|extensions:jpg,jpeg,png,gif,webp,svg');
         $imageInstance->setOptions([
             'fileSystem' => $fileSystem,
             'path' => $path,
