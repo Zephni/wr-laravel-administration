@@ -46,12 +46,14 @@ class LogsHandler extends ConfiguredModeBasedHandler
         // If display_within_wrla is true, we will display the log viewer within WRLA
         if ($this->currentConfiguration['display_within_wrla'] == true)
         {
+            $logViewerPath = config('log-viewer.route_path', 'log-viewer');
+
             return view(WRLAHelper::getViewPath('standard-content'), [
                 'title' => 'View Logs',
                 'content' => <<<'BLADE'
                     <iframe
                         wire:ignore
-                        src="/log-viewer"
+                        src="/$logViewerPath"
                         class="relative border-0"
                         style="
                             left: -50px;
