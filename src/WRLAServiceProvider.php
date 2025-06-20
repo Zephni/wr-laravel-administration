@@ -462,12 +462,12 @@ class WRLAServiceProvider extends ServiceProvider
 
         // Prepend middleware
         foreach ($middlewarePrepend as $middleware) {
-            $this->app['router']->prependMiddlewareToGroup('web', ...$middleware);
+            $this->app['router']->prependMiddlewareToGroup('web', $middleware);
         }
 
         // Append middleware
         foreach ($middlewareAppend as $middleware) {
-            $this->app['router']->appendMiddlewareToGroup('web', ...$middleware);
+            $this->app['router']->appendMiddlewareToGroup('web', $middleware);
         }
     }
 
