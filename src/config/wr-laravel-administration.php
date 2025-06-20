@@ -20,6 +20,12 @@ return [
         'wrla_user_data' => \App\Models\UserData::class,
     ],
 
+    // Middleware to prepend or append to each request within WRLA. Use array of class strings such as Middleware::class
+    'middleware' => [
+        'prepend' => [],
+        'append' => [],
+    ],
+
 
     /*-------------------------------------------------------------------------
         SECURITY CONFIGURATION

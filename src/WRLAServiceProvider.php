@@ -153,6 +153,9 @@ class WRLAServiceProvider extends ServiceProvider
         // Get version information
         VersionHandler::buildLocalAndRemotePackageInformation();
 
+        // Apply custom middleware
+        $this->applyCustomMiddleware();
+
         // Load routes
         Route::middleware('web')->group(function (): void {
             $this->loadRoutesFrom(__DIR__ . '/routes/wr-laravel-administration-routes.php');
@@ -446,6 +449,26 @@ class WRLAServiceProvider extends ServiceProvider
     protected function handleVendorBooting(): void
     {
         
+    }
+
+    /**
+     * Apply custom middleware
+     */
+    protected function applyCustomMiddleware(): void
+    {
+        // Apply config middleware.prepend and middleware.append arrays to the global middleware stack
+        $middlewarePrepend = config('wr-laravel-administration.middleware.prepend', []);
+        $middlewareAppend = config('wr-laravel-administration.middleware.append', []);
+
+        // Prepend middleware
+        foreach ($middlewarePrepend as $middleware) {
+            $this->app['router']->prependMiddlewareToGroup('web', ...$middleware);
+        }
+
+        // Append middleware
+        foreach ($middlewareAppend as $middleware) {
+            $this->app['router']->appendMiddlewareToGroup('web', ...$middleware);
+        }
     }
 
     /**
