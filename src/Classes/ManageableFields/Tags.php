@@ -26,4 +26,13 @@ class Tags
 
         ])->render();
     }
+
+    /**
+     * Define a list of common tags that can be clicked to inject into the input field.
+     */
+    public function commonTags(array $tags): static
+    {
+        $this->options['commonTags'] = $tags;
+        return $this;
+    }
 }

@@ -3,6 +3,9 @@
 @php
     // Set id from name if unset
     $id = empty($attributes->get('id')) ? 'wrinput-'.$attributes->get('name') : $attributes->get('id');
+
+    // Common tags
+    $commonTags = $options['commonTags'] ?? [];
 @endphp
 
 <div class="{{ $options['containerClass'] ?? 'w-full flex-1 flex flex-col gap-1 md:flex-auto' }}">
@@ -128,6 +131,19 @@ style="width: 100%; max-width: 100%;"
 
     {{-- Actual input field --}}
     <input type="hidden" name="{{ $attributes['name'] }}" x-bind:value="tags.join(',')" />
+
+    @if(!empty($commonTags))
+        <div class="mt-2 flex flex-wrap gap-2">
+            @foreach($commonTags as $tag)
+                <button
+                    type="button"
+                    class="inline-flex items-center px-2 bg-gray-100 hover:bg-primary-500 hover:bg-opacity-5 hover:border-primary-500 rounded-md border-2 border-gray-200" style="line-height: 20px;"
+                    title="Add tag"
+                    x-on:click="addTag('{{ addslashes($tag) }}')"
+                >{{ $tag }}</button>
+            @endforeach
+        </div>
+    @endif
 </div>
 
 {{-- Field notes (if options has notes key) --}}
