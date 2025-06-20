@@ -50,10 +50,10 @@ class LogsHandler extends ConfiguredModeBasedHandler
 
             return view(WRLAHelper::getViewPath('standard-content'), [
                 'title' => 'View Logs',
-                'content' => <<<'BLADE'
+                'content' => <<<BLADE
                     <iframe
                         wire:ignore
-                        src="/$logViewerPath"
+                        src="/{$logViewerPath}"
                         class="relative border-0"
                         style="
                             left: -50px;
