@@ -31,14 +31,14 @@ class WRLASettings
             ]),
 
             // File Manager
-            NavigationItem::make('wrla.file-manager', [], 'File Manager', 'fa fa-folder-open')->enableOnCondition(function(){
-                return WRLAHelper::getCurrentUserData()?->isMaster() ?? false && config('wr-laravel-administration.file_manager.enabled', false);
-            }),
+            NavigationItem::make('wrla.file-manager', [], 'File Manager', 'fa fa-folder-open')->showOnCondition(fn() => 
+                WRLAHelper::getCurrentUserData()?->isMaster() ?? false && config('wr-laravel-administration.file_manager.enabled', false)
+            ),
 
             // View Logs
-            NavigationItem::make('wrla.logs', [], 'View Logs', 'fa fa-file-alt')->showOnCondition(function(){
-                return WRLAHelper::getCurrentUserData()?->isMaster() ?? false;
-            }),
+            NavigationItem::make('wrla.logs', [], 'View Logs', 'fa fa-file-alt')->showOnCondition(fn() =>
+                WRLAHelper::getCurrentUserData()?->isMaster() ?? false && config('wr-laravel-administration.logs.current') != null
+            ),
 
             // Divider
             NavigationItem::makeDivider('My Account', 'fa fa-user mr-1'),
