@@ -220,7 +220,7 @@ class UserData extends Model
 
         data_set($permissions, $dottedKey, $value);
         $this->permissions = json_encode($permissions);
-        $this->save();
+        $this->update(['permissions' => $this->permissions]);
     }
 
     /**
@@ -249,7 +249,7 @@ class UserData extends Model
 
         data_set($settings, $dottedKey, $value);
         $this->settings = json_encode($settings);
-        $this->save();
+        $this->update(['settings' => $this->settings]);
     }
 
     /**
@@ -278,7 +278,7 @@ class UserData extends Model
 
         data_set($data, $dottedKey, $value);
         $this->data = json_encode($data);
-        $this->save();
+        $this->update(['data' => $this->data]);
     }
 
     /**
