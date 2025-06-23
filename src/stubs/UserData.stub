@@ -211,6 +211,7 @@ class UserData extends Model
      */
     public function setPermission(string $dottedKey, $value): void
     {
+        $this->discardChanges();
         $permissions = json_decode($this->permissions ?? '', true);
 
         // If not array, create new array
@@ -240,6 +241,7 @@ class UserData extends Model
      */
     public function setSetting(string $dottedKey, $value): void
     {
+        $this->discardChanges();
         $settings = json_decode($this->settings ?? '', true);
 
         // If not array, create new array
@@ -269,6 +271,7 @@ class UserData extends Model
      */
     public function setData(string $dottedKey, $value): void
     {
+        $this->discardChanges();
         $data = json_decode($this->data ?? '', true);
 
         // If not array, create new array
