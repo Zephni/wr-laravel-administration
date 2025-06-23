@@ -356,7 +356,7 @@ class EmailTemplate extends Model
     /**
      * Send email to addresses with this template.
      *
-     * @return $success
+     * @return bool $success
      */
     public function sendEmail(string|array $toAddresses, ?array $attachments = null, bool $sendSeperateEmails = true, string $smtpKey = 'smtp'): bool
     {
