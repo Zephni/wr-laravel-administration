@@ -461,6 +461,31 @@ abstract class ManageableModel
     }
 
     /**
+     * Set pre query for browse page.
+     * 
+     * @param callable $preQuery A callable that takes a query builder and array filters as parameters and returns a modified query builder.
+     */
+    public static function setPreQuery(callable $preQuery): void
+    {
+        static::setStaticOption('browse.preQuery', $preQuery);
+    }
+
+    /**
+     * Get pre query for browse page.
+     */
+    public static function processPreQuery(mixed $query, array $filters): mixed
+    {
+        $preQuery = static::getStaticOption(static::class, 'browse.preQuery');
+        if (is_callable($preQuery)) {
+            // If preQuery is callable, call it with the query builder
+            return $preQuery($query, $filters);
+        }
+
+        // If preQuery is not callable, return the query as is
+        return $query;
+    }
+
+    /**
      * Set browse filters.
      */
     public static function setBrowseFilters(Collection|array $filters)

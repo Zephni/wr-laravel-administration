@@ -66,6 +66,13 @@ class ManageableModelBrowse extends Component
     public $orderDirection = 'desc';
 
     /**
+     * Table columns.
+     *
+     * @var array
+     */
+    public $tableColumns = [];
+
+    /**
      * Livewire fields, attach with manageable model ->setAttribute('wire:model.live', 'livewireData.key')
      */
     public array $livewireData = [];
@@ -180,6 +187,9 @@ class ManageableModelBrowse extends Component
         $orderByData = $manageableModelClass::getDefaultOrderBy();
         $this->orderBy = $orderByData->get('column');
         $this->orderDirection = $orderByData->get('direction');
+
+        // Get table columns
+        $this->tableColumns = $this->manageableModelClass::getTableColumns();
     }
 
     /**
@@ -333,6 +343,12 @@ class ManageableModelBrowse extends Component
         // Start eloquent query
         $eloquent = $baseModelClass::query();
 
+        // Pre query
+        $preQueryResult = $this->manageableModelClass::processPreQuery($eloquent, $this->filters);
+        if($preQueryResult instanceof Builder) {
+            $eloquent = $preQueryResult;
+        }
+
         // Select any fields that aren't relationships or json references
         $eloquent = $eloquent->addSelect("$tableName.*");
 
@@ -431,9 +447,17 @@ class ManageableModelBrowse extends Component
         // Order by
         // If orderBy is standard column, order by that column
         if (! $orderByIsRelationship) {
-            $eloquent = $eloquent->orderBy("$tableName.$this->orderBy", $this->orderDirection);
-            // If orderBy is a relationship column, order by the relationship column
-        } else {
+            // If orderBy column exists in standard columns, then prefix with table name
+            if(in_array($this->orderBy, $this->tableColumns)) {
+                $eloquent = $eloquent->orderBy("$tableName.$this->orderBy", $this->orderDirection);
+            }
+            // If orderBy column does not exist in standard columns, then just order by the column name
+            else {
+                $eloquent = $eloquent->orderBy($this->orderBy, $this->orderDirection);
+            }
+        }
+        // If orderBy is a relationship column, order by the relationship column
+        else {
             // Get relationship method and remote column
             [$relationshipMethod, $remoteColumn] = WRLAHelper::parseBrowseColumnRelationship($this->orderBy);
 
