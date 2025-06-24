@@ -58,7 +58,7 @@ class InstanceAction
 
     /**
      * Set action
-     * @param callable|string $action
+     * @param callable|string $action If string then will be href link, if callable should take the model instance and return a string message for the user
      * @return InstanceAction
      */
     public function setAction(callable|string $action): static
