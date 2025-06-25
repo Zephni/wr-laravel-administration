@@ -132,8 +132,8 @@ class InstanceAction
             $attributes = ['href' => $this->action];
         } elseif (is_callable($this->action)) {            
             $attributes = ['wire:click' => "callManageableModelAction('{$instanceId}', '{$this->actionKey}')"];
-        } else {
-            throw new \Exception('Action must be a string URL or callable');
+        } elseif(!is_null($this->action)) {
+            throw new \Exception('Action must be a string URL, callable, or null');
         }
 
         // If display on condition is false, return empty view
@@ -144,13 +144,18 @@ class InstanceAction
             }
         }
 
+        // If additional attributes do not contain 'title', set title from text
+        if (empty($this->additonalAttributes['title'])) {
+            $this->additonalAttributes['title'] = $this->text;
+        }
+
         // Return button view
         return view(WRLAHelper::getViewPath('components.forms.button'), [
             'text' => $this->text,
             'icon' => $this->icon ?? 'fa fa-cog',
             'color' => $this->color ?? 'primary',
             'size' => 'small',
-            'attributes' => Arr::toAttributeBag(array_merge($this->additonalAttributes ?? [], $attributes)),
+            'attributes' => Arr::toAttributeBag(array_merge($this->additonalAttributes ?? [], $attributes ?? [])),
         ]);
     }
 }

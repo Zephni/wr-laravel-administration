@@ -110,7 +110,7 @@ abstract class ManageableModel
      *
      * @param  null|int|mixed  $modelInstance
      */
-    public function __construct($modelInstanceOrId = null)
+    public function __construct($modelInstanceOrId = null, bool $withTrashed = false)
     {
         // If model instance or id is null, set the model instance to a new instance of the base model
         if ($modelInstanceOrId == null) {
@@ -125,8 +125,11 @@ abstract class ManageableModel
 
             // If array key does not exist for this model id, find it and cache it
             if(!array_key_exists($modelInstanceOrId, self::$modelInstanceCache[static::class]) ) {
-                // Find the model instance by ID
-                $modelInstance = static::getBaseModelClass()::find($modelInstanceOrId);
+                if (!$withTrashed) {
+                    $modelInstance = static::getBaseModelClass()::find($modelInstanceOrId);
+                } else {
+                    $modelInstance = static::getBaseModelClass()::withTrashed()->find($modelInstanceOrId);
+                }
                 
                 // If model instance is not found, throw an exception
                 if ($modelInstance == null) {
@@ -672,56 +675,73 @@ abstract class ManageableModel
     public function getDefaultInstanceActions(): Collection
     {
         // Initialise collection
-        $browseActions = collect();
+        $instanceActions = collect();
 
         // If has_access is false, return empty collection
         if (! static::getPermission(ManageableModelPermissions::ENABLED)) {
-            return $browseActions;
+            return $instanceActions;
         }
 
         // If create page, return empty collection
         if (WRLAHelper::getCurrentPageType() == PageType::CREATE) {
-            return $browseActions;
+            return $instanceActions;
         }
 
         // Get model instance
         $model = $this->getModelInstance();
 
+        // Get url alias and id
+        $modelUrlAlias = static::getUrlAlias();
+        $modelId = $model->id ?? null;
+
         // If model doesn't have soft deletes and not trashed
         if (! WRLAHelper::isSoftDeletable(static::getBaseModelClass()) || $model->deleted_at == null) {
-            // Check has edit permission
-            if (static::getPermission(ManageableModelPermissions::EDIT)) {
-                $browseActions->put('edit', view(WRLAHelper::getViewPath('components.browse-actions.edit-button'), [
-                    'manageableModel' => $this,
-                ]));
-            }
+            // Edit
+            $instanceActions->put('edit', InstanceAction::make($this, 'Edit', 'fa fa-edit', 'primary')
+                ->enableOnCondition(static::getPermission(ManageableModelPermissions::EDIT))
+                ->setAction(route('wrla.manageable-models.edit', [
+                    'modelUrlAlias' => $modelUrlAlias,
+                    'id' => $modelId
+                ]))
+            );
 
-            // Check has delete permission
-            if (static::getPermission(ManageableModelPermissions::DELETE)) {
-                $browseActions->put('delete', view(WRLAHelper::getViewPath('components.browse-actions.delete-button'), [
-                    'manageableModel' => $this,
-                ]));
-            }
-            // If trashed
-        } else {
-            // Check has restore permission
-            if (static::getPermission(ManageableModelPermissions::RESTORE)) {
-                $browseActions->put('restore', view(WRLAHelper::getViewPath('components.browse-actions.restore-button'), [
-                    'manageableModel' => $this,
-                ]));
-            }
+            // Delete
+            $instanceActions->put('delete', InstanceAction::make($this, 'Delete', 'fa fa-trash', 'danger')
+                ->enableOnCondition(static::getPermission(ManageableModelPermissions::DELETE))
+                ->setAdditionalAttributes([
+                    'x-on:click' => <<<JS
+                        confirm('Are you sure?')
+                            ? \$dispatch('deleteModel', { 'modelUrlAlias': '$modelUrlAlias', 'id': $modelId })
+                            : event.stopImmediatePropagation();
+                    JS,
+                ])
+            );
+        }
+        // If trashed
+        else {
+            // Restore
+            $instanceActions->put('restore', InstanceAction::make($this, 'Restore', 'fa fa-undo', 'primary')
+                ->enableOnCondition(static::getPermission(ManageableModelPermissions::RESTORE))
+                ->setAdditionalAttributes([
+                    'wire:click' => 'restoreModel('.$this->getModelInstance()->id.')',
+                ])
+            );
 
-            // Check has delete permission
-            if (static::getPermission(ManageableModelPermissions::DELETE)) {
-                $browseActions->put('delete', view(WRLAHelper::getViewPath('components.browse-actions.delete-button'), [
-                    'manageableModel' => $this,
-                    'text' => 'Permanent Delete',
-                    'permanent' => true,
-                ]));
-            }
+            // Permanent Delete
+            $instanceActions->put('delete', InstanceAction::make($this, 'Delete', 'fa fa-trash', 'danger')
+                ->enableOnCondition(static::getPermission(ManageableModelPermissions::DELETE))
+                ->setAdditionalAttributes([
+                    'title' => 'Permanent delete',
+                    'x-on:click' => <<<JS
+                        confirm('Are you sure you want to permanently delete this item?')
+                            ? \$dispatch('deleteModel', { 'modelUrlAlias': '$modelUrlAlias', 'id': $modelId })
+                            : event.stopImmediatePropagation();
+                    JS,
+                ])
+            );
         }
 
-        return $browseActions;
+        return $instanceActions;
     }
 
     /**

@@ -494,7 +494,7 @@ class ManageableModelBrowse extends Component
     public function deleteModel(string $modelUrlAlias, int $id)
     {
         // Get manageable model instance
-        $manageableModel = new $this->{'manageableModelClass'}($id);
+        $manageableModel = new $this->{'manageableModelClass'}($id, true);
 
         // Set current manageable model class and instance
         WRLAHelper::setCurrentActiveManageableModelClass($this->manageableModelClass);

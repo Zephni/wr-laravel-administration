@@ -48,7 +48,7 @@
         <i class="{{ $icon }} text-[13px] mr-1" @if(!empty($wireClick)) wire:loading.remove wire:target="{{ $wireClick }}" @endif></i>
     @endif
     @if(!empty($wireClick))
-        <i class="fa fa-spinner fa-spin text-[13px] mr-1" wire:loading.flex wire:target="{{ $wireClick }}"></i>
+        <i class="fa fa-spinner animate-spin text-[13px] mr-1" wire:loading.flex wire:target="{{ $wireClick }}"></i>
     @endif
     <div class="inline">{!! $text !!}</div>
 @if(empty($href))
