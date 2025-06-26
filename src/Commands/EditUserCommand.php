@@ -42,8 +42,6 @@ class EditUserCommand extends Command
         
         while (true) {
             // Choose which column to search user by
-            // $column = $this->choice('Which user column do you want to search by?', $userColumns, 0);
-            // Use laravel/prompts instead for multi select
             $column = select(
                 label: 'Which user column do you want to search by?',
                 options: $userColumns,
@@ -73,9 +71,10 @@ class EditUserCommand extends Command
                     $userChoiceList = $users->map(fn($user) => "{$user->$column} - <fg=green>ID: {$user->id}</>")->toArray();
     
                     // Note that chosenUserValue will be the user column <fg=green>ID</> and the user ID
-                    $chosenUserValue = $this->choice(
-                        "Please select a user from the list below by it's index",
-                        $userChoiceList
+                    $chosenUserValue = select(
+                        label: "Please select a user from the list below by it's index",
+                        options: $userChoiceList,
+                        scroll: 10,
                     );
 
                     // Extract the id from the chosen value
