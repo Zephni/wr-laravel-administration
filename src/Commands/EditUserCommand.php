@@ -31,17 +31,17 @@ class EditUserCommand extends Command
     public function handle()
     {
         // Run commands middleware from config middleware.commands
-        WRLAHelper::runCommandMiddleware();
+        WRLAHelper::runCommandMiddleware($this);
 
         // Required user database information
         $userInstance = app(WRLAHelper::getUserModelClass());
         $userTable = str($userInstance->getTable())->afterLast('.')->toString();
         $userConnection = $userInstance->getConnectionName();
+        $userColumns = WRLAHelper::getTableColumns($userTable, $userConnection);
         
         while (true) {
             // Choose which column to search user by
-            $columns = WRLAHelper::getTableColumns($userTable, $userConnection);
-            $column = $this->choice('Which user column do you want to search by?', $columns, 0);
+            $column = $this->choice('Which user column do you want to search by?', $userColumns, 0);
 
             // Ask for the value to search
             $value = $this->ask("What is the value of the {$column} column?");
@@ -49,21 +49,70 @@ class EditUserCommand extends Command
             // Check if user exists
             $user = WRLAHelper::getUserModelClass()::where($column, $value)->first();
 
-            // If user found, break the loop
-            if ($user) {
-                break;
-            }
+            // If user not found by the exact value, do a LIKE search instead and allow to select from a list
+            if (!$user) {
+                $this->info("No user found with exact value: {$column} = '{$value}' Searching for similar users...");
 
-            // Otherwise, inform the user and ask again
-            $this->error('User not found. Please try again.');
+                while(true) {
+                    usleep(1);
+                    $users = WRLAHelper::getUserModelClass()::where($column, 'like', '%' . $value . '%')->get();
+    
+                    if($users->isEmpty()) {
+                        $this->error('No users found with similar value. Please try again.');
+                        continue;
+                    }
+
+                    // Build choice list
+                    $userChoiceList = $users->map(fn($user) => "{$user->$column} - <fg=green>ID: {$user->id}</>")->toArray();
+    
+                    // Note that chosenUserValue will be the user column <fg=green>ID</> and the user ID
+                    $chosenUserValue = $this->choice(
+                        "Please select a user from the list below by it's index",
+                        $userChoiceList
+                    );
+
+                    // Extract the id from the chosen value
+                    $chosenUserId =  (int) str($chosenUserValue)
+                        ->afterLast('ID: ')
+                        ->before('/')
+                        ->trim()
+                        ->toString();
+
+                    // Get the user by the chosen user id
+                    $user = $users->firstWhere('id', $chosenUserId);
+    
+                    // Find the user by the chosen ID
+                    if(!$user) {
+                        $this->error('Invalid user selection. Please try again.');
+                        continue;
+                    }
+                    
+                    break 2;
+                }
+            }
         }
+
+        // User values (remove anything that isn't within $userColumns)
+        $userValues = collect($user->toArray())
+            ->only($userColumns)
+            ->toArray();
 
         // Display all fields for this user
         $this->info('User found:');
-        $this->table(
-            array_keys($user->toArray()),
-            [$user->toArray()]
-        );
+
+        // If less or equal to 9 columns, display as table
+        if(count($userColumns) <= 9) {
+            $this->table(
+                $userColumns,
+                [$userValues]
+            );
+        }
+        // Otherwise display as a list
+        else {
+            foreach ($userValues as $key => $value) {
+                $this->line("<fg=yellow>{$key}:</> {$value}");
+            }
+        }
 
         while (true) {
             // Special cases

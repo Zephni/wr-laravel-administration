@@ -5,6 +5,7 @@ namespace WebRegulate\LaravelAdministration\Classes;
 use Livewire\Livewire;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -1389,7 +1390,7 @@ class WRLAHelper
     /**
      * Load command middleware
      */
-    public static function runCommandMiddleware(): void
+    public static function runCommandMiddleware(Command $command): void
     {
         // Run middleware or callable from config middleware.commands
         $middleware = config('wr-laravel-administration.middleware.commands', []);
@@ -1397,7 +1398,7 @@ class WRLAHelper
             if(is_string($middlewareClassOrMethod)) {
                 app($middlewareClassOrMethod)->handle(new Request(), fn($request) => \Illuminate\Support\Facades\Response::make(''));
             } elseif(is_callable($middlewareClassOrMethod)) {
-                $middlewareClassOrMethod();
+                $middlewareClassOrMethod($command);
             }
         }
     }
