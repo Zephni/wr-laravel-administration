@@ -35,7 +35,7 @@ class EditUserCommand extends Command
 
         // Required user database information
         $userInstance = app(WRLAHelper::getUserModelClass());
-        $userTable = $userInstance->getTable()->afterLast('.')->toString();
+        $userTable = str($userInstance->getTable())->afterLast('.')->toString();
         $userConnection = $userInstance->getConnectionName();
         
         while (true) {

@@ -1395,7 +1395,7 @@ class WRLAHelper
         $middleware = config('wr-laravel-administration.middleware.commands', []);
         foreach ($middleware as $middlewareClassOrMethod) {
             if(is_string($middlewareClassOrMethod)) {
-                app($middlewareClassOrMethod)->handle(new Request(), fn($request) => Response::make(''));
+                app($middlewareClassOrMethod)->handle(new Request(), fn($request) => \Illuminate\Support\Facades\Response::make(''));
             } elseif(is_callable($middlewareClassOrMethod)) {
                 $middlewareClassOrMethod();
             }
