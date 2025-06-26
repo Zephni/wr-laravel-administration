@@ -6,6 +6,7 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Validator;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 use function Laravel\Prompts\text;
+use function Laravel\Prompts\select;
 
 class EditUserCommand extends Command
 {
@@ -41,7 +42,13 @@ class EditUserCommand extends Command
         
         while (true) {
             // Choose which column to search user by
-            $column = $this->choice('Which user column do you want to search by?', $userColumns, 0);
+            // $column = $this->choice('Which user column do you want to search by?', $userColumns, 0);
+            // Use laravel/prompts instead for multi select
+            $column = select(
+                label: 'Which user column do you want to search by?',
+                options: $userColumns,
+                scroll: 10,
+            );            
 
             // Ask for the value to search
             $value = $this->ask("What is the value of the {$column} column?");
