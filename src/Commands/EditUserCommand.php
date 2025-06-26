@@ -3,9 +3,9 @@
 namespace WebRegulate\LaravelAdministration\Commands;
 
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
+use function Laravel\Prompts\text;
 
 class EditUserCommand extends Command
 {
@@ -196,7 +196,7 @@ class EditUserCommand extends Command
                     }
 
                     $this->line('');
-                    $field = $this->ask('Which user data field do you want to edit, or use special commands above');
+                    $field = $this->ask('Which user data field do you want to edit, or use a special command above');
 
                     // Check if the field is a special case
                     if (array_key_exists($field, $specialWrlaUserDataCases)) {
@@ -217,8 +217,26 @@ class EditUserCommand extends Command
                         continue;
                     }
 
-                    $this->info("Field {$wrlaUserDataTable}.{$field} updated successfully!");
-                    break;
+                    // Get user data
+                    $wrlaUserData = $user->wrlaUserData;
+
+                    // Ask for the new value for this field
+                    $newValue = text(
+                        label: "What is the new value for the {$field} field?",
+                        default: $wrlaUserData->$field
+                    );
+
+                    // Update value in wrla_user_data
+                    try {
+                        $wrlaUserData->$field = $newValue;
+                        $wrlaUserData->save();
+    
+                        $this->info("Field {$wrlaUserDataTable}.{$field} updated successfully!");
+                        break;
+                    }  catch (\Exception $e) {
+                        $this->error("Error updating field {$wrlaUserDataTable}.{$field}: " . $e->getMessage());
+                        continue;
+                    }
                 }
             }
 
@@ -242,7 +260,10 @@ class EditUserCommand extends Command
 
             // Ask and validate new value for this field
             while (true) {
-                $newValue = $this->ask($message);
+                $newValue = text(
+                    label: $message,
+                    default: $user->$field,
+                );
 
                 // Validate the input
                 if ($validation) {
