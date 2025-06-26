@@ -33,7 +33,11 @@ class Password
      */
     public function applySubmittedValue(Request $request, mixed $value): mixed
     {
-        // Hash the password and return
+        // Hash password by user data hashPassword method if available
+        if(method_exists(WRLAHelper::getUserDataModelClass(), 'hashPassword')) {
+            return WRLAHelper::getUserDataModelClass()::hashPassword($value);
+        }
+        
         return Hash::make($value);
     }
 
