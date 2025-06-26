@@ -94,6 +94,22 @@ class UserData extends Model
     }
 
     /**
+     * Generate password
+     */
+    public static function hashPassword(string $password): string
+    {
+        return Hash::make($password);
+    }
+
+    /**
+     * Password field
+     */
+    public static function getPasswordField(): string
+    {
+        return 'password';
+    }
+
+    /**
      * Attempt login
      */
     public static function attemptLogin(string $identifier, string $password, bool $remember = true)
