@@ -24,6 +24,7 @@ return [
     'middleware' => [
         'prepend' => [],
         'append' => [],
+        'commands' => [],
     ],
 
 

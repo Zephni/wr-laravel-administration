@@ -4,6 +4,7 @@ namespace WebRegulate\LaravelAdministration\Classes;
 
 use Livewire\Livewire;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -1383,6 +1384,34 @@ class WRLAHelper
         }
 
         return [true, $manageableModelClass::getDisplayName().' #'.$id.' '.($permanent == 1 ? ' permanently deleted.' : ' deleted.')];
+    }
+
+    /**
+     * Load command middleware
+     */
+    public static function runCommandMiddleware(): void
+    {
+        // Run middleware or callable from config middleware.commands
+        $middleware = config('wr-laravel-administration.middleware.commands', []);
+        foreach ($middleware as $middlewareClassOrMethod) {
+            if(is_string($middlewareClassOrMethod)) {
+                app($middlewareClassOrMethod)->handle(new Request(), fn($request) => Response::make(''));
+            } elseif(is_callable($middlewareClassOrMethod)) {
+                $middlewareClassOrMethod();
+            }
+        }
+    }
+
+    /**
+     * Get table columns
+     */
+    public static function getTableColumns(string $table, ?string $connection = null): array
+    {
+        if(empty($connection)) {
+            return Schema::getColumnListing($table);
+        }
+
+        return Schema::connection($connection)->getColumnListing($table);
     }
 
     /**

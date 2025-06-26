@@ -1383,6 +1383,10 @@ abstract class ManageableModel
      */
     public static function getTableColumns(): array
     {
-        return Schema::getColumnListing((new static)->getModelInstance()->getTable());
+        $modelInstance = (new static)->getModelInstance();
+        $table = str($modelInstance->getTable())->afterLast('.')->toString();
+        $connection = $modelInstance->getConnectionName();
+
+        return WRLAHelper::getTableColumns($table, $connection);
     }
 }

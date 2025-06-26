@@ -2,7 +2,6 @@
 
 namespace WebRegulate\LaravelAdministration\Commands;
 
-use App\Models\User;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -31,9 +30,18 @@ class EditUserCommand extends Command
      */
     public function handle()
     {
+        // Run commands middleware from config middleware.commands
+        WRLAHelper::runCommandMiddleware();
+
+        // Required user database information
+        $userInstance = app(WRLAHelper::getUserModelClass());
+        $userTable = $userInstance->getTable()->afterLast('.')->toString();
+        $userConnection = $userInstance->getConnectionName();
+        
         while (true) {
-            // Ask which column to search user by
-            $column = $this->ask('Which user column do you want to search by');
+            // Choose which column to search user by
+            $columns = WRLAHelper::getTableColumns($userTable, $userConnection);
+            $column = $this->choice('Which user column do you want to search by?', $columns, 0);
 
             // Ask for the value to search
             $value = $this->ask("What is the value of the {$column} column?");
