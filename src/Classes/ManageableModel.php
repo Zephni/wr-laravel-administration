@@ -2,15 +2,12 @@
 
 namespace WebRegulate\LaravelAdministration\Classes;
 
-use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\MessageBag;
-use Illuminate\Contracts\View\View;
-use Illuminate\Support\Facades\Schema;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\View\ComponentAttributeBag;
 use WebRegulate\LaravelAdministration\Enums\PageType;
 use WebRegulate\LaravelAdministration\Classes\ManageableFields\Text;
@@ -20,6 +17,7 @@ use WebRegulate\LaravelAdministration\Classes\BrowseColumns\BrowseColumn;
 use WebRegulate\LaravelAdministration\Classes\BrowseColumns\BrowseColumnBase;
 use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItem;
 use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItemManageableModel;
+use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 
 abstract class ManageableModel
 {
@@ -479,6 +477,7 @@ abstract class ManageableModel
     public static function processPreQuery(mixed $query, array $filters): mixed
     {
         $preQuery = static::getStaticOption(static::class, 'browse.preQuery');
+        
         if (is_callable($preQuery)) {
             // If preQuery is callable, call it with the query builder
             return $preQuery($query, $filters);
@@ -759,6 +758,9 @@ abstract class ManageableModel
                 ->browseFilterApply(fn (Builder $query, $table, $columns, $value) => $query->where(function ($query) use ($table, $columns, $value): void {
                     $whereIndex = 0;
 
+                    // Get all actual table columns (this is because we may have custom added columns from a preQuery)
+                    $actualTableColumns = WRLAHelper::getTableColumns($table, (new (self::getBaseModelClass()))->getConnectionName());
+
                     foreach ($columns as $column => $label) {
                         // If column is int or begins with !, skip
                         if (is_int($column) || str_starts_with($column, '!')) {
@@ -786,10 +788,16 @@ abstract class ManageableModel
 
                             // Safely escape value
                             $query->orWhereRelation($relationshipParts[0], "{$relationshipTableName}.{$relationshipParts[1]}", 'like', "%{$value}%");
-                            // Otherwise just use the table and column
-                        } else {
+                        }
+                        // If table has this column, prepend table name
+                        elseif(array_key_exists($column, $actualTableColumns)) {
                             $column = "$table.$column";
                             $query->orWhere($column, 'like', "%{$value}%");
+                        }
+                        // Otherwise just use column name directly
+                        else {
+                            $query->orHaving($column, 'like', "%{$value}%");
+                            continue;
                         }
                     }
                 })),

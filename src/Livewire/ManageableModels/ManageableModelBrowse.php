@@ -265,7 +265,7 @@ class ManageableModelBrowse extends Component
     public function render()
     {
         $this->renders++;
-        $models = $this->browseModels()->paginate(18);
+        $models = $this->browseModels()->paginate(18, ['*'], 'page', null, 18);
 
         return view(WRLAHelper::getViewPath('livewire.manageable-models.browse'), [
             'models' => $models,
