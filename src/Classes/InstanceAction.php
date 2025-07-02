@@ -103,7 +103,7 @@ class InstanceAction
         // General escaping for JavaScript string
         $message = addslashes($message);
 
-        $this->setAdditionalAttributes(['onclick' => "if(!confirm('$message')) { event.preventDefault(); }"]);
+        $this->additonalAttributes['onclick'] = "if(!confirm('$message')) { event.preventDefault(); }";
         return $this;
     }
 
