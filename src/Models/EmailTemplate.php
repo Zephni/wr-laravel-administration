@@ -32,6 +32,37 @@ class EmailTemplate extends Model
 
     public null|string|array $replyTo = null;
 
+    private static $postSendHookGlobal = null;
+
+    private $postSendHook = null;
+
+    /**
+     * Post send hook global, note this gets called after the local post send hook of the email template.
+     * Hook callable should take the following parameters:
+     * - EmailTemplate $emailTemplate
+     * - array $toAddresses
+     * - array $attachments
+     * - string $smtpKey
+     */
+    public static function setPostSendHookGlobal(callable $hook): void
+    {
+        self::$postSendHookGlobal = $hook;
+    }
+
+    /**
+     * Post send hook, note this gets called before the global post send hook.
+     * Hook callable should take the following parameters:
+     * - EmailTemplate $emailTemplate
+     * - array $toAddresses
+     * - array $attachments
+     * - string $smtpKey
+     */
+    public function setPostSendHook(callable $hook): static
+    {
+        $this->postSendHook = $hook;
+        return $this;
+    }
+
     /**
      * Call before sendEmail() to set the reply-to address.
      */
@@ -442,7 +473,8 @@ class EmailTemplate extends Model
      */
     private function buildAndSendMail(string $smtpKey, array $smtpData, array $toAddresses, ?array $attachments, null|string|array $replyTo): ?SentMessage
     {
-        return Mail::mailer($smtpKey)->send([], [], function($mail) use($smtpData, $toAddresses, $attachments, $replyTo) {
+        // We send do the final here and check for success, this must be true before we execute the post send hooks
+        $sentMessage = Mail::mailer($smtpKey)->send([], [], function($mail) use($smtpKey, $smtpData, $toAddresses, $attachments, $replyTo) {
             // Main
             $mail->from($smtpData['from']['address'], $smtpData['from']['name']);
             $mail->subject($this->getFinalSubject());
@@ -474,6 +506,24 @@ class EmailTemplate extends Model
                 $mail->replyTo($replyTo);
             }
         });
+
+        // If sent message failed, return it now
+        if ($sentMessage === null) {
+            return null;
+        }
+
+        // Check post send hook, and post send hook global
+        if (is_callable($this->postSendHook)) {
+            call_user_func($this->postSendHook, $this, $toAddresses, $attachments, $smtpKey);
+        }
+
+        // If global post send hook is set, call it
+        if (is_callable(self::$postSendHookGlobal)) {
+            call_user_func(self::$postSendHookGlobal, $this, $toAddresses, $attachments, $smtpKey);
+        }
+
+        // Return sent message object
+        return $sentMessage;
     }
 
     /**
