@@ -21,7 +21,11 @@ class WRLAResetPasswordNotification extends Notification
         /**
          * The password reset token.
          */
-        public $token
+        public $token,
+        /**
+         * Redirect route name, will be passed email and token
+         */
+        public $redirectRoute = 'wrla.reset-password',
     ) {}
 
     /**
@@ -46,7 +50,7 @@ class WRLAResetPasswordNotification extends Notification
         return (new \Illuminate\Notifications\Messages\MailMessage)
             ->subject(config('app.name').' - Reset Password')
             ->line('You are receiving this email because we received a password reset request for your account.')
-            ->action('Reset Password', url(route('wrla.reset-password', ['email' => $this->email, 'token' => $this->token], true)))
+            ->action('Reset Password', url(route($this->redirectRoute, ['email' => $this->email, 'token' => $this->token], true)))
             ->line('If you did not request a password reset, no further action is required.');
     }
 
