@@ -23,9 +23,9 @@ class WRLAResetPasswordNotification extends Notification
          */
         public $token,
         /**
-         * Redirect route name, will be passed email and token
+         * Reset password route name, will be passed email and token
          */
-        public $redirectRoute = 'wrla.reset-password',
+        public $resetPasswordRoute = 'wrla.reset-password',
     ) {}
 
     /**
@@ -47,10 +47,14 @@ class WRLAResetPasswordNotification extends Notification
      */
     public function toMail($notifiable)
     {
+        $fromAddress = config('mail.from.address');
+        $fromName = config('mail.from.name');
+        
         return (new \Illuminate\Notifications\Messages\MailMessage)
+            ->from($fromAddress, $fromName)
             ->subject(config('app.name').' - Reset Password')
             ->line('You are receiving this email because we received a password reset request for your account.')
-            ->action('Reset Password', url(route($this->redirectRoute, ['email' => $this->email, 'token' => $this->token], true)))
+            ->action('Reset Password', url(route($this->resetPasswordRoute, ['email' => $this->email, 'token' => $this->token], true)))
             ->line('If you did not request a password reset, no further action is required.');
     }
 
