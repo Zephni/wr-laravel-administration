@@ -288,13 +288,19 @@ trait ManageableField
 
     /**
      * Get filter value.
-     *
-     * @param string $filterAlias
-     * @return mixed
      */
     public function getBrowseFilterValue(string $filterAlias): mixed
     {
         return ManageableField::$browseFilterValues[$filterAlias] ?? null;
+    }
+
+    /**
+     * Set static filter value.
+     */
+    public static function setStaticBrowseFilterValue(string $filterAlias, mixed $value): void
+    {
+        // Set static filter value
+        ManageableField::$browseFilterValues[$filterAlias] = $value;
     }
 
     /**

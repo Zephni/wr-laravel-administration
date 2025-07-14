@@ -13,6 +13,7 @@ use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 use WebRegulate\LaravelAdministration\Classes\ManageableModel;
 use WebRegulate\LaravelAdministration\Enums\ManageableModelPermissions;
 use WebRegulate\LaravelAdministration\Classes\BrowseColumns\BrowseColumnBase;
+use WebRegulate\LaravelAdministration\Traits\ManageableField;
 
 /**
  * Class ManageableModelBrowse
@@ -167,6 +168,11 @@ class ManageableModelBrowse extends Component
         $columns = $manageableModelInstance->getBrowseColumns();
         $this->columns = collect($columns)->map(fn ($column) => $column instanceof BrowseColumnBase ? $column->label : $column);
 
+        // Apply default order by and order direction
+        $orderByData = $manageableModelClass::getDefaultOrderBy();
+        $this->orderBy = $orderByData->get('column');
+        $this->orderDirection = $orderByData->get('direction');
+
         // Get manageable model filter keys from collection
         $manageableModelFilters = $manageableModelClass::getBrowseFilters();
 
@@ -174,7 +180,7 @@ class ManageableModelBrowse extends Component
             $this->filters[$browseFilter->getKey()] = $browseFilter->getField()->getValue();
         }
 
-        // Check the pre filters and override default browse filters if so
+        // 1. Check the pre filters and override default browse filters if so
         if (! empty($preFilters)) {
             foreach ($preFilters as $key => $value) {
                 if (array_key_exists($key, $this->filters)) {
@@ -183,10 +189,17 @@ class ManageableModelBrowse extends Component
             }
         }
 
-        // Apply default order by and order direction
-        $orderByData = $manageableModelClass::getDefaultOrderBy();
-        $this->orderBy = $orderByData->get('column');
-        $this->orderDirection = $orderByData->get('direction');
+        // 2. Override with URL query parameters if present
+        foreach($manageableModelFilters as $browseFilter) {
+            $key = $browseFilter->getKey();
+            if (request()->has($key)) {
+                $this->filters[$key] = request()->input($key);
+                ManageableField::setStaticBrowseFilterValue($browseFilter, $this->filters[$key]);
+            }
+        }
+
+        // I know we said final, but at the moment we need to run browse setup method one final final time (Now that the filters are pre-set)
+        $this->manageableModelClass::browseSetupFinal($this->filters);
 
         // Get table columns
         $this->tableColumns = $this->manageableModelClass::getTableColumns();
