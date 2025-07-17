@@ -803,26 +803,27 @@ abstract class ManageableModel
                 }
             }));
 
-        if (WRLAHelper::isSoftDeletable(static::getBaseModelClass())) {
-            $browseFilters['softDeletedFilter'] =
-                Select::makeBrowseFilter('softDeletedFilter')
-                    ->setLabel('Status', 'fas fa-heartbeat text-slate-400 !mr-1')
-                    ->setItems([
-                        'not_trashed' => 'Active only',
-                        'trashed' => 'Soft deleted only',
-                        'all' => 'All',
-                    ])
-                    ->setOption('containerClass', 'w-1/6')
-                    ->validation('required|in:all,trashed,not_trashed')
-                    ->browseFilterApply(function (Builder $query, $table, $columns, $value) {
-                        return match ($value) {
-                            'not_trashed' => $query->whereNull('deleted_at'),
-                            'trashed' => $query->onlyTrashed(),
-                            'all' => $query->withTrashed(),
-                            default => $query,
-                        };
-                    });
-        }
+        // TODO: FIX THIS SHIT
+        // if (WRLAHelper::isSoftDeletable(static::getBaseModelClass())) {
+        //     $browseFilters['softDeletedFilter'] =
+        //         Select::makeBrowseFilter('softDeletedFilter')
+        //             ->setLabel('Status', 'fas fa-heartbeat text-slate-400 !mr-1')
+        //             ->setItems([
+        //                 'not_trashed' => 'Active only',
+        //                 'trashed' => 'Soft deleted only',
+        //                 'all' => 'All',
+        //             ])
+        //             ->setOption('containerClass', 'w-1/6')
+        //             ->validation('required|in:all,trashed,not_trashed')
+        //             ->browseFilterApply(function (Builder $query, $table, $columns, $value) {
+        //                 return match ($value) {
+        //                     'not_trashed' => $query->whereNull('deleted_at'),
+        //                     'trashed' => $query->onlyTrashed(),
+        //                     'all' => $query->withTrashed(),
+        //                     default => $query,
+        //                 };
+        //             });
+        // }
 
         return $browseFilters;
     }
