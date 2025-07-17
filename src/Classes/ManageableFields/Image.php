@@ -229,8 +229,13 @@ class Image
      */
     public function getValue(): string
     {
-        // Get value attriubute
-        return $this->getAttribute('value');
+        // If name (column) is set, use standard value
+        if(!str_starts_with($this->getName(), 'wrla_field_')) {
+            return $this->getAttribute('value');
+        }
+
+        // Otherwise, calculate the value based on the formatted image name
+        return $this->formatImageName($this->getOption('filename'));
     }
 
     /**
