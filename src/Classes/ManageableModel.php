@@ -770,6 +770,7 @@ abstract class ManageableModel
 
                     // If column is relationship, then modify the column to be the related column
                     if ((WRLAHelper::isBrowseColumnRelationship($column))) {
+                        // dump("Column is relationship: $column");
                         $relationshipParts = WRLAHelper::parseBrowseColumnRelationship($column);
 
                         $baseModelClass = self::getBaseModelClass();
@@ -791,39 +792,43 @@ abstract class ManageableModel
                         $query->orWhereRelation($relationshipParts[0], "{$relationshipTableName}.{$relationshipParts[1]}", 'like', "%{$value}%");
                     }
                     // If table has this column, prepend table name
-                    elseif(array_key_exists($column, $actualTableColumns)) {
+                    elseif(in_array($column, $actualTableColumns)) {
+                        // dump("Column exists in table: $column");
                         $column = "$table.$column";
                         $query->orWhere($column, 'like', "%{$value}%");
                     }
                     // Otherwise just use column name directly
                     else {
+                        // dump("Column does not exist in table: $column");
                         $query->orHaving($column, 'like', "%{$value}%");
                         continue;
                     }
                 }
             }));
 
-        // TODO: FIX THIS SHIT
-        // if (WRLAHelper::isSoftDeletable(static::getBaseModelClass())) {
-        //     $browseFilters['softDeletedFilter'] =
-        //         Select::makeBrowseFilter('softDeletedFilter')
-        //             ->setLabel('Status', 'fas fa-heartbeat text-slate-400 !mr-1')
-        //             ->setItems([
-        //                 'not_trashed' => 'Active only',
-        //                 'trashed' => 'Soft deleted only',
-        //                 'all' => 'All',
-        //             ])
-        //             ->setOption('containerClass', 'w-1/6')
-        //             ->validation('required|in:all,trashed,not_trashed')
-        //             ->browseFilterApply(function (Builder $query, $table, $columns, $value) {
-        //                 return match ($value) {
-        //                     'not_trashed' => $query->whereNull('deleted_at'),
-        //                     'trashed' => $query->onlyTrashed(),
-        //                     'all' => $query->withTrashed(),
-        //                     default => $query,
-        //                 };
-        //             });
-        // }
+        if (WRLAHelper::isSoftDeletable(static::getBaseModelClass())) {
+            $browseFilters['softDeletedFilter'] =
+                Select::makeBrowseFilter('softDeletedFilter')
+                    ->setLabel('Status', 'fas fa-heartbeat text-slate-400 !mr-1')
+                    ->setItems([
+                        'not_trashed' => 'Active only',
+                        'trashed' => 'Soft deleted only',
+                        'all' => 'All',
+                    ])
+                    ->setOption('containerClass', 'w-1/6')
+                    ->validation('required|in:all,trashed,not_trashed')
+                    ->browseFilterApply(function (Builder $query, $table, $columns, $value) {
+                        if ($value === 'not_trashed') {
+                            return $query;
+                        } elseif ($value === 'trashed') {
+                            return $query->onlyTrashed();
+                        } elseif ($value == 'all') {
+                            return $query->withTrashed();
+                        }
+
+                        return $query;
+                    });
+        }
 
         return $browseFilters;
     }
