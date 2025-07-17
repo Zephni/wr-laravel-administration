@@ -19,7 +19,7 @@ class Text
             'label' => $this->getLabel(),
             'options' => $this->options,
             'attributes' => new ComponentAttributeBag(array_merge($this->htmlAttributes, [
-                'name' => $this->getAttribute('name'),
+                'name' => $this->getName(),
                 'value' => $this->getValue(),
                 'type' => $this->getAttribute('type') ?? 'text',
             ])),

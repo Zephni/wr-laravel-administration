@@ -434,18 +434,16 @@ class ManageableModelBrowse extends Component
         $manageableModelFilters = [];
 
         if (empty($this->dynamicFilterInputs)) {
-            $manageableModelFilters = $this->manageableModelClass::getBrowseFilters($this->filters);
+            $manageableModelFilters = $this->manageableModelClass::getBrowseFilters();
 
             foreach ($manageableModelFilters as $browseFilter) {
                 $key = $browseFilter->getKey();
 
-                if (empty($this->dynamicFilterInputs)) {
-                    if (empty($this->filters[$key])) {
-                        continue;
-                    }
-
-                    $eloquent = $browseFilter->apply($eloquent, $tableName, $this->columns, $this->filters[$key]);
+                if (empty($this->filters[$key])) {
+                    continue;
                 }
+
+                $eloquent = $browseFilter->apply($eloquent, $tableName, $this->columns, $this->filters[$key]);
             }
         } else {
             foreach ($this->dynamicFilterInputs as $item) {

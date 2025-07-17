@@ -9,6 +9,11 @@ use WebRegulate\LaravelAdministration\Traits\ManageableField;
 class BrowseFilter
 {
     /**
+     * Field
+     */
+    public mixed $field;
+
+    /**
      * The applicable filter. Must take parameters:
      * Eloquent/Builder $query
      * Collection $columns
@@ -25,11 +30,9 @@ class BrowseFilter
      *
      * @param  ManageableField|callable  $field
      */
-    public function __construct(/**
-     * The field to filter by.
-     */
-        public mixed $field, callable $applicableFilter)
+    public function __construct(mixed $field, callable $applicableFilter)
     {
+        $this->field = $field;
         $this->applicableFilter = $applicableFilter;
     }
 

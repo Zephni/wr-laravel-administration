@@ -748,60 +748,60 @@ abstract class ManageableModel
      */
     public static function getDefaultBrowseFilters(): array
     {
-        $browseFilters = [
-            'searchFilter' => Text::makeBrowseFilter('searchFilter', 'Search', 'fas fa-search text-slate-400')
-                ->setAttributes([
-                    'autofocus' => true,
-                    'placeholder' => 'Search filter...',
-                    'autocomplete' => "off"
-                ])
-                ->browseFilterApply(fn (Builder $query, $table, $columns, $value) => $query->where(function ($query) use ($table, $columns, $value): void {
-                    $whereIndex = 0;
+        $browseFilters = [];
 
-                    // Get all actual table columns (this is because we may have custom added columns from a preQuery)
-                    $actualTableColumns = WRLAHelper::getTableColumns($table, (new (self::getBaseModelClass()))->getConnectionName());
+        $browseFilters['searchFilter'] = Text::makeBrowseFilter('searchFilter', 'Search', 'fas fa-search text-slate-400')
+            ->setAttributes([
+                'autofocus' => true,
+                'placeholder' => 'Search filter...',
+                'autocomplete' => "off"
+            ])
+            ->browseFilterApply(fn(Builder $query, $table, $columns, $value) => $query->where(function () use ($query, $table, $columns, $value) {
+                $whereIndex = 0;
 
-                    foreach ($columns as $column => $label) {
-                        // If column is int or begins with !, skip
-                        if (is_int($column) || str_starts_with($column, '!')) {
-                            continue;
-                        }
+                // Get all actual table columns (this is because we may have custom added columns from a preQuery)
+                $actualTableColumns = WRLAHelper::getTableColumns($table, (new (self::getBaseModelClass()))->getConnectionName());
 
-                        // If column is relationship, then modify the column to be the related column
-                        if ((WRLAHelper::isBrowseColumnRelationship($column))) {
-                            $relationshipParts = WRLAHelper::parseBrowseColumnRelationship($column);
-
-                            $baseModelClass = self::getBaseModelClass();
-                            $relationship = (new $baseModelClass)->{$relationshipParts[0]}();
-                            if ($relationship?->getRelated() == null) {
-                                continue;
-                            }
-                            $relationshipTableName = $relationship->getRelated()->getTable();
-                            $foreignColumn = $relationship->getForeignKeyName();
-
-                            // If relationship connection is not empty, generate the SQL to inject it
-                            if (! empty($relationshipConnection)) {
-                                $relationshipConnection = "`$relationshipConnection`.";
-                            }
-
-                            $whereIndex++;
-
-                            // Safely escape value
-                            $query->orWhereRelation($relationshipParts[0], "{$relationshipTableName}.{$relationshipParts[1]}", 'like', "%{$value}%");
-                        }
-                        // If table has this column, prepend table name
-                        elseif(array_key_exists($column, $actualTableColumns)) {
-                            $column = "$table.$column";
-                            $query->orWhere($column, 'like', "%{$value}%");
-                        }
-                        // Otherwise just use column name directly
-                        else {
-                            $query->orHaving($column, 'like', "%{$value}%");
-                            continue;
-                        }
+                foreach ($columns as $column => $label) {
+                    // If column is int or begins with !, skip
+                    if (is_int($column) || str_starts_with($column, '!')) {
+                        continue;
                     }
-                })),
-        ];
+
+                    // If column is relationship, then modify the column to be the related column
+                    if ((WRLAHelper::isBrowseColumnRelationship($column))) {
+                        $relationshipParts = WRLAHelper::parseBrowseColumnRelationship($column);
+
+                        $baseModelClass = self::getBaseModelClass();
+                        $relationship = (new $baseModelClass)->{$relationshipParts[0]}();
+                        if ($relationship?->getRelated() == null) {
+                            continue;
+                        }
+                        $relationshipTableName = $relationship->getRelated()->getTable();
+                        $foreignColumn = $relationship->getForeignKeyName();
+
+                        // If relationship connection is not empty, generate the SQL to inject it
+                        if (! empty($relationshipConnection)) {
+                            $relationshipConnection = "`$relationshipConnection`.";
+                        }
+
+                        $whereIndex++;
+
+                        // Safely escape value
+                        $query->orWhereRelation($relationshipParts[0], "{$relationshipTableName}.{$relationshipParts[1]}", 'like', "%{$value}%");
+                    }
+                    // If table has this column, prepend table name
+                    elseif(array_key_exists($column, $actualTableColumns)) {
+                        $column = "$table.$column";
+                        $query->orWhere($column, 'like', "%{$value}%");
+                    }
+                    // Otherwise just use column name directly
+                    else {
+                        $query->orHaving($column, 'like', "%{$value}%");
+                        continue;
+                    }
+                }
+            }));
 
         if (WRLAHelper::isSoftDeletable(static::getBaseModelClass())) {
             $browseFilters['softDeletedFilter'] =
@@ -815,15 +815,12 @@ abstract class ManageableModel
                     ->setOption('containerClass', 'w-1/6')
                     ->validation('required|in:all,trashed,not_trashed')
                     ->browseFilterApply(function (Builder $query, $table, $columns, $value) {
-                        if ($value === 'not_trashed') {
-                            return $query;
-                        } elseif ($value === 'trashed') {
-                            return $query->onlyTrashed();
-                        } elseif ($value == 'all') {
-                            return $query->withTrashed();
-                        }
-
-                        return $query;
+                        return match ($value) {
+                            'not_trashed' => $query->whereNull('deleted_at'),
+                            'trashed' => $query->onlyTrashed(),
+                            'all' => $query->withTrashed(),
+                            default => $query,
+                        };
                     });
         }
 
