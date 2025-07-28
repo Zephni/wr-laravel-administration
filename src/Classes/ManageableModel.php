@@ -757,55 +757,56 @@ abstract class ManageableModel
                 'placeholder' => 'Search filter...',
                 'autocomplete' => "off"
             ])
-            ->browseFilterApply(fn(Builder $query, $table, $columns, $value) => $query->where(function () use ($query, $table, $columns, $value) {
-                $whereIndex = 0;
+            ->browseFilterApply(function(Builder $outerQuery, $table, $columns, $value) {
+                return $outerQuery->where(function ($query) use ($table, $columns, $value) {
+                    $whereIndex = 0;
 
-                // Get all actual table columns (this is because we may have custom added columns from a preQuery)
-                $actualTableColumns = WRLAHelper::getTableColumns($table, (new (self::getBaseModelClass()))->getConnectionName());
+                    // Get all actual table columns (this is because we may have custom added columns from a preQuery)
+                    $actualTableColumns = WRLAHelper::getTableColumns($table, (new (self::getBaseModelClass()))->getConnectionName());
 
-                foreach ($columns as $column => $label) {
-                    // If column is int or begins with !, skip
-                    if (is_int($column) || str_starts_with($column, '!')) {
-                        continue;
-                    }
-
-                    // If column is relationship, then modify the column to be the related column
-                    if ((WRLAHelper::isBrowseColumnRelationship($column))) {
-                        // dump("Column is relationship: $column");
-                        $relationshipParts = WRLAHelper::parseBrowseColumnRelationship($column);
-
-                        $baseModelClass = self::getBaseModelClass();
-                        $relationship = (new $baseModelClass)->{$relationshipParts[0]}();
-                        if ($relationship?->getRelated() == null) {
+                    foreach ($columns as $column => $label) {
+                        // If column is int or begins with !, skip
+                        if (is_int($column) || str_starts_with($column, '!')) {
                             continue;
                         }
-                        $relationshipTableName = $relationship->getRelated()->getTable();
-                        $foreignColumn = $relationship->getForeignKeyName();
 
-                        // If relationship connection is not empty, generate the SQL to inject it
-                        if (! empty($relationshipConnection)) {
-                            $relationshipConnection = "`$relationshipConnection`.";
+                        // If column is relationship, then modify the column to be the related column
+                        if ((WRLAHelper::isBrowseColumnRelationship($column))) {
+                            // dump("Column is relationship: $column");
+                            $relationshipParts = WRLAHelper::parseBrowseColumnRelationship($column);
+
+                            $baseModelClass = self::getBaseModelClass();
+                            $relationship = (new $baseModelClass)->{$relationshipParts[0]}();
+                            if ($relationship?->getRelated() == null) {
+                                continue;
+                            }
+                            $relationshipTableName = $relationship->getRelated()->getTable();
+                            $foreignColumn = $relationship->getForeignKeyName();
+
+                            // If relationship connection is not empty, generate the SQL to inject it
+                            if (! empty($relationshipConnection)) {
+                                $relationshipConnection = "`$relationshipConnection`.";
+                            }
+
+                            $whereIndex++;
+
+                            // Safely escape value
+                            $query->orWhereRelation($relationshipParts[0], "{$relationshipTableName}.{$relationshipParts[1]}", 'like', "%{$value}%");
                         }
-
-                        $whereIndex++;
-
-                        // Safely escape value
-                        $query->orWhereRelation($relationshipParts[0], "{$relationshipTableName}.{$relationshipParts[1]}", 'like', "%{$value}%");
+                        // If table has this column, prepend table name
+                        elseif(in_array($column, $actualTableColumns)) {
+                            // dump("Column exists in table: $column");
+                            $column = "$table.$column";
+                            $query->orWhere($column, 'like', "%{$value}%");
+                        }
+                        // Otherwise just use column name directly
+                        else {
+                            // dump("Column does not exist in table: $column");
+                            $query->orHaving($column, 'like', "%{$value}%");
+                        }
                     }
-                    // If table has this column, prepend table name
-                    elseif(in_array($column, $actualTableColumns)) {
-                        // dump("Column exists in table: $column");
-                        $column = "$table.$column";
-                        $query->orWhere($column, 'like', "%{$value}%");
-                    }
-                    // Otherwise just use column name directly
-                    else {
-                        // dump("Column does not exist in table: $column");
-                        $query->orHaving($column, 'like', "%{$value}%");
-                        continue;
-                    }
-                }
-            }));
+                });
+            });
 
         if (WRLAHelper::isSoftDeletable(static::getBaseModelClass())) {
             $browseFilters['softDeletedFilter'] =
