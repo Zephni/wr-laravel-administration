@@ -121,9 +121,10 @@ abstract class ManageableModel
                 self::$modelInstanceCache[static::class] = [];
             }
 
-            // If array key does not exist for this model id, find it and cache it
+        // If array key does not exist for this model id, find it and cache it
             if(!array_key_exists($modelInstanceOrId, self::$modelInstanceCache[static::class]) ) {
-                if (!$withTrashed) {
+                // If not attempting to find with trashed OR model does not have soft deletes
+                if (!$withTrashed || !WRLAHelper::isSoftDeletable(static::getBaseModelClass())) {
                     $modelInstance = static::getBaseModelClass()::find($modelInstanceOrId);
                 } else {
                     $modelInstance = static::getBaseModelClass()::withTrashed()->find($modelInstanceOrId);
@@ -693,31 +694,8 @@ abstract class ManageableModel
         $modelUrlAlias = static::getUrlAlias();
         $modelId = $model->id ?? null;
 
-        // If model doesn't have soft deletes and not trashed
-        if (! WRLAHelper::isSoftDeletable(static::getBaseModelClass()) || $model->deleted_at == null) {
-            // Edit
-            $instanceActions->put('edit', InstanceAction::make($this, 'Edit', 'fa fa-edit', 'primary')
-                ->enableOnCondition(static::getPermission(ManageableModelPermissions::EDIT))
-                ->setAction(route('wrla.manageable-models.edit', [
-                    'modelUrlAlias' => $modelUrlAlias,
-                    'id' => $modelId
-                ]))
-            );
-
-            // Delete
-            $instanceActions->put('delete', InstanceAction::make($this, 'Delete', 'fa fa-trash', 'danger')
-                ->enableOnCondition(static::getPermission(ManageableModelPermissions::DELETE))
-                ->setAdditionalAttributes([
-                    'x-on:click' => <<<JS
-                        confirm('Are you sure?')
-                            ? \$dispatch('deleteModel', { 'modelUrlAlias': '$modelUrlAlias', 'id': $modelId })
-                            : event.stopImmediatePropagation();
-                    JS,
-                ])
-            );
-        }
-        // If trashed
-        else {
+        // If soft deleted
+        if (WRLAHelper::isSoftDeletable(static::getBaseModelClass()) && $model?->deleted_at != null) {
             // Restore
             $instanceActions->put('restore', InstanceAction::make($this, 'Restore', 'fa fa-undo', 'primary')
                 ->enableOnCondition(static::getPermission(ManageableModelPermissions::RESTORE))
@@ -733,6 +711,29 @@ abstract class ManageableModel
                     'title' => 'Permanent delete',
                     'x-on:click' => <<<JS
                         confirm('Are you sure you want to permanently delete this item?')
+                            ? \$dispatch('deleteModel', { 'modelUrlAlias': '$modelUrlAlias', 'id': $modelId })
+                            : event.stopImmediatePropagation();
+                    JS,
+                ])
+            );
+        }
+        // If not soft deleted
+        else {
+            // Edit
+            $instanceActions->put('edit', InstanceAction::make($this, 'Edit', 'fa fa-edit', 'primary')
+                ->enableOnCondition(static::getPermission(ManageableModelPermissions::EDIT))
+                ->setAction(route('wrla.manageable-models.edit', [
+                    'modelUrlAlias' => $modelUrlAlias,
+                    'id' => $modelId
+                ]))
+            );
+
+            // Delete
+            $instanceActions->put('delete', InstanceAction::make($this, 'Delete', 'fa fa-trash', 'danger')
+                ->enableOnCondition(static::getPermission(ManageableModelPermissions::DELETE))
+                ->setAdditionalAttributes([
+                    'x-on:click' => <<<JS
+                        confirm('Are you sure?')
                             ? \$dispatch('deleteModel', { 'modelUrlAlias': '$modelUrlAlias', 'id': $modelId })
                             : event.stopImmediatePropagation();
                     JS,
