@@ -121,7 +121,7 @@ abstract class ManageableModel
                 self::$modelInstanceCache[static::class] = [];
             }
 
-        // If array key does not exist for this model id, find it and cache it
+            // If array key does not exist for this model id, find it and cache it
             if(!array_key_exists($modelInstanceOrId, self::$modelInstanceCache[static::class]) ) {
                 // If not attempting to find with trashed OR model does not have soft deletes
                 if (!$withTrashed || !WRLAHelper::isSoftDeletable(static::getBaseModelClass())) {
