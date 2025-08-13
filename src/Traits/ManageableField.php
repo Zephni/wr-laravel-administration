@@ -13,22 +13,16 @@ trait ManageableField
 {
     /**
      * Attributes of the form component.
-     *
-     * @var array
      */
     public $htmlAttributes;
 
     /**
      * Static livewire $fields array.
-     *
-     * @var array
      */
     public static array $livewireFields = [];
 
     /**
      * Options
-     *
-     * @var array
      */
     public array $options = [
         'containerClass' => null,
@@ -41,36 +35,26 @@ trait ManageableField
 
     /**
      * Validation rule
-     *
-     * @var string
      */
     public string $validationRules = '';
 
     /**
      * Inline validation rules
-     *
-     * @var array
      */
     public array $inlineValidationRules = [];
 
     /**
      * Filter key values
-     *
-     * @var array
      */
     public static array $browseFilterValues = [];
 
     /**
      * Static field index
-     *
-     * @var int
      */
     public static $fieldIndex = 0;
 
     /**
      * Show on pages
-     *
-     * @var array
      */
     public array $showOnPages = [
         PageType::CREATE,
@@ -80,24 +64,16 @@ trait ManageableField
 
     /**
      * Manageable model instance
-     *
-     * @var ?ManageableModel
      */
     public ?ManageableModel $manageableModel = null;
 
     /**
      * Callable to apply submitted value. May be overriden in special cases, such as when applying a hash to a password.
-     *
-     * @var mixed
      */
     private mixed $applySubmittedValueCallable = null;
 
     /**
      * FormComponent constructor.
-     *
-     * @param ?string $name
-     * @param ?string $value
-     * @param ?ManageableModel $manageableModel
      */
     public function __construct(?string $name, ?string $value, ?ManageableModel $manageableModel = null)
     {
@@ -162,9 +138,6 @@ trait ManageableField
     /**
      * Build name attribute. We need this because PHP converts dots to underscores in request input, so we need to
      * convert the . to a special reversable key.
-     *
-     * @param string $name
-     * @return string
      */
     private static function buildNameAttribute(string $name): string
     {
@@ -179,8 +152,6 @@ trait ManageableField
     /**
      * If manageable model is not null and manageable model has an attribute with this
      * field's name, set the manageable models attribute to the value
-     *
-     * @return void
      */
     public function setManageableModelValue(): void
     {
@@ -204,11 +175,6 @@ trait ManageableField
 
     /**
      * Make method (can be used in any class that extends FormComponent).
-     *
-     * @param ?ManageableModel $manageableModel
-     * @param ?mixed $column
-     * @param ?array $options
-     * @return static
      */
     public static function make(?ManageableModel $manageableModel = null, ?string $column = null, ?array $options = null): static
     {
@@ -223,8 +189,6 @@ trait ManageableField
 
     /**
      * Get manageable field type (eg. the class name: Text, Select, etc.)
-     *
-     * @return string
      */
     public function getType(): string
     {
@@ -233,8 +197,6 @@ trait ManageableField
 
     /**
      * Moddeled with livewire
-     *
-     * @return bool
      */
     public function isModeledWithLivewire(): bool
     {
@@ -251,10 +213,6 @@ trait ManageableField
      * Make browse.filter version of the form component.
      *
      * @param string $filterAlias Must be the same as the BrowseFilter key
-     * @param string $filterLabel
-     * @param string $filterIcon
-     * @param string $containerClass
-     * @return static
      */
     public static function makeBrowseFilter(?string $filterAlias = null, ?string $filterLabel = null, ?string $filterIcon = null, string $containerClass = 'flex-1'): static
     {
@@ -274,7 +232,6 @@ trait ManageableField
      * Make browse.filter version of the form component.
      *
      * @param callable $callback Takes $query, $table, $columns, $value
-     * @return BrowseFilter
      */
     public function browseFilterApply(callable $callback): BrowseFilter
     {
@@ -634,9 +591,6 @@ trait ManageableField
 
     /**
      * Set default value.
-     *
-     * @param mixed $value
-     * @return $this
      */
     public function default(mixed $value): static
     {
@@ -658,10 +612,16 @@ trait ManageableField
     }
 
     /**
+     * If value is null, then set column value as empty string.
+     */
+    public function ifNullThenEmptyString(bool $boolean): static
+    {
+        $this->setOption('ifNullThenString', $boolean);
+        return $this;
+    }
+
+    /**
      * Set label
-     *
-     * @param ?string $label
-     * @return $this
      */
     public function setLabel(?string $label, ?string $icon = null): static
     {
@@ -677,8 +637,6 @@ trait ManageableField
 
     /**
      * Get label.
-     *
-     * @return ?string
      */
     public function getLabel(): ?string
     {
@@ -700,8 +658,6 @@ trait ManageableField
 
     /**
      * Get label from field name
-     *
-     * @return string
      */
     public static function getLabelFromFieldName(string $fieldName): string
     {
@@ -719,9 +675,6 @@ trait ManageableField
 
     /**
      * Notes
-     *
-     * @param string $notes
-     * @return $this
      */
     public function notes(string $notes): static
     {
@@ -736,7 +689,6 @@ trait ManageableField
      *
      * @param string $validationRules Validation rules
      * @param bool $overwrite Overwrite existing validation rules
-     * @return $this
      */
     public function validation(string $validationRules, $overwrite = false): static
     {
@@ -751,10 +703,6 @@ trait ManageableField
 
     /**
      * Apply submitted value. May be overriden in special cases, such as when applying a hash to a password.
-     *
-     * @param Request $request
-     * @param mixed $value
-     * @return mixed
      */
     public function applySubmittedValue(Request $request, mixed $value): mixed
     {
@@ -768,11 +716,9 @@ trait ManageableField
     }
 
     /**
-     * The callable must take Request $request, and mixed $value, and return the value to be set.
-     * If callable is set, it will be called instead of the default applySubmittedValue method.
-     *
-     * @param callable
-     * @return mixed
+     * Replaces default applySubmittedValue method.
+     * 
+     * @param callable $callable Takes Request $request, mixed $value, and returns the value to be set.
      */
     public function overrideApplySubmittedValue(callable $callable): mixed
     {
@@ -782,10 +728,6 @@ trait ManageableField
 
     /**
      * Apply submitted value final.
-     *
-     * @param Request $request
-     * @param mixed $value
-     * @return mixed
      */
     public function applySubmittedValueFinal(Request $request, mixed $value): mixed
     {
@@ -836,10 +778,7 @@ trait ManageableField
 
     /**
      * If condition is true, run callback.
-     *
-     * @param bool $isTrue
      * @param callable $callback (Must take $this as a parameter and return $this)
-     * @return $this
      */
     public function onCondition(bool $isTrue, callable $callback): static
     {
@@ -852,8 +791,6 @@ trait ManageableField
 
     /**
      * Is relationship field.
-     *
-     * @return bool
      */
     public function isRelationshipField(): bool
     {
@@ -871,8 +808,6 @@ trait ManageableField
 
     /**
      * Is using nested json.
-     * 
-     * @return bool
      */
     public function isUsingNestedJson(): bool
     {
@@ -885,8 +820,6 @@ trait ManageableField
 
     /**
      * Get relationship name.
-     *
-     * @return string
      */
     public function getRelationshipName(): string
     {
@@ -896,8 +829,6 @@ trait ManageableField
 
     /**
      * Get relationship field name.
-     *
-     * @return string
      */
     public function getRelationshipFieldName(): string
     {
@@ -913,8 +844,6 @@ trait ManageableField
 
     /**
      * Get relationship instance.
-     *
-     * @return mixed
      */
     public function getRelationshipInstance(): mixed
     {
@@ -963,10 +892,6 @@ trait ManageableField
 
     /**
      * Return view component.
-     *
-     * @param PageType $upsertType
-     * @param array $fields
-     * @return mixed
      */
     public function renderParent(PageType $upsertType, array $fields): mixed
     {
@@ -1002,8 +927,6 @@ trait ManageableField
 
     /**
      * Render the input field.
-     *
-     * @return mixed
      */
     public function render(): mixed
     {
