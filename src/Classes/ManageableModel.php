@@ -1165,7 +1165,7 @@ abstract class ManageableModel
     public function updateModelInstanceProperties(Request $request, array $formComponents, array $formKeyValues): bool|MessageBag
     {
         // Perform any necessary actions before updating the model instance
-        $request = $this->preUpdateModelInstance($request);
+        $request = $this->preUpdateModelInstance($request, $this->modelInstance);
 
         // Merge the request data into formKeyValues
         $formKeyValues = array_merge($formKeyValues, $request->all());
@@ -1318,9 +1318,10 @@ abstract class ManageableModel
     /**
      * Pre update model instance hook. Note that this is called after validation but before the model is updated and saved.
      *
-     * @param  Request  $request  The HTTP request object.
+     * @param Request $request The HTTP request object.
+     * @param mixed $model The model instance before changes are applied.
      */
-    public function preUpdateModelInstance(Request $request): Request
+    public function preUpdateModelInstance(Request $request, mixed $model): Request
     {
         // Override this method in your model to add custom logic before updating the model instance
         return $request;
