@@ -194,16 +194,18 @@ class User extends ManageableModel
 
         // Reset 2FA
         $instanceActions->prepend(
-            InstanceAction::make($this, 'Reset 2FA', 'fas fa-key', 'secondary', function($user) use ($wrlaUserData) {
-                $wrlaUserData->mfa_secret = null;
-                $wrlaUserData->save();
-                return "Successfully reset 2FA for {$user->email}";
-            })->enableOnCondition(fn() => WRLAHelper::getCurrentPageType() === PageType::EDIT && $wrlaUserData->mfa_secret !== null)
+            $this->instanceAction('Reset 2FA', 'fas fa-key', 'secondary')
+                ->enableOnCondition(fn() => WRLAHelper::getCurrentPageType() === PageType::EDIT && $wrlaUserData->mfa_secret !== null)
+                ->setAction(function($user) use ($wrlaUserData) {
+                    $wrlaUserData->mfa_secret = null;
+                    $wrlaUserData->save();
+                    return "Successfully reset 2FA for {$user->email}";
+                }))
         );
 
         // Impersonate action
         $instanceActions->prepend(
-            InstanceAction::make($this, 'Login', 'fas fa-sign-in-alt', 'secondary')
+            $this->instanceAction('Login', 'fas fa-sign-in-alt', 'secondary')
                 ->enableOnCondition($model->id !== Auth::id() && (!method_exists($model, 'trashed') || !$model->trashed()) && static::getPermission(self::IMPERSONATE))
                 ->confirm("Login as {$model->email}?")
                 ->setAction(route('wrla.impersonate.login-as', ['id' => $model->id]))
