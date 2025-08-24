@@ -103,7 +103,12 @@ class InstanceAction
         // General escaping for JavaScript string
         $message = addslashes($message);
 
-        $this->additonalAttributes['onclick'] = "if(!confirm('$message')) { event.preventDefault(); }";
+        $this->additonalAttributes['onclick'] = <<<JS
+            if(!confirm('{$message}')) {
+                event.stopImmediatePropagation();
+            }
+        JS;
+
         return $this;
     }
 
@@ -131,7 +136,7 @@ class InstanceAction
         if (is_string($this->action)) {
             $attributes = ['href' => $this->action];
         } elseif (is_callable($this->action)) {            
-            $attributes = ['wire:click' => "callManageableModelAction('{$instanceId}', '{$this->actionKey}')"];
+            $attributes = ['wire:click' => "callManageableModelAction('{$instanceId}', '{$this->actionKey}');"];
         } elseif(!is_null($this->action)) {
             throw new \Exception('Action must be a string URL, callable, or null');
         }

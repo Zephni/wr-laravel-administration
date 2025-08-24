@@ -1142,16 +1142,17 @@ abstract class ManageableModel
     /**
      * Call a registered instance action by it's key
      * @param string $actionKey
+     * @param array $parameters
      * @throws \Exception
      * @return string|RedirectResponse String shows message in browser alert message, RedirectResponse redirects to the specified URL
      */
-    public function callInstanceAction(string $actionKey): mixed
+    public function callInstanceAction(string $actionKey, array $parameters): mixed
     {
         if (! array_key_exists($actionKey, $this->registeredInstanceActions)) {
             throw new \Exception("Action not found: $actionKey");
         }
 
-        return call_user_func($this->registeredInstanceActions[$actionKey], $this->getModelInstance());
+        return call_user_func($this->registeredInstanceActions[$actionKey], $this->getModelInstance(), $parameters);
     }
 
     /**
@@ -1159,7 +1160,7 @@ abstract class ManageableModel
      *
      * @param  Request  $request  The HTTP request object.
      * @param  array  $formComponents  The array of form components.
-     * @param  array  $formKeyValues  The array of form key-value pairs.
+     * @param  array  $formKeyValues  The array of form key-value pairs.+
      * @return bool|MessageBag Returns result of success, or a MessageBag of errors
      */
     public function updateModelInstanceProperties(Request $request, array $formComponents, array $formKeyValues): bool|MessageBag

@@ -16,6 +16,12 @@
 
 {{-- Custom JS  --}}
 <script>
+    window.wrla = {
+        instanceAction: {
+            parameters: {}
+        }
+    }
+
     document.addEventListener('DOMContentLoaded', function() {
         // Livewire browserAlert event
         Livewire.on('browserAlert', (event) => {
