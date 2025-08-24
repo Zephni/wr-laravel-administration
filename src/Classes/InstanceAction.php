@@ -113,6 +113,33 @@ class InstanceAction
     }
 
     /**
+     * Prompt user and pass as ['input' => 'user input'] parameter to action
+     * @param string $message
+     * @param bool $allowEmpty If true, allows empty input; if false, user must provide input or cancel
+     * @return InstanceAction
+     */
+    public function ask(string $message, bool $allowEmpty = false): static
+    {
+        // General escaping for JavaScript string
+        $message = addslashes($message);
+
+        $allowEmptyJs = $allowEmpty ? 'true' : 'false';
+
+        $this->additonalAttributes['onclick'] = <<<JS
+            let input = prompt('{$message}');
+
+            if(input === null || (!{$allowEmptyJs} && input.trim() === '')) {
+                event.stopImmediatePropagation();
+                return;
+            }
+
+            window.wrla.instanceAction.parameters = { input: input };
+        JS;
+
+        return $this;
+    }
+
+    /**
      * Register instance action on manageable model instance and get action key
      * @return string
      */
@@ -136,7 +163,10 @@ class InstanceAction
         if (is_string($this->action)) {
             $attributes = ['href' => $this->action];
         } elseif (is_callable($this->action)) {            
-            $attributes = ['wire:click' => "callManageableModelAction('{$instanceId}', '{$this->actionKey}');"];
+            $attributes = ['wire:click' => <<<JS
+                callManageableModelAction('{$instanceId}', '{$this->actionKey}', window.wrla.instanceAction.parameters ?? {});
+                window.wrla.instanceAction.parameters = {};
+            JS];
         } elseif(!is_null($this->action)) {
             throw new \Exception('Action must be a string URL, callable, or null');
         }
