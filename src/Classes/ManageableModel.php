@@ -1156,6 +1156,15 @@ abstract class ManageableModel
     }
 
     /**
+     * Create instance action button
+     * @param null|callable|string $action Takes model instance, returns string message or RedirectResponse
+     */
+    public function instanceAction(string $text, ?string $icon = null, ?string $color = null, null|callable|string $action = null, null|bool|callable $enableOnCondition = null, ?array $additonalAttributes = null): InstanceAction
+    {
+        return InstanceAction::make($this, $text, $icon, $color, $action, $enableOnCondition, $additonalAttributes);
+    }
+
+    /**
      * Update the properties of the model instance based on the request and form data.
      *
      * @param  Request  $request  The HTTP request object.
