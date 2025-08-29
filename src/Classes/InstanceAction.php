@@ -94,7 +94,7 @@ class InstanceAction
     }
 
     /**
-     * Applies onclick additional attribute to confirm action from user before executing
+     * Applies x-on:click additional attribute to confirm action from user before executing
      * @param string $message
      * @return InstanceAction
      */
@@ -103,8 +103,9 @@ class InstanceAction
         // General escaping for JavaScript string
         $message = addslashes($message);
 
-        $this->additonalAttributes['onclick'] = <<<JS
-            if(!confirm('{$message}')) {
+        $this->additonalAttributes['x-on:click'] = $this->additonalAttributes['x-on:click'] ?? '';
+        $this->additonalAttributes['x-on:click'] .= <<<JS
+            if(!confirm(`{$message}`)) {
                 event.stopImmediatePropagation();
             }
         JS;
@@ -125,8 +126,9 @@ class InstanceAction
 
         $allowEmptyJs = $allowEmpty ? 'true' : 'false';
 
-        $this->additonalAttributes['onclick'] = <<<JS
-            let input = prompt('{$message}');
+        $this->additonalAttributes['onclick'] = $this->additonalAttributes['onclick'] ?? '';
+        $this->additonalAttributes['onclick'] .= <<<JS
+            let input = prompt(`{$message}`);
 
             if(input === null || (!{$allowEmptyJs} && input.trim() === '')) {
                 event.stopImmediatePropagation();
@@ -134,6 +136,12 @@ class InstanceAction
             }
 
             window.wrla.instanceAction.parameters = { input: input };
+
+            window.buttonSignifyLoading(this, () => new Promise((resolve) => {
+                Livewire.on('instanceActionCompleted', () => {
+                    resolve();
+                });
+            }));
         JS;
 
         return $this;
@@ -176,11 +184,23 @@ class InstanceAction
         // Attributes
         if (is_string($this->action)) {
             $attributes = ['href' => $this->action];
-        } elseif (is_callable($this->action)) {            
-            $attributes = ['wire:click' => <<<JS
-                callManageableModelAction('{$instanceId}', '{$this->actionKey}', window.wrla.instanceAction.parameters ?? {});
+        } elseif (is_callable($this->action)) {
+            // Found that window.wrla.instanceAction.parameters was empty using wire:click
+            // $attributes = ['wire:click' => <<<JS
+            //     callManageableModelAction('{$instanceId}', '{$this->actionKey}', window.wrla.instanceAction.parameters ?? {});
+            //     window.wrla.instanceAction.parameters = {};
+            // JS];
+
+            $this->additonalAttributes['x-on:click'] = $this->additonalAttributes['x-on:click'] ?? '';
+            $this->additonalAttributes['x-on:click'] .= <<<JS
+                \$wire.callManageableModelAction(
+                    '{$instanceId}',
+                    '{$this->actionKey}',
+                    window.wrla.instanceAction.parameters ?? {}
+                );
+
                 window.wrla.instanceAction.parameters = {};
-            JS];
+            JS;
         } elseif(!is_null($this->action)) {
             throw new \Exception('Action must be a string URL, callable, or null');
         }

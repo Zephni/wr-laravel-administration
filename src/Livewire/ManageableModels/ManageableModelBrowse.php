@@ -582,5 +582,6 @@ class ManageableModelBrowse extends Component
      */
     public function callManageableModelAction(int $instanceId, string $actionKey, array $parameters = []) {
         WRLAHelper::callManageableModelAction($this, $this->manageableModelClass, $instanceId, $actionKey, $parameters);
+        $this->dispatch('instanceActionCompleted');
     }
 }

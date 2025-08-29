@@ -251,7 +251,8 @@ class ManageableModelUpsert extends Component
     /**
      * Call manageable model action.
      */
-    public function callManageableModelAction(int $instanceId, string $actionKey) {
-        WRLAHelper::callManageableModelAction($this, $this->manageableModelClass, $instanceId, $actionKey);
+    public function callManageableModelAction(int $instanceId, string $actionKey, array $parameters = []) {
+        WRLAHelper::callManageableModelAction($this, $this->manageableModelClass, $instanceId, $actionKey, $parameters);
+        $this->dispatch('instanceActionCompleted');
     }
 }

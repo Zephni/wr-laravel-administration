@@ -65,6 +65,8 @@
      * @param {callback} waitUntil
      */
     window.buttonSignifyLoading = async function(element, waitUntil) {
+        console.log('Button signify loading...');
+        
         // Find the <i> icon element and change to spinner
         let iconElement = element.querySelector('i');
 
