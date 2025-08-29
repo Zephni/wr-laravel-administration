@@ -140,6 +140,20 @@ class InstanceAction
     }
 
     /**
+     * If
+     * 
+     * @param callable $callback Must take and return InstanceAction
+     */
+    public function if(callable|bool $condition, callable $callback): static
+    {
+        if(is_callable($condition) ? call_user_func($condition) : $condition) {
+            return $callback($this);
+        }
+
+        return $this;
+    }
+
+    /**
      * Register instance action on manageable model instance and get action key
      * @return string
      */
