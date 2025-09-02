@@ -21,7 +21,7 @@ class IsAdmin
         $wrlaUserData = Auth::user()?->wrlaUserData;
 
         // Check if not logged in or not admin
-        if ($wrlaUserData == null || ($wrlaUserData?->getPermission('admin') ?? false) !== true) {
+        if ($wrlaUserData == null || ($wrlaUserData?->isAdmin() ?? false) !== true) {
             return WRLAHelper::handleRedirectOnFailedLogin();
         }
 

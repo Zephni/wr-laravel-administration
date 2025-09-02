@@ -20,7 +20,7 @@ class IsNotAdmin
         $userData = WRLAHelper::getCurrentUserData();
 
         // If logged in and admin, redirect to dashboard
-        if ($userData != null && $userData->getPermission('admin') == true) {
+        if ($userData != null && $userData->isAdmin()) {
             return redirect()->route('wrla.dashboard');
         }
 
