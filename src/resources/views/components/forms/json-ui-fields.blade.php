@@ -20,16 +20,18 @@
     objectAsString(obj) {
         return JSON.parse(JSON.stringify(obj)); // For debugging only
     },
+    // Use colon (:) as separator for nested keys
+    separator: ':',
     dataGet(obj, path, defaultValue = undefined) {
-        return path.split('.').reduce((acc, key) => {
+        if (!path) return obj;
+        return path.split(this.separator).reduce((acc, key) => {
             if (acc && Object.prototype.hasOwnProperty.call(acc, key)) return acc[key];
             return defaultValue;
         }, obj);
     },
     dataSet(obj, path, value, type = 'string') {
-        var way = path.replace(/\[/g, '.').replace(/\]/g, '').split('.'),
+        var way = path.replace(/\[/g, this.separator).replace(/\]/g, '').split(this.separator),
             last = way.pop();
-
         if (type == 'number') { 
             value = Number(value);
         } else if(type == 'boolean') {
@@ -38,23 +40,19 @@
             else if(value == 'true') value = true;
             else if(value == 'false') value = false;
         }
-    
         way.reduce(function (o, k, i, kk) {
             return o[k] = o[k] || (isFinite(i + 1 in kk ? kk[i + 1] : last) ? [] : {});
         }, obj)[last] = value;
     },
     dataDelete(obj, path) {
-        var way = path.replace(/\[/g, '.').replace(/\]/g, '').split('.'),
+        var way = path.replace(/\[/g, this.separator).replace(/\]/g, '').split(this.separator),
             last = way.pop();
-
-        let parts = path.split('.');
+        let parts = path.split(this.separator);
         let current = obj;
-
         for (let i = 0; i < parts.length - 1; i++) {
             if (!current.hasOwnProperty(parts[i])) return;
             current = current[parts[i]];
         }
-
         if (current instanceof Array && !isNaN(last)) {
             current.splice(last, 1);
         } else {
@@ -72,54 +70,28 @@
         // Get data and type at dottedPath
         let thisData = this.dataGet(this.data, dottedPath, null);
         let thisType = thisData instanceof Array ? 'array' : 'object';
-        {{-- alert(`This type: ${thisType}, Dotted path: ${dottedPath}`); --}}
-
-        // Values
         let newKey, newFullKeyPath, newValue = null;
-
         let validKeyFound = false;
-        while(!validKeyFound) {    
-            // If addType is 'group'
+        while(!validKeyFound) {
             if(addType == 'group') {
                 newValue = {};
-
-                if(thisType == 'object') {
-                    let newKey = prompt('New key name', 'new_group');
-                    if(newKey == null || newKey == '') return;
-                    newFullKeyPath = `${dottedPath}.${newKey}`;
-                } else {
-                    newFullKeyPath = `${dottedPath}[${thisData.length}]`;
-                }
+                newKey = prompt('New key name', 'new_group');
+                if(newKey == null || newKey == '') return;
+                newFullKeyPath = dottedPath ? `${dottedPath}${this.separator}${newKey}` : newKey;
+            } else if(addType == 'item') {
+                newKey = prompt('New key name', 'new_key');
+                if(newKey == null || newKey == '') return;
+                newValue = '';
+                newFullKeyPath = dottedPath ? `${dottedPath}${this.separator}${newKey}` : newKey;
             }
-            // If addType is 'item'
-            else if(addType == 'item') {
-                
-                if(thisType == 'object') {
-                    let newKey = prompt('New key name', 'new_key');
-                    if(newKey == null || newKey == '') return;
-                    newFullKeyPath = `${dottedPath}.${newKey}`;
-                    newValue = '';
-                } else {
-                    newFullKeyPath = `${dottedPath}[${thisData.length}]`;
-                    newValue = '';
-                }
-            }
-
-            // Get last element of newFullKeyPath (split by .) - trust me we need to do this rather than just using newKey
-            let newKeyPathParts = newFullKeyPath.split('.');
-            let newKey = newKeyPathParts[newKeyPathParts.length - 1];
-
-            // First, check if newKey already exists in this data
+            // Check if newKey already exists
             let newKeyExists = this.dataGet(this.data, newFullKeyPath, null);
             if(newKeyExists !== null) {
                 let overrideKey = confirm('`'+newKey+'` key already exists, override this key?');
                 if(!overrideKey) continue;
             }
-
             validKeyFound = true;
         }
-
-        // Add new key => value to data
         this.dataSet(this.data, newFullKeyPath, newValue);
 
         // Render the data again
@@ -136,40 +108,25 @@
     },
     renameAction(dottedPath) {
         // Get parent dotted path so we can check if this key already exists
-        let parentDottedPath = dottedPath.split('.').slice(0, -1).join('.');
-
-        // Vars
+        let parentPath = dottedPath.split(this.separator).slice(0, -1).join(this.separator);
         let validKeyFound = false;
         let newKey = null;
-
         while(!validKeyFound) {
-            // Ask for new key name
-            newKey = prompt('New key name', dottedPath.split('.').pop());
+            newKey = prompt('New key name', dottedPath.split(this.separator).pop());
             if(newKey == null || newKey == '') return;
-    
-            // First, check if newKey already exists in this data
-            let newKeyExists = this.dataGet(this.data, `${parentDottedPath}.${newKey}`, null);
+            let newFullKeyPath = parentPath ? `${parentPath}${this.separator}${newKey}` : newKey;
+            let newKeyExists = this.dataGet(this.data, newFullKeyPath, null);
             if(newKeyExists !== null) {
                 let overrideKey = confirm('`'+newKey+'` key already exists, override this key?');
                 if(!overrideKey) continue;
             }
-
             validKeyFound = true;
         }
-
         let thisData = this.dataGet(this.data, dottedPath, null);
-        let thisType = thisData instanceof Array ? 'array' : 'object';
-
-        let oldKey = dottedPath.split('.').pop();
-        let newDottedPath = dottedPath.replace(oldKey, newKey);
-
-        if(thisType == 'object') {
-            this.dataSet(this.data, newDottedPath, this.dataGet(this.data, dottedPath));
-            this.dataDelete(this.data, dottedPath);
-        } else {
-            this.dataSet(this.data, newDottedPath, this.dataGet(this.data, dottedPath));
-            this.dataDelete(this.data, dottedPath);
-        }
+        let oldKey = dottedPath.split(this.separator).pop();
+        let newFullKeyPath = parentPath ? `${parentPath}${this.separator}${newKey}` : newKey;
+        this.dataSet(this.data, newFullKeyPath, thisData);
+        this.dataDelete(this.data, dottedPath);
     },
     deleteAction(dottedPath) {
         this.dataDelete(this.data, dottedPath);
@@ -214,8 +171,8 @@
         let baseDottedPath = dottedPath;
 
         for (const [key, value] of this.entries(obj)) {
-            // Get dotted path for this key
-            dottedPath = (baseDottedPath !== null ? `${baseDottedPath}.` : ``) + key;
+            // Get colon-separated path for this key
+            dottedPath = (baseDottedPath !== null ? `${baseDottedPath}${this.separator}` : ``) + key;
 
             // If in hideKeyValues array, skip this key
             if(this.hideKeyValues && this.hideKeyValues.length > 0) {
