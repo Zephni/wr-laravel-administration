@@ -24,11 +24,11 @@ class WRLASettings
             NavigationItem::makeDivider('Site Management', 'fas fa-cog mr-1'),
 
             // Import manageable model nav items - If array is empty, all manageable models will be imported here
-            NavigationItem::makeManageableModels([
+            NavigationItem::makeManageableModels(
                 // \App\WRLA\User::class,
                 // \App\WRLA\EmailTemplate::class,
                 // ...
-            ]),
+            ),
 
             // File Manager
             NavigationItem::make('wrla.file-manager', [], 'File Manager', 'fa fa-folder-open')->showOnCondition(fn() => 
