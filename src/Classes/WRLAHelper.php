@@ -1156,6 +1156,9 @@ class WRLAHelper
             $result = array_merge($result, $flatten($value));
         }
 
+        // Remove empty values
+        $result = array_filter($result, fn($result) => !empty($result));
+
         return $result;
     }
 
