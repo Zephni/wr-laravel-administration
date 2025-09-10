@@ -436,20 +436,7 @@ abstract class ManageableModel
      */
     public static function setChildNavigationItems(...$childNavigationItems): void
     {
-        // If collection turn into array
-        if ($childNavigationItems instanceof Collection) {
-            $childNavigationItems = $childNavigationItems->toArray();
-        }
-
-        // Unpack child arrays / collections into one array
-        $childNavigationItems = array_reduce($childNavigationItems, function ($carry, $item) {
-            if (is_array($item)) {
-                return array_merge($carry, $item);
-            }
-
-            return array_merge($carry, [$item]);
-        }, []);
-
+        $childNavigationItems = WRLAHelper::flattenArray($childNavigationItems);
         static::setStaticOption('navigation.children', $childNavigationItems);
     }
 
