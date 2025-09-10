@@ -177,6 +177,7 @@ class ManageableModelBrowse extends Component
         $manageableModelFilters = $manageableModelClass::getBrowseFilters();
 
         foreach ($manageableModelFilters as $browseFilter) {
+            if(empty($browseFilter)) continue;
             $this->filters[$browseFilter->getKey()] = $browseFilter->getField()->getValue();
         }
 
