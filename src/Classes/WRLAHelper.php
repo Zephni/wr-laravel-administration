@@ -1136,18 +1136,27 @@ class WRLAHelper
             }
         }
 
-        // Unpack child arrays / collections into one array
-        $values = array_reduce($values, function ($carry, $item) {
+        // Recursively flatten all arrays/collections
+        $flatten = function ($item) use (&$flatten) {
             if ($item instanceof Collection) {
                 $item = $item->toArray();
             }
             if (is_array($item)) {
-                return array_merge($carry, $item);
+                $result = [];
+                foreach ($item as $subItem) {
+                    $result = array_merge($result, $flatten($subItem));
+                }
+                return $result;
             }
-            return array_merge($carry, [$item]);
-        }, []);
+            return [$item];
+        };
 
-        return $values;
+        $result = [];
+        foreach ($values as $value) {
+            $result = array_merge($result, $flatten($value));
+        }
+
+        return $result;
     }
 
     /**
