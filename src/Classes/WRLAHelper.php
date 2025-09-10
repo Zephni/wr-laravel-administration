@@ -1123,6 +1123,34 @@ class WRLAHelper
     }
 
     /**
+     * Reduce variadic array of values or potential arrays to single dimentional array
+     */
+    public static function flattenArray(mixed ...$values): array
+    {
+        // If a single argument is passed and it's an array or collection, flatten it
+        if (count($values) === 1) {
+            if ($values[0] instanceof Collection) {
+                $values = $values[0]->toArray();
+            } elseif (is_array($values[0])) {
+                $values = $values[0];
+            }
+        }
+
+        // Unpack child arrays / collections into one array
+        $values = array_reduce($values, function ($carry, $item) {
+            if ($item instanceof Collection) {
+                $item = $item->toArray();
+            }
+            if (is_array($item)) {
+                return array_merge($carry, $item);
+            }
+            return array_merge($carry, [$item]);
+        }, []);
+
+        return $values;
+    }
+
+    /**
      * Register livewire route (For use in WRLASettings::buildCustomRoutes)
      *
      * @param  string  $routeName  The route name to create. Note the route name will default to "wrla.$routeName".

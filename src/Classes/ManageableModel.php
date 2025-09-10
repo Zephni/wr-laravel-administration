@@ -491,21 +491,9 @@ abstract class ManageableModel
     /**
      * Set browse filters.
      */
-    public static function setBrowseFilters(... $filters)
+    public static function setBrowseFilters(...$filters)
     {
-        // If collection turn into array
-        if ($filters instanceof Collection) {
-            $filters = $filters->toArray();
-        }
-
-        // Unpack child arrays / collections into one array
-        $filters = array_reduce($filters, function ($carry, $item) {
-            if (is_array($item)) {
-                return array_merge($carry, $item);
-            }
-
-            return array_merge($carry, [$item]);
-        }, []);
+        $filters = WRLAHelper::flattenArray($filters);
 
         static::setStaticOption('browse.filters', $filters);
     }
@@ -515,7 +503,7 @@ abstract class ManageableModel
      */
     public static function setDynamicBrowseFilters(array $defaultDynamicFilters = [])
     {
-        static::setBrowseFilters([]);
+        static::setBrowseFilters();
         static::setStaticOption('browse.useDynamicFilters', true);
         static::setStaticOption('browse.defaultDynamicFilters', $defaultDynamicFilters);
     }
