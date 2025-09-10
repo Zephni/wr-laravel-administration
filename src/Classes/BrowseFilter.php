@@ -55,6 +55,34 @@ class BrowseFilter
     }
 
     /**
+     * Modify
+     * 
+     * @param callable $modifier Function that takes itself as parameter, modifies it, and returns it.
+     */
+    public function modify(callable $modifier): static
+    {
+        return $modifier($this);
+    }
+
+    /**
+     * Set option
+     */
+    public function setOption(string $key, mixed $value): static
+    {
+        $this->getField()->setOption($key, $value);
+        return $this;
+    }
+
+    /**
+     * Set options
+     */
+    public function setOptions(array $options): static
+    {
+        $this->getField()->setOptions($options);
+        return $this;
+    }
+
+    /**
      * Render the filter.
      */
     public function render(): string

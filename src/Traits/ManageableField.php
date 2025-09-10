@@ -419,10 +419,10 @@ trait ManageableField
      * Set option.
      *
      * @param string $key
-     * @param ?string $value
+     * @param mixed $value
      * @return $this
      */
-    public function setOption(string $key, ?string $value): static
+    public function setOption(string $key, mixed $value): static
     {
         $this->options[$key] = $value;
         return $this;

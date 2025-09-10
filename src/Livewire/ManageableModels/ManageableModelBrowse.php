@@ -296,7 +296,8 @@ class ManageableModelBrowse extends Component
      */
     public function getStandardColumns()
     {
-        return collect($this->columns)->filter(fn ($label, $column) => ! WRLAHelper::isBrowseColumnRelationship($column) && ! str_contains((string) $column, '->'));
+        $columns = func_num_args() > 0 ? func_get_arg(0) : $this->columns;
+        return collect($columns)->filter(fn ($label, $column) => ! WRLAHelper::isBrowseColumnRelationship($column) && ! str_contains((string) $column, '->'));
     }
 
     /**
@@ -306,7 +307,8 @@ class ManageableModelBrowse extends Component
      */
     public function getJsonReferenceColumns()
     {
-        return collect($this->columns)->filter(fn ($label, $column) => str_contains((string) $column, '->'));
+        $columns = func_num_args() > 0 ? func_get_arg(0) : $this->columns;
+        return collect($columns)->filter(fn ($label, $column) => str_contains((string) $column, '->'));
     }
 
     /**
@@ -316,8 +318,9 @@ class ManageableModelBrowse extends Component
      */
     public function getRelationshipColumns()
     {
+        $columns = func_num_args() > 0 ? func_get_arg(0) : $this->columns;
         // Get any keys from columns that have a relationship
-        return collect($this->columns)->filter(fn ($label, $column) => WRLAHelper::isBrowseColumnRelationship($column));
+        return collect($columns)->filter(fn ($label, $column) => WRLAHelper::isBrowseColumnRelationship($column));
     }
 
     /**
@@ -346,11 +349,11 @@ class ManageableModelBrowse extends Component
             return $baseModelClass::query();
         }
 
-        // Get all types of columns
-        // TODO: This could much more efficient if we filtered from a single collection of columns
-        $standardColumns = $this->getStandardColumns();
-        $relationshipColumns = $this->getRelationshipColumns();
-        $jsonReferenceColumns = $this->getJsonReferenceColumns();
+        // Get all types of columns from a single collection
+        $allColumns = $this->columns;
+        $standardColumns = $this->getStandardColumns($allColumns);
+        $relationshipColumns = $this->getRelationshipColumns($allColumns);
+        $jsonReferenceColumns = $this->getJsonReferenceColumns($allColumns);
         $orderByIsRelationship = WRLAHelper::isBrowseColumnRelationship($this->orderBy);
 
         // Start eloquent query
@@ -433,25 +436,40 @@ class ManageableModelBrowse extends Component
         // Now we loop through the filterable fields and apply them to the query
         $manageableModelFilters = [];
 
+        // If dynamic filter inputs are empty, use standard manageable model filters
         if (empty($this->dynamicFilterInputs)) {
+            // Get manageable model filters from collection
             $manageableModelFilters = $this->manageableModelClass::getBrowseFilters();
 
+            // Loop through each filter and apply query
             foreach ($manageableModelFilters as $browseFilter) {
+                // Get filter key
                 $key = $browseFilter->getKey();
 
-                if (empty($this->filters[$key])) {
-                    continue;
+                // If filter value is empty, skip
+                if (empty($this->filters[$key])) continue;
+
+                // Merge additional columns if set in browse filter options
+                $columns = $allColumns;
+                foreach($browseFilter->getField()->getOption('mergeColumns') ?? [] as $col) {
+                    $columns->put($col, $col);
                 }
 
-                $eloquent = $browseFilter->apply($eloquent, $tableName, $this->columns, $this->filters[$key]);
+                // Apply the filter to the query
+                $eloquent = $browseFilter->apply($eloquent, $tableName, $columns, $this->filters[$key]);
             }
-        } else {
+        }
+        // Otherwise use dynamic filter inputs
+        else {
+            // Loop through each dynamic filter input and apply query
             foreach ($this->dynamicFilterInputs as $item) {
+                // Build browse filter from input
                 $browseFilter = ManageableModelDynamicBrowseFilters::buildBrowseFilter($item);
                 $browseFilter->field->setAttribute('value', $item['value'] ?? '');
                 $manageableModelFilters[] = $browseFilter;
 
-                $eloquent = $browseFilter->apply($eloquent, $tableName, $this->columns, $browseFilter->field->getValue());
+                // Apply dynamic filter to query
+                $eloquent = $browseFilter->apply($eloquent, $tableName, $allColumns, $browseFilter->field->getValue());
             }
         }
 

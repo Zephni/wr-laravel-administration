@@ -491,12 +491,21 @@ abstract class ManageableModel
     /**
      * Set browse filters.
      */
-    public static function setBrowseFilters(Collection|array $filters)
+    public static function setBrowseFilters(... $filters)
     {
         // If collection turn into array
         if ($filters instanceof Collection) {
             $filters = $filters->toArray();
         }
+
+        // Unpack child arrays / collections into one array
+        $filters = array_reduce($filters, function ($carry, $item) {
+            if (is_array($item)) {
+                return array_merge($carry, $item);
+            }
+
+            return array_merge($carry, [$item]);
+        }, []);
 
         static::setStaticOption('browse.filters', $filters);
     }
@@ -749,90 +758,110 @@ abstract class ManageableModel
      */
     public static function getDefaultBrowseFilters(): array
     {
-        $browseFilters = [];
+        $defaultBrowseFilters = [
+            static::getBrowseFilterSearch(),
+            static::getBrowseFilterSoftDeleted()
+        ];
 
-        $browseFilters['searchFilter'] = Text::makeBrowseFilter('searchFilter', 'Search', 'fas fa-search text-slate-400')
-            ->setAttributes([
-                'autofocus' => true,
-                'placeholder' => 'Search filter...',
-                'autocomplete' => "off"
-            ])
-            ->browseFilterApply(function(Builder $outerQuery, $table, $columns, $value) {
-                return $outerQuery->where(function ($query) use ($table, $columns, $value) {
-                    $whereIndex = 0;
+        return $defaultBrowseFilters;
+    }
 
-                    // Get all actual table columns (this is because we may have custom added columns from a preQuery)
-                    $actualTableColumns = WRLAHelper::getTableColumns($table, (new (self::getBaseModelClass()))->getConnectionName());
+    /**
+     * Browse filter: Search
+     */
+    public static function getBrowseFilterSearch(): BrowseFilter
+    {
+        return Text::makeBrowseFilter('searchFilter', 'Search', 'fas fa-search text-slate-400')
+                ->setAttributes([
+                    'autofocus' => true,
+                    'placeholder' => 'Search filter...',
+                    'autocomplete' => "off"
+                ])
+                ->setOptions([
+                    'mergeColumns' => []
+                ])
+                ->browseFilterApply(function(Builder $outerQuery, $table, $columns, $value) {
+                    return $outerQuery->where(function ($query) use ($table, $columns, $value) {
+                        $whereIndex = 0;
 
-                    foreach ($columns as $column => $label) {
-                        // If column is int or begins with !, skip
-                        if (is_int($column) || str_starts_with($column, '!')) {
-                            continue;
-                        }
+                        // Get all actual table columns (this is because we may have custom added columns from a preQuery)
+                        $actualTableColumns = WRLAHelper::getTableColumns($table, (new (self::getBaseModelClass()))->getConnectionName());
 
-                        // If column is relationship, then modify the column to be the related column
-                        if ((WRLAHelper::isBrowseColumnRelationship($column))) {
-                            // dump("Column is relationship: $column");
-                            $relationshipParts = WRLAHelper::parseBrowseColumnRelationship($column);
-
-                            $baseModelClass = self::getBaseModelClass();
-                            $relationship = (new $baseModelClass)->{$relationshipParts[0]}();
-                            if ($relationship?->getRelated() == null) {
+                        foreach ($columns as $column => $label) {
+                            // If column is int or begins with !, skip
+                            if (is_int($column) || str_starts_with($column, '!')) {
                                 continue;
                             }
-                            $relationshipTableName = $relationship->getRelated()->getTable();
-                            $foreignColumn = $relationship->getForeignKeyName();
 
-                            // If relationship connection is not empty, generate the SQL to inject it
-                            if (! empty($relationshipConnection)) {
-                                $relationshipConnection = "`$relationshipConnection`.";
+                            // If column is relationship, then modify the column to be the related column
+                            if ((WRLAHelper::isBrowseColumnRelationship($column))) {
+                                // dump("Column is relationship: $column");
+                                $relationshipParts = WRLAHelper::parseBrowseColumnRelationship($column);
+
+                                $baseModelClass = self::getBaseModelClass();
+                                $relationship = (new $baseModelClass)->{$relationshipParts[0]}();
+                                if ($relationship?->getRelated() == null) {
+                                    continue;
+                                }
+                                $relationshipTableName = $relationship->getRelated()->getTable();
+                                $foreignColumn = $relationship->getForeignKeyName();
+
+                                // If relationship connection is not empty, generate the SQL to inject it
+                                if (! empty($relationshipConnection)) {
+                                    $relationshipConnection = "`$relationshipConnection`.";
+                                }
+
+                                $whereIndex++;
+
+                                // Safely escape value
+                                $query->orWhereRelation($relationshipParts[0], "{$relationshipTableName}.{$relationshipParts[1]}", 'like', "%{$value}%");
                             }
-
-                            $whereIndex++;
-
-                            // Safely escape value
-                            $query->orWhereRelation($relationshipParts[0], "{$relationshipTableName}.{$relationshipParts[1]}", 'like', "%{$value}%");
+                            // If table has this column, prepend table name
+                            elseif(in_array($column, $actualTableColumns)) {
+                                // dump("Column exists in table: $column");
+                                // Force case-insensitive search using LOWER()
+                                $column = "$table.$column";
+                                $query->orWhereRaw("LOWER($column) LIKE ?", ['%' . strtolower($value) . '%']);
+                            }
+                            // Otherwise just use column name directly
+                            else {
+                                // dump("Column does not exist in table: $column");
+                                $query->orHaving($column, 'like', "%{$value}%");
+                            }
                         }
-                        // If table has this column, prepend table name
-                        elseif(in_array($column, $actualTableColumns)) {
-                            // dump("Column exists in table: $column");
-                            $column = "$table.$column";
-                            $query->orWhere($column, 'like', "%{$value}%");
-                        }
-                        // Otherwise just use column name directly
-                        else {
-                            // dump("Column does not exist in table: $column");
-                            $query->orHaving($column, 'like', "%{$value}%");
-                        }
-                    }
-                });
-            });
-
-        if (WRLAHelper::isSoftDeletable(static::getBaseModelClass())) {
-            $browseFilters['softDeletedFilter'] =
-                Select::makeBrowseFilter('softDeletedFilter')
-                    ->setLabel('Status', 'fas fa-heartbeat text-slate-400 !mr-1')
-                    ->setItems([
-                        'not_trashed' => 'Active only',
-                        'trashed' => 'Soft deleted only',
-                        'all' => 'All',
-                    ])
-                    ->setOption('containerClass', 'w-1/6')
-                    ->validation('required|in:all,trashed,not_trashed')
-                    ->browseFilterApply(function (Builder $query, $table, $columns, $value) {
-                        if ($value === 'not_trashed') {
-                            return $query;
-                        } elseif ($value === 'trashed') {
-                            return $query->onlyTrashed();
-                        } elseif ($value == 'all') {
-                            return $query->withTrashed();
-                        }
-
-                        return $query;
                     });
+                });
+    }
+
+    /**
+     * Browse filter: Soft deleted
+     */
+    public static function getBrowseFilterSoftDeleted(): ?BrowseFilter
+    {
+        if (WRLAHelper::isSoftDeletable(static::getBaseModelClass())) {
+            return Select::makeBrowseFilter('softDeletedFilter')
+                ->setLabel('Status', 'fas fa-heartbeat text-slate-400 !mr-1')
+                ->setItems([
+                    'not_trashed' => 'Active only',
+                    'trashed' => 'Soft deleted only',
+                    'all' => 'All',
+                ])
+                ->setOption('containerClass', 'w-1/6')
+                ->validation('required|in:all,trashed,not_trashed')
+                ->browseFilterApply(function (Builder $query, $table, $columns, $value) {
+                    if ($value === 'not_trashed') {
+                        return $query;
+                    } elseif ($value === 'trashed') {
+                        return $query->onlyTrashed();
+                    } elseif ($value == 'all') {
+                        return $query->withTrashed();
+                    }
+
+                    return $query;
+                });
         }
 
-        return $browseFilters;
+        return null;
     }
 
     /**
