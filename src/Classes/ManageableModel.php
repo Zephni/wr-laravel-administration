@@ -737,7 +737,7 @@ abstract class ManageableModel
     }
 
     /**
-     * Get browse filters (Applies to browse page)
+     * Get default browse filters
      */
     public static function getDefaultBrowseFilters(): array
     {

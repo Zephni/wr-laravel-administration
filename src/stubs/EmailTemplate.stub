@@ -60,8 +60,8 @@ class EmailTemplate extends ManageableModel
                     if($value != 'all') $query->where('category', $value);
                     return $query;
                 }),
-
-            static::getDefaultBrowseFilters()
+            static::getBrowseFilterSearch(),
+            static::getBrowseFilterSoftDeleted(),
         );
 
         // Browse actions

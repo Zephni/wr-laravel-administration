@@ -51,7 +51,10 @@ class {{ $MODEL }} extends ManageableModel
     public final static function browseSetup(): void
     {
         // Browse filters
-        static::setBrowseFilters(static::getDefaultBrowseFilters());
+        static::setBrowseFilters(
+            static::getBrowseFilterSearch(),
+            static::getBrowseFilterSoftDeleted(),
+        );
 
         // Browse actions
         static::setBrowseActions(static::getDefaultBrowseActions());

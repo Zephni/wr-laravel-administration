@@ -85,7 +85,8 @@ class User extends ManageableModel
                     return $query;
                 }),
 
-            static::getDefaultBrowseFilters()
+            static::getBrowseFilterSearch(),
+            static::getBrowseFilterSoftDeleted(),
         );
 
         // Browse actions (Remove import action #51)
