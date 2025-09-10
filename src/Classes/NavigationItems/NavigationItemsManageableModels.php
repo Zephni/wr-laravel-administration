@@ -9,8 +9,10 @@ class NavigationItemsManageableModels extends NavigationItem
 {
     /**
      * Import all manageable models as array of nav items
+     * 
+     * @param mixed ...$manageableModelClasses
      */
-    public static function import(array $manageableModelClasses = []): array
+    public static function import(... $manageableModelClasses): array
     {
         return self::getAManageableModelsNavigationItems($manageableModelClasses);
     }
@@ -20,7 +22,7 @@ class NavigationItemsManageableModels extends NavigationItem
      *
      * @return array An array of NavigationItemManageableModel objects representing the navigation items.
      */
-    public static function getAManageableModelsNavigationItems(array $manageableModelClasses = []): array
+    public static function getAManageableModelsNavigationItems(... $manageableModelClasses): array
     {
         $navItems = [];
 

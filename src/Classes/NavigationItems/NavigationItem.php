@@ -73,7 +73,7 @@ class NavigationItem
      *
      * @return NavigationItem[]
      */
-    public static function makeManageableModels(array $models): array
+    public static function makeManageableModels(... $models): array
     {
         return NavigationItemsManageableModels::import($models);
     }
