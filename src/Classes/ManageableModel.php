@@ -494,7 +494,6 @@ abstract class ManageableModel
     public static function setBrowseFilters(...$filters)
     {
         $filters = WRLAHelper::flattenArray($filters);
-
         static::setStaticOption('browse.filters', $filters);
     }
 
@@ -511,14 +510,10 @@ abstract class ManageableModel
     /**
      * Set browse actions.
      */
-    public static function setBrowseActions(Collection|array $actions)
+    public static function setBrowseActions(... $browseActions)
     {
-        // If collection turn into array
-        if ($actions instanceof Collection) {
-            $actions = $actions->toArray();
-        }
-
-        static::setStaticOption('browse.actions', $actions);
+        $browseActions = WRLAHelper::flattenArray($browseActions);
+        static::setStaticOption('browse.actions', $browseActions);
     }
 
     /**
