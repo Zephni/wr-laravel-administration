@@ -2,8 +2,8 @@
 
 namespace WebRegulate\LaravelAdministration\Classes\NavigationItems;
 
-use WebRegulate\LaravelAdministration\Classes\ManageableModel;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
+use WebRegulate\LaravelAdministration\Classes\ManageableModel;
 
 class NavigationItemsManageableModels extends NavigationItem
 {
@@ -14,7 +14,7 @@ class NavigationItemsManageableModels extends NavigationItem
      */
     public static function import(... $manageableModelClasses): array
     {
-        return self::getAManageableModelsNavigationItems($manageableModelClasses);
+        return self::getManageableModelsNavigationItems($manageableModelClasses);
     }
 
     /**
@@ -22,8 +22,10 @@ class NavigationItemsManageableModels extends NavigationItem
      *
      * @return array An array of NavigationItemManageableModel objects representing the navigation items.
      */
-    public static function getAManageableModelsNavigationItems(... $manageableModelClasses): array
+    public static function getManageableModelsNavigationItems(... $manageableModelClasses): array
     {
+        $manageableModelClasses = WRLAHelper::flattenArray($manageableModelClasses);
+
         $navItems = [];
 
         if (empty(ManageableModel::$manageableModels)) {
