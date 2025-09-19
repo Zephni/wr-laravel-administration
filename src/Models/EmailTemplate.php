@@ -50,6 +50,22 @@ class EmailTemplate extends Model
     }
 
     /**
+     * Make an line email template with subject and body only.
+     */
+    public static function make(string $subject, string $body, array $mappings = []): static
+    {
+        $emailTemplate = new static();
+        $emailTemplate->setSubject($subject);
+        $emailTemplate->setBody($body);
+
+        if(!empty($mappings)) {
+            $emailTemplate->setDataArray($mappings);
+        }
+        
+        return $emailTemplate;
+    }
+
+    /**
      * Post send hook, note this gets called before the global post send hook.
      * Hook callable should take the following parameters:
      * - EmailTemplate $emailTemplate
