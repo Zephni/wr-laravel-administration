@@ -88,7 +88,7 @@ class ManageableModelUpsert extends Component
         $modelClass = $manageableModelInstance::getBaseModelClass();
 
         // If the model class does not exist, redirect to the dashboard
-        if (! class_exists($modelClass)) {
+        if (!class_exists($modelClass)) {
             return redirect()->route('wrla.dashboard')->with('error', "Model `$modelClass` not found while loading manageable model `$manageableModelClass`.");
         }
 

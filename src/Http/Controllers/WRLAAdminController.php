@@ -25,8 +25,6 @@ class WRLAAdminController extends Controller
 {
     /**
      * index / dashboard view
-     *
-     * @return \Illuminate\Contracts\View\View
      */
     public function index(Request $request)
     {
@@ -72,44 +70,45 @@ class WRLAAdminController extends Controller
 
     /**
      * ManageableModel upsert view
-     *
-     * @param  ?int  $id
      */
     public function upsert(Request $request, string $modelUrlAlias, ?int $modelId = null): View|RedirectResponse
     {
-        // Get the manageable model and instance by its URL alias and id
-        $manageableModelClass = ManageableModel::getByUrlAlias($modelUrlAlias);
-        $manageableModelInstance = $manageableModelClass::make($modelId);
-
-        // If the manageable model is null, redirect to the dashboard with error
-        if (is_null($manageableModelClass)) {
-            return redirect()->route('wrla.dashboard')->with('error', "Manageable model with url alias `$modelUrlAlias` not found.");
+        try {
+            // Get the manageable model and instance by its URL alias and id
+            $manageableModelClass = ManageableModel::getByUrlAlias($modelUrlAlias);
+            $manageableModelInstance = $manageableModelClass::make($modelId);
+    
+            // If the manageable model is null, redirect to the dashboard with error
+            if (is_null($manageableModelClass)) {
+                return redirect()->route('wrla.dashboard')->with('error', "Manageable model with url alias `$modelUrlAlias` not found.");
+            }
+    
+            // Set page type
+            $upsertType = WRLAHelper::setCurrentPageType($modelId == null ? PageType::CREATE : PageType::EDIT);
+            WRLAHelper::setCurrentActiveManageableModelClass($manageableModelClass);
+    
+            // If model id doesn't exist then return to dashboard with error
+            if ($modelId != null && $manageableModelInstance->getModelInstance() == null) {
+                return redirect()->route('wrla.dashboard')->with('error', 'Model '.$manageableModelClass." with ID `$modelId` not found.");
+            }
+    
+            return view(WRLAHelper::getViewPath('livewire-content'), [
+                'title' => str($upsertType->value)->lower()->title()->toString().' '.$manageableModelClass::getDisplayName(),
+                'livewireComponentAlias' => 'wrla.manageable-models.upsert',
+                'livewireComponentData' => [
+                    'manageableModelClass' => $manageableModelClass,
+                    'upsertType' => $modelId == null ? PageType::CREATE : PageType::EDIT,
+                    'modelId' => $modelId,
+                ],
+            ]);
+        } catch (Exception $e) {
+            // If an error occurs, redirect to the dashboard with an error message
+            return redirect()->route('wrla.dashboard')->with('error', "Error loading manageable model `$manageableModelClass`: ".$e->getMessage());
         }
-
-        // Set page type
-        $upsertType = WRLAHelper::setCurrentPageType($modelId == null ? PageType::CREATE : PageType::EDIT);
-        WRLAHelper::setCurrentActiveManageableModelClass($manageableModelClass);
-
-        // If model id doesn't exist then return to dashboard with error
-        if ($modelId != null && $manageableModelInstance->getModelInstance() == null) {
-            return redirect()->route('wrla.dashboard')->with('error', 'Model '.$manageableModelClass." with ID `$modelId` not found.");
-        }
-
-        return view(WRLAHelper::getViewPath('livewire-content'), [
-            'title' => str($upsertType->value)->lower()->title()->toString().' '.$manageableModelClass::getDisplayName(),
-            'livewireComponentAlias' => 'wrla.manageable-models.upsert',
-            'livewireComponentData' => [
-                'manageableModelClass' => $manageableModelClass,
-                'upsertType' => $modelId == null ? PageType::CREATE : PageType::EDIT,
-                'modelId' => $modelId,
-            ],
-        ]);
     }
 
     /**
      * ManageableModel upsert submit
-     *
-     * @param  ?int  $id
      */
     public function upsertPost(Request $request, string $modelUrlAlias, ?int $modelId = null): RedirectResponse
     {
@@ -239,6 +238,9 @@ class WRLAAdminController extends Controller
         });
     }
 
+    /**
+     * Upload image from wysiwyg editor
+     */
     public function uploadWysiwygImage(Request $request)
     {
         return WRLAHelper::uploadWysiwygImage($request);
