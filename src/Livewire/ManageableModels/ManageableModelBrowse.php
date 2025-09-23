@@ -249,10 +249,14 @@ class ManageableModelBrowse extends Component
             }
 
             $models = $this->manageableModelClass::$manageableModelStaticExportMethod($models, $fileName);
-        }
 
-        // Get all headings (array of all column names)
-        $headings = $this->manageableModelClass::getTableColumns(); 
+            $headings = array_keys($models->first() ?? []);
+        }
+        else
+        {
+            // Get all headings (array of all column names)
+            $headings = $this->manageableModelClass::getTableColumns(); 
+        }
 
         // Sort data
         if (! is_array($models->first()) && isset($models->first()['id'])) {
