@@ -1,12 +1,12 @@
 <?php
-    use WebRegulate\LaravelAdministration\Enums\BrowseAdditionalRenderPosition;
+    use WebRegulate\LaravelAdministration\Enums\AdditionalRenderPosition;
 ?>
 
 {{-- Livewire browse models, a very modern style browse system, includes a search filter and a table with the models data. --}}
 <div class="flex flex-col gap-4">
 
     {{-- Browse additional rendering --}}
-    {!! $manageableModelClass::renderBrowseAdditionalRender(BrowseAdditionalRenderPosition::TOP) !!}
+    {!! $manageableModelClass::renderAdditionalRender(AdditionalRenderPosition::BROWSE_TOP) !!}
 
     {{-- Title and total records --}}
 
@@ -29,7 +29,7 @@
     @endif
 
     {{-- Browse additional rendering --}}
-    {!! $manageableModelClass::renderBrowseAdditionalRender(BrowseAdditionalRenderPosition::BELOW_HEADING) !!}
+    {!! $manageableModelClass::renderAdditionalRender(AdditionalRenderPosition::BROWSE_BELOW_HEADING) !!}
 
     {{-- Browse actions --}}
     <div class="flex flex-row gap-3">
@@ -39,7 +39,7 @@
     </div>
 
     {{-- Browse additional rendering --}}
-    {!! $manageableModelClass::renderBrowseAdditionalRender(BrowseAdditionalRenderPosition::BELOW_BROWSE_ACTIONS) !!}
+    {!! $manageableModelClass::renderAdditionalRender(AdditionalRenderPosition::BROWSE_BELOW_ACTIONS) !!}
 
     {{-- Filters --}}
     <div class="w-full rounded-lg px-3 pt-2 pb-3 mb-1 bg-slate-100 shadow-md dark:bg-slate-800">
@@ -62,7 +62,7 @@
     </div>
 
     {{-- Browse additional rendering --}}
-    {!! $manageableModelClass::renderBrowseAdditionalRender(BrowseAdditionalRenderPosition::BELOW_FILTERS) !!}
+    {!! $manageableModelClass::renderAdditionalRender(AdditionalRenderPosition::BROWSE_BELOW_FILTERS) !!}
 
     @php
         $browseColumns = $manageableModelClass::make()->getBrowseColumnsFinal();

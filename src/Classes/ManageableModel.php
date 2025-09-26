@@ -16,7 +16,7 @@ use WebRegulate\LaravelAdministration\Classes\ManageableFields\Text;
 use WebRegulate\LaravelAdministration\Classes\ManageableFields\Select;
 use WebRegulate\LaravelAdministration\Enums\ManageableModelPermissions;
 use WebRegulate\LaravelAdministration\Classes\BrowseColumns\BrowseColumn;
-use WebRegulate\LaravelAdministration\Enums\BrowseAdditionalRenderPosition;
+use WebRegulate\LaravelAdministration\Enums\AdditionalRenderPosition;
 use WebRegulate\LaravelAdministration\Classes\BrowseColumns\BrowseColumnBase;
 use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItem;
 use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItemManageableModel;
@@ -510,7 +510,7 @@ abstract class ManageableModel
      * 
      * @param callable $preBrowseRender A callable that takes no parameters and returns html.
      */
-    public static function setBrowseAdditionalRender(BrowseAdditionalRenderPosition $position, callable $preBrowseRender): void
+    public static function setAdditionalRender(AdditionalRenderPosition $position, callable $preBrowseRender): void
     {
         static::setStaticOption("browse.additionalRendering.{$position->value}.callable", $preBrowseRender);
     }
@@ -659,19 +659,19 @@ abstract class ManageableModel
     }
 
     /**
-     * Get browse additional rendering callable.
+     * Get additional rendering callable.
      */
-    public static function getBrowseAdditionalRender(BrowseAdditionalRenderPosition $position): ?callable
+    public static function getAdditionalRender(AdditionalRenderPosition $position): ?callable
     {
         return static::getStaticOption(static::class, "browse.additionalRendering.{$position->value}.callable");
     }
 
     /**
-     * Render browse additional rendering callable if set.
+     * Render additional rendering callable if set.
      */
-    public static function renderBrowseAdditionalRender(BrowseAdditionalRenderPosition $position): string
+    public static function renderAdditionalRender(AdditionalRenderPosition $position): string
     {
-        $callable = static::getBrowseAdditionalRender($position);
+        $callable = static::getAdditionalRender($position);
 
         if (is_callable($callable)) {
             return (string) $callable();
