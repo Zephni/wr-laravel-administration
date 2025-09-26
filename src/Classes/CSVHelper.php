@@ -7,7 +7,7 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 class CSVHelper
 {
     /**
-     * Array should bjust be a natural indexed array of data
+     * Array should just be a natural indexed array of data
      */
     public static function build(string $filename, ?array $columnHeadings, array $data): StreamedResponse
     {
@@ -41,5 +41,32 @@ class CSVHelper
             // Close CSV file handle
             fclose($csv);
         }, 200, $headers);
+    }
+
+    /**
+     * Array from csv file
+     */
+    public static function arrayFromCSVFile(string $csvFile, bool $hasHeader = true): array
+    {
+        $rows = [];
+        if (($handle = fopen($csvFile, 'r')) !== false) {
+            $header = [];
+            while (($data = fgetcsv($handle, 1000, ',')) !== false) {
+                if ($hasHeader && empty($header)) {
+                    $header = $data;
+                    continue;
+                }
+                if ($hasHeader) {
+                    if (count($header) === count($data)) {
+                        $rows[] = array_combine($header, $data);
+                    }
+                } else {
+                    $rows[] = $data;
+                }
+            }
+            fclose($handle);
+        }
+
+        return $rows;
     }
 }
