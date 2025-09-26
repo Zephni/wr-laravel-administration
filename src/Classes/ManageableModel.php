@@ -6,18 +6,20 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\MessageBag;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\View\ComponentAttributeBag;
 use WebRegulate\LaravelAdministration\Enums\PageType;
+use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 use WebRegulate\LaravelAdministration\Classes\ManageableFields\Text;
 use WebRegulate\LaravelAdministration\Classes\ManageableFields\Select;
 use WebRegulate\LaravelAdministration\Enums\ManageableModelPermissions;
 use WebRegulate\LaravelAdministration\Classes\BrowseColumns\BrowseColumn;
+use WebRegulate\LaravelAdministration\Enums\BrowseAdditionalRenderPosition;
 use WebRegulate\LaravelAdministration\Classes\BrowseColumns\BrowseColumnBase;
 use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItem;
 use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItemManageableModel;
-use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 
 abstract class ManageableModel
 {
@@ -504,6 +506,16 @@ abstract class ManageableModel
     }
 
     /**
+     * Set browse additional rendering callable.
+     * 
+     * @param callable $preBrowseRender A callable that takes no parameters and returns html.
+     */
+    public static function setBrowseAdditionalRender(BrowseAdditionalRenderPosition $position, callable $preBrowseRender): void
+    {
+        static::setStaticOption("browse.additionalRendering.{$position->value}.callable", $preBrowseRender);
+    }
+
+    /**
      * Get the display name for the manageable model.
      */
     public static function getDisplayName(bool $plural = false): string
@@ -644,6 +656,28 @@ abstract class ManageableModel
             'column' => static::getStaticOption(static::class, 'defaultOrderBy.column'),
             'direction' => static::getStaticOption(static::class, 'defaultOrderBy.direction'),
         ]);
+    }
+
+    /**
+     * Get browse additional rendering callable.
+     */
+    public static function getBrowseAdditionalRender(BrowseAdditionalRenderPosition $position): ?callable
+    {
+        return static::getStaticOption(static::class, "browse.additionalRendering.{$position->value}.callable");
+    }
+
+    /**
+     * Render browse additional rendering callable if set.
+     */
+    public static function renderBrowseAdditionalRender(BrowseAdditionalRenderPosition $position): string
+    {
+        $callable = static::getBrowseAdditionalRender($position);
+
+        if (is_callable($callable)) {
+            return (string) $callable();
+        }
+
+        return '';
     }
 
     /**

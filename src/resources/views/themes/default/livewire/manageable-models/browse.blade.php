@@ -1,5 +1,14 @@
+<?php
+    use WebRegulate\LaravelAdministration\Enums\BrowseAdditionalRenderPosition;
+?>
+
 {{-- Livewire browse models, a very modern style browse system, includes a search filter and a table with the models data. --}}
 <div class="flex flex-col gap-4">
+
+    {{-- Browse additional rendering --}}
+    {!! $manageableModelClass::renderBrowseAdditionalRender(BrowseAdditionalRenderPosition::TOP) !!}
+
+    {{-- Title and total records --}}
 
     <div class="flex justify-between items-center">
         <div class="text-xl font-semibold mb-2">
@@ -19,12 +28,18 @@
         @themeComponent('alert', ['type' => 'error', 'message' => $errorMessage])
     @endif
 
+    {{-- Browse additional rendering --}}
+    {!! $manageableModelClass::renderBrowseAdditionalRender(BrowseAdditionalRenderPosition::BELOW_HEADING) !!}
+
     {{-- Browse actions --}}
     <div class="flex flex-row gap-3">
         @foreach ($manageableModelClass::getBrowseActions() as $browseAction)
             {!! !is_string($browseAction) ? $browseAction->render() : $browseAction !!}
         @endforeach
     </div>
+
+    {{-- Browse additional rendering --}}
+    {!! $manageableModelClass::renderBrowseAdditionalRender(BrowseAdditionalRenderPosition::BELOW_BROWSE_ACTIONS) !!}
 
     {{-- Filters --}}
     <div class="w-full rounded-lg px-3 pt-2 pb-3 mb-1 bg-slate-100 shadow-md dark:bg-slate-800">
@@ -45,6 +60,9 @@
 
         </div>
     </div>
+
+    {{-- Browse additional rendering --}}
+    {!! $manageableModelClass::renderBrowseAdditionalRender(BrowseAdditionalRenderPosition::BELOW_FILTERS) !!}
 
     @php
         $browseColumns = $manageableModelClass::make()->getBrowseColumnsFinal();
