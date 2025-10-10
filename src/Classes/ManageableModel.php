@@ -462,6 +462,29 @@ abstract class ManageableModel
     }
 
     /**
+     * Append pre query
+     */
+    public static function appendPreQuery(callable $preQuery): void
+    {
+        $existingPreQuery = static::getStaticOption(static::class, 'browse.preQuery');
+
+        if (is_callable($existingPreQuery)) {
+            // If preQuery is callable, create a new callable that calls both the existing and new preQuery
+            $newPreQuery = function ($query, $filters) use ($existingPreQuery, $preQuery) {
+                $query = $existingPreQuery($query, $filters);
+                return $preQuery($query, $filters);
+            };
+
+            static::setStaticOption('browse.preQuery', $newPreQuery);
+
+            return;
+        }
+
+        // If no existing preQuery, just set the new one
+        static::setPreQuery($preQuery);
+    }
+
+    /**
      * Get pre query for browse page.
      */
     public static function processPreQuery(mixed $query, array $filters): mixed

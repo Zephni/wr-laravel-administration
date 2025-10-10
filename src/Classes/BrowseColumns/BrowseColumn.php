@@ -2,6 +2,9 @@
 
 namespace WebRegulate\LaravelAdministration\Classes\BrowseColumns;
 
+use WebRegulate\LaravelAdministration\Classes\ManageableModel;
+use function Laravel\Prompts\select;
+
 class BrowseColumn extends BrowseColumnBase
 {
     /**
@@ -17,6 +20,42 @@ class BrowseColumn extends BrowseColumnBase
         if(!is_null($overrideRenderValue)) {
             $browseColumn->overrideRenderValue($overrideRenderValue);
         }
+
+        return $browseColumn;
+    }
+
+    /**
+     * Limit characters
+     */
+    public function limit(int $limit, string $end = '...'): static
+    {
+        $this->overrideRenderValue(function($value) use ($limit, $end) {
+            return str($value)->limit($limit, $end);
+        });
+
+        return $this;
+    }
+
+    /**
+     * Use query to set the value of the column, this will be prepended to the base query, make sure to select your value as the column/key name
+     */
+    public static function query(?string $label, string $static, callable $query): static
+    {
+        $browseColumn = new self($label);
+
+        $static::appendPreQuery($query);
+
+        return $browseColumn;
+    }
+
+    /**
+     * Use query to set the value of the column, this will be prepended to the base query, make sure to select your value as the column/key name
+     */
+    public static function selectRaw(?string $label, string $static, string $sql): static
+    {
+        $browseColumn = new self($label);
+
+        self::query($label, $static, fn($query) => $query->selectRaw($sql));
 
         return $browseColumn;
     }

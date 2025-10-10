@@ -127,6 +127,8 @@ class BrowseColumnBase
         elseif (is_callable($this->overrideRenderValue)) {
             $oldCallback = $this->overrideRenderValue;
             $this->overrideRenderValue = function ($value, $model) use ($oldCallback, $callback) {
+                $value = trim($value);
+                
                 $value = call_user_func($oldCallback, $value, $model);
 
                 return call_user_func($callback, $value, $model);

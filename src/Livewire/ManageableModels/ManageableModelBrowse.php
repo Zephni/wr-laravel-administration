@@ -339,6 +339,10 @@ class ManageableModelBrowse extends Component
         // Run browse setup method
         if ($this->renders > 1) {
             $this->manageableModelClass::browseSetupFinal($this->filters);
+
+            // We need to run the below simply incase the browse columns appendPreQuery in any way
+            $manageableModelInstance = $this->getModelInstance();
+            $manageableModelInstance->getBrowseColumns();
         }
 
         // Get connection and table name
@@ -363,14 +367,14 @@ class ManageableModelBrowse extends Component
         // Start eloquent query
         $eloquent = $baseModelClass::query();
 
+        // Select any fields that aren't relationships or json references
+        $eloquent = $eloquent->addSelect("$tableName.*");
+        
         // Pre query
         $preQueryResult = $this->manageableModelClass::processPreQuery($eloquent, $this->filters);
         if($preQueryResult instanceof Builder) {
             $eloquent = $preQueryResult;
         }
-
-        // Select any fields that aren't relationships or json references
-        $eloquent = $eloquent->addSelect("$tableName.*");
 
         // Relationship named columns look like this relationship->remote_column, so we need to split them
         // and add left joins and selects to the query
