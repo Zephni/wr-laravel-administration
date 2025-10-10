@@ -1,6 +1,6 @@
 <div>
     @themeComponent('forms.button', [
-        'href' => route('wrla.manageable-models.browse', ['modelUrlAlias' => $manageableModelClass::getUrlAlias()]),
+        'href' => $manageableModelClass::urlBrowse(),
         'text' => $manageableModelClass::getDisplayName(true),
         'size' => 'small',
         'color' => 'primary',
@@ -74,7 +74,7 @@
             ])
 
             @themeComponent('forms.button', [
-                'href' => route('wrla.manageable-models.browse', ['modelUrlAlias' => $manageableModel->getUrlAlias()]),
+                'href' => $manageableModelClass::urlBrowse(),
                 'text' => 'Cancel',
                 'size' => 'medium',
                 'color' => 'secondary',

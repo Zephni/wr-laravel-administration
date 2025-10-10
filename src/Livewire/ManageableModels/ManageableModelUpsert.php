@@ -232,9 +232,7 @@ class ManageableModelUpsert extends Component
         // Otherwise the model was deleted successfully, redirect to browse page for the model
         session()->flash('success', $message);
 
-        return redirect()->route('wrla.manageable-models.browse', [
-            'modelUrlAlias' => $this->manageableModelClass::getUrlAlias(),
-        ]);
+        return $this->manageableModelClass::urlBrowse();
     }
 
     /* Methods

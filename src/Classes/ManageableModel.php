@@ -176,6 +176,35 @@ abstract class ManageableModel
     abstract public static function browseSetup(): void;
 
     /**
+     * URL edit
+     */
+    public static function urlBrowse(array $filters = []): string
+    {
+        return static::urlBrowse($filters);
+    }
+
+    /**
+     * URL edit
+     */
+    public static function urlCreate(): string
+    {
+        return route('wrla.manageable-models.create', [
+            'modelUrlAlias' => static::getUrlAlias(),
+        ]);
+    }
+
+    /**
+     * URL edit
+     */
+    public static function urlEdit(int $id): string
+    {
+        return route('wrla.manageable-models.edit', [
+            'modelUrlAlias' => static::getUrlAlias(),
+            'id' => $id
+        ]);
+    }
+
+    /**
      * Browse setup.
      *
      * @return void
