@@ -25,16 +25,12 @@ use WebRegulate\LaravelAdministration\Classes\InstanceAction;
 class User extends ManageableModel
 {
     /**
-     * Impersonate permission constant //
-     *
-     * @var string
+     * Impersonate permission constant
      */
     public const IMPERSONATE = 'IMPERSONATE';
 
     /**
      * Setup the main properties of the model.
-     *
-     * @return void
      */
     public final static function mainSetup(): void
     {
@@ -52,8 +48,6 @@ class User extends ManageableModel
 
     /**
      * Setup global properties of this manageable model.
-     *
-     * @return void
      */
     public final static function globalSetup(): void
     {
@@ -63,8 +57,6 @@ class User extends ManageableModel
 
     /**
      * Setup browse properties of this manageable model.
-     *
-     * @return void
      */
     public final static function browseSetup(): void
     {
@@ -98,8 +90,6 @@ class User extends ManageableModel
 
     /**
      * Provide an array of columns to display in the browse view.
-     *
-     * @return array
      */
     public final function getBrowseColumns(): array
     {
@@ -116,8 +106,6 @@ class User extends ManageableModel
 
     /**
      * Provide an array of manageable fields to display in the upsert view.
-     *
-     * @return array
      */
     public final function getManageableFields(): array
     {
@@ -162,7 +150,6 @@ class User extends ManageableModel
 
             JsonUI::make($this, 'wrlaUserData.permissions')
                 ->setLabel('Permissions')
-                ->hideContainingBraces()
                 ->mergeDefaultKeyValues(config('wr-laravel-administration.default_user_data.permissions'))
                 ->jsonFormatValidation([
                     'master' => 'boolean'.(($currentUserData?->user_id == $modelInstance?->id) ? "|wrla_no_change:wrla_user_data,{$currentUserData?->id},permissions->master" : ''),
@@ -171,14 +158,12 @@ class User extends ManageableModel
                 ->setActive(fn() => WRLAHelper::getCurrentUserData()?->isMaster()),
 
             JsonUI::make($this, 'wrlaUserData.settings')
-                ->hideContainingBraces()
                 ->mergeDefaultKeyValues(config('wr-laravel-administration.default_user_data.settings'))
                 ->jsonFormatValidation([
                     'theme' => 'string|in:default'
                 ]),
 
             JsonUI::make($this, 'wrlaUserData.data')
-                ->hideContainingBraces()
                 ->mergeDefaultKeyValues(config('wr-laravel-administration.default_user_data.data')),
         ];
     }
@@ -187,7 +172,6 @@ class User extends ManageableModel
      * Provide the model instance actions.
      *
      * @param \Illuminate\Support\Collection $instanceActions default instance actions (edit, delete)
-     * @return \Illuminate\Support\Collection
      */
     public final function getInstanceActions(Collection $instanceActions): Collection
     {
@@ -203,7 +187,7 @@ class User extends ManageableModel
                     $wrlaUserData->mfa_secret = null;
                     $wrlaUserData->save();
                     return "Successfully reset 2FA for {$user->email}";
-                }))
+                })
         );
 
         // Impersonate action
@@ -224,8 +208,6 @@ class User extends ManageableModel
 
     /**
      * Is model soft deletable
-     *
-     * @return bool
      */
     public static function isSoftDeletable(): bool
     {
@@ -237,8 +219,6 @@ class User extends ManageableModel
 
     /**
      * Get current user manageable model
-     *
-     * @return User
      */
     public static function current(): User {
         return new User(
@@ -254,7 +234,6 @@ class User extends ManageableModel
      * @param string $relationshipName The name of the relationship.
      * @param string $relationshipFieldName The name of the field in the relationship.
      * @param mixed $fieldValue The field value.
-     * @return void
      */
     public function preUpdateRelationshipInstanceField(mixed &$modelInstance, mixed &$relationshipInstance, string $relationshipName, string $relationshipFieldName, mixed $fieldValue): void
     {
@@ -271,21 +250,6 @@ class User extends ManageableModel
                 $relationshipInstance->save();
             }
         });
-    }
-
-    /**
-     * Post update model instance hook. Note that this is called after validation and after the model is updated and saved.
-     *
-     * @param Request $request The HTTP request object.
-     * @param mixed $model The model instance.
-     * @return void
-     */
-    public function postUpdateModelInstance(Request $request, mixed $model): void
-    {
-        // Relogin as the user if the id is the same as the current user, and email or password has been changed
-        if ($this->getModelInstance()->id === Auth::id() && ($request->email !== $this->getModelInstance()->email || $request->password)) {
-            Auth::login($this->getModelInstance());
-        }
     }
 
     /**
