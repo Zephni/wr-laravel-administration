@@ -180,7 +180,10 @@ abstract class ManageableModel
      */
     public static function urlBrowse(array $filters = []): string
     {
-        return static::urlBrowse($filters);
+        return route('wrla.manageable-models.browse', [
+            'modelUrlAlias' => static::getUrlAlias(),
+            'preFilters' => $filters,
+        ]);
     }
 
     /**
@@ -1242,6 +1245,7 @@ abstract class ManageableModel
 
     /**
      * Create instance action button
+     * 
      * @param null|callable|string $action Takes model instance, returns string message or RedirectResponse
      */
     public function instanceAction(string $text, ?string $icon = null, ?string $color = null, null|callable|string $action = null, null|bool|callable $enableOnCondition = null, ?array $additonalAttributes = null): InstanceAction
