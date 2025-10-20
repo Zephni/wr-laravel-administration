@@ -51,8 +51,12 @@ abstract class ConfiguredModeBasedHandler
     /**
      * Get current mode configuration.
      */
-    public function getCurrentConfiguration(): array
+    public function getCurrentConfiguration(?string $dottedPath = null, ?string $default = null): mixed
     {
+        if ($dottedPath !== null) {
+            return data_get($this->currentConfiguration, $dottedPath, $default);
+        }
+        
         return $this->currentConfiguration;
     }
 

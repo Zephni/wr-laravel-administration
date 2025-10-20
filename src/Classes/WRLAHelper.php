@@ -880,12 +880,27 @@ class WRLAHelper
     }
 
     /**
+     * Get Wysiwyg handler
+     */
+    public static function getWysiwygHandler(): WysiwygHandler
+    {
+        return once(fn() => new WysiwygHandler());
+    }
+
+    /**
+     * Get current Wysiwyg editor HTML element
+     */
+    public static function getWysiwygEditorHTMLElement(): string
+    {
+        return static::getWysiwygHandler()->getHTMLElement();
+    }
+
+    /**
      * Get current Wysiwyg editor setup JS
      */
     public static function getWysiwygEditorSetupJS(): string
     {
-        $wysiwygHandler = new WysiwygHandler();
-        return $wysiwygHandler->getWysiwygEditorSetupJS();
+        return static::getWysiwygHandler()->getWysiwygEditorSetupJS();
     }
 
     /**
@@ -1000,8 +1015,7 @@ class WRLAHelper
      */
     public static function uploadWysiwygImage(Request $request): mixed
     {
-        $wysiwygHandler = new WysiwygHandler();
-        return $wysiwygHandler->uploadWysiwygImage($request);
+        return static::getWysiwygHandler()->uploadWysiwygImage($request);
     }
 
     /**

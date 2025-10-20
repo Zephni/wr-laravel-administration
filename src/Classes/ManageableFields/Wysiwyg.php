@@ -21,6 +21,7 @@ class Wysiwyg
             'attributes' => new ComponentAttributeBag(array_merge($this->htmlAttributes, [
                 'name' => $this->getAttribute('name'),
                 'value' => $this->getValue(),
+                'class' => 'w-full',
             ])),
         ])->render();
     }

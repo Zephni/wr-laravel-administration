@@ -17,22 +17,35 @@ class WysiwygHandler extends ConfiguredModeBasedHandler
     }
 
     /**
+     * Get HTML element, used in wysiwyg.blade.php based on current configuration mode.
+     */
+    public function getHTMLElement() {
+        return match ($this->mode) {
+            'tinymce' => 'textarea',
+            'quill' => 'div',
+            default => 'textarea',
+        };
+    }
+
+    /**
      * Get view based on current configuration mode.
      */
     public function getWysiwygEditorSetupJS() {
         return match ($this->mode) {
             'tinymce' => $this->getTinyMCESetupJS(),
+            'quill' => $this->getQuillSetupJS(),
             default => '',
         };
     }
 
     /**
-     * Handle uploading of WYSIWYG images.
+     * Handle uploading of WYSIWYG images based on current configuration mode.
      */
     public function uploadWysiwygImage(Request $request)
     {
         return match ($this->mode) {
             'tinymce' => $this->uploadImageTinyMCE($request),
+            'quill' => $this->uploadImageQuill($request),
             default => abort(404, 'Unsupported WYSIWYG editor mode.'),
         };
     }
@@ -139,5 +152,33 @@ class WysiwygHandler extends ConfiguredModeBasedHandler
         }
 
         return response()->json(['error' => 'Wysiwyg editor not set to TinyMCE.'], 400); // Handle errors
+    }
+
+    /* QUILL
+    ----------------------------------------------------------------------------*/
+    /**
+     * Get Quill setup JavaScript.
+     */
+    public function getQuillSetupJS() {
+        return Blade::render(<<<'HTML'
+            <link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet" />
+            <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
+
+            <script>
+                const quill = new Quill('.wrla_wysiwyg', {
+                    theme: '{{ $currentWysiwygEditorSettings["theme"] }}',
+                });
+            </script>
+        HTML, [
+            'currentWysiwygEditorSettings' => $this->currentConfiguration,
+        ]);
+    }
+
+    /**
+     * Handle image upload for Quill.
+     */
+    public function uploadImageQuill(Request $request)
+    {
+        // Implementation for Quill image upload goes here
     }
 }

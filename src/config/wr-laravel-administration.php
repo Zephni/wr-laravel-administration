@@ -121,20 +121,30 @@ return [
 
     // Wysiwyg editors
     'wysiwyg_editors' => [
-        // Only tinymce is currently supported, more coming soon
-        'current' => 'tinymce',
+        // Supported: 'quill', 'tinymce'
+        'current' => 'quill',
+
+        // Quill
+        'quill' => [
+            'theme' => 'snow',
+            'class' => 'min-h-48',
+            'image_uploads' => [
+                'filesystem' => 'public',
+                'path' => 'storage/images/uploads',
+            ],
+        ],
 
         // TinyMCE
         'tinymce' => [
-            'image_uploads' => [
-                'filesystem' => 'public',
-                'path' => 'images/uploads',
-            ],
             'apikey' => env('TINYMCE_API_KEY', ''), // Add your TinyMCE API key in your .env file
             'plugins' => 'anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount code paste fullscreen',
             'menubar' => 'edit view insert tools table',
             'toolbar' => 'undo redo | bold italic underline | link image media table | align | numlist bullist indent | code',
-        ]
+            'image_uploads' => [
+                'filesystem' => 'public',
+                'path' => 'storage/images/uploads',
+            ],
+        ],
     ],
 
     // Error catching, in certain locations we can catch errors and display them in the UI instead of throwing exceptions
