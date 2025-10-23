@@ -1421,6 +1421,9 @@ class WRLAHelper
         // Set permanent check to false
         $permanent = 0;
 
+        // Original values
+        $originalValues = $model?->getOriginal();
+
         try {
             // If model found, soft delete
             if ($model !== null) {
@@ -1442,10 +1445,10 @@ class WRLAHelper
 
         // Log event
         WRLAHelper::logEvent(
-            ($permanent ? 'Permanently deleted' : 'Soft deleted')." `{$manageableModelClass::getUrlAlias()}` with ID `{$id}`", [
+            ($permanent ? 'Permanently deleted' : 'Soft deleted')." `{$manageableModelClass::getUrlAlias()}` with ID `{$id}`", array_merge([
                 'model_class' => $manageableModelClass::getBaseModelClass(),
                 'instance_id' => $id,
-            ]
+            ], $permanent ? ['attributes' => $originalValues] : [])
         );
 
         return [true, $manageableModelClass::getDisplayName().' #'.$id.' '.($permanent == 1 ? ' permanently deleted.' : ' deleted.')];
