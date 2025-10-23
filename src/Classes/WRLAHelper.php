@@ -1422,7 +1422,7 @@ class WRLAHelper
         $permanent = 0;
 
         // Original values
-        $originalValues = $model?->getOriginal();
+        $originalValues = $model?->getAttributes() ?? [];
 
         try {
             // If model found, soft delete
