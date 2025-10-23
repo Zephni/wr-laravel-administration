@@ -234,7 +234,7 @@ class ManageableModelUpsert extends Component
 
         // Log event
         WRLAHelper::logEvent("Deleted `{$this->manageableModelClass::getUrlAlias()}` with ID `{$id}`.", [
-            'manageable_model_class' => $this->manageableModelClass,
+            'model_class' => $this->manageableModelClass::getBaseModelClass(),
             'instance_id' => $id,
         ]);
 
