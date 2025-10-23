@@ -1442,7 +1442,7 @@ class WRLAHelper
 
         // Log event
         WRLAHelper::logEvent(
-            "Deleted `{$manageableModelClass::getUrlAlias()}` with ID `{$id}` (" . ($permanent ? 'permanently deleted' : 'soft deleted') . ").", [
+            ($permanent ? 'Permanently deleted' : 'Soft deleted')." `{$manageableModelClass::getUrlAlias()}` with ID `{$id}`", [
                 'model_class' => $manageableModelClass::getBaseModelClass(),
                 'instance_id' => $id,
             ]
