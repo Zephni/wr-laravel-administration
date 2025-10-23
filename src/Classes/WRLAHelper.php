@@ -1482,6 +1482,9 @@ class WRLAHelper
             return null;
         }
 
+        // Set in config
+        config(['logging.channels.'.$key => $logConfig]);
+
         return Log::build($logConfig);
     }
 
