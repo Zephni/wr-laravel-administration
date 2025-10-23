@@ -115,7 +115,7 @@ return [
 
     // Logging
     'logging' => [
-        'wrla_errors' => [
+        'wrla-errors' => [
             'enabled' => true,
             'config' => [
                 'driver' => 'daily',
@@ -124,7 +124,7 @@ return [
                 'days' => 14,
             ],
         ],
-        'wrla_info' => [
+        'wrla-info' => [
             'enabled' => true,
             'config' => [
                 'driver' => 'daily',
@@ -133,7 +133,7 @@ return [
                 'days' => 14,
             ],
         ],
-        'wrla_events' => [
+        'wrla-events' => [
             'enabled' => true,
             'config' => [
                 'driver' => 'daily',
