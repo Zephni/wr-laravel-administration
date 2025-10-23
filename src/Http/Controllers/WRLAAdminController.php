@@ -138,7 +138,7 @@ class WRLAAdminController extends Controller
         }
 
         // Catch if configured to do so in config -> catch_errors.upsert
-        return WRLAHelper::catchIfConfiguredTo('upsert', function() use ($request, $modelUrlAlias, $modelId, &$manageableModel) {
+        return WRLAHelper::catchIfConfiguredTo('upsert', function() use ($request, $modelUrlAlias, $modelId, &$manageableModel, $manageableModelClass) {
             // Set currently active manageable model instance
             WRLAHelper::setCurrentActiveManageableModelInstance($manageableModel);
 
@@ -202,6 +202,16 @@ class WRLAAdminController extends Controller
             if ($result !== true) {
                 return redirect()->back()->withInput()->withErrors($result)->withFragment('#first-message');
             }
+
+            // Log event
+            $created = $modelId == null;
+            WRLAHelper::logEvent(($created ? 'Created' : 'Updated')." `{$manageableModel->getUrlAlias()}` with ID `{$manageableModel->getmodelInstance()->id}`.", [
+                'manageable_model_class' => $manageableModelClass,
+                'instance_id' => $manageableModel->getmodelInstance()->id,
+                'changes' => $created 
+                    ? $manageableModel->getmodelInstance()->getAttributes()
+                    : WRLAHelper::getModelChangeLogInfo($manageableModel->getmodelInstance()),
+            ]);
 
             // Save the model
             $manageableModel->getmodelInstance()->save();

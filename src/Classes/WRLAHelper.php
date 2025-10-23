@@ -4,6 +4,7 @@ namespace WebRegulate\LaravelAdministration\Classes;
 
 use Livewire\Livewire;
 use Illuminate\Http\Request;
+use Psr\Log\LoggerInterface;
 use Illuminate\Http\Response;
 use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
@@ -16,6 +17,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Validator;
@@ -1470,6 +1472,20 @@ class WRLAHelper
     }
 
     /**
+     * Build log channel on the fly
+     */
+    public static function getLogChannel(string $key): ?LoggerInterface
+    {
+        $logConfig = config('wr-laravel-administration.logging.'.$key);
+
+        if(empty($logConfig)) {
+            return null;
+        }
+
+        return Log::build($logConfig);
+    }
+
+    /**
      * Log to WRLA error channel, automatically adds 'user' => user->id if available, shows as 'x' if no user.
      *
      * @param  string  $message  The message to log.
@@ -1477,11 +1493,9 @@ class WRLAHelper
      */
     public static function logError(string $message, array $context = []): void
     {
-        $data = array_merge([
-            'user' => WRLAHelper::getCurrentUser()?->id ?? 'x',
-        ], $context);
-
-        Log::channel('wrla-error')->error($message, $data);
+        static::getLogChannel('wrla-errors')?->error($message, array_merge([
+            'user' => WRLAHelper::getCurrentUser()?->id ?? 'n/a',
+        ], $context));
     }
 
     /**
@@ -1492,11 +1506,40 @@ class WRLAHelper
      */
     public static function logInfo(string $message, array $context = []): void
     {
-        $data = array_merge([
-            'user' => WRLAHelper::getCurrentUser()?->id ?? 'x',
-        ], $context);
+        static::getLogChannel('wrla-info')?->info($message, array_merge([
+            'user' => WRLAHelper::getCurrentUser()?->id ?? 'n/a',
+        ], $context));
+    }
 
-        Log::channel('wrla-info')->info($message, $data);
+    /**
+     * Log to WRLA event channel
+     */
+    public static function logEvent(string $message, array $context = []): void
+    {
+        static::getLogChannel('wrla-events')?->info($message, array_merge([
+            'user' => WRLAHelper::getCurrentUser()?->id ?? 'n/a',
+        ], $context));
+    }
+
+    /**
+     * Get model change array log info
+     */
+    public static function getModelChangeLogInfo(Model $model): array
+    {
+        $original = $model->getOriginal();
+        $changes = $model->getDirty();
+
+        $changeLog = [];
+        foreach ($changes as $key => $newValue) {
+            $oldValue = $original[$key] ?? null;
+
+            // Only log if the value has actually changed
+            if ($oldValue !== $newValue) {
+                $changeLog[$key] = "'$oldValue' -> '$newValue'";
+            }
+        }
+
+        return $changeLog;
     }
 
     /**

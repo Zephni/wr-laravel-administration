@@ -113,6 +113,37 @@ return [
     // How the page title should be displayed
     'title_template' => '{page_title} - WebRegulate Admin',
 
+    // Logging
+    'logging' => [
+        'wrla_errors' => [
+            'enabled' => true,
+            'config' => [
+                'driver' => 'daily',
+                'path' => storage_path('logs/wrla-errors/wrla-errors.log'),
+                'level' => 'error',
+                'days' => 14,
+            ],
+        ],
+        'wrla_info' => [
+            'enabled' => true,
+            'config' => [
+                'driver' => 'daily',
+                'path' => storage_path('logs/wrla-info/wrla-info.log'),
+                'level' => 'info',
+                'days' => 14,
+            ],
+        ],
+        'wrla_events' => [
+            'enabled' => true,
+            'config' => [
+                'driver' => 'daily',
+                'path' => storage_path('logs/wrla-events/wrla-events.log'),
+                'level' => 'info',
+                'days' => 14,
+            ],
+        ],
+    ],
+
     // Company logo
     'logo' => [
         'light' => 'vendor/wr-laravel-administration/images/logo-light.svg',
@@ -124,7 +155,7 @@ return [
         // Supported: 'quill', 'tinymce'
         'current' => 'quill',
 
-        // Quill
+        // Quill - https://quilljs.com/docs/quickstart
         'quill' => [
             'theme' => 'snow',
             'class' => 'min-h-48',
@@ -134,7 +165,7 @@ return [
             ],
         ],
 
-        // TinyMCE
+        // TinyMCE - https://www.tiny.cloud/docs/tinymce/latest
         'tinymce' => [
             'apikey' => env('TINYMCE_API_KEY', ''), // Add your TinyMCE API key in your .env file
             'plugins' => 'anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount code paste fullscreen',
