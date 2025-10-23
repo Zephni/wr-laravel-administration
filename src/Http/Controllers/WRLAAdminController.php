@@ -205,7 +205,7 @@ class WRLAAdminController extends Controller
 
             // Log event
             $created = $modelId == null;
-            WRLAHelper::logEvent(($created ? 'Created' : 'Updated')." `{$manageableModel->getUrlAlias()}` with ID `{$manageableModel->getmodelInstance()->id}`.", [
+            WRLAHelper::logEvent(($created ? 'Created' : 'Updated')." `{$manageableModel->getUrlAlias()}` ".($created ? '' : "with ID `{$manageableModel->getmodelInstance()->id}`"), [
                 'model_class' => $manageableModel::getBaseModelClass(),
                 'instance_id' => $manageableModel->getmodelInstance()->id,
                 'changes' => $created 
