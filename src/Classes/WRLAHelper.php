@@ -1476,16 +1476,17 @@ class WRLAHelper
      */
     public static function getLogChannel(string $key): ?LoggerInterface
     {
-        $logConfig = config('wr-laravel-administration.logging.'.$key);
+        $logWrapper = config('wr-laravel-administration.logging.'.$key);
 
-        if(empty($logConfig)) {
+        if (empty($logWrapper) || empty($logWrapper['enabled']) || empty($logWrapper['config'])) {
             return null;
         }
 
-        // Set in config
-        config(['logging.channels.'.$key => $logConfig]);
+        $channelConfig = $logWrapper['config'];
 
-        return Log::build($logConfig);
+        config(['logging.channels.'.$key => $channelConfig]);
+
+        return Log::build($channelConfig);
     }
 
     /**
