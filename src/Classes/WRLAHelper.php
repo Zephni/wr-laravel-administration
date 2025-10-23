@@ -1440,6 +1440,14 @@ class WRLAHelper
             return [false, 'An error occurred while trying to delete the model: '.$e->getMessage()];
         }
 
+        // Log event
+        WRLAHelper::logEvent(
+            "Deleted `{$manageableModelClass::getUrlAlias()}` with ID `{$id}` (" . ($permanent ? 'permanently deleted' : 'soft deleted') . ").", [
+                'model_class' => $manageableModelClass::getBaseModelClass(),
+                'instance_id' => $id,
+            ]
+        );
+
         return [true, $manageableModelClass::getDisplayName().' #'.$id.' '.($permanent == 1 ? ' permanently deleted.' : ' deleted.')];
     }
 

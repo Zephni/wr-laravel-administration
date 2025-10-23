@@ -232,12 +232,6 @@ class ManageableModelUpsert extends Component
         // Otherwise the model was deleted successfully, redirect to browse page for the model
         session()->flash('success', $message);
 
-        // Log event
-        WRLAHelper::logEvent("Deleted `{$this->manageableModelClass::getUrlAlias()}` with ID `{$id}`.", [
-            'model_class' => $this->manageableModelClass::getBaseModelClass(),
-            'instance_id' => $id,
-        ]);
-
         return $this->manageableModelClass::urlBrowse();
     }
 
