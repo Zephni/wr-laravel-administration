@@ -1418,11 +1418,11 @@ class WRLAHelper
         // If model is not trashed already, find
         $model = $baseModelClass::find($id);
 
+        // Get original values
+        $originalValues = $model?->getAttributes() ?? [];
+
         // Set permanent check to false
         $permanent = 0;
-
-        // Original values
-        $originalValues = $model?->getAttributes() ?? [];
 
         try {
             // If model found, soft delete
@@ -1434,6 +1434,7 @@ class WRLAHelper
             // Otherwise try finding with trashed and permanently delete
             } else {
                 $model = $baseModelClass::withTrashed()->find($id);
+                $originalValues = $model?->getAttributes() ?? [];
                 $manageableModel->preDeleteModelInstance(request(), $id, false);
                 $model->forceDelete();
                 $permanent = 1;
