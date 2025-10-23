@@ -1554,7 +1554,7 @@ class WRLAHelper
             $oldValue = $original[$key] ?? null;
 
             // Only log if the value has actually changed
-            if ($oldValue !== $newValue) {
+            if ($oldValue != $newValue) {
                 $changeLog[$key] = "'$oldValue' -> '$newValue'";
             }
         }
