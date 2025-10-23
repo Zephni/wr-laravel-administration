@@ -1431,7 +1431,7 @@ class WRLAHelper
                 $manageableModel->preDeleteModelInstance(request(), $id, true);
                 $model->delete();
                 $manageableModel->postDeleteModelInstance(request(), $id, true);
-                // Otherwise try finding with trashed and permanently delete
+            // Otherwise try finding with trashed and permanently delete
             } else {
                 $model = $baseModelClass::withTrashed()->find($id);
                 $manageableModel->preDeleteModelInstance(request(), $id, false);
@@ -1441,6 +1441,11 @@ class WRLAHelper
             }
         } catch (\Exception $e) {
             return [false, 'An error occurred while trying to delete the model: '.$e->getMessage()];
+        }
+
+        // If model is not soft deletable we force $permanent to 1
+        if (! WRLAHelper::isSoftDeletable($baseModelClass)) {
+            $permanent = 1;
         }
 
         // Log event
