@@ -24,6 +24,13 @@ class ManageableModelDynamicBrowseFilters extends Component
     public function updatedBrowseFilterInputs()
     {
         $this->dispatch('filtersUpdatedOutside', $this->browseFilterInputs);
+
+
+        $rememberFilters = $this->manageableModelClass::getStaticOption($this->manageableModelClass, 'rememberFilters');
+        if($rememberFilters['enabled']) {
+            $sessionKey = "wrla_dynamicFilters_{$this->manageableModelClass}";    
+            session([$sessionKey => $this->browseFilterInputs]);
+        }
     }
 
     /**
@@ -57,6 +64,18 @@ class ManageableModelDynamicBrowseFilters extends Component
     {
         $tableColumns = $this->manageableModelClass::getTableColumns();
         $tableColumns = array_combine($tableColumns, $tableColumns);
+
+        $rememberFilters = $this->manageableModelClass::getStaticOption($this->manageableModelClass, 'rememberFilters');
+        if($rememberFilters['enabled']) {
+            $sessionKey = "wrla_dynamicFilters_{$this->manageableModelClass}";
+            $dynamicFiltersSessionValue = session($sessionKey);
+            foreach ($dynamicFiltersSessionValue ?? [] as $index => $item) {
+                $this->browseFilterInputs[$index]['type'] = 'Text';
+                $this->browseFilterInputs[$index]['field'] = $item['field'];
+                $this->browseFilterInputs[$index]['operator'] = $item['operator'];
+                $this->browseFilterInputs[$index]['value'] = is_string($item['value']) ? (json_decode($item['value'], true) ?? $item['value']) : $item['value'];
+            }
+        }
 
         return view(WRLAHelper::getViewPath('livewire.manageable-models.dynamic-browse-filters'), [
             'browseFilters' => $this->getDynamicBrowseFilters(),

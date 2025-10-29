@@ -445,6 +445,7 @@ class ManageableModelBrowse extends Component
         if($this->renders == 1) {
             $rememberFilters = $this->manageableModelClass::getStaticOption($this->manageableModelClass, 'rememberFilters');
             if($rememberFilters['enabled']) {
+                // Standard filters
                 foreach($this->filters as $key => $value) {
                     $sessionKey = "wrla_filter_{$this->manageableModelClass}_{$key}";
                     $sessionValue = session($sessionKey);
@@ -453,6 +454,8 @@ class ManageableModelBrowse extends Component
                         ManageableField::setStaticBrowseFilterValue($key, $this->filters[$key]);
                     }
                 }
+
+                // NOTE: Dynamic filters are handled withiin ManageableModelDynamicBrowseFilters
             }
         }
 
@@ -499,14 +502,14 @@ class ManageableModelBrowse extends Component
         // If manageable model uses rememberFilters, store filters in session
         $rememberFilters = $this->manageableModelClass::getStaticOption($this->manageableModelClass, 'rememberFilters');
         if($rememberFilters['enabled']) {
+            // Standard filters
             foreach($this->filters as $key => $value) {
-                session([
-                    "wrla_filter_{$this->manageableModelClass}_{$key}" =>
-                    is_array($value)
-                        ? json_encode($value)
-                        : $value
-                ]);
+                $sessionKey = "wrla_filter_{$this->manageableModelClass}_{$key}";
+                $sessionValue = is_array($value) ? json_encode($value) : $value;
+                session([$sessionKey => $sessionValue]);
             }
+
+            // NOTE: Dynamic filters are handled withiin ManageableModelDynamicBrowseFilters
         }
 
         // Order by
@@ -638,7 +641,7 @@ class ManageableModelBrowse extends Component
     {
         $rememberFilters = $this->manageableModelClass::getStaticOption($this->manageableModelClass, 'rememberFilters');
 
-        // Unset all filters
+        // Standard filters
         foreach ($this->filters as $key => $value) {
             $this->filters[$key] = null;
             ManageableField::setStaticBrowseFilterValue($key, null);
@@ -649,9 +652,16 @@ class ManageableModelBrowse extends Component
                 session()->forget($sessionKey);
             }
         }
+        $this->filters = array_map(fn($v) => null, $this->filters);
 
-        // Reset dynamic filter inputs
-        $this->dynamicFilterInputs = [];
+        // Dynamic filters - This doesn't seem to work. The fields attached to this component
+        // are not the same as those in the ManageableModelDynamicBrowseFilters component
+        // if ($rememberFilters['enabled']) {
+        //     $sessionKey = "wrla_dynamicFilters_{$this->manageableModelClass}}";
+        //     session()->forget($sessionKey);
+        // }
+        // $this->dynamicFilterInputs = [];
+        // $this->filtersUpdatedOutside($this->dynamicFilterInputs);
 
         // Reset to first page
         $this->resetPage();

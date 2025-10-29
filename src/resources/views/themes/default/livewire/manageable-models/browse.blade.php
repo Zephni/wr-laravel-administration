@@ -61,7 +61,7 @@
         </div>
 
         {{-- Reset filters button (just text) --}}
-        @if ($hasFilters)
+        @if ($hasFilters && !$manageableModelClass::getStaticOption($manageableModelClass, 'browse.useDynamicFilters'))
             <div class="absolute bottom-[-16px] right-0 px-2 pt-1 pb-1 bg-slate-100 shadow-md dark:bg-slate-800 text-xs rounded-b-lg">
                 <button class="space-x-1 hover:underline text-slate-500 dark:text-slate-300" wire:click="resetFiltersAction">
                     <i wire:loading.remove wire:target="resetFiltersAction" class="fas fa-eraser"></i>
