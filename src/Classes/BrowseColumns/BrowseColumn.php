@@ -50,12 +50,20 @@ class BrowseColumn extends BrowseColumnBase
 
     /**
      * Use query to set the value of the column, this will be prepended to the base query, make sure to select your value as the column/key name
+     * 
+     * @param string|callable $sql The raw SQL string or a callable that takes $filters and returns the SQL string
      */
-    public static function selectRaw(?string $label, string $static, string $sql): static
+    public static function selectRaw(?string $label, string $static, string|callable $sql): static
     {
         $browseColumn = new self($label);
 
-        self::query($label, $static, fn($query) => $query->selectRaw($sql));
+        self::query($label, $static, function($query, $filters) use ($sql) {
+            if(is_callable($sql)) {
+                $sql = $sql($filters);
+            }
+
+            $query->selectRaw($sql);
+        });
 
         return $browseColumn;
     }
