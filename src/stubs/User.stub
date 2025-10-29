@@ -81,6 +81,9 @@ class User extends ManageableModel
             static::getBrowseFilterSoftDeleted(),
         );
 
+        // Remember filters
+        static::setRememberFilters(true);
+
         // Browse actions (Remove import action #51)
         static::setBrowseActions(static::getDefaultBrowseActions()->forget(51));
 

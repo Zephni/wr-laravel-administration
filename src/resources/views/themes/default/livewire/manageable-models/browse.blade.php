@@ -42,7 +42,7 @@
     {!! $manageableModelClass::renderAdditionalRender(AdditionalRenderPosition::BROWSE_BELOW_ACTIONS) !!}
 
     {{-- Filters --}}
-    <div class="w-full rounded-lg px-3 pt-2 pb-3 mb-1 bg-slate-100 shadow-md dark:bg-slate-800">
+    <div class="relative w-full rounded-lg px-3 pt-2 pb-3 mb-2 bg-slate-100 shadow-md dark:bg-slate-800">
         <div class="flex flex-wrap justify-start items-stretch gap-x-4 gap-y-2">
 
             @if(!$manageableModelClass::getStaticOption($manageableModelClass, 'browse.useDynamicFilters'))
@@ -59,6 +59,17 @@
             @endif
 
         </div>
+
+        {{-- Reset filters button (just text) --}}
+        @if ($hasFilters)
+            <div class="absolute bottom-[-16px] right-0 px-2 pt-1 pb-1 bg-slate-100 shadow-md dark:bg-slate-800 text-xs rounded-b-lg">
+                <button class="space-x-1 hover:underline text-slate-500 dark:text-slate-300" wire:click="resetFiltersAction">
+                    <i wire:loading.remove wire:target="resetFiltersAction" class="fas fa-eraser"></i>
+                    <i wire:loading wire:target="resetFiltersAction" class="fas fa-spinner animate-spin"></i>
+                    Reset filters
+                </button>
+            </div>
+        @endif
     </div>
 
     {{-- Browse additional rendering --}}

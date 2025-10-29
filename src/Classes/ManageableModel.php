@@ -93,6 +93,10 @@ abstract class ManageableModel
                 'singular' => 'Model',
                 'plural' => 'Models',
             ],
+            'rememberFilters' => [
+                'enabled' => true,
+                'mode' => 'session', // At the moment only 'session' is supported
+            ],
             'icon' => 'fa fa-cube',
             'hideFromNavigation' => false,
         ];
@@ -549,6 +553,14 @@ abstract class ManageableModel
         static::setBrowseFilters();
         static::setStaticOption('browse.useDynamicFilters', true);
         static::setStaticOption('browse.defaultDynamicFilters', $defaultDynamicFilters);
+    }
+
+    /**
+     * Remember filters, if true filters will be stored in local cookies.
+     */
+    public static function setRememberFilters(bool $rememberFilters)
+    {
+        static::setStaticOption('browse.rememberFilters.enabled', $rememberFilters);
     }
 
     /**

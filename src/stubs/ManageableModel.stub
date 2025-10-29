@@ -56,6 +56,9 @@ class {{ $MODEL }} extends ManageableModel
             static::getBrowseFilterSoftDeleted(),
         );
 
+        // Remember filters
+        static::setRememberFilters(true);
+
         // Browse actions
         static::setBrowseActions(static::getDefaultBrowseActions());
 

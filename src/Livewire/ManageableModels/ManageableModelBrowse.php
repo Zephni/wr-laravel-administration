@@ -441,6 +441,21 @@ class ManageableModelBrowse extends Component
             }
         }
 
+        // If first render, apply session filters (if rememberFilters is enabled)
+        if($this->renders == 1) {
+            $rememberFilters = $this->manageableModelClass::getStaticOption($this->manageableModelClass, 'rememberFilters');
+            if($rememberFilters['enabled']) {
+                foreach($this->filters as $key => $value) {
+                    $sessionKey = "wrla_filter_{$this->manageableModelClass}_{$key}";
+                    $sessionValue = session($sessionKey);
+                    if(!empty($sessionValue)) {
+                        $this->filters[$key] = is_string($sessionValue) ? (json_decode($sessionValue, true) ?? $sessionValue) : $sessionValue;
+                        ManageableField::setStaticBrowseFilterValue($key, $this->filters[$key]);
+                    }
+                }
+            }
+        }
+
         // Now we loop through the filterable fields and apply them to the query
         $manageableModelFilters = [];
 
@@ -478,6 +493,19 @@ class ManageableModelBrowse extends Component
 
                 // Apply dynamic filter to query
                 $eloquent = $browseFilter->apply($eloquent, $tableName, $allColumns, $browseFilter->field->getValue());
+            }
+        }
+
+        // If manageable model uses rememberFilters, store filters in session
+        $rememberFilters = $this->manageableModelClass::getStaticOption($this->manageableModelClass, 'rememberFilters');
+        if($rememberFilters['enabled']) {
+            foreach($this->filters as $key => $value) {
+                session([
+                    "wrla_filter_{$this->manageableModelClass}_{$key}" =>
+                    is_array($value)
+                        ? json_encode($value)
+                        : $value
+                ]);
             }
         }
 
@@ -601,6 +629,32 @@ class ManageableModelBrowse extends Component
 
         // Return false if no filters are set
         return false;
+    }
+
+    /**
+     * Reset filters action.
+     */
+    public function resetFiltersAction()
+    {
+        $rememberFilters = $this->manageableModelClass::getStaticOption($this->manageableModelClass, 'rememberFilters');
+
+        // Unset all filters
+        foreach ($this->filters as $key => $value) {
+            $this->filters[$key] = null;
+            ManageableField::setStaticBrowseFilterValue($key, null);
+
+            // If rememberFilters is enabled, also remove from session
+            if ($rememberFilters['enabled']) {
+                $sessionKey = "wrla_filter_{$this->manageableModelClass}_{$key}";
+                session()->forget($sessionKey);
+            }
+        }
+
+        // Reset dynamic filter inputs
+        $this->dynamicFilterInputs = [];
+
+        // Reset to first page
+        $this->resetPage();
     }
 
     /**
