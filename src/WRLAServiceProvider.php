@@ -296,10 +296,7 @@ class WRLAServiceProvider extends ServiceProvider
 
             // Share WRLAHelper class
             $view->with('WRLAHelper', WRLAHelper::class);
-        });
 
-        // Share variables with all views (including frontend)
-        view()->composer('*', function ($view): void {
             // Current user data (which has relationship with current ->user)
             $view->with('user', once(function() {
                 $user = WRLAHelper::getUserDataModelClass()::getCurrentUser();
