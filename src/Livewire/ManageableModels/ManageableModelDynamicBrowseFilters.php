@@ -25,18 +25,16 @@ class ManageableModelDynamicBrowseFilters extends Component
     {
         $this->dispatch('filtersUpdatedOutside', $this->browseFilterInputs);
 
-
-        $rememberFilters = $this->manageableModelClass::getStaticOption($this->manageableModelClass, 'rememberFilters');
-        if($rememberFilters['enabled']) {
-            $sessionKey = "wrla_dynamicFilters_{$this->manageableModelClass}";    
-            session([$sessionKey => $this->browseFilterInputs]);
-        }
+        // Remember filters - Temporarily disabled
+        // $rememberFilters = $this->manageableModelClass::getStaticOption($this->manageableModelClass, 'rememberFilters');
+        // if($rememberFilters['enabled']) {
+        //     $sessionKey = "wrla_dynamicFilters_{$this->manageableModelClass}";    
+        //     session([$sessionKey => $this->browseFilterInputs]);
+        // }
     }
 
     /**
      * Mount the browse filters for the passed manageable model class
-     *
-     * @param  string  $manageableModel
      */
     public function mount(string $manageableModelClass)
     {
@@ -57,25 +55,26 @@ class ManageableModelDynamicBrowseFilters extends Component
 
     /**
      * Render the component.
-     *
-     * @return \Illuminate\Contracts\View\View
      */
     public function render()
     {
         $tableColumns = $this->manageableModelClass::getTableColumns();
         $tableColumns = array_combine($tableColumns, $tableColumns);
 
-        $rememberFilters = $this->manageableModelClass::getStaticOption($this->manageableModelClass, 'rememberFilters');
-        if($rememberFilters['enabled']) {
-            $sessionKey = "wrla_dynamicFilters_{$this->manageableModelClass}";
-            $dynamicFiltersSessionValue = session($sessionKey);
-            foreach ($dynamicFiltersSessionValue ?? [] as $index => $item) {
-                $this->browseFilterInputs[$index]['type'] = 'Text';
-                $this->browseFilterInputs[$index]['field'] = $item['field'];
-                $this->browseFilterInputs[$index]['operator'] = $item['operator'];
-                $this->browseFilterInputs[$index]['value'] = is_string($item['value']) ? (json_decode($item['value'], true) ?? $item['value']) : $item['value'];
-            }
-        }
+        // Remember filters - Temporarily disabled
+        // $rememberFilters = $this->manageableModelClass::getStaticOption($this->manageableModelClass, 'rememberFilters');
+        // if($rememberFilters['enabled']) {
+        //     $sessionKey = "wrla_dynamicFilters_{$this->manageableModelClass}";
+        //     $dynamicFiltersSessionValue = session($sessionKey);
+        //     foreach ($dynamicFiltersSessionValue ?? [] as $index => $item) {
+        //         $this->browseFilterInputs[$index]['type'] = 'Text';
+        //         $this->browseFilterInputs[$index]['field'] = $item['field'];
+        //         $this->browseFilterInputs[$index]['operator'] = $item['operator'];
+        //         $this->browseFilterInputs[$index]['value'] = !empty($item['value'])
+        //             ? (json_decode($item['value'], true) ?? $item['value'])
+        //             : $item['value'] ?? '';
+        //     }
+        // }
 
         return view(WRLAHelper::getViewPath('livewire.manageable-models.dynamic-browse-filters'), [
             'browseFilters' => $this->getDynamicBrowseFilters(),
@@ -101,10 +100,6 @@ class ManageableModelDynamicBrowseFilters extends Component
 
     /**
      * Build browse filter
-     *
-     * @param  string  $field
-     *
-     * @var array
      */
     public static function buildBrowseFilter(array $item): BrowseFilter
     {
@@ -204,12 +199,6 @@ class ManageableModelDynamicBrowseFilters extends Component
     }
 
     /**
-     * Apply filter
-     *
-     * @return QueryBuilder
-     */
-
-    /**
      * Get next available column (one that isn't being used)
      */
     public function getNextAvailableColumn(): string
@@ -230,8 +219,6 @@ class ManageableModelDynamicBrowseFilters extends Component
 
     /**
      * Add filter action
-     *
-     * @return void
      */
     public function addFilterAction()
     {
@@ -247,8 +234,6 @@ class ManageableModelDynamicBrowseFilters extends Component
 
     /**
      * Remove filter action
-     *
-     * @return void
      */
     public function removeFilterAction(int $index)
     {
