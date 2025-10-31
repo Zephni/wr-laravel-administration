@@ -2,9 +2,6 @@
 
 namespace WebRegulate\LaravelAdministration\Classes\BrowseColumns;
 
-use WebRegulate\LaravelAdministration\Classes\ManageableModel;
-use function Laravel\Prompts\select;
-
 class BrowseColumn extends BrowseColumnBase
 {
     /**
@@ -57,13 +54,11 @@ class BrowseColumn extends BrowseColumnBase
     {
         $browseColumn = new self($label);
 
-        self::query($label, $static, function($query, $filters) use ($sql) {
-            if(is_callable($sql)) {
-                $sql = $sql($filters);
-            }
-
-            $query->selectRaw($sql);
-        });
+        self::query($label, $static, fn($query, $filters) =>
+            $query->selectRaw(
+                is_string($sql) ? $sql : $sql($filters)
+            )
+        );
 
         return $browseColumn;
     }
