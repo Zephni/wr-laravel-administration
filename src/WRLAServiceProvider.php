@@ -63,11 +63,6 @@ class WRLAServiceProvider extends ServiceProvider
             // Check show and enabled condition enabled
             return $logsNavigationItem->checkShowCondition() && $logsNavigationItem->checkEnabledCondition();
         });
-
-        // Log viewer
-        LogViewer::auth(function ($request) {
-            return $request->user()?->wrlaUserData?->isMaster() ?? false;
-        });
     }
 
     /**
@@ -92,6 +87,11 @@ class WRLAServiceProvider extends ServiceProvider
 
         // Handle vendor / packages booting
         $this->handleVendorBooting();
+
+        // Log viewer
+        LogViewer::auth(function ($request) {
+            return $request->user()?->wrlaUserData?->isMaster() ?? false;
+        });
 
         // Post boot calls
         $this->app->booted(function (): void {
