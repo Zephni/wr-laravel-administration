@@ -36,8 +36,6 @@ class ManageableModelBrowse extends Component
 
     /**
      * Columns to display (Collection of column names)
-     *
-     * @var \Illuminate\Support\Collection
      */
     public $columns = null;
 
@@ -53,9 +51,12 @@ class ManageableModelBrowse extends Component
     public array $dynamicFilterInputs = [];
 
     /**
-     * Order by.
-     *
-     * @var string
+     * Pre filters
+     */
+    public ?array $preFilters = null;
+
+    /**
+     * Order by
      */
     public $orderBy = 'id';
 
@@ -163,6 +164,7 @@ class ManageableModelBrowse extends Component
 
         // Run browse setup method
         $this->manageableModelClass::browseSetupFinal($this->filters);
+        $this->preFilters = $preFilters;
 
         // Build parent columns from manageable model
         $columns = $manageableModelInstance->getBrowseColumns();
@@ -442,7 +444,7 @@ class ManageableModelBrowse extends Component
         }
 
         // If first render, apply session filters (if rememberFilters is enabled)
-        if($this->renders == 1) {
+        if($this->renders == 1 && empty($this->preFilters)) {
             $rememberFilters = $this->manageableModelClass::getStaticOption($this->manageableModelClass, 'rememberFilters');
             if($rememberFilters['enabled']) {
                 // Standard filters
