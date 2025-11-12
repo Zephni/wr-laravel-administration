@@ -5,6 +5,17 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Model;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 
+/**
+ * Model: UserData
+ * 
+ * @property int $id bigint unsigned
+ * @property string $user_id varchar(255)
+ * @property string $avatar varchar(255)
+ * @property string $permissions json
+ * @property string $settings json
+ * @property string $data json
+ * @property string $mfa_secret varchar(255)
+ */
 class UserData extends Model
 {
     protected $connection = {{ CONNECTION }};
@@ -19,29 +30,22 @@ class UserData extends Model
 
     /**
      * Get current logged in user
-     *
-     * @return mixed
      */
-    public static function getCurrentUser()
+    public static function getCurrentUser(): ?User
     {
         return Auth::user();
     }
 
     /**
      * Get current logged in user -> user data
-     *
-     * @return mixed
      */
-    public static function getCurrentUserData()
+    public static function getCurrentUserData(): ?UserData
     {
         return once(fn() => UserData::getCurrentUser()?->wrlaUserData);
     }
 
     /**
      * Attach user to the model
-     *
-     * @param mixed $user
-     * @return static
      */
     public function attachUser(mixed $user): static
     {
@@ -112,7 +116,7 @@ class UserData extends Model
     /**
      * Attempt login
      */
-    public static function attemptLogin(string $identifier, string $password, bool $remember = true)
+    public static function attemptLogin(string $identifier, string $password, bool $remember = true): bool
     {
         $success = Auth::attempt([
             'email' => $identifier,
@@ -124,8 +128,6 @@ class UserData extends Model
 
     /**
      * Implement method 'getEmailForPasswordReset' from 'CanResetPassword' interface
-     *
-     * @return string
      */
     public function getEmailForPasswordReset(): string
     {
@@ -134,21 +136,17 @@ class UserData extends Model
 
     /**
      * Send the password reset notification.
-     *
-     * @param string $token
-     * @return void
      */
-    public function sendPasswordResetNotification($token)
+    public function sendPasswordResetNotification(string $token): void
     {
         $this->notify(new \WebRegulate\LaravelAdministration\Classes\WRLAResetPasswordNotification($this->email, $token));
     }
 
     /**
      * Get profile image
-     *
-     * @return string
      */
-    public function getProfileAvatar(): string {
+    public function getProfileAvatar(): string
+    {
         // Get related user
         $user = $this->user;
 
@@ -164,22 +162,14 @@ class UserData extends Model
 
     /**
      * Get full name
-     *
-     * @return string
      */
     public function getFullName(): string
     {
         return $this->user?->name ?? 'User';
     }
 
-    /* Static methods
-    --------------------------------------------- */
     /**
      * Get profile avatar statically
-     * 
-     * @param string $avatar
-     * @param mixed $fullName
-     * @return string
      */
     public static function getAvatarStatic(?string $avatar, ?string $fullName = null): string
     {
@@ -200,16 +190,12 @@ class UserData extends Model
     
     /**
      * Get user by email
-     * @param string $email
-     * @return mixed
      */
     public static function getByEmail(string $email): mixed
     {
         return WRLAHelper::getUserModelClass()::where('email', $email)->first();
     }
 
-    /* Public methods
-    --------------------------------------------- */
     /**
      * Get user permission, such as 'layered.permission.key'
      * @return mixed
@@ -221,9 +207,6 @@ class UserData extends Model
 
     /**
      * Set inner permission by key
-     * @param string $dottedKey
-     * @param mixed $value
-     * @return void
      */
     public function setPermission(string $dottedKey, $value): void
     {
@@ -242,7 +225,6 @@ class UserData extends Model
 
     /**
      * Get user setting based on dotted key value, such as 'ui.theme'
-     * @return mixed
      */
     public function getSetting(string $dottedKey): mixed
     {
@@ -251,9 +233,6 @@ class UserData extends Model
 
     /**
      * Set inner setting by key
-     * @param string $dottedKey
-     * @param mixed $value
-     * @return void
      */
     public function setSetting(string $dottedKey, $value): void
     {
@@ -272,7 +251,6 @@ class UserData extends Model
 
     /**
      * Get user data based on dotted key value, such as 'profile.avatar'
-     * @return mixed
      */
     public function getData(string $dottedKey): mixed
     {
@@ -281,9 +259,6 @@ class UserData extends Model
 
     /**
      * Set inner data by key
-     * @param string $dottedKey
-     * @param mixed $value
-     * @return void
      */
     public function setData(string $dottedKey, $value): void
     {
@@ -302,8 +277,6 @@ class UserData extends Model
 
     /**
      * Get role
-     *
-     * @return string
      */
     public function getRole(): string
     {
@@ -318,7 +291,6 @@ class UserData extends Model
 
     /**
      * Get current theme
-     * @return string
      */
     public function getCurrentThemeKey(): ?string
     {
@@ -327,7 +299,6 @@ class UserData extends Model
 
     /**
      * Is user a master
-     * @return bool
      */
     public function isMaster(): bool
     {
@@ -336,16 +307,16 @@ class UserData extends Model
 
     /**
      * Is user an admin
-     * @return bool
      */
     public function isAdmin(): bool
     {
         return $this->getPermission('admin') == true;
     }
 
-    /* Relationships
-    ---------------------------------------------------*/
-    public function user()
+    /**
+     * Relationship: Belongs to User model
+     */
+    public function user(): BelongsTo
     {
         return $this->belongsTo(WRLAHelper::getUserModelClass());
     }
