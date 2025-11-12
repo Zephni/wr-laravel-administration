@@ -3,6 +3,8 @@ namespace {{ NAMESPACE }};
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 
 /**
@@ -19,8 +21,11 @@ use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 class UserData extends Model
 {
     protected $connection = {{ CONNECTION }};
+
     protected $table = 'wrla_user_data';
+
     public $timestamps = false;
+
     protected $fillable = [
         'user_id',
         'permissions',
