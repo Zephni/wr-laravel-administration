@@ -381,7 +381,10 @@ class EmailTemplate extends Model
      */
     public function getFinalSubject(string $renderMode = self::RENDER_MODE_EMAIL): string
     {
-        return $this->injectVariablesIntoString($this->subject ?? '', $renderMode);
+        $subject = $this->injectVariablesIntoString($this->subject ?? '', $renderMode);
+
+        // Fix for ' character
+        return str($subject)->replace('&#39;', "'")->toString();
     }
 
     /**
