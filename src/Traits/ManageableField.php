@@ -27,7 +27,6 @@ trait ManageableField
     public array $options = [
         'containerClass' => null,
         'label' => 'wrla::from_field_name',
-        'ifNullThenString' => false,
         'beginGroup' => false,
         'endGroup' => false,
         'active' => true, // If false, this field will not be displayed, submitted / validated
@@ -336,12 +335,6 @@ trait ManageableField
      */
     public function preValidation(?string $value): bool
     {
-        // If null then string check
-        $ifNullThenString = $this->getOption('ifNullThenString');
-        if($ifNullThenString !== false && $value === null) {
-            return gettype($ifNullThenString) === 'string' && $ifNullThenString;
-        }
-
         // Return false by default so no adjustments are made to the request input
         return false;
     }
@@ -616,7 +609,14 @@ trait ManageableField
      */
     public function ifNullThenEmptyString(bool $boolean): static
     {
-        $this->setOption('ifNullThenString', $boolean);
+        $this->overrideApplySubmittedValue(function(Request $request, mixed $value) use ($boolean) {
+            if($boolean && $value === null) {
+                return '';
+            }
+
+            return $value;
+        });
+
         return $this;
     }
 
@@ -706,12 +706,6 @@ trait ManageableField
      */
     public function applySubmittedValue(Request $request, mixed $value): mixed
     {
-        $ifNullThenString = $this->getOption('ifNullThenString');
-
-        if($ifNullThenString !== false && $value === null) {
-            return gettype($ifNullThenString) === 'string' && $ifNullThenString;
-        }
-
         return $value;
     }
 
