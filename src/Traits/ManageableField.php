@@ -709,7 +709,7 @@ trait ManageableField
         $ifNullThenString = $this->getOption('ifNullThenString');
 
         if($ifNullThenString !== false && $value === null) {
-            return typeOf($ifNullThenString) === 'string' && $ifNullThenString;
+            return gettype($ifNullThenString) === 'string' && $ifNullThenString;
         }
 
         return $value;
