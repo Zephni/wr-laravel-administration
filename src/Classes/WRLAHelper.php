@@ -1181,7 +1181,7 @@ class WRLAHelper
     /**
      * Register livewire route (For use in WRLASettings::buildCustomRoutes)
      *
-     * @param  string  $routeName  The route name to create. Note the route name will default to "wrla.$routeName".
+     * @param  string  $routeName  The route name to create. Note the route name will default to "wrla.$routeName" and the URL will be created by replacing dots with slashes.
      * @param  string  $livewireComponentAlias  The livewire component alias to use.
      * @param  string  $livewireComponentClass  The livewire component class to use.
      * @param  array  $livewireComponentData  The livewire component data to use.
@@ -1193,8 +1193,11 @@ class WRLAHelper
         // Register the livewire component
         Livewire::component($livewireComponentAlias, $livewireComponentClass);
 
+        // Build the URL
+        $url = str_replace('.', '/', $routeName);
+
         // Build the route
-        $route = Route::get($routeName, fn () => view(WRLAHelper::getViewPath('livewire-content'), [
+        $route = Route::get($url, fn () => view(WRLAHelper::getViewPath('livewire-content'), [
             'title' => $title,
             'livewireComponentAlias' => $livewireComponentAlias,
             'livewireComponentData' => $livewireComponentData,
