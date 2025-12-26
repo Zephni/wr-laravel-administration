@@ -39,6 +39,17 @@ class WysiwygHandler extends ConfiguredModeBasedHandler
     }
 
     /**
+     * Whether content should be escaped (Eg. rendered in view with {{  }} or {{!! !!}})
+     */
+    public function shouldEscapeContent(): bool {
+        return match ($this->mode) {
+            'tinymce' => true,
+            'quill' => false,
+            default => false,
+        };
+    }
+
+    /**
      * Handle uploading of WYSIWYG images based on current configuration mode.
      */
     public function uploadWysiwygImage(Request $request)
@@ -159,20 +170,46 @@ class WysiwygHandler extends ConfiguredModeBasedHandler
     /**
      * Get Quill setup JavaScript.
      */
-    public function getQuillSetupJS() {
+    public function getQuillSetupJS()
+    {
         return Blade::render(<<<'HTML'
             <link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet" />
             <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
 
             <script>
-                const quill = new Quill('.wrla_wysiwyg', {
-                    theme: '{{ $currentWysiwygEditorSettings["theme"] }}',
+                document.addEventListener('DOMContentLoaded', () => {
+                    const quillElements = document.querySelectorAll('.wrla_wysiwyg');
+
+                    quillElements.forEach((el) => {
+                        const quill = new Quill(el, {
+                            theme: '{{ $currentWysiwygEditorSettings["theme"] }}',
+                        });
+
+                        // Find the parent form
+                        const form = el.closest('form');
+                        if (!form) return;
+
+                        // Create or reuse a hidden input
+                        let hidden = form.querySelector('input[type="hidden"][name="' + el.dataset.name + '"]');
+                        if (!hidden) {
+                            hidden = document.createElement('input');
+                            hidden.type = 'hidden';
+                            hidden.name = el.dataset.name || 'content';
+                            form.appendChild(hidden);
+                        }
+
+                        // Sync on submit
+                        form.addEventListener('submit', () => {
+                            hidden.value = quill.root.innerHTML;
+                        });
+                    });
                 });
             </script>
         HTML, [
             'currentWysiwygEditorSettings' => $this->currentConfiguration,
         ]);
     }
+
 
     /**
      * Handle image upload for Quill.

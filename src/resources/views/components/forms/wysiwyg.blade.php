@@ -24,9 +24,8 @@
             'id' => $id,
             'class' => 'wrla_wysiwyg '.$WRLAHelper::getWysiwygHandler()->getCurrentConfiguration('class', ''),
             'style' => 'white-space: pre-wrap; word-wrap: break-word;'
-        ])->except('value')  }}>{{
-            $attributes->get('value')
-        }}</{{ $WRLAHelper::getWysiwygEditorHTMLElement() }}>
+        ])->except('value')  }}>@if($WRLAHelper::getWysiwygHandler()->shouldEscapeContent()){{ $attributes->get('value') }}@else{!! $attributes->get('value') !!}@endif
+        </{{ $WRLAHelper::getWysiwygEditorHTMLElement() }}>
 
         {{-- Field notes (if options has notes key) --}}
         @if(!empty($options['notes']))

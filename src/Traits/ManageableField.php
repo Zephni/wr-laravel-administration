@@ -2,12 +2,13 @@
 
 namespace WebRegulate\LaravelAdministration\Traits;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
-use WebRegulate\LaravelAdministration\Classes\BrowseFilter;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Eloquent\Model;
 use WebRegulate\LaravelAdministration\Enums\PageType;
-use WebRegulate\LaravelAdministration\Classes\ManageableModel;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
+use WebRegulate\LaravelAdministration\Classes\BrowseFilter;
+use WebRegulate\LaravelAdministration\Classes\ManageableModel;
 
 trait ManageableField
 {
@@ -165,8 +166,11 @@ trait ManageableField
             $this->manageableModel->fillEmptyInstanceAttributesWithDefaults();
         }
 
+        // Get whether column exists on this model's table
+        $columnExistsInSchema = Schema::hasColumn($this->manageableModel->getModelInstance()->getTable(), $name);
+
         // If attribute still does not exist, return
-        if(!$this->manageableModel->getModelInstance()->hasAttribute($name)) return;
+        if(!$columnExistsInSchema) return;
 
         // Set manageable model property value
         $this->manageableModel->getModelInstance()->setAttribute($name, $this->getValue());

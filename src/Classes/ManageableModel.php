@@ -7,16 +7,17 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\MessageBag;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\View\ComponentAttributeBag;
 use WebRegulate\LaravelAdministration\Enums\PageType;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 use WebRegulate\LaravelAdministration\Classes\ManageableFields\Text;
+use WebRegulate\LaravelAdministration\Enums\AdditionalRenderPosition;
 use WebRegulate\LaravelAdministration\Classes\ManageableFields\Select;
 use WebRegulate\LaravelAdministration\Enums\ManageableModelPermissions;
 use WebRegulate\LaravelAdministration\Classes\BrowseColumns\BrowseColumn;
-use WebRegulate\LaravelAdministration\Enums\AdditionalRenderPosition;
 use WebRegulate\LaravelAdministration\Classes\BrowseColumns\BrowseColumnBase;
 use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItem;
 use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItemManageableModel;
@@ -1177,8 +1178,11 @@ abstract class ManageableModel
                 continue;
             }
 
+            // Get whether column exists on this model's table
+            $columnExistsInSchema = Schema::hasColumn($this->getModelInstance()->getTable(), $columnName);
+
             // If the column is not set on the instance, then set the default value
-            if (! $this->getModelInstance()->hasAttribute($columnName)) {
+            if (!$columnExistsInSchema) {
                 $this->getModelInstance()->setAttribute($columnName, $columnData->Default);
             }
         }
@@ -1300,8 +1304,6 @@ abstract class ManageableModel
         $manageableFields = $this->getManageableFieldsFinal();
         $formComponents = collect($formComponents);
 
-        // dd($manageableFields, $formComponents, $formKeyValues);
-
         // First do a loop through to check for any field names that use -> notation for nested json, if
         // we find any we put these last in the loop so that their values can be applied after everything else
         // $manageableFields = $manageableFields->sortBy(function ($manageableField) {
@@ -1313,7 +1315,7 @@ abstract class ManageableModel
             $fieldName = $manageableField->getAttribute('name');
 
             // If array key doesn't exist in form key values, we skip it
-            if (! array_key_exists($fieldName, $formKeyValues)) {
+            if (!array_key_exists($fieldName, $formKeyValues)) {
                 continue;
             }
 
@@ -1324,18 +1326,21 @@ abstract class ManageableModel
             // Is using nested JSON
             $isUsingNestedJson = $manageableField->isUsingNestedJson();
 
-            // COME BACK TO DEBUG THIS, AS RELATIONSHIP JSON DOES NOT YET WORK
+            // Check whether column exists on this model's table
+            $columnExistsInSchema = Schema::hasColumn($this->getModelInstance()->getTable(), $fieldName);
+
+            // TODO: COME BACK TO DEBUG THIS, AS RELATIONSHIP JSON DOES NOT YET WORK
             // if(str_starts_with($fieldName, 'wrlaUserData__WRLA::REL::DOT__settings')) {
             //     dd(
             //         $fieldName,
-            //         $this->getModelInstance()->hasAttribute($fieldName),
+            //         $columnExistsInSchema,
             //         $isRelationshipField,
             //     );
             // }
 
             // If doesn't exist on model instance and not a relationship, we just call apply submitted value final on it,
             // this is because the developer may need to run some logic seperate to the model instance
-            if (! $this->getModelInstance()->hasAttribute($fieldName) && !$isRelationshipField && !$isUsingNestedJson) {
+            if (!$columnExistsInSchema && !$isRelationshipField && !$isUsingNestedJson) {
                 $manageableField->applySubmittedValueFinal($request, $formKeyValues[$fieldName]);
                 continue;
             }
@@ -1347,7 +1352,9 @@ abstract class ManageableModel
             }
 
             // Get the form component by name
-            $formComponent = $formComponents->first(fn ($_formComponent) => $_formComponent->getAttribute('name') === $fieldName);
+            $formComponent = $formComponents->first(fn ($_formComponent)
+                => $_formComponent->getAttribute('name') === $fieldName
+            );
 
             // Check if the field name is based on a JSON column
             if ($isUsingNestedJson) {
@@ -1364,7 +1371,7 @@ abstract class ManageableModel
             $fieldValue = '';
 
             // Standard field value
-            if (! $isUsingNestedJson) {
+            if (!$isUsingNestedJson) {
                 // Apply the value to the form component and get the field value
                 $fieldValue = $formComponent->applySubmittedValueFinal($request, $formKeyValues[$fieldName]);
             }
