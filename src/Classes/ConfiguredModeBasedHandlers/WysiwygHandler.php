@@ -190,11 +190,12 @@ class WysiwygHandler extends ConfiguredModeBasedHandler
                         if (!form) return;
 
                         // Create or reuse a hidden input
-                        let hidden = form.querySelector('input[type="hidden"][name="' + el.dataset.name + '"]');
+                        let elName = el.getAttribute('name');
+                        let hidden = form.querySelector('input[type="hidden"][name="' + elName + '"]');
                         if (!hidden) {
                             hidden = document.createElement('input');
                             hidden.type = 'hidden';
-                            hidden.name = el.dataset.name || 'content';
+                            hidden.name = elName;
                             form.appendChild(hidden);
                         }
 
