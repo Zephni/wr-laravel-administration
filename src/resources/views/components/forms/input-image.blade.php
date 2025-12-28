@@ -31,15 +31,17 @@
 @endif
 
 <div class="flex justify-start items-center gap-6 mt-2">
-    {{-- Preview image container --}}
-    <div class="w-2/12">
-        @themeComponent('forced-aspect-image', [
-            'src' => $src,
-            'originalSrc' => $publicUrlWithoutDomain,
-            'class' => "wrla_image_preview {$options['class']} ".($fileSystemImageExists ? '' : 'wrla_no_image'),
-            'aspect' => $options["aspect"],
-        ])
-    </div>
+    {{-- Preview image --}}
+    @if($options['showPreview'] ?? true)
+        <div class="{{ $options['previewContainerClass'] ?? 'w-2/12'  }}">
+            @themeComponent('forced-aspect-image', [
+                'src' => $src,
+                'originalSrc' => $publicUrlWithoutDomain,
+                'class' => "wrla_image_preview {$options['class']} ".($fileSystemImageExists ? '' : 'wrla_no_image'),
+                'aspect' => $options["aspect"],
+            ])
+        </div>
+    @endif
 
     {{-- File input and notes container --}}
     <div class="flex flex-1 flex-col justify-center items-center pl-5 pr-10">

@@ -47,6 +47,8 @@ class Image
             'allowRemove' => true,
             'aspect' => null,
             'storeFilenameOnly' => true,
+            'showPreview' => true,
+            'previewContainerClass' => '',
             'class' => '',
         ]);
 
@@ -108,6 +110,26 @@ class Image
         }
 
         return null;
+    }
+
+    /**
+     * Show preview option
+     */
+    public function showPreview(bool $show = true): static
+    {
+        $this->setOption('showPreview', $show);
+
+        return $this;
+    }
+
+    /**
+     * Preview class
+     */
+    public function previewContainerClass(string $class): static
+    {
+        $this->setOption('previewContainerClass', $class);
+
+        return $this;
     }
 
     /**
