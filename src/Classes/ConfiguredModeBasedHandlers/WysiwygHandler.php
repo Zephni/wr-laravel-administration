@@ -182,7 +182,7 @@ class WysiwygHandler extends ConfiguredModeBasedHandler
 
                     quillElements.forEach((el) => {
                         const quill = new Quill(el, {
-                            theme: '{{ $currentWysiwygEditorSettings["theme"] }}',
+                            {!! $currentWysiwygEditorSettings["initialise"] !!}
                         });
 
                         // Find the parent form

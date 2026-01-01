@@ -155,9 +155,22 @@ return [
         // Supported: 'quill', 'tinymce'
         'current' => 'quill',
 
-        // Quill - https://quilljs.com/docs/quickstart
+        // Quill - https://quilljs.com/docs/modules/toolbar
         'quill' => [
-            'theme' => 'snow',
+            'initialise' => <<<JS
+                theme: 'snow',
+                modules: {
+                    toolbar: [
+                        [{ 'header': [1, 2, 3, 4, false] }],
+                        ['bold', 'italic', 'underline', 'strike'],
+                        ['blockquote'],
+                        ['link', 'image', 'video'],
+                        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                        [{ 'align': [] }],
+                        ['clean']
+                    ]
+                }
+            JS,
             'class' => 'min-h-48',
             'image_uploads' => [
                 'filesystem' => 'public',
