@@ -332,6 +332,14 @@ abstract class ManageableModel
     }
 
     /**
+     * New shorter method name for getting model instance, keeping old one for time being
+     */
+    public function model(): mixed
+    {
+        return $this->getModelInstance();
+    }
+
+    /**
      * Set permission.
      * @param $permission Permission key
      * @param bool|callable $value Value to set, can be a boolean or a callable that takes $wrlaUserData and returns a boolean.

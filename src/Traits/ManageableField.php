@@ -2,6 +2,7 @@
 
 namespace WebRegulate\LaravelAdministration\Traits;
 
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Eloquent\Model;
@@ -287,11 +288,21 @@ trait ManageableField
      */
     public function getValue(): string
     {
-        if($this->options['ignoreOld'] ?? false) {
-            return $this->htmlAttributes['value'];
+        // Get value
+        $value = $this->htmlAttributes['value'];
+
+        // If type is date, format value as Y-m-d
+        if($this->getAttribute('type') === 'date' && !empty($value)) {
+            $value = Carbon::parse($value)->format('Y-m-d');
         }
 
-        return old($this->htmlAttributes['name'], $this->htmlAttributes['value']) ?? '';
+        // If ignoreOld option is set, return value attribute
+        if($this->options['ignoreOld'] ?? false) {
+            return $value;
+        }
+
+        // Otherwise return old value if exists, and fallback to value attribute
+        return old($this->htmlAttributes['name'], $value) ?? '';
     }
 
     /**
