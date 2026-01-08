@@ -3,6 +3,7 @@
 namespace WebRegulate\LaravelAdministration\Livewire\ManageableModels;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 use WebRegulate\LaravelAdministration\Classes\BrowseFilter;
 use WebRegulate\LaravelAdministration\Classes\ManageableFields\Text;
@@ -175,6 +176,14 @@ class ManageableModelDynamicBrowseFilters extends Component
                                 if ($operator == 'contains' || $operator == 'not contains') {
                                     $operator = $operator == 'contains' ? 'like' : 'not like';
                                     $andValue = '%'.$andValue.'%';
+                                }
+
+
+                                // If operator is a comparison type, cast the column/field as float in the query
+                                if (in_array($operator, ['>', '<', '>=', '<='])) {
+                                    // Use DB::raw to cast the field as float for numeric comparison
+                                    $query->where(DB::raw("CAST(`{$table}`.`{$item['field']}` AS DECIMAL(30,10))"), $operator, (float) $andValue);
+                                    return;
                                 }
 
                                 // If not like, we need to also check for null values and skip
