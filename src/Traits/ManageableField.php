@@ -85,7 +85,7 @@ trait ManageableField
         elseif(str_contains($name ?? '', '->')) {
             $value = $manageableModel->getInstanceJsonValue($name);
         }
-
+        
         // Get parent class of this trait
         $parentClass = get_class($this);
 
@@ -302,7 +302,7 @@ trait ManageableField
         }
 
         // Otherwise return old value if exists, and fallback to value attribute
-        return old($this->htmlAttributes['name'], $value) ?? '';
+        return old($this->getName(), $value) ?? '';
     }
 
     /**

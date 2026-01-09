@@ -1189,8 +1189,8 @@ abstract class ManageableModel
             // Get whether column exists on this model's table
             $columnExistsInSchema = Schema::hasColumn($this->getModelInstance()->getTable(), $columnName);
 
-            // If the column is not set on the instance, then set the default value
-            if (!$columnExistsInSchema) {
+            // If the column doesn't exist on the schema and the model instance value is empty, set the default value
+            if (!$columnExistsInSchema && empty($this->getModelInstance()->{$columnName})) {
                 $this->getModelInstance()->setAttribute($columnName, $columnData->Default);
             }
         }
