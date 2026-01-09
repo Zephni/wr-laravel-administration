@@ -288,21 +288,11 @@ trait ManageableField
      */
     public function getValue(): string
     {
-        // Get value
-        $value = $this->htmlAttributes['value'];
-
-        // If type is date, format value as Y-m-d
-        if($this->getAttribute('type') === 'date' && !empty($value)) {
-            $value = Carbon::parse($value)->format('Y-m-d');
-        }
-
-        // If ignoreOld option is set, return value attribute
         if($this->options['ignoreOld'] ?? false) {
-            return $value;
+            return $this->htmlAttributes['value'];
         }
 
-        // Otherwise return old value if exists, and fallback to value attribute
-        return old($this->htmlAttributes['name'], $value) ?? '';
+        return old($this->htmlAttributes['name'], $this->htmlAttributes['value']) ?? '';
     }
 
     /**
