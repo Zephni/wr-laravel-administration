@@ -3,6 +3,7 @@
 namespace WebRegulate\LaravelAdministration\Http\Controllers;
 
 use Exception;
+use Throwable;
 use App\WRLA\User;
 use Illuminate\View\View;
 use Illuminate\Http\Request;
@@ -242,7 +243,7 @@ class WRLAAdminController extends Controller
             ])->with('success', $defaultSuccessMessage);
 
         // Catch
-        }, function(Exception $e) {
+        }, function(Throwable $e) {
             // Redirect back with error message
             return redirect()->back()->withInput()->withErrors(['error' => $e->getMessage()]);
         });
