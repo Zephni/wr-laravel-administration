@@ -130,7 +130,7 @@ class SearchableValue
 
         if ($queryBuilderFunction != null) {
             // If displayColumn exists on modal, automatically prepend table
-            if (Schema::hasColumn($table, $displayColumn)) {
+            if (WRLAHelper::modelTableHasColumn($model, $displayColumn)) {
                 $query->addSelect("$table.$displayColumn");
             } else {
                 $query->addSelect($displayColumn);

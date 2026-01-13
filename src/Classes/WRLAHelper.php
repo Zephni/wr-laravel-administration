@@ -1484,11 +1484,35 @@ class WRLAHelper
      */
     public static function getTableColumns(string $table, ?string $connection = null): array
     {
-        if(empty($connection)) {
-            return Schema::getColumnListing($table);
+        return once(function() use ($table, $connection) {
+            if(empty($connection)) {
+                return Schema::getColumnListing($table);
+            }
+
+            return Schema::connection($connection)->getColumnListing($table);
+        });
+    }
+
+    /**
+     * Model's table has column
+     */
+    public static function modelTableHasColumn(Model $model, string $column): bool
+    {
+        // Get connection and table
+        $connection = $model->getConnectionName();
+        $table = $model->getTable();
+
+        // Modify table name to only get the last part if it has a dot (for connection prefix)
+        if (str_contains($table, '.')) {
+            $tableParts = explode('.', $table);
+            $table = end($tableParts);
         }
 
-        return Schema::connection($connection)->getColumnListing($table);
+        // Get all columns for this table on this connection
+        $columns = static::getTableColumns($table, $connection);
+
+        // If column is in columns, return true
+        return in_array($column, $columns);
     }
 
     /**

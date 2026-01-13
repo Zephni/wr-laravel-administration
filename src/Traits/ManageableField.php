@@ -168,7 +168,7 @@ trait ManageableField
         }
 
         // Get whether column exists on this model's table
-        $columnExistsInSchema = Schema::hasColumn($this->manageableModel->getModelInstance()->getTable(), $name);
+        $columnExistsInSchema = WRLAHelper::modelTableHasColumn($this->manageableModel->getModelInstance(), $name);
 
         // If attribute still does not exist, return
         if(!$columnExistsInSchema) return;

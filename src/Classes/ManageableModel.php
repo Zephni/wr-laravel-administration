@@ -1189,7 +1189,7 @@ abstract class ManageableModel
             // Only set default value if the current model instance value is empty
             if(empty($this->getModelInstance()->{$columnName})) {
                 // Get whether column exists on this model's table
-                $columnExistsInSchema = Schema::hasColumn($this->getModelInstance()->getTable(), $columnName);
+                $columnExistsInSchema = WRLAHelper::modelTableHasColumn($this->getModelInstance(), $columnName);
     
                 // If the column doesn't exist on the schema then set the default value
                 if (!$columnExistsInSchema) {
@@ -1338,7 +1338,7 @@ abstract class ManageableModel
             $isUsingNestedJson = $manageableField->isUsingNestedJson();
 
             // Check whether column exists on this model's table
-            $columnExistsInSchema = Schema::hasColumn($this->getModelInstance()->getTable(), $fieldName);
+            $columnExistsInSchema = WRLAHelper::modelTableHasColumn($this->model(), $fieldName);
 
             // TODO: COME BACK TO DEBUG THIS, AS RELATIONSHIP JSON DOES NOT YET WORK
             // if(str_starts_with($fieldName, 'wrlaUserData__WRLA::REL::DOT__settings')) {
