@@ -84,7 +84,7 @@ class ManageableModelUpsert extends Component
 
         // Get the manageable model and base model class
         $this->manageableModelClass = $manageableModelClass;
-        $manageableModelInstance = $this->manageableModelClass::make($this->modelId);
+        $manageableModelInstance = $this->manageableModelClass::make($this->modelId, true);
         $modelClass = $manageableModelInstance::getBaseModelClass();
 
         // If the model class does not exist, redirect to the dashboard
@@ -146,7 +146,7 @@ class ManageableModelUpsert extends Component
             ManageableModel::$numberOfRenders = $this->numberOfRenders;
 
             // Get manageable model and fields data
-            $manageableModel = $this->manageableModelClass::make($this->modelId);
+            $manageableModel = $this->manageableModelClass::make($this->modelId, true);
             ManageableModel::$livewireFields = $this->livewireData;
             $manageableFields = $manageableModel->getManageableFieldsFinal();
 

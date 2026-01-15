@@ -77,7 +77,7 @@ class WRLAAdminController extends Controller
         try {
             // Get the manageable model and instance by its URL alias and id
             $manageableModelClass = ManageableModel::getByUrlAlias($modelUrlAlias);
-            $manageableModelInstance = $manageableModelClass::make($modelId);
+            $manageableModelInstance = $manageableModelClass::make($modelId, true);
     
             // If the manageable model is null, redirect to the dashboard with error
             if (is_null($manageableModelClass)) {
@@ -130,7 +130,7 @@ class WRLAAdminController extends Controller
             $manageableModel = $manageableModelClass::make();
         } else {
             // Get model by it's id
-            $manageableModel = $manageableModelClass::make($modelId);
+            $manageableModel = $manageableModelClass::make($modelId, true);
 
             // Check model id exists
             if ($manageableModel == null) {

@@ -133,12 +133,15 @@ abstract class ManageableModel
                 // If not attempting to find with trashed OR model does not have soft deletes
                 if (!$withTrashed || !WRLAHelper::isSoftDeletable(static::getBaseModelClass())) {
                     $modelInstance = static::getBaseModelClass()::find($modelInstanceOrId);
-                } else {
+                }
+                // Otherwise find with trashed
+                else {
                     $modelInstance = static::getBaseModelClass()::withTrashed()->find($modelInstanceOrId);
                 }
                 
                 // If model instance is not found, throw an exception
                 if ($modelInstance == null) {
+                    dd("Model instance with ID {$modelInstanceOrId} not found for manageable model ".static::class);
                     throw new \Exception("Model instance with ID {$modelInstanceOrId} not found for manageable model ".static::class);
                 }
 
@@ -157,12 +160,10 @@ abstract class ManageableModel
 
     /**
      * Make a static version of the constructor and load the instance setup.
-     *
-     * @param  mixed|int|null  $modelInstance
      */
-    public static function make($modelInstanceOrId = null): static
+    public static function make($modelInstanceOrId = null, bool $withTrashed = false): static
     {
-        return new static($modelInstanceOrId);
+        return new static($modelInstanceOrId, $withTrashed);
     }
 
     /**
@@ -791,6 +792,15 @@ abstract class ManageableModel
                 ->setAdditionalAttributes([
                     'wire:click' => 'restoreModel('.$this->getModelInstance()->id.')',
                 ])
+            );
+
+            // Edit
+            $instanceActions->put('edit', InstanceAction::make($this, 'Edit', 'fa fa-edit', 'primary')
+                ->enableOnCondition(static::getPermission(ManageableModelPermissions::EDIT))
+                ->setAction(route('wrla.manageable-models.edit', [
+                    'modelUrlAlias' => $modelUrlAlias,
+                    'id' => $modelId
+                ]))
             );
 
             // Permanent Delete
