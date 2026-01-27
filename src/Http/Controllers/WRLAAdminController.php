@@ -72,12 +72,12 @@ class WRLAAdminController extends Controller
     /**
      * ManageableModel upsert view
      */
-    public function upsert(Request $request, string $modelUrlAlias, ?int $modelId = null): View|RedirectResponse
+    public function upsert(Request $request, string $modelUrlAlias, null|int|string $modelId = null): View|RedirectResponse
     {
         try {
             // Get the manageable model and instance by its URL alias and id
             $manageableModelClass = ManageableModel::getByUrlAlias($modelUrlAlias);
-            $manageableModelInstance = $manageableModelClass::make($modelId, true);
+            $manageableModelInstance = $manageableModelClass::make((int)$modelId, true);
     
             // If the manageable model is null, redirect to the dashboard with error
             if (is_null($manageableModelClass)) {
