@@ -27,6 +27,7 @@
                 @endif
             @endif
         </div>
+
         <div class="flex justify-end gap-2 !text-sm">
             @foreach($manageableModel->getInstanceActionsFinal() as $key => $instanceAction)
                 @continue($key == 'edit')
@@ -60,6 +61,33 @@
                         No Manageable Fields found
                     </b><br />
                     Add Manageable Fields for this model in the <b class="font-medium text-primary-600">{{ $manageableModel::class }} -> getManageableFields()</b> method
+                </div>
+            @endif
+
+            {{-- Display model created / update / deleted datetimes --}}
+            @if(!empty($manageableModel->getmodelInstance()->id))
+                <div class="w-full flex justify-end items-center gap-3 text-sm text-slate-500">
+                    @php
+                        $displayAts = [
+                            '<i class="fa fa-plus mr-0.5 opacity-70"></i> Created' =>  $manageableModel->getmodelInstance()->created_at ?? null,
+                            '<i class="fa fa-edit mr-0.5 opacity-70"></i> Last Updated' => $manageableModel->getmodelInstance()->updated_at ?? null,
+                            '<i class="fa fa-trash mr-0.5 opacity-70"></i> Deleted' => $manageableModel->getmodelInstance()->deleted_at ?? null,
+                        ];
+
+                        $displayAts = array_filter($displayAts);
+                    @endphp
+
+                    {{-- Display delimited key: datetimes --}}
+                    @foreach($displayAts as $key => $value)
+                        <span>
+                            {!! $key !!}: {{ $value->format('Y-m-d H:i') }}
+                            @if(!$loop->last) <span class="mx-2">|</span> @endif
+                        </span>
+                    @endforeach
+
+                    @php
+                        unset($createdAt, $updatedAt, $deletedAt, $displayAts);
+                    @endphp
                 </div>
             @endif
         </div>
