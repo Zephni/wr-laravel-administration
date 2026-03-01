@@ -28,9 +28,9 @@ class Image
     /**
      * Make method (can be used in any class that extends FormComponent).
      *
-     * @param  ?mixed  $column
+     * @param null|string|callable $filename  If string, can contain {id} and {time} placeholders. If callable, takes manageableModel, originalFilename params and must return the filename to store.
      */
-    public static function make(?ManageableModel $manageableModel = null, ?string $column = null, ?string $path = null, ?string $filename = null, string $fileSystem = 'public'): static
+    public static function make(?ManageableModel $manageableModel = null, ?string $column = null, ?string $path = null, null|string|callable $filename = null, string $fileSystem = 'public'): static
     {
         // If path is empty, we throw an exception
         if (empty($path)) {
@@ -143,7 +143,7 @@ class Image
     /**
      * Upload image
      *
-     * @param  UploadedFile  $request
+     * @return string The path to the stored image relative to the file system
      */
     public function uploadImage(UploadedFile $file): string
     {
@@ -152,7 +152,7 @@ class Image
 
         // Get path and filename
         $path = WRLAHelper::forwardSlashPath($this->getPathOnly());
-        $filename = $this->formatImageName($this->options['filename'] ?? $file->getClientOriginalName());
+        $filename = $this->formatImageName($this->options['filename'], $file->getClientOriginalName());
 
         // If directory doesn't exist, create it
         if (! $fileSystem->exists($path)) {
@@ -257,14 +257,26 @@ class Image
         }
 
         // Otherwise, calculate the value based on the formatted image name
-        return $this->formatImageName($this->getOption('filename'));
+        return $this->formatImageName($this->getOption('filename'), $this->getAttribute('value'));
     }
 
     /**
      * Format image name
+     * 
+     * @param string|callable $name If string, can contain {id} and {time} placeholders. If callable, takes (manageableModel, originalFilename) and must return the filename to store.
      */
-    public function formatImageName(string $name): string
+    public function formatImageName(null|string|callable $name, string $originalFileName): string
     {
+        // If name is empty, use original filename
+        if (empty($name)) {
+            return $originalFileName;
+        }
+
+        // If callable, call the function to get the name
+        if (is_callable($name)) {
+            return $name($this->manageableModel->getModelInstance(), $originalFileName);
+        }
+
         // If find {id} in the name
         if (str_contains($name, '{id}')) {
             // Get the id of the model instance

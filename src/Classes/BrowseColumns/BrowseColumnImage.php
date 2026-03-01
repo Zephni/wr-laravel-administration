@@ -9,9 +9,9 @@ class BrowseColumnImage extends BrowseColumnBase
     /**
      * Create a new instance of the class
      *
-     * @param string $imagePath Path to the image including filename. If callable is provided it takes the value as a parameter and must return an image path
+     * @param null|string|callable $imagePath Path to the image including filename. If callable is provided it takes the value as a parameter and must return an image path
      */
-    public static function make(?string $label, string|callable $imagePath, null|string|int $width = 140): static
+    public static function make(?string $label, null|string|callable $imagePath, null|string|int $width = 140): static
     {
         // Build base browse column image
         $browseColumnImage = (new self($label))
