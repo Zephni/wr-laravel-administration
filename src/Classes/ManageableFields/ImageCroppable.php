@@ -53,6 +53,7 @@ class ImageCroppable
             'aspect' => null,
             'storeFilenameOnly' => true,
             'class' => '',
+            'previewContainerClass' => '',
         ]);
 
         return $imageInstance;
@@ -113,6 +114,16 @@ class ImageCroppable
         }
 
         return null;
+    }
+
+    /**
+     * Preview class
+     */
+    public function previewContainerClass(string $class): static
+    {
+        $this->setOption('previewContainerClass', $class);
+
+        return $this;
     }
 
     /**

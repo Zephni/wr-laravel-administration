@@ -35,7 +35,7 @@
 
 <div class="flex justify-start items-center gap-6 mt-2">
     {{-- Preview image container --}}
-    <div class="w-2/12">
+    <div class="{{ $options['previewContainerClass'] ?? 'w-2/12'  }}">
         @themeComponent('forced-aspect-image', [
             'src' => $src,
             'originalSrc' => $publicUrlWithoutDomain,
