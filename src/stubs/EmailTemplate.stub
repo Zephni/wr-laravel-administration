@@ -197,6 +197,30 @@ class EmailTemplate extends ManageableModel
      */
     public final function getInstanceActions(Collection $instanceActions): Collection
     {
-        return $instanceActions;
+        $user = WRLAHelper::getCurrentUser();
+        $sendEmailTo = $user->email ?? null;
+
+        return $instanceActions->prepend(
+            $this->instanceAction('Send Test', 'fa fa-paper-plane', 'primary')
+                ->enableOnCondition(fn() => WRLAHelper::getCurrentPageType() === PageType::EDIT && !empty($sendEmailTo))
+                ->confirm("Note you must save your changes before sending a test. Send test email to: {$sendEmailTo}")
+                ->setAction(function() use ($sendEmailTo, $user) {
+                    try {
+                        $emailTemplate = $this->model();
+
+                        $emailTemplate->setDataArray([
+                            'user' => $user
+                        ]);
+
+                        $success = $emailTemplate->sendEmail($sendEmailTo);
+    
+                        return $success
+                            ? "Email successfully sent to {$sendEmailTo}"
+                            : "Failed to send email to {$sendEmailTo}";
+                    } catch (\Exception $e) {
+                        return "Error sending email: " . $e->getMessage();
+                    }
+                })
+        );
     }
 }
