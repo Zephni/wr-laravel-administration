@@ -70,19 +70,27 @@ class File
         // Get current value of file
         $currentFile = $this->getAttribute('value');
 
-        // If value is equal to the special constant WRLA_KEY_REMOVE, we delete the file
         if ($value === WRLAHelper::WRLA_KEY_REMOVE) {
             $this->deleteFile($currentFile);
-
             return null;
         }
 
+        // If file is uploaded, we upload the file and return the path to store in the database
         if ($request->hasFile($this->getAttribute('name'))) {
             $value = $this->uploadFile($request->file($this->getAttribute('name')));
 
-            // If unlinkOld option set, and an file already exists with the old value, we delete it
-            if ($this->getOption('unlinkOld') == true && ! empty($currentFile)) {
-                $this->deleteFile($currentFile);
+            // Only delete old file if it is different from the newly stored file
+            if ($this->getOption('unlinkOld') == true && !empty($currentFile)) {
+                $newStoredPath = ltrim(WRLAHelper::forwardSlashPath($value), '/');
+                $oldStoredPath = ltrim(WRLAHelper::forwardSlashPath(
+                    $this->getOption('storeFilenameOnly') == true
+                        ? $this->getPathOnly().'/'.$currentFile
+                        : $currentFile
+                ), '/');
+
+                if ($newStoredPath !== $oldStoredPath) {
+                    $this->deleteFile($currentFile);
+                }
             }
 
             // If storeFilenameOnly is false, store the entire filepath/filename.ext
@@ -92,9 +100,7 @@ class File
 
             // Otherwise, we store only the filename.ext
             $parts = explode('/', $value);
-            $value = end($parts);
-
-            return $value;
+            return end($parts);
         }
 
         return null;
@@ -115,28 +121,24 @@ class File
      */
     public function uploadFile(UploadedFile $file): string
     {
-        // Get file system
         $fileSystem = $this->getFileSystem();
 
-        // Get path and filename
         $path = WRLAHelper::forwardSlashPath($this->getPathOnly());
         $filename = $this->formatFileName($this->options['filename'], $file->getClientOriginalName());
 
-        // If directory doesn't exist, create it
-        if (! $fileSystem->exists($path)) {
+        if (!$fileSystem->exists($path)) {
             $fileSystem->makeDirectory($path);
         }
 
-        // If no extension is provided in the filename, use the original file extension
-        if (! str($filename)->contains('.')) {
+        if (!str($filename)->contains('.')) {
             $filename .= '.'.$file->getClientOriginalExtension();
         }
 
-        // Get file system
-        $fileSystem = $this->getOption('fileSystem');
-
-        // Store file
-        Storage::disk($fileSystem)->putFileAs($path, $file, $filename);
+        // Use same disk and validate write result
+        $stored = $fileSystem->putFileAs($path, $file, $filename);
+        if ($stored === false) {
+            throw new \RuntimeException('Failed to store uploaded file on disk: '.$this->getOption('fileSystem'));
+        }
 
         return ltrim(rtrim(ltrim($path, '/'), '/').'/'.$filename, '/');
     }
