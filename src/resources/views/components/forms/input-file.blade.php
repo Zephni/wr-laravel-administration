@@ -32,7 +32,7 @@
             displayText = ($el.files.length) ? Array.from($el.files).map(file => file.name).join(', ') : '{{ $chooseFileText }}';
         "/>
     <label for="{{ $id }}" class="group z-40 flex justify-start items-center p-1.5 gap-2 border border-slate-300 dark:border-slate-600 bg-slate-100 dark:bg-slate-800 rounded-lg cursor-pointer">
-        <div type="button" class="px-3 py-1.5 text-white bg-primary-600 hover:bg-primary-500 font-medium rounded-lg group-hover:bg-primary-500">
+        <div type="button" class="px-3 py-1 text-white bg-primary-600 hover:bg-primary-500 font-medium rounded-lg group-hover:bg-primary-500">
             <i class="fas fa-upload text-sm mr-1"></i>
             Browse
         </div>
@@ -43,6 +43,17 @@
         <span wire:loading.remove id="{{ $id }}-filename" class="ml-2" x-text="displayText"></span>
     </label>
 </div>
+
+{{-- Display clickable URL --}}
+@if($fileSystemFileExists)
+    @themeComponent('forms.field-notes', ['notes' => '
+        <i class="fas fa-link text-sm mr-1"></i>
+        File:
+        <a href="'.$publicUrl.'" target="_blank" class="ml-1 font-medium text-primary-600 hover:text-primary-500">
+            '.$publicUrl.'
+        </a>
+'])
+@endif
 
 {{-- Field notes (if options has notes key) --}}
 @if(!empty($options['notes']))

@@ -38,6 +38,7 @@ class Image
         }
 
         $imageInstance = new static($column, $manageableModel?->getModelInstance()->{$column}, $manageableModel);
+        
         $imageInstance->setOptions([
             'fileSystem' => $fileSystem,
             'path' => $path,
