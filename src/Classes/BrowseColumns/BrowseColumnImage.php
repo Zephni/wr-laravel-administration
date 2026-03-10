@@ -34,6 +34,7 @@ class BrowseColumnImage extends BrowseColumnBase
                 'src' => $value,
                 'class' => $browseColumnImage->getOption('class') ?? ' border border-slate-400',
                 'aspect' => $browseColumnImage->getOption('aspect'),
+                'hideIfEmpty' => true,
             ])->render();
 
             return <<<BLADE
