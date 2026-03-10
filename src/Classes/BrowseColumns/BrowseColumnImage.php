@@ -24,7 +24,11 @@ class BrowseColumnImage extends BrowseColumnBase
 
         // Set override render value callback
         $browseColumnImage->overrideRenderValue = function ($value, $model) use ($browseColumnImage, $imagePath) {
-            $value = is_string($imagePath) ? $imagePath : $imagePath($value, $model);
+            if (!is_callable($imagePath)) {
+                $value = $imagePath ?? '';
+            } else {
+                $value = $imagePath($value, $model);
+            }
 
             $renderedView = view(WRLAHelper::getViewPath('components.forced-aspect-image', false), [
                 'src' => $value,
