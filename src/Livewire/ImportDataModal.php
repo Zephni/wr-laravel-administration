@@ -49,6 +49,7 @@ class ImportDataModal extends ModalComponent
         'origionalRows' => [],
         'rows' => [],
         'tableColumns' => [],
+        'tableColumnsDisplay' => [],
         'totalRows' => 0,
         'successfullImports' => 0,
         'failedImports' => 0,
@@ -99,7 +100,7 @@ class ImportDataModal extends ModalComponent
         Storage::disk('local')->delete('livewire-tmp/'.$this->file->getFilename());
 
         // Get the real path of the uploaded file and read its contents
-        $file = file(storage_path('app/'.$this->data['wrlaTmpFilePath']));
+        $file = file(storage_path('app/private/'.$this->data['wrlaTmpFilePath']));
         $this->data['totalRows'] = count($file) - 1;
         $fileData = array_map('str_getcsv', array_slice($file, 0, 101));
 
@@ -186,6 +187,12 @@ class ImportDataModal extends ModalComponent
         // Dispatch an event indicating that the modal has been opened
         $this->dispatch('import-data-modal.opened');
         $this->manageableModelClass = $manageableModelClass;
+
+        // Get all the table fields for this model
+        $modelInstance = (new $this->manageableModelClass)->getModelInstance();
+        $tableColumns = WRLAHelper::getTableColumns($modelInstance->getTable(), $modelInstance->getConnectionName());
+        $tableColumns = array_diff($tableColumns, ['id', 'created_at', 'updated_at', 'deleted_at']);
+        $this->data['tableColumnsDisplay'] = array_combine($tableColumns, $tableColumns);
     }
 
     /**

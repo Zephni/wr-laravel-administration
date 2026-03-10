@@ -34,9 +34,10 @@
             <div>
                 @themeComponent('forms.input-file', [
                     'options' => [
-                        'notes' => '<b>NOTE:</b> The first row of the file MUST be a list of headers.',
+                        'notes' => '<b>NOTE:</b> The first row of the file MUST be a list of headers:<br /><br /><b class="text-grey-900">'.implode(', ', $data['tableColumnsDisplay']).'</b>',
                         'chooseFileText' => 'Select a .csv file to import...',
                     ],
+                    'fileSystemFileExists' => false,
                     'attributes' => Arr::toAttributeBag([
                         'name' => 'file',
                         'wire:model.live' => 'file',
