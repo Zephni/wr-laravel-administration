@@ -7,7 +7,7 @@
     'hideIfEmpty' => false,
 ])
 
-@if(!$hideIfEmpty || !empty($originalSrc))
+@if(!$hideIfEmpty || !empty($src))
     <img
         src="{{ $src }}"
         @if(isset($originalSrc)) ogimage="{{ $originalSrc }}" @endif
