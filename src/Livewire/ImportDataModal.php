@@ -97,11 +97,11 @@ class ImportDataModal extends ModalComponent
         // Store file (that we will progressivly read and remove rows from later), and remove tmp file
         // File name should be tablename-import-Y-m-d-H-i-s.csv
         $fileName = (new ($this->manageableModelClass::getBaseModelClass()))->getTable().'-import-'.now()->format('Y-m-d-H-i-s').'.csv';
-        $this->data['wrlaTmpFilePath'] = $this->file->storeAs('wrla-tmp', $fileName);
+        $this->data['wrlaTmpFilePath'] = Storage::disk('local')->putFileAs('livewire-tmp', $this->file, $fileName);
         Storage::disk('local')->delete('livewire-tmp/'.$this->file->getFilename());
 
         // Get the real path of the uploaded file and read its contents
-        $file = file(storage_path('app/private/'.$this->data['wrlaTmpFilePath']));
+        $file = file(Storage::disk('local')->path($this->data['wrlaTmpFilePath']));
         $this->data['totalRows'] = count($file) - 1;
         $fileData = array_map('str_getcsv', array_slice($file, 0, 101));
 
