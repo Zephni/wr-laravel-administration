@@ -31,19 +31,40 @@
                     1. Import a .csv file
                 </b>
             </div>
-            <div>
-                @themeComponent('forms.input-file', [
-                    'options' => [
-                        'notes' => '<b>NOTE:</b> The first row of the file MUST be a list of headers:<br /><br /><b class="text-grey-900">'.implode(', ', $data['tableColumnsDisplay']).'</b>',
-                        'chooseFileText' => 'Select a .csv file to import...',
-                    ],
-                    'fileSystemFileExists' => false,
+
+            <div class="mb-5">
+                <p class="text-base mb-2">
+                    <b>A.</b> Download template .csv file with correct table columns as headings:
+                </p>
+                @themeComponent('forms.button', [
+                    'text' => 'Download .csv template',
+                    'icon' => 'fas fa-file-csv',
+                    'color' => 'primary',
+                    'size' => 'small',
                     'attributes' => Arr::toAttributeBag([
-                        'name' => 'file',
-                        'wire:model.live' => 'file',
-                        'class' => ''
+                        'wire:click' => "actionDownloadTemplateCsv",
                     ])
                 ])
+            </div>
+
+            <div>
+                <p class="text-base mb-2">
+                    <b>B.</b> Select a .csv file to import:
+                </p>
+                <div>
+                    @themeComponent('forms.input-file', [
+                        'options' => [
+                            'notes' => '<b>NOTE:</b> The first row of the file MUST be a list of headers:<br /><br /><b class="text-grey-900">'.implode(', ', $data['tableColumnsDisplay']).'</b>',
+                            'chooseFileText' => 'Select a .csv file to import...',
+                        ],
+                        'fileSystemFileExists' => false,
+                        'attributes' => Arr::toAttributeBag([
+                            'name' => 'file',
+                            'wire:model.live' => 'file',
+                            'class' => ''
+                        ])
+                    ])
+                </div>
             </div>
 
         {{-- STEP 2 - Map .csv headings to table columns --}}

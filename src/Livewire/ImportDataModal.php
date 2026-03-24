@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Storage;
 use Livewire\Attributes\Rule;
 use Livewire\WithFileUploads;
 use LivewireUI\Modal\ModalComponent;
+use WebRegulate\LaravelAdministration\Classes\CSVHelper;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 
 /**
@@ -356,5 +357,23 @@ class ImportDataModal extends ModalComponent
 
         // Align rows with mapped columns
         $this->alignHeadersAndRowsWithMappedColumns();
+    }
+
+    /**
+     * Builds and downloads a template CSV file for the manageable model with the table columns as headings.
+     */
+    public function actionDownloadTemplateCsv()
+    {
+        $modelInstance = (new $this->manageableModelClass)->getModelInstance();
+        $tableColumns = WRLAHelper::getTableColumns($modelInstance->getTable(), $modelInstance->getConnectionName());
+        $tableColumns = array_diff($tableColumns, ['id', 'created_at', 'updated_at', 'deleted_at']);
+
+        $fileName = (new ($this->manageableModelClass::getBaseModelClass()))->getTable().'-import-template.csv';
+
+        return CSVHelper::build(
+            $fileName,
+            $tableColumns,
+            []
+        );
     }
 }

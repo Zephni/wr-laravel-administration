@@ -36,8 +36,15 @@
             <i class="fas fa-upload text-sm mr-1"></i>
             Browse
         </div>
-        <div wire:loading class="ml-2 flex gap-3">
-            <i class="fas fa-spinner fa-spin"></i>
+        <div
+            wire:loading
+            {{-- If attributes has wire:click use that as target --}}
+            @if($attributes->has('wire:model.live'))
+                wire:target="{{ $attributes->get('wire:model.live') }}"
+            @endif
+            class="ml-2 flex gap-3"
+        >
+            <i class="fas fa-spinner animate-spin"></i>
             <span>Uploading file, please wait this can take some time...</span>
         </div>
         <span wire:loading.remove id="{{ $id }}-filename" class="ml-2" x-text="displayText"></span>
