@@ -103,7 +103,8 @@ class ImportDataModal extends ModalComponent
         // Get the real path of the uploaded file and read its contents
         $file = file(Storage::disk('local')->path($this->data['wrlaTmpFilePath']));
         $this->data['totalRows'] = count($file) - 1;
-        $fileData = array_map('str_getcsv', array_slice($file, 0, 101));
+        // Read the entire file so imports process all rows (not only first 100)
+        $fileData = array_map('str_getcsv', $file);
 
         // Clean the extracted data and seperate headers from rows
         [$origionalHeaders, $originalRows] = $this->cleanAllFileData($fileData);

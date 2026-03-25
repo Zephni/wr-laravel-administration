@@ -170,7 +170,7 @@
 
             <div class="text-lg font-thin border-b border-slate-400 pb-1 mt-2 mb-2">
                 <b>
-                    <i class="fas fa-spinner fa-spin text-slate-600 pr-1"></i>
+                    <i class="fas fa-spinner animate-spin text-slate-600 pr-1"></i>
                     Processing import data
                 </b>
             </div>
