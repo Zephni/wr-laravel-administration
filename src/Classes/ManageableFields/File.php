@@ -25,7 +25,7 @@ class File
     {
         // If path is empty, we throw an exception
         if (empty($path)) {
-            throw new \Exception('Path is required for File '.$column.' field');
+            throw new Exception('Path is required for File '.$column.' field');
         }
 
         $imageInstance = new static($column, $manageableModel?->getModelInstance()->{$column}, $manageableModel);
@@ -100,7 +100,7 @@ class File
 
             // Otherwise, we store only the filename.ext
             $parts = explode('/', $value);
-            return end($parts);
+            return ltrim(end($parts), '/');
         }
 
         return null;
