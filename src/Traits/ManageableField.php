@@ -736,6 +736,25 @@ trait ManageableField
     }
 
     /**
+     * Append apply submitted value
+     * 
+     * @param callable $callable Takes Request $request, mixed $value, and returns the value to be set. The $value parameter is the value returned from the default applySubmittedValue method or the previous appended applySubmittedValueCallable.
+     */
+    public function appendApplySubmittedValue(callable $callable): static
+    {
+        $previousCallable = $this->applySubmittedValueCallable;
+
+        $this->applySubmittedValueCallable = function (Request $request, mixed $value) use ($previousCallable, $callable) {
+            if ($previousCallable !== null) {
+                $value = call_user_func($previousCallable, $request, $value);
+            }
+            return call_user_func($callable, $request, $value);
+        };
+
+        return $this;
+    }
+
+    /**
      * Apply submitted value final.
      */
     public function applySubmittedValueFinal(Request $request, mixed $value): mixed
