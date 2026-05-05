@@ -3,14 +3,8 @@
 @section('title', 'Dashboard')
 
 @section('content')
-    {{-- Styled dashboard title --}}
-    <div class="pb-6">
-        <h1 class="text-2xl font-light">
-            <i class="fas fa-tachometer-alt text-slate-700 dark:text-white mr-1"></i>
-            Dashboard
-        </h1>
-        <hr class="border-b border-slate-400 w-80 mt-1 mb-3">
-    </div>
+    {{-- Title --}}
+    <x-wrla::heading title="Dashboard" icon="fa-solid fa-tachometer-alt" />
 
     {{-- Notifications widget --}}
     <div>

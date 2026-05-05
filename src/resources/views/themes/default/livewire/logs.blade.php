@@ -1,12 +1,11 @@
 <div>
-    <div class="pb-6">
-        <h1 class="text-2xl font-light">
-            <i class="fas fa-file text-slate-700 dark:text-white mr-1"></i>
-            Viewing Logs {{ empty($viewingLogsDirectory) ? '' : 'in /'.str_replace('.', '/', $viewingLogsDirectory) }}
-        </h1>
-        <hr class="border-b border-slate-400 w-80 mt-1 mb-3">
-    </div>
+    {{-- Title --}}
+    <x-wrla::heading
+        title="Viewing Logs {{ empty($viewingLogsDirectory) ? '' : 'in /'.str_replace('.', '/', $viewingLogsDirectory) }}"
+        icon="fa-solid fa-file"
+    />
 
+    {{-- Buttons --}}
     <div class="flex justify-end items-center gap-3 mb-4">
         {{-- Loading spinner --}}
         <div wire:loading.flex class="justify-end items-center gap-2 text-base" style="line-height: 0px;">
