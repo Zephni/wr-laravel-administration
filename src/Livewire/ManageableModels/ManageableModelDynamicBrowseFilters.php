@@ -22,6 +22,7 @@ class ManageableModelDynamicBrowseFilters extends Component
      */
     public array $options = [
         'label' => 'Filters',
+        'notes' => null,
     ];
 
     /**

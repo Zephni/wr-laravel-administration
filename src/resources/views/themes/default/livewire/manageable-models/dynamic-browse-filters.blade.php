@@ -63,6 +63,11 @@
         </div>
     @endif
 
+    {{-- Field notes (if options has notes key) --}}
+    @if(!empty($options['notes']))
+        @themeComponent('forms.field-notes', ['notes' => $options['notes']])
+    @endif
+
     {{-- <div>
         @foreach($browseFilterInputs as $key => $browseFilterInput)
             <div>
