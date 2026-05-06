@@ -1,13 +1,6 @@
-@props([
-    'options' => [],
-    'browseFilters' => [],
-    'tableColumns' => [],
-    'browseFilterInputs' => [],
-])
-
 <div class="flex flex-col gap-1 w-full pt-0.5">
     @themeComponent('forms.label', [
-        'label' => $options['label'],
+        'label' => 'Filters',
     ])
 
     @if(count($browseFilters))
@@ -68,11 +61,6 @@
                 </div>
             @endforeach
         </div>
-    @endif
-
-    {{-- Field notes (if options has notes key) --}}
-    @if(!empty($options['notes']))
-        @themeComponent('forms.field-notes', ['notes' => $options['notes']])
     @endif
 
     {{-- <div>

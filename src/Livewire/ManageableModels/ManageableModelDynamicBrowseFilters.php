@@ -18,14 +18,6 @@ class ManageableModelDynamicBrowseFilters extends Component
     public string $manageableModelClass;
 
     /**
-     * Options
-     */
-    public array $options = [
-        'label' => 'Filters',
-        'notes' => null,
-    ];
-
-    /**
      * Browse filter inputs
      */
     public array $browseFilterInputs = [];
@@ -45,10 +37,9 @@ class ManageableModelDynamicBrowseFilters extends Component
     /**
      * Mount the browse filters for the passed manageable model class
      */
-    public function mount(string $manageableModelClass, array $options = [])
+    public function mount(string $manageableModelClass)
     {
         $this->manageableModelClass = $manageableModelClass;
-        $this->options = array_merge($this->options, $options);
         $this->browseFilterInputs = ManageableModel::getStaticOption($manageableModelClass, 'browse.defaultDynamicFilters');
 
         // If type or operator missing from any filter, set default values
@@ -89,7 +80,6 @@ class ManageableModelDynamicBrowseFilters extends Component
         return view(WRLAHelper::getViewPath('livewire.manageable-models.dynamic-browse-filters'), [
             'browseFilters' => $this->getDynamicBrowseFilters(),
             'tableColumns' => $tableColumns,
-            'options' => $this->options,
         ]);
     }
 
