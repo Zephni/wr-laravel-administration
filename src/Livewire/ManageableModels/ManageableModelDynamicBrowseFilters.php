@@ -22,6 +22,11 @@ class ManageableModelDynamicBrowseFilters extends Component
      */
     public array $browseFilterInputs = [];
 
+    /**
+     * Filters (Unused? Stops warning in console)
+     */
+    public array $filters = [];
+
     public function updatedBrowseFilterInputs()
     {
         $this->dispatch('filtersUpdatedOutside', $this->browseFilterInputs);
