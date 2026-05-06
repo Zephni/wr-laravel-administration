@@ -18,6 +18,13 @@ class ManageableModelDynamicBrowseFilters extends Component
     public string $manageableModelClass;
 
     /**
+     * Options
+     */
+    public array $options = [
+        'label' => 'Filters',
+    ];
+
+    /**
      * Browse filter inputs
      */
     public array $browseFilterInputs = [];
@@ -37,9 +44,10 @@ class ManageableModelDynamicBrowseFilters extends Component
     /**
      * Mount the browse filters for the passed manageable model class
      */
-    public function mount(string $manageableModelClass)
+    public function mount(string $manageableModelClass, array $options = [])
     {
         $this->manageableModelClass = $manageableModelClass;
+        $this->options = array_merge($this->options, $options);
         $this->browseFilterInputs = ManageableModel::getStaticOption($manageableModelClass, 'browse.defaultDynamicFilters');
 
         // If type or operator missing from any filter, set default values

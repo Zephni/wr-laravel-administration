@@ -1,6 +1,6 @@
 <div class="flex flex-col gap-1 w-full pt-0.5">
     @themeComponent('forms.label', [
-        'label' => 'Filters',
+        'label' => $options['label'],
     ])
 
     @if(count($browseFilters))
