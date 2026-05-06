@@ -89,6 +89,7 @@ class ManageableModelDynamicBrowseFilters extends Component
         return view(WRLAHelper::getViewPath('livewire.manageable-models.dynamic-browse-filters'), [
             'browseFilters' => $this->getDynamicBrowseFilters(),
             'tableColumns' => $tableColumns,
+            'options' => $this->options,
         ]);
     }
 
