@@ -1,9 +1,9 @@
 <div>
     {{-- Title --}}
-    <x-wrla::heading
-        title="Viewing Logs {{ empty($viewingLogsDirectory) ? '' : 'in /'.str_replace('.', '/', $viewingLogsDirectory) }}"
-        icon="fa-solid fa-file"
-    />
+    @themeComponent('heading', [
+        'title' => 'Viewing Logs '.(empty($viewingLogsDirectory) ? '' : 'in /'.str_replace('.', '/', $viewingLogsDirectory)),
+        'icon' => 'fa-solid fa-file',
+    ])
 
     {{-- Buttons --}}
     <div class="flex justify-end items-center gap-3 mb-4">

@@ -4,7 +4,10 @@
 
 @section('content')
     {{-- Title --}}
-    <x-wrla::heading title="Dashboard" icon="fa-solid fa-tachometer-alt" />
+    @themeComponent('heading', [
+        'title' => 'Dashboard',
+        'icon' => 'fa-solid fa-tachometer-alt',
+    ])
 
     {{-- Notifications widget --}}
     <div>

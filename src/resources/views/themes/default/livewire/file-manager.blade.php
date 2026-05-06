@@ -1,7 +1,10 @@
 <div>
     <div class="relative pb-6">
         {{-- Title --}}
-        <x-wrla::heading title="File Manager" icon="fa-solid fa-folder" />
+        @themeComponent('heading', [
+            'title' => 'File Manager',
+            'icon' => 'fa-solid fa-folder',
+        ])
 
         {{-- Refresh button --}}
         @themeComponent('forms.button', [
