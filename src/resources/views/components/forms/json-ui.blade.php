@@ -26,7 +26,7 @@
     'json' => $attributes->get('value'),
     'debug' => $options['debug'] ?? false,
     'hideKeyValues' => $options['hideKeyValues'],
-    'attributes' => $attributes->except(['id', 'name'])->merge([
+    'attributes' => $attributes->except(['id', 'name', 'value'])->merge([
         'id' => $id,
         'name' => $attributes->get('name'),
     ]),

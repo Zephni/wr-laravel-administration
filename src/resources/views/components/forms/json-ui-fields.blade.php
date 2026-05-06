@@ -365,8 +365,13 @@
         <textarea
             {{ $attributes->merge()->except(['class']) }}
             class="w-full h-64 px-2 py-0.5 border border-slate-400 text-black dark:text-black rounded-md text-sm"
-            readonly
-            x-html="renderDisplayJson()"></textarea>
+            x-bind:value="renderDisplayJson()"
+            x-effect="
+                $el.value = renderDisplayJson();
+                $el.dispatchEvent(new Event('input', { bubbles: true }));
+                $el.dispatchEvent(new Event('change', { bubbles: true }));
+            "
+            x-on:change="$event.target.dispatchEvent(new Event('input', { bubbles: true }))"></textarea>
     </div>
 
 </div>
