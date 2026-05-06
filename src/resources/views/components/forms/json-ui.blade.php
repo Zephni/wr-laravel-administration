@@ -26,13 +26,10 @@
     'json' => $attributes->get('value'),
     'debug' => $options['debug'] ?? false,
     'hideKeyValues' => $options['hideKeyValues'],
-    'attributes' => Arr::toAttributeBag(array_merge(
-        $attributes->except(['id', 'name'])->toArray(),
-        [
-            'id' => $id,
-            'name' => $attributes->get('name'),
-        ]
-    )),
+    'attributes' => $attributes->except(['id', 'name'])->merge([
+        'id' => $id,
+        'name' => $attributes->get('name'),
+    ]),
 ])
 
 {{-- Field notes (if options has notes key) --}}
