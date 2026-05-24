@@ -182,7 +182,12 @@ trait ManageableField
      */
     public static function make(?ManageableModel $manageableModel = null, ?string $column = null, ?array $options = null): static
     {
-        $manageableField = new static($column, $manageableModel?->getModelInstance()->{$column}, $manageableModel);
+        $value = $manageableModel?->getModelInstance()->{$column};
+        if(is_array($value)) {
+            $value = json_encode($value);
+        }
+
+        $manageableField = new static($column, $value, $manageableModel);
 
         if(!is_null($options)) {
             $manageableField->setOptions($options);
