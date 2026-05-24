@@ -15,6 +15,8 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Blade;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Eloquent\Model;
@@ -1226,9 +1228,13 @@ class WRLAHelper
         elseif ($returnedValue instanceof RedirectResponse) {
             return redirect($returnedValue->getTargetUrl());
         }
+        // If is a file download response, return it for Livewire to handle
+        elseif ($returnedValue instanceof BinaryFileResponse || $returnedValue instanceof StreamedResponse) {
+            return $returnedValue;
+        }
         // Otherwise, throw exception that given type is not supported as returned value from an instance action
         elseif (! is_null($returnedValue)) {
-            throw new \Exception('Returned value type "'.gettype($returnedValue).'" is not supported from manageable model instance action. Expected string or RedirectResponse.');
+            throw new \Exception('Returned value type "'.gettype($returnedValue).'" is not supported from manageable model instance action. Expected string, RedirectResponse, or file download response.');
         }
     }
 

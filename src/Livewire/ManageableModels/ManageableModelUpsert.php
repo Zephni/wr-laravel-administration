@@ -250,7 +250,10 @@ class ManageableModelUpsert extends Component
      * Call manageable model action.
      */
     public function callManageableModelAction(int $instanceId, string $actionKey, array $parameters = []) {
-        WRLAHelper::callManageableModelAction($this, $this->manageableModelClass, $instanceId, $actionKey, $parameters);
-        $this->dispatch('instanceActionCompleted');
+        $result = WRLAHelper::callManageableModelAction($this, $this->manageableModelClass, $instanceId, $actionKey, $parameters);
+        if (!($result instanceof \Symfony\Component\HttpFoundation\BinaryFileResponse) && !($result instanceof \Symfony\Component\HttpFoundation\StreamedResponse)) {
+            $this->dispatch('instanceActionCompleted');
+        }
+        return $result;
     }
 }
