@@ -32,7 +32,8 @@ class CSVHelper
             // Write the data
             foreach ($data as $row) {
                 try {
-                    fputcsv($csv, (array) $row);
+                    $row = array_map(fn ($value) => is_array($value) ? json_encode($value) : $value, (array) $row);
+                    fputcsv($csv, $row);
                 } catch (\Exception) {
                     // Skip this row on failure
                 }
