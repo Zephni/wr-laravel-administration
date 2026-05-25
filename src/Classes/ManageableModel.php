@@ -19,6 +19,9 @@ use WebRegulate\LaravelAdministration\Classes\ManageableFields\Select;
 use WebRegulate\LaravelAdministration\Enums\ManageableModelPermissions;
 use WebRegulate\LaravelAdministration\Classes\BrowseColumns\BrowseColumn;
 use WebRegulate\LaravelAdministration\Classes\BrowseColumns\BrowseColumnBase;
+use WebRegulate\LaravelAdministration\Classes\InstanceActions\InstanceActionDelete;
+use WebRegulate\LaravelAdministration\Classes\InstanceActions\InstanceActionEdit;
+use WebRegulate\LaravelAdministration\Classes\InstanceActions\InstanceActionRestore;
 use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItem;
 use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItemManageableModel;
 
@@ -759,8 +762,6 @@ abstract class ManageableModel
 
     /**
      * Get item actions, such as edit, delete.
-     *
-     * @param  mixed  $model
      */
     public function getDefaultInstanceActions(array $only = []): Collection
     {
@@ -777,80 +778,25 @@ abstract class ManageableModel
             return $instanceActions;
         }
 
-        // Get model instance
+        // Get model instance and shared params
         $model = $this->getModelInstance();
-
-        // Get url alias and id
         $modelUrlAlias = static::getUrlAlias();
         $modelId = $model->id ?? null;
 
         // If soft deleted
         if (WRLAHelper::isSoftDeletable(static::getBaseModelClass()) && $model?->deleted_at != null) {
-            // Restore
-            if (empty($only) || in_array('restore', $only)) {
-                $instanceActions->put('restore', InstanceAction::make($this, 'Restore', 'fa fa-undo', 'primary')
-                    ->enableOnCondition(static::getPermission(ManageableModelPermissions::RESTORE))
-                    ->setAdditionalAttributes([
-                        'wire:click' => 'restoreModel('.$this->getModelInstance()->id.')',
-                    ])
-                );
-            }
-
-            // Edit
-            if (empty($only) || in_array('edit', $only)) {
-                $instanceActions->put('edit', InstanceAction::make($this, 'Edit', 'fa fa-edit', 'primary')
-                    ->enableOnCondition(static::getPermission(ManageableModelPermissions::EDIT))
-                    ->setAction(route('wrla.manageable-models.edit', [
-                        'modelUrlAlias' => $modelUrlAlias,
-                        'id' => $modelId
-                    ]))
-                );
-            }
-
-            // Permanent Delete
-            if (empty($only) || in_array('delete', $only)) {
-                $instanceActions->put('delete', InstanceAction::make($this, 'Delete', 'fa fa-trash', 'danger')
-                    ->enableOnCondition(static::getPermission(ManageableModelPermissions::DELETE))
-                    ->setAdditionalAttributes([
-                        'title' => 'Permanent delete',
-                        'x-on:click' => <<<JS
-                            confirm('Are you sure you want to permanently delete this item?')
-                                ? \$dispatch('deleteModel', { 'modelUrlAlias': '$modelUrlAlias', 'id': $modelId })
-                                : event.stopImmediatePropagation();
-                        JS,
-                    ])
-                );
-            }
+            $instanceActions->put('restore', InstanceActionRestore::make($this));
+            $instanceActions->put('edit', InstanceActionEdit::make($this, $modelUrlAlias, $modelId));
+            $instanceActions->put('delete', InstanceActionDelete::make($this, $modelUrlAlias, $modelId, true));
         }
         // If not soft deleted
         else {
-            // Edit
-            if (empty($only) || in_array('edit', $only)) {
-                $instanceActions->put('edit', InstanceAction::make($this, 'Edit', 'fa fa-edit', 'primary')
-                    ->enableOnCondition(static::getPermission(ManageableModelPermissions::EDIT))
-                    ->setAction(route('wrla.manageable-models.edit', [
-                        'modelUrlAlias' => $modelUrlAlias,
-                        'id' => $modelId
-                    ]))
-                );
-            }
-
-            // Delete
-            if (empty($only) || in_array('delete', $only)) {
-                $instanceActions->put('delete', InstanceAction::make($this, 'Delete', 'fa fa-trash', 'danger')
-                    ->enableOnCondition(static::getPermission(ManageableModelPermissions::DELETE))
-                    ->setAdditionalAttributes([
-                        'x-on:click' => <<<JS
-                            confirm('Are you sure?')
-                                ? \$dispatch('deleteModel', { 'modelUrlAlias': '$modelUrlAlias', 'id': $modelId })
-                                : event.stopImmediatePropagation();
-                        JS,
-                    ])
-                );
-            }
+            $instanceActions->put('edit', InstanceActionEdit::make($this, $modelUrlAlias, $modelId));
+            $instanceActions->put('delete', InstanceActionDelete::make($this, $modelUrlAlias, $modelId));
         }
 
-        return $instanceActions;
+        // Filter to only the requested keys (if any)
+        return empty($only) ? $instanceActions : $instanceActions->only($only);
     }
 
     /**
