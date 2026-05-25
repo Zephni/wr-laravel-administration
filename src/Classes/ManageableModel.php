@@ -762,7 +762,7 @@ abstract class ManageableModel
      *
      * @param  mixed  $model
      */
-    public function getDefaultInstanceActions(): Collection
+    public function getDefaultInstanceActions(array $only = []): Collection
     {
         // Initialise collection
         $instanceActions = collect();
@@ -787,57 +787,67 @@ abstract class ManageableModel
         // If soft deleted
         if (WRLAHelper::isSoftDeletable(static::getBaseModelClass()) && $model?->deleted_at != null) {
             // Restore
-            $instanceActions->put('restore', InstanceAction::make($this, 'Restore', 'fa fa-undo', 'primary')
-                ->enableOnCondition(static::getPermission(ManageableModelPermissions::RESTORE))
-                ->setAdditionalAttributes([
-                    'wire:click' => 'restoreModel('.$this->getModelInstance()->id.')',
-                ])
-            );
+            if (empty($only) || in_array('restore', $only)) {
+                $instanceActions->put('restore', InstanceAction::make($this, 'Restore', 'fa fa-undo', 'primary')
+                    ->enableOnCondition(static::getPermission(ManageableModelPermissions::RESTORE))
+                    ->setAdditionalAttributes([
+                        'wire:click' => 'restoreModel('.$this->getModelInstance()->id.')',
+                    ])
+                );
+            }
 
             // Edit
-            $instanceActions->put('edit', InstanceAction::make($this, 'Edit', 'fa fa-edit', 'primary')
-                ->enableOnCondition(static::getPermission(ManageableModelPermissions::EDIT))
-                ->setAction(route('wrla.manageable-models.edit', [
-                    'modelUrlAlias' => $modelUrlAlias,
-                    'id' => $modelId
-                ]))
-            );
+            if (empty($only) || in_array('edit', $only)) {
+                $instanceActions->put('edit', InstanceAction::make($this, 'Edit', 'fa fa-edit', 'primary')
+                    ->enableOnCondition(static::getPermission(ManageableModelPermissions::EDIT))
+                    ->setAction(route('wrla.manageable-models.edit', [
+                        'modelUrlAlias' => $modelUrlAlias,
+                        'id' => $modelId
+                    ]))
+                );
+            }
 
             // Permanent Delete
-            $instanceActions->put('delete', InstanceAction::make($this, 'Delete', 'fa fa-trash', 'danger')
-                ->enableOnCondition(static::getPermission(ManageableModelPermissions::DELETE))
-                ->setAdditionalAttributes([
-                    'title' => 'Permanent delete',
-                    'x-on:click' => <<<JS
-                        confirm('Are you sure you want to permanently delete this item?')
-                            ? \$dispatch('deleteModel', { 'modelUrlAlias': '$modelUrlAlias', 'id': $modelId })
-                            : event.stopImmediatePropagation();
-                    JS,
-                ])
-            );
+            if (empty($only) || in_array('delete', $only)) {
+                $instanceActions->put('delete', InstanceAction::make($this, 'Delete', 'fa fa-trash', 'danger')
+                    ->enableOnCondition(static::getPermission(ManageableModelPermissions::DELETE))
+                    ->setAdditionalAttributes([
+                        'title' => 'Permanent delete',
+                        'x-on:click' => <<<JS
+                            confirm('Are you sure you want to permanently delete this item?')
+                                ? \$dispatch('deleteModel', { 'modelUrlAlias': '$modelUrlAlias', 'id': $modelId })
+                                : event.stopImmediatePropagation();
+                        JS,
+                    ])
+                );
+            }
         }
         // If not soft deleted
         else {
             // Edit
-            $instanceActions->put('edit', InstanceAction::make($this, 'Edit', 'fa fa-edit', 'primary')
-                ->enableOnCondition(static::getPermission(ManageableModelPermissions::EDIT))
-                ->setAction(route('wrla.manageable-models.edit', [
-                    'modelUrlAlias' => $modelUrlAlias,
-                    'id' => $modelId
-                ]))
-            );
+            if (empty($only) || in_array('edit', $only)) {
+                $instanceActions->put('edit', InstanceAction::make($this, 'Edit', 'fa fa-edit', 'primary')
+                    ->enableOnCondition(static::getPermission(ManageableModelPermissions::EDIT))
+                    ->setAction(route('wrla.manageable-models.edit', [
+                        'modelUrlAlias' => $modelUrlAlias,
+                        'id' => $modelId
+                    ]))
+                );
+            }
 
             // Delete
-            $instanceActions->put('delete', InstanceAction::make($this, 'Delete', 'fa fa-trash', 'danger')
-                ->enableOnCondition(static::getPermission(ManageableModelPermissions::DELETE))
-                ->setAdditionalAttributes([
-                    'x-on:click' => <<<JS
-                        confirm('Are you sure?')
-                            ? \$dispatch('deleteModel', { 'modelUrlAlias': '$modelUrlAlias', 'id': $modelId })
-                            : event.stopImmediatePropagation();
-                    JS,
-                ])
-            );
+            if (empty($only) || in_array('delete', $only)) {
+                $instanceActions->put('delete', InstanceAction::make($this, 'Delete', 'fa fa-trash', 'danger')
+                    ->enableOnCondition(static::getPermission(ManageableModelPermissions::DELETE))
+                    ->setAdditionalAttributes([
+                        'x-on:click' => <<<JS
+                            confirm('Are you sure?')
+                                ? \$dispatch('deleteModel', { 'modelUrlAlias': '$modelUrlAlias', 'id': $modelId })
+                                : event.stopImmediatePropagation();
+                        JS,
+                    ])
+                );
+            }
         }
 
         return $instanceActions;
