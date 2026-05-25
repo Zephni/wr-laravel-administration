@@ -1589,7 +1589,9 @@ class WRLAHelper
 
             // Only log if the value has actually changed
             if ($oldValue != $newValue) {
-                $changeLog[$key] = "'$oldValue' -> '$newValue'";
+                $oldValueStr = !is_array($oldValue) ? $oldValue : json_encode($oldValue);
+                $newValueStr = !is_array($newValue) ? $newValue : json_encode($newValue);
+                $changeLog[$key] = "'$oldValueStr' -> '$newValueStr'";
             }
         }
 
