@@ -211,6 +211,7 @@
                     cropper = new Cropper(imageToCrop, {
                         aspectRatio: aspectRatioCalculation,
                         viewMode: 1,
+                        autoCropArea: 1,
                         // Add other Cropper.js options here
 
                         // Update preview on ready and cropend
