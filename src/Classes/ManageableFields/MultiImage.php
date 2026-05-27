@@ -35,7 +35,12 @@ class MultiImage
             throw new Exception('Path is required for MultiImage ' . $column . ' field');
         }
 
-        $instance = new static($column, $manageableModel?->getModelInstance()->{$column}, $manageableModel);
+        $value = $manageableModel?->getModelInstance()->{$column};
+        if (is_array($value)) {
+            $value = json_encode($value);
+        }
+
+        $instance = new static($column, $value, $manageableModel);
 
         $instance->setOptions([
             'path' => rtrim($path, '/'),
