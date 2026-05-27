@@ -66,6 +66,8 @@ class MultiImageUploads extends Component
         $this->serializedImages = empty($this->images)
             ? ''
             : TemporaryUploadedFile::serializeMultipleForLivewireResponse($this->images);
+
+        session()->put('wrla_multi_image_' . $this->fieldName, $this->serializedImages);
     }
 
     /**
@@ -77,6 +79,11 @@ class MultiImageUploads extends Component
         $this->fieldName = $fieldName;
         $this->maxImages = $maxImages;
         $this->validation = $validation;
+
+        // Restore from session if serializedImages is not already populated by Livewire
+        if (empty($this->serializedImages)) {
+            $this->serializedImages = session()->get('wrla_multi_image_' . $this->fieldName, '');
+        }
 
         // Unserialize images from session, filtering out any stale temp files that
         // no longer exist on disk (prevents temporaryUrl() from throwing on render).
