@@ -20,16 +20,16 @@ class MultiImage
      *
      * @param ?ManageableModel $manageableModel
      * @param ?string $column
-     * @param ?string $path  Storage path for uploaded images (required)
-     * @param int $maxImages Maximum number of images allowed
      * @param string $fileSystem Storage disk name
+     * @param string $path  Storage path for uploaded images (required)
+     * @param int $maxImages Maximum number of images allowed
      */
     public static function make(
         ?ManageableModel $manageableModel = null,
         ?string $column = null,
-        ?string $path = null,
+        string $fileSystem = 'public',
+        string $path = 'images',
         int $maxImages = 5,
-        string $fileSystem = 'public'
     ): static {
         if (empty($path)) {
             throw new Exception('Path is required for MultiImage ' . $column . ' field');
