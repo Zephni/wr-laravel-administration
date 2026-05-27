@@ -183,11 +183,20 @@ trait ManageableField
     public static function make(?ManageableModel $manageableModel = null, ?string $column = null, ?array $options = null): static
     {
         $value = $manageableModel?->getModelInstance()->{$column};
-        if(is_array($value)) {
-            $value = json_encode($value);
+        $valueIsArray = is_array($value);
+        if($valueIsArray) {
+            $value = json_encode($value, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
         }
 
         $manageableField = new static($column, $value, $manageableModel);
+
+        // If value was an array (eg. Eloquent array/json cast), decode the submitted JSON string back to an
+        // array on submit so the cast handles serialisation correctly and avoids double-encoding.
+        if($valueIsArray) {
+            $manageableField->appendApplySubmittedValue(function(Request $request, mixed $value) {
+                return is_string($value) ? json_decode($value, true) : $value;
+            });
+        }
 
         if(!is_null($options)) {
             $manageableField->setOptions($options);

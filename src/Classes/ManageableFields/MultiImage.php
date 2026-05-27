@@ -37,7 +37,7 @@ class MultiImage
 
         $value = $manageableModel?->getModelInstance()->{$column};
         if (is_array($value)) {
-            $value = json_encode($value);
+            $value = json_encode($value, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
         }
 
         $instance = new static($column, $value, $manageableModel);
@@ -175,6 +175,6 @@ class MultiImage
             }
         }
 
-        return json_encode(array_merge($existingFilenames, $newFilenames));
+        return array_merge($existingFilenames, $newFilenames);
     }
 }
