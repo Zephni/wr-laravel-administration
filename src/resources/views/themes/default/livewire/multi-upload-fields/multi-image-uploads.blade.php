@@ -1,4 +1,4 @@
-<div wire:key="multi-image-uploads-{{ $fieldName }}">
+<div wire:key="multi-image-uploads-{{ $fieldName }}" class="mt-1">
 
     {{-- Hidden inputs so applySubmittedValue can read state from the HTTP POST --}}
     <input type="hidden" name="{{ $fieldName }}_existing" value="{{ json_encode(array_column($existingImages, 'name')) }}">
@@ -9,7 +9,7 @@
         <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-5">
 
             {{-- Existing DB images — wire:model targets "replacements.{index}" so that
-                 updatedReplacements() fires on upload rather than updatedImages(). --}}
+                updatedReplacements() fires on upload rather than updatedImages(). --}}
             @foreach($existingImages as $index => $existingImage)
                 <div class="flex flex-col gap-y-2">
                     <x-wrla-image-uploader
