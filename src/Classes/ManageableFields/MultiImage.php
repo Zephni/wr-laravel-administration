@@ -71,6 +71,20 @@ class MultiImage
     }
 
     /**
+     * Pre-validation hook.
+     *
+     * The Livewire component writes state into {fieldName}_existing and {fieldName}_new_serialized
+     * rather than {fieldName} itself, so the field's key is absent from $request->all().
+     * Returning true here forces the current column value to be merged into the request under
+     * the field's own key, which prevents ManageableModel::updateModelInstanceProperties from
+     * skipping this field due to the key-existence guard.
+     */
+    public function preValidation(?string $value): bool
+    {
+        return true;
+    }
+
+    /**
      * Render the field — embeds the MultiImageUploads Livewire component within a labelled wrapper.
      */
     public function render(): mixed
@@ -126,9 +140,10 @@ class MultiImage
     {
         $fieldName = $this->getName();
 
-        // If the component was not rendered, leave the column untouched.
+        // If the component was not rendered, leave the column untouched by returning the
+        // current value unchanged (returning null would wipe the column).
         if (!$request->has($fieldName . '_existing')) {
-            return null;
+            return $value;
         }
 
         // Surviving existing filenames.
