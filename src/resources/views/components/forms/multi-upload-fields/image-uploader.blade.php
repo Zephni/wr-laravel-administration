@@ -3,6 +3,7 @@
     'existingImageUrl' => null,    {{-- plain URL string for already-stored DB images --}}
     'existingImageOriginalName' => null,
     'imageIndex',
+    'displayIndex' => null,        {{-- counter position in the full grid (defaults to imageIndex) --}}
     'maxImages',
     'fieldName' => 'images',
     'deleteAction' => null,
@@ -63,7 +64,7 @@
     <div class="w-full h-full transition-opacity has-[+.delete-image-btn:hover]:opacity-20">
         {{-- Counter --}}
         <div class="absolute top-1 left-1 bg-slate-600 text-white border border-slate-50 text-xs font-semibold px-2 py-0.5 rounded-full z-20 cursor-default">
-            {{ $imageIndex + 1 }} / <span class="pl-px">{{ $maxImages }}</span>
+            {{ ($displayIndex ?? $imageIndex) + 1 }} / <span class="pl-px">{{ $maxImages }}</span>
         </div>
 
         <label

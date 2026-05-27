@@ -8,28 +8,31 @@
     <div wire:key="images-container" class="flex flex-col gap-y-2">
         <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-5">
 
-            {{-- Existing DB images --}}
+            {{-- Existing DB images — wire:model targets "replacements.{index}" so that
+                 updatedReplacements() fires on upload rather than updatedImages(). --}}
             @foreach($existingImages as $index => $existingImage)
                 <div class="flex flex-col gap-y-2">
                     <x-wrla-image-uploader
                         :existing-image-url="$existingImage['url']"
                         :existing-image-original-name="$existingImage['name']"
+                        :display-index="$index"
                         :image-index="$index"
+                        :field-name="'replacements'"
                         :max-images="$maxImages"
-                        :field-name="$fieldName"
                         :delete-action="'removeExistingImage('.$index.')'"
                     />
                 </div>
             @endforeach
 
-            {{-- New temp uploads --}}
+            {{-- New temp uploads — true 0-based index within the $images array. --}}
             @foreach($images as $index => $image)
                 <div class="flex flex-col gap-y-2">
                     <x-wrla-image-uploader
                         :existing-image="$image"
-                        :image-index="count($existingImages) + $index"
+                        :display-index="count($existingImages) + $index"
+                        :image-index="$index"
+                        :field-name="'images'"
                         :max-images="$maxImages"
-                        :field-name="$fieldName"
                         :delete-action="'removeImage('.$index.')'"
                     />
                 </div>
@@ -39,9 +42,10 @@
             @if((count($existingImages) + count($images)) < $maxImages)
                 <div class="flex flex-col gap-y-2">
                     <x-wrla-image-uploader
-                        :image-index="count($existingImages) + count($images)"
+                        :display-index="count($existingImages) + count($images)"
+                        :image-index="count($images)"
+                        :field-name="'images'"
                         :max-images="$maxImages"
-                        :field-name="$fieldName"
                     />
                 </div>
             @endif
