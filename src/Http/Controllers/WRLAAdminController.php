@@ -9,6 +9,7 @@ use Illuminate\View\View;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use WebRegulate\LaravelAdministration\Enums\PageType;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
@@ -255,6 +256,32 @@ class WRLAAdminController extends Controller
     public function uploadWysiwygImage(Request $request)
     {
         return WRLAHelper::uploadWysiwygImage($request);
+    }
+
+    /**
+     * Serve a file from a private storage disk (admin-only).
+     * The path is base64-encoded to keep the URL clean and avoid routing issues with slashes.
+     */
+    public function serveFile(Request $request, string $disk, string $encodedPath)
+    {
+        $path = base64_decode($encodedPath, strict: true);
+
+        // Guard against path traversal attacks.
+        if ($path === false || str_contains($path, '..')) {
+            abort(400, 'Invalid file path.');
+        }
+
+        $storage = Storage::disk($disk);
+
+        if (!$storage->exists($path)) {
+            abort(404);
+        }
+
+        $mimeType = $storage->mimeType($path) ?: 'application/octet-stream';
+
+        return response($storage->get($path), 200)
+            ->header('Content-Type', $mimeType)
+            ->header('Cache-Control', 'private, max-age=3600');
     }
 
     /**

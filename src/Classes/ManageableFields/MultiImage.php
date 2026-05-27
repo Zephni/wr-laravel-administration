@@ -82,11 +82,22 @@ class MultiImage
         $currentValue = $this->getValue();
         if (!empty($currentValue)) {
             $filenames = json_decode($currentValue, true) ?? [];
-            $disk = Storage::disk($this->getOption('fileSystem'));
+            $fileSystemName = $this->getOption('fileSystem');
+            $disk = Storage::disk($fileSystemName);
             $path = rtrim($this->getOption('path'), '/');
+            $isPublicDisk = $fileSystemName === 'public';
             foreach ($filenames as $filename) {
+                $filePath = ltrim("{$path}/{$filename}", '/');
+                if ($isPublicDisk) {
+                    $url = $disk->url($filePath);
+                } else {
+                    $url = route('wrla.serve-file', [
+                        'disk'        => $fileSystemName,
+                        'encodedPath' => base64_encode($filePath),
+                    ]);
+                }
                 $existingImages[] = [
-                    'url'  => $disk->url(ltrim("{$path}/{$filename}", '/')),
+                    'url'  => $url,
                     'name' => $filename,
                 ];
             }

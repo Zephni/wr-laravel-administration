@@ -45,6 +45,9 @@ Route::group(['namespace' => 'WebRegulate\LaravelAdministration\Http\Controllers
             // Dashboard
             Route::get('dashboard', 'index')->name('dashboard');
 
+            // Serve private filesystem files (base64-encoded path) — admin-only
+            Route::get('serve-file/{disk}/{encodedPath}', 'serveFile')->name('serve-file');
+
             // View file manager
             Route::get('file-manager', 'fileManager')->name('file-manager');
 
