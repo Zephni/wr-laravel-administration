@@ -11,7 +11,7 @@ class MultiImageUploads extends Component
     use WithFileUploads;
 
     /**
-     * Field name used for wire:model bindings and session key.
+     * Field name used for wire:model bindings.
      * Must match the public property name on this component (default: 'images').
      */
     public string $fieldName = 'images';
@@ -32,12 +32,18 @@ class MultiImageUploads extends Component
     public array $images = [];
 
     /**
-     * Serialized images (Use TemporaryUploadedFile::unserializeFromLivewireRequest to retrieve)
+     * Existing DB images: array of ['url' => '...', 'name' => '...']
+     */
+    public array $existingImages = [];
+
+    /**
+     * Serialized new uploads — written into a hidden form input so applySubmittedValue
+     * can retrieve the temp files from the HTTP POST without needing session storage.
      */
     public string $serializedImages = '';
 
     /**
-     * On updated images, serialize so we can repopulate on re-mount
+     * On updated images, validate and reindex
      */
     public function updatedImages(mixed $value)
     {
@@ -53,45 +59,29 @@ class MultiImageUploads extends Component
             $this->addError('images.' . count($this->images), $validationError);
         }
 
-        // Set images and sync serialized version for session storage
         $this->images = $validatedImages;
         $this->syncSerializedImages();
     }
 
     /**
-     * Serialize images for session storage
+     * Serialize new uploads into $serializedImages for the hidden form input.
      */
     private function syncSerializedImages(): void
     {
         $this->serializedImages = empty($this->images)
             ? ''
             : TemporaryUploadedFile::serializeMultipleForLivewireResponse($this->images);
-
-        session()->put('wrla_multi_image_' . $this->fieldName, $this->serializedImages);
     }
 
     /**
      * Mount
      */
-    public function mount(int $maxImages, string|array $validation = 'image|mimes:jpeg,png,jpg|max:10240', string $fieldName = 'images')
+    public function mount(int $maxImages, string|array $validation = 'image|mimes:jpeg,png,jpg|max:10240', string $fieldName = 'images', array $existingImages = [])
     {
-        // Set field name, max images and validation
         $this->fieldName = $fieldName;
         $this->maxImages = $maxImages;
         $this->validation = $validation;
-
-        // Restore from session if serializedImages is not already populated by Livewire
-        if (empty($this->serializedImages)) {
-            $this->serializedImages = session()->get('wrla_multi_image_' . $this->fieldName, '');
-        }
-
-        // Unserialize images from session, filtering out any stale temp files that
-        // no longer exist on disk (prevents temporaryUrl() from throwing on render).
-        if(!empty($this->serializedImages)) {
-            $files = TemporaryUploadedFile::unserializeFromLivewireRequest($this->serializedImages);
-            $this->images = array_values(array_filter($files, fn($f) => $f->exists() && $f->isPreviewable()));
-            $this->syncSerializedImages();
-        }
+        $this->existingImages = $existingImages;
     }
 
     /**
@@ -103,7 +93,7 @@ class MultiImageUploads extends Component
     }
 
     /**
-     * Remove an existing image by index
+     * Remove a newly-uploaded temp image by index.
      */
     public function removeImage(int $index): void
     {
@@ -115,8 +105,20 @@ class MultiImageUploads extends Component
 
         // Reindex for consistent Livewire bindings (images.0, images.1, ...)
         $this->images = array_values($this->images);
-
         $this->syncSerializedImages();
+    }
+
+    /**
+     * Remove an existing DB image by index.
+     */
+    public function removeExistingImage(int $index): void
+    {
+        if (!array_key_exists($index, $this->existingImages)) {
+            return;
+        }
+
+        unset($this->existingImages[$index]);
+        $this->existingImages = array_values($this->existingImages);
     }
 
     /**

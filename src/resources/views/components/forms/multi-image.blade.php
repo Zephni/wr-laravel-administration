@@ -1,4 +1,4 @@
-@props(['options' => [], 'label' => null, 'fieldName' => 'images', 'maxImages' => 5, 'validation' => 'image|mimes:jpeg,png,jpg|max:10240'])
+@props(['options' => [], 'label' => null, 'fieldName' => 'images', 'maxImages' => 5, 'validation' => 'image|mimes:jpeg,png,jpg|max:10240', 'existingImages' => []])
 
 <div class="{{ $options['containerClass'] ?? 'w-full' }}">
 
@@ -12,9 +12,10 @@
     @endif
 
     @livewire('wrla.multi-upload-fields.multi-image-uploads', [
-        'fieldName' => $fieldName,
-        'maxImages' => $maxImages,
-        'validation' => $validation,
+        'fieldName'      => $fieldName,
+        'maxImages'      => $maxImages,
+        'validation'     => $validation,
+        'existingImages' => $existingImages,
     ])
 
 </div>

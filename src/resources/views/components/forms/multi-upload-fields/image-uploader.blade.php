@@ -1,5 +1,6 @@
 @props([
-    'existingImage' => null,
+    'existingImage' => null,       {{-- TemporaryUploadedFile for new uploads --}}
+    'existingImageUrl' => null,    {{-- plain URL string for already-stored DB images --}}
     'existingImageOriginalName' => null,
     'imageIndex',
     'maxImages',
@@ -9,6 +10,9 @@
 
 @php
     $hasPreviewableImage = $existingImage instanceof \Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
+    $hasUrlImage        = !empty($existingImageUrl);
+    $hasAnyImage        = $hasPreviewableImage || $hasUrlImage;
+    $previewSrc         = $hasPreviewableImage ? $existingImage->temporaryUrl() : ($hasUrlImage ? $existingImageUrl : null);
     $imageName = !empty($existingImageOriginalName)
         ? $existingImageOriginalName
         : ($hasPreviewableImage ? $existingImage->getClientOriginalName() : null);
@@ -53,7 +57,7 @@
     {{ $attributes->merge([
         'class' => 'relative overflow-hidden bg-slate-100 hover:bg-slate-200 border border-slate-400 rounded-md shadow-lg text-base transition-colors',
         'style' => 'aspect-ratio: 1 / 0.8;',
-        'title' => $hasPreviewableImage ? $imageName : 'Add image',
+        'title' => $hasAnyImage ? $imageName : 'Add image',
     ]) }}
 >
     <div class="w-full h-full transition-opacity has-[+.delete-image-btn:hover]:opacity-20">
@@ -68,20 +72,20 @@
             class="block w-full h-full cursor-pointer"
         >
 
-            {{-- If existing image (and is previewable) --}}
-            @if($hasPreviewableImage)
+            {{-- If existing image (previewable temp file or stored URL) --}}
+            @if($hasAnyImage)
 
                 <div class="has-[+.delete-image-btn:hover]:opacity-20 relative group w-full h-full flex flex-col text-slate-600">
                     {{-- Blurred image that covers entire background --}}
                     <img
-                        src="{{ $existingImage->temporaryUrl() }}"
+                        src="{{ $previewSrc }}"
                         alt="Existing Image {{ $imageIndex + 1 }}"
                         class="absolute inset-0 w-full h-full object-cover filter blur-sm opacity-80 rounded-md pointer-events-none"
                     />
                     {{-- Image --}}
                     <div class="flex-1 min-h-0 overflow-hidden">
                         <img
-                            src="{{ $existingImage->temporaryUrl() }}"
+                            src="{{ $previewSrc }}"
                             alt="Existing Image {{ $imageIndex + 1 }}"
                             x-bind:class="isDeleteHovered ? 'opacity-50' : 'opacity-100'"
                             class="relative w-full h-full object-contain rounded-md transition-opacity"
@@ -151,7 +155,7 @@
     </div>
 
     {{-- Delete action --}}
-    @if($hasPreviewableImage && $deleteAction)
+    @if($hasAnyImage && $deleteAction)
         <button
             type="button"
             wire:click.stop="{{ $deleteAction }}"
