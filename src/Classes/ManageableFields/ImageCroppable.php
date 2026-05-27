@@ -183,7 +183,14 @@ class ImageCroppable
      */
     public function manipulateImage(callable $callback): static
     {
-        $this->manipulateImageFunction = $callback;
+        if ($this->manipulateImageFunction !== null) {
+            $previous = $this->manipulateImageFunction;
+            $this->manipulateImageFunction = function ($image) use ($previous, $callback) {
+                return $callback($previous($image));
+            };
+        } else {
+            $this->manipulateImageFunction = $callback;
+        }
 
         return $this;
     }
