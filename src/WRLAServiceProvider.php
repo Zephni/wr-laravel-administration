@@ -35,6 +35,7 @@ use WebRegulate\LaravelAdministration\Classes\ManageableFields\SearchableValue;
 use WebRegulate\LaravelAdministration\Livewire\ManageableModels\ManageableModelBrowse;
 use WebRegulate\LaravelAdministration\Livewire\ManageableModels\ManageableModelUpsert;
 use WebRegulate\LaravelAdministration\Livewire\ManageableModels\ManageableModelDynamicBrowseFilters;
+use WebRegulate\LaravelAdministration\Livewire\MultiUploadFields\MultiImageUploads;
 
 class WRLAServiceProvider extends ServiceProvider
 {
@@ -200,10 +201,12 @@ class WRLAServiceProvider extends ServiceProvider
         Livewire::component('wrla.manageable-fields.searchable-value', SearchableValue::class);
         Livewire::component('wrla.file-manager', FileManager::class);
         Livewire::component('wrla.logs', Logs::class);
+        Livewire::component('wrla.multi-upload-fields.multi-image-uploads', MultiImageUploads::class);
         Livewire::forceAssetInjection();
 
         // Load custom blade directives
         Blade::component('wr-laravel-administration::components.modals.modal-layout', 'wrla-modal-layout');
+        Blade::component('wr-laravel-administration::components.forms.multi-upload-fields.image-uploader', 'wrla-image-uploader');
     }
 
     /**
