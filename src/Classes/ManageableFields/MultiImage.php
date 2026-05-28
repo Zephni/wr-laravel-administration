@@ -145,27 +145,39 @@ class MultiImage
 
         // Build existing-image data from the current stored JSON value.
         $existingImages = [];
+        $parseError = null;
         $currentValue = $this->getValue();
         if (!empty($currentValue)) {
-            $filenames = json_decode($currentValue, true) ?? [];
-            $fileSystemName = $this->getOption('fileSystem');
-            $disk = Storage::disk($fileSystemName);
-            $path = rtrim($this->getOption('path'), '/');
-            $isPublicDisk = $fileSystemName === 'public';
-            foreach ($filenames as $filename) {
-                $filePath = ltrim("{$path}/{$filename}", '/');
-                if ($isPublicDisk) {
-                    $url = $disk->url($filePath);
-                } else {
-                    $url = route('wrla.serve-file', [
-                        'disk'        => $fileSystemName,
-                        'encodedPath' => base64_encode($filePath),
-                    ]);
+            try {
+                $filenames = json_decode(is_array($currentValue) ? json_encode($currentValue) : $currentValue, true);
+                if (!is_array($filenames)) {
+                    throw new \RuntimeException('Stored value did not decode to an array.');
                 }
-                $existingImages[] = [
-                    'url'  => $url,
-                    'name' => $filename,
-                ];
+                $fileSystemName = $this->getOption('fileSystem');
+                $disk = Storage::disk($fileSystemName);
+                $path = rtrim($this->getOption('path'), '/');
+                $isPublicDisk = $fileSystemName === 'public';
+                foreach ($filenames as $filename) {
+                    if (!is_string($filename)) {
+                        throw new \RuntimeException('Unexpected non-string entry in image list.');
+                    }
+                    $filePath = ltrim("{$path}/{$filename}", '/');
+                    if ($isPublicDisk) {
+                        $url = $disk->url($filePath);
+                    } else {
+                        $url = route('wrla.serve-file', [
+                            'disk'        => $fileSystemName,
+                            'encodedPath' => base64_encode($filePath),
+                        ]);
+                    }
+                    $existingImages[] = [
+                        'url'  => $url,
+                        'name' => $filename,
+                    ];
+                }
+            } catch (\Throwable $e) {
+                $parseError = 'Could not parse stored image data (the JSON may be malformed or corrupted). Saving this form will overwrite the existing value.';
+                $existingImages = [];
             }
         }
 
@@ -176,6 +188,7 @@ class MultiImage
             'maxImages'      => $this->getOption('maxImages'),
             'validation'     => $validation,
             'existingImages' => $existingImages,
+            'parseError'     => $parseError,
         ])->render();
     }
 
