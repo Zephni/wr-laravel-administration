@@ -5,7 +5,6 @@ namespace WebRegulate\LaravelAdministration\Classes\ManageableFields;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use WebRegulate\LaravelAdministration\Classes\ManageableModel;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
@@ -22,6 +21,7 @@ class MultiImage
      * @param ?string $column
      * @param string $fileSystem Storage disk name
      * @param string $path  Storage path for uploaded images (required)
+     * @param null|string|callable $filename  If string, can contain {index}, {id}, {time} placeholders. If callable, takes (manageableModel, originalFilename, index) and must return the filename. If null, uses the original filename from the uploaded file.
      * @param int $maxImages Maximum number of images allowed
      */
     public static function make(
@@ -29,6 +29,7 @@ class MultiImage
         ?string $column = null,
         string $fileSystem = 'public',
         string $path = 'images',
+        null|string|callable $filename = null,
         int $maxImages = 5,
     ): static {
         if (empty($path)) {
@@ -46,10 +47,22 @@ class MultiImage
             'path' => rtrim($path, '/'),
             'maxImages' => $maxImages,
             'fileSystem' => $fileSystem,
+            'filename' => $filename,
             'uploadValidation' => 'image|mimes:jpeg,png,jpg|max:10240',
         ]);
 
         return $instance;
+    }
+
+    /**
+     * Set filename option.
+     *
+     * @param null|string|callable $filename  If string, can contain {index}, {id}, {time} placeholders. If callable, takes (manageableModel, originalFilename, index) and must return the filename. If null, uses the original filename from the uploaded file.
+     */
+    public function filename(null|string|callable $filename): static
+    {
+        $this->setOption('filename', $filename);
+        return $this;
     }
 
     /**
@@ -59,6 +72,45 @@ class MultiImage
     {
         $this->setOption('maxImages', $maxImages);
         return $this;
+    }
+
+    /**
+     * Format the filename for a new uploaded image.
+     *
+     * @param null|string|callable $name  If null, returns the original filename. If string, replaces {index}, {id}, {time} placeholders. If callable, calls it with (manageableModel, originalFilename, index).
+     */
+    public function formatImageName(null|string|callable $name, string $originalFileName, int $index = 0): string
+    {
+        // If null, use the original filename as-is.
+        if ($name === null) {
+            return $originalFileName;
+        }
+
+        // If callable, delegate to it.
+        if (is_callable($name)) {
+            return $name($this->manageableModel?->getModelInstance(), $originalFileName, $index);
+        }
+
+        // Replace {index} with the current image index.
+        if (str_contains($name, '{index}')) {
+            $name = str_replace('{index}', $index, $name);
+        }
+
+        // Replace {id} with the model's id.
+        if (str_contains($name, '{id}')) {
+            $id = $this->manageableModel?->getModelInstance()->id;
+            if (empty($id)) {
+                $id = $this->manageableModel?->getModelInstance()->max('id') + 1;
+            }
+            $name = str_replace('{id}', $id, $name);
+        }
+
+        // Replace {time} with the current Unix timestamp.
+        if (str_contains($name, '{time}')) {
+            $name = str_replace('{time}', time(), $name);
+        }
+
+        return $name;
     }
 
     /**
@@ -167,9 +219,18 @@ class MultiImage
                 $disk->makeDirectory($path);
             }
 
-            foreach ($newFiles as $file) {
-                $extension = $file->getClientOriginalExtension() ?: 'jpg';
-                $filename  = (string) Str::uuid() . '.' . $extension;
+            $filenameOption = $this->getOption('filename');
+
+            foreach ($newFiles as $index => $file) {
+                $originalName = $file->getClientOriginalName();
+                $filename = $this->formatImageName($filenameOption, $originalName, $index);
+
+                // If the resolved filename has no extension, append the uploaded file's extension.
+                if (!str_contains($filename, '.')) {
+                    $extension = $file->getClientOriginalExtension() ?: 'jpg';
+                    $filename .= '.' . $extension;
+                }
+
                 $disk->put("{$path}/{$filename}", $file->get());
                 $newFilenames[] = $filename;
             }
