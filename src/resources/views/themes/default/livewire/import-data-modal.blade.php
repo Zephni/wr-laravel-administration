@@ -212,20 +212,11 @@
             <div class="flex flex-col sm:flex-row justify-end items-stretch sm:items-center gap-2 mt-4">
                 {{-- Import 1 (test) button: imports just the next remaining row and removes it from the list --}}
                 @themeComponent('forms.button', [
-                    'text' => '
-                        <span wire:loading.remove wire:target="importSingleRow,importData">
-                            <i class="fas fa-vial pr-1"></i>
-                            Import 1 (test next row)
-                        </span>
-                        <span wire:loading wire:target="importSingleRow">
-                            <i class="fas fa-spinner fa-spin pr-1"></i> Testing...
-                        </span>
-                    ',
+                    'text' => 'Import 1 (test next row)',
+                    'icon' => 'fas fa-vial',
                     'color' => 'secondary',
                     'size' => 'medium',
                     'attributes' => Arr::toAttributeBag([
-                        'wire:loading.attr' => 'disabled',
-                        'wire:loading.class' => 'opacity-70 cursor-not-allowed',
                         'wire:click' => 'importSingleRow',
                         'disabled' => $hasRemaining ? null : 'disabled',
                         'class' => $hasRemaining ? '' : 'opacity-50 cursor-not-allowed',
@@ -234,17 +225,11 @@
 
                 {{-- Import all remaining rows --}}
                 @themeComponent('forms.button', [
-                    'text' => '
-                        <span wire:loading.remove wire:target="importData,importSingleRow">'
-                            .($testedRows > 0 ? 'Import remaining '.$remainingRows.' rows' : 'Import '.$remainingRows.' rows')
-                            .' into '.$manageableModelClass::getDisplayName(true).'</span>
-                        <span wire:loading wire:target="importData">Importing '.$remainingRows.', please wait...</span>
-                    ',
+                    'text' => ($testedRows > 0 ? 'Import remaining '.$remainingRows.' rows' : 'Import '.$remainingRows.' rows')
+                        .' into '.$manageableModelClass::getDisplayName(true),
                     'icon' => 'fas fa-file-import',
                     'size' => 'medium',
                     'attributes' => Arr::toAttributeBag([
-                        'wire:loading.attr' => 'disabled',
-                        'wire:loading.class' => 'opacity-70 cursor-not-allowed',
                         'wire:click' => 'importData',
                         'disabled' => $hasRemaining ? null : 'disabled',
                         'class' => $hasRemaining ? '' : 'opacity-50 cursor-not-allowed',
