@@ -234,45 +234,10 @@ class ManageableModelBrowse extends Component
      */
     public function exportAsCSVAction(?string $manageableModelStaticExportMethod = null): StreamedResponse
     {
-        // File name
-        $fileName = $this->manageableModelClass::getDisplayName(true).' '.date('Y-m-d H:i').'.csv';
-
-        // Get current data set
-        $models = $this->browseModels()->get();
-
-        // If a static export method is provided, use that
-        if ($manageableModelStaticExportMethod !== null) {
-            // If the method does not exist, or does not start with 'export', dd
-            if (! str($manageableModelStaticExportMethod)->startsWith('export')) {
-                dd("Export method name must begin with 'export', $manageableModelStaticExportMethod provided.");
-            }
-            if (! method_exists($this->manageableModelClass, $manageableModelStaticExportMethod)) {
-                dd("Export method $manageableModelStaticExportMethod does not exist on {$this->manageableModelClass}.");
-            }
-
-            $models = $this->manageableModelClass::$manageableModelStaticExportMethod($models, $fileName);
-
-            $headings = array_keys($models->first() ?? []);
-        }
-        else
-        {
-            // Get all headings (array of all column names)
-            $headings = $this->manageableModelClass::getTableColumns(); 
-        }
-
-        // Sort data
-        if (! is_array($models->first()) && isset($models->first()['id'])) {
-            $rowData = $models->sortBy('id');
-        }
-
-        // Get all values (array of all model values)
-        $rowData = $models->values()->toArray();
-
-        // Use CSVHelper to build CSV
-        return CSVHelper::build(
-            $fileName,
-            $headings,
-            $rowData
+        return CSVHelper::exportManageableModels(
+            $this->manageableModelClass,
+            $this->browseModels()->get(),
+            $manageableModelStaticExportMethod
         );
     }
 

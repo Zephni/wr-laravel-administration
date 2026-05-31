@@ -2,10 +2,60 @@
 
 namespace WebRegulate\LaravelAdministration\Classes;
 
+use Illuminate\Support\Collection;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class CSVHelper
 {
+    /**
+     * Export a collection of models as a CSV streamed response.
+     *
+     * @param  string  $manageableModelClass  The manageable model class.
+     * @param  Collection  $models  The current data set to export.
+     * @param  ?string  $manageableModelStaticExportMethod  The static export method to use in place of the standard export. Method name must begin with 'export', takes a collection of models and a file name reference, and returns a collection of associative arrays (keys used as headings).
+     */
+    public static function exportManageableModels(
+        string $manageableModelClass,
+        Collection $models,
+        ?string $manageableModelStaticExportMethod = null
+    ): StreamedResponse {
+        // File name
+        $fileName = $manageableModelClass::getDisplayName(true).' '.date('Y-m-d H:i').'.csv';
+
+        // If a static export method is provided, use that
+        if ($manageableModelStaticExportMethod !== null) {
+            // If the method does not exist, or does not start with 'export', dd
+            if (! str($manageableModelStaticExportMethod)->startsWith('export')) {
+                dd("Export method name must begin with 'export', $manageableModelStaticExportMethod provided.");
+            }
+            if (! method_exists($manageableModelClass, $manageableModelStaticExportMethod)) {
+                dd("Export method $manageableModelStaticExportMethod does not exist on {$manageableModelClass}.");
+            }
+
+            $models = $manageableModelClass::$manageableModelStaticExportMethod($models, $fileName);
+
+            $headings = array_keys($models->first() ?? []);
+        } else {
+            // Get all headings (array of all column names)
+            $headings = $manageableModelClass::getTableColumns();
+        }
+
+        // Sort data
+        if (! is_array($models->first()) && isset($models->first()['id'])) {
+            $rowData = $models->sortBy('id');
+        }
+
+        // Get all values (array of all model values)
+        $rowData = $models->values()->toArray();
+
+        // Use build to stream CSV
+        return self::build(
+            $fileName,
+            $headings,
+            $rowData
+        );
+    }
+
     /**
      * Array should just be a natural indexed array of data
      */
