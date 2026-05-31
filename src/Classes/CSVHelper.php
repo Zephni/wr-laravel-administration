@@ -2,6 +2,9 @@
 
 namespace WebRegulate\LaravelAdministration\Classes;
 
+use DateTimeImmutable;
+use DateTimeInterface;
+use Exception;
 use Illuminate\Support\Collection;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -82,9 +85,23 @@ class CSVHelper
             // Write the data
             foreach ($data as $row) {
                 try {
-                    $row = array_map(fn ($value) => is_array($value) ? json_encode($value) : $value, (array) $row);
+                    $row = array_map(function ($value) {
+                        if ($value instanceof DateTimeInterface) {
+                            return $value->format('Y-m-d H:i:s');
+                        }
+
+                        if (is_string($value) && preg_match('/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z$/', $value)) {
+                            try {
+                                return (new DateTimeImmutable($value))->format('Y-m-d H:i:s');
+                            } catch (Exception) {
+                                return $value;
+                            }
+                        }
+
+                        return is_array($value) ? json_encode($value) : $value;
+                    }, (array) $row);
                     fputcsv($csv, $row);
-                } catch (\Exception) {
+                } catch (Exception) {
                     // Skip this row on failure
                 }
             }
