@@ -4,7 +4,6 @@ namespace WebRegulate\LaravelAdministration\Livewire;
 
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
-use Livewire\Attributes\Rule;
 use Livewire\WithFileUploads;
 use LivewireUI\Modal\ModalComponent;
 use WebRegulate\LaravelAdministration\Classes\CSVHelper;
@@ -27,12 +26,29 @@ class ImportDataModal extends ModalComponent
     public $manageableModelClass;
 
     /**
-     * The uploaded file.
+     * The uploaded file. Validation rules are defined in rules() so they can be
+     * sourced from the wr-laravel-administration config (csv_imports.upload_rules).
      *
      * @var mixed
      */
-    #[Rule(['required', 'file', 'mimes:csv', 'max:5120'])]
     public $file = null;
+
+    /**
+     * Validation rules. Pulled from config so projects can override per-install.
+     *
+     * @return array<string, mixed>
+     */
+    protected function rules(): array
+    {
+        return [
+            'file' => config('wr-laravel-administration.csv_imports.upload_rules', [
+                'required',
+                'file',
+                'mimetypes:text/csv,text/plain,application/csv,application/vnd.ms-excel,application/octet-stream',
+                'max:61440',
+            ]),
+        ];
+    }
 
     /**
      * Headers mapped to columns

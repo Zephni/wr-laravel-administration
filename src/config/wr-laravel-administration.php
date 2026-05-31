@@ -236,10 +236,14 @@ return [
 
     // CSV import configuration (used by the ImportDataModal)
     'csv_imports' => [
-        // Number of rows per chunk file. Smaller = more requests but lower memory; larger = fewer requests but higher memory.
         'chunk_size' => 500,
-        // Maximum number of failure reasons to display during import
         'max_failed_reasons' => 10,
+        'upload_rules' => [
+            'required',
+            'file',
+            'mimetypes:text/csv,text/plain,application/csv,application/vnd.ms-excel,application/octet-stream',
+            'max:61440',
+        ],
     ],
 
     // File manager configuration
