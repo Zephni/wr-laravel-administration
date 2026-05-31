@@ -35,8 +35,6 @@ class ImportDataModal extends ModalComponent
 
     /**
      * Validation rules. Pulled from config so projects can override per-install.
-     *
-     * @return array<string, mixed>
      */
     protected function rules(): array
     {
