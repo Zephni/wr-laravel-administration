@@ -82,6 +82,9 @@ class ImportDataModal extends ModalComponent
         'testedRows' => 0,            // how many leading data rows have been consumed by "Import 1"
         'singleImportLog' => [],      // history of single-row attempts shown to the user
         'maxSingleImportLog' => 25,   // cap the on-screen log length
+        // Column metadata for the target table, keyed by column name. Populated in mount().
+        // Shape: [colName => ['nullable' => bool, 'type' => string]]
+        'columnMeta' => [],
     ];
 
     /**
@@ -208,6 +211,63 @@ class ImportDataModal extends ModalComponent
         $tableColumns = WRLAHelper::getTableColumns($modelInstance->getTable(), $modelInstance->getConnectionName());
         $tableColumns = array_diff($tableColumns, (array) config('wr-laravel-administration.csv_imports.ignore_columns', ['id']));
         $this->data['tableColumnsDisplay'] = array_combine($tableColumns, $tableColumns);
+
+        // Cache column metadata (nullable / type) so we can correctly cast values per column
+        // during import (e.g. '' -> null for nullable datetime / int / etc. columns).
+        $this->data['columnMeta'] = $this->loadColumnMeta(
+            $modelInstance->getTable(),
+            $modelInstance->getConnectionName()
+        );
+    }
+
+    /**
+     * Build a [column => ['nullable' => bool, 'type' => string]] map for the target table.
+     * Uses Schema::getColumns() (Laravel 10.37+) and silently returns [] if unavailable.
+     */
+    protected function loadColumnMeta(string $table, ?string $connection): array
+    {
+        try {
+            $schema = $connection ? Schema::connection($connection) : Schema::getFacadeRoot();
+            $columns = $schema->getColumns($table);
+        } catch (Throwable $e) {
+            return [];
+        }
+
+        $meta = [];
+        foreach ($columns as $column) {
+            $name = $column['name'] ?? null;
+            if ($name === null) {
+                continue;
+            }
+            $meta[$name] = [
+                'nullable' => (bool) ($column['nullable'] ?? false),
+                'type' => strtolower((string) ($column['type_name'] ?? $column['type'] ?? '')),
+            ];
+        }
+
+        return $meta;
+    }
+
+    /**
+     * Normalise a raw CSV value for a given target column. Trims whitespace + BOM,
+     * and converts empty strings to null when the column is nullable so MySQL
+     * doesn't reject '' for datetime / int / etc. columns under strict mode.
+     */
+    protected function castValueForColumn(string $column, mixed $value): mixed
+    {
+        if (is_string($value)) {
+            $value = preg_replace('/^\x{FEFF}/u', '', trim($value));
+        }
+
+        if ($value === '' || $value === null) {
+            $meta = $this->data['columnMeta'][$column] ?? null;
+            // Default to nullable=true when metadata is unavailable, so we keep the
+            // old behaviour-of-least-surprise for projects on older Laravel versions.
+            $nullable = $meta === null ? true : (bool) $meta['nullable'];
+            return $nullable ? null : '';
+        }
+
+        return $value;
     }
 
     /**
@@ -433,11 +493,7 @@ class ImportDataModal extends ModalComponent
         $rowData = [];
         foreach ($this->headersMappedToColumns as $index => $column) {
             if (! empty($column)) {
-                $value = $targetRow[$index] ?? null;
-                if (is_string($value)) {
-                    $value = preg_replace('/^\x{FEFF}/u', '', trim($value));
-                }
-                $rowData[$column] = $value;
+                $rowData[$column] = $this->castValueForColumn($column, $targetRow[$index] ?? null);
             }
         }
 
@@ -626,11 +682,7 @@ class ImportDataModal extends ModalComponent
                     $rowData = [];
                     foreach ($this->headersMappedToColumns as $index => $column) {
                         if (! empty($column)) {
-                            $value = $row[$index] ?? null;
-                            if (is_string($value)) {
-                                $value = preg_replace('/^\x{FEFF}/u', '', trim($value));
-                            }
-                            $rowData[$column] = $value;
+                            $rowData[$column] = $this->castValueForColumn($column, $row[$index] ?? null);
                         }
                     }
 
