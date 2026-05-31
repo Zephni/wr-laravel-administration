@@ -2,7 +2,7 @@
 
 namespace WebRegulate\LaravelAdministration\Classes;
 
-use DateTimeImmutable;
+use Carbon\Carbon;
 use DateTimeInterface;
 use Exception;
 use Illuminate\Support\Collection;
@@ -90,9 +90,9 @@ class CSVHelper
                             return $value->format('Y-m-d H:i:s');
                         }
 
-                        if (is_string($value) && preg_match('/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z$/', $value)) {
+                        if (is_string($value) && preg_match('/^\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}:\d{2}/', $value)) {
                             try {
-                                return (new DateTimeImmutable($value))->format('Y-m-d H:i:s');
+                                return Carbon::parse($value)->format('Y-m-d H:i:s');
                             } catch (Exception) {
                                 return $value;
                             }

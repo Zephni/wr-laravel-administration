@@ -249,14 +249,6 @@ class ManageableModelBrowse extends Component
     }
 
     /**
-     * Get the total number of rows that would be exported (respecting current filters).
-     */
-    public function getBrowseRowCount(): int
-    {
-        return $this->browseModels()->toBase()->getCountForPagination();
-    }
-
-    /**
      * Render the component.
      *
      * @return \Illuminate\Contracts\View\View

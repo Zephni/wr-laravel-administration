@@ -15,9 +15,12 @@
             <i class="{{ $manageableModelClass::getIcon() }} mr-2"></i>
             {{ $manageableModelClass::getDisplayName(true) }}
         </div>
+        @php
+            $wrlaBrowseTotal = $models instanceof \Illuminate\Pagination\LengthAwarePaginator ? $models?->total() : $models->count();
+        @endphp
         <div class="text-sm text-slate-500">
             Total:
-            {{ $models instanceof \Illuminate\Pagination\LengthAwarePaginator ? $models?->total() : $models->count() }}
+            <span data-wrla-browse-total="{{ $wrlaBrowseTotal }}">{{ $wrlaBrowseTotal }}</span>
             records
         </div>
     </div>

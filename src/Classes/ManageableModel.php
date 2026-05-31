@@ -703,8 +703,9 @@ abstract class ManageableModel
             'size' => 'small',
             'attributes' => new ComponentAttributeBag([
                 'x-on:click' => <<<'JS'
-                    (async () => {
-                        const total = await $wire.getBrowseRowCount();
+                    (() => {
+                        const totalEl = document.querySelector('[data-wrla-browse-total]');
+                        const total = totalEl ? parseInt(totalEl.getAttribute('data-wrla-browse-total'), 10) || 0 : 0;
                         let limit = null;
                         if (total > 1000) {
                             const response = window.prompt(
