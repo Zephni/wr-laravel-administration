@@ -78,6 +78,10 @@ class ImportDataModal extends ModalComponent
         'chunkDir' => '',        // directory (relative to local disk) where chunk files live
         'totalChunks' => 0,
         'currentChunkIndex' => 0,
+        // Single-row test-import state
+        'testedRows' => 0,            // how many leading data rows have been consumed by "Import 1"
+        'singleImportLog' => [],      // history of single-row attempts shown to the user
+        'maxSingleImportLog' => 25,   // cap the on-screen log length
     ];
 
     /**
@@ -125,52 +129,19 @@ class ImportDataModal extends ModalComponent
         Storage::disk('local')->delete('livewire-tmp/'.$this->file->getFilename());
 
         // Stream the file: read headers + preview rows only, then count remaining rows.
-        $absolutePath = Storage::disk('local')->path($this->data['wrlaTmpFilePath']);
-        $handle = fopen($absolutePath, 'r');
-        if ($handle === false) {
+        // Sets origionalHeaders/rows, tableColumns, auto-maps and advances to step 2.
+        [$headers, , $totalRows] = $this->readHeadersPreviewAndCount(0);
+        if ($headers === null) {
             $this->file = null;
             return;
         }
 
-        $headers = fgetcsv($handle) ?: [];
-        $previewRows = [];
-        $previewLimit = (int) $this->data['previewRowsMax'];
-        $totalRows = 0;
-
-        while (($row = fgetcsv($handle)) !== false) {
-            // Skip completely empty lines
-            if ($row === [null] || (count($row) === 1 && trim((string) $row[0]) === '')) {
-                continue;
-            }
-            $totalRows++;
-            if (count($previewRows) < $previewLimit) {
-                $previewRows[] = $row;
-            }
-        }
-        fclose($handle);
-
         $this->data['totalRows'] = $totalRows;
-
-        // Clean preview headers and rows
-        [$cleanedHeaders, $cleanedPreviewRows] = $this->cleanAllFileData(array_merge([$headers], $previewRows));
-
-        $this->data['origionalHeaders'] = $cleanedHeaders;
-        $this->data['origionalRows'] = $cleanedPreviewRows;
-        $this->data['headers'] = $this->data['origionalHeaders'];
-        $this->data['rows'] = $this->data['origionalRows'];
-
-        // Get the columns of the manageable model's table, excluding the 'id', 'created_at', 'updated_at' and 'deleted_at' columns
-        $manageableModel = (new $this->manageableModelClass)->getModelInstance();
-        $manageableModelColumns = Schema::getColumnListing($manageableModel->getTable());
-        $manageableModelColumns = array_diff($manageableModelColumns, ['id', 'created_at', 'updated_at', 'deleted_at']);
-        $this->data['tableColumns'] = array_combine($manageableModelColumns, $manageableModelColumns);
-        $this->data['tableColumns'] = ['' => ' - no column selected - '] + $this->data['tableColumns'];
-
-        // Automatically map headers to columns
-        $this->autoMapHeadersToColumns();
-
-        // Advance current step
-        $this->data['currentStep'] = 2;
+        $this->data['testedRows'] = 0;
+        $this->data['singleImportLog'] = [];
+        $this->data['successfullImports'] = 0;
+        $this->data['failedImports'] = 0;
+        $this->data['failedReasons'] = [];
     }
 
     /**
@@ -358,14 +329,182 @@ class ImportDataModal extends ModalComponent
     }
 
     /**
+     * Read the CSV header, the next preview rows, and count the remaining data rows,
+     * skipping the first $skipDataRows data rows (used after "Import 1" consumes rows).
+     *
+     * Returns [headers|null, previewRows[], totalRemainingRows].
+     */
+    protected function readHeadersPreviewAndCount(int $skipDataRows): array
+    {
+        $absolutePath = Storage::disk('local')->path($this->data['wrlaTmpFilePath']);
+        $handle = @fopen($absolutePath, 'r');
+        if ($handle === false) {
+            return [null, [], 0];
+        }
+
+        $headers = fgetcsv($handle) ?: [];
+        $skipped = 0;
+        $previewRows = [];
+        $previewLimit = (int) $this->data['previewRowsMax'];
+        $totalRows = 0;
+
+        while (($row = fgetcsv($handle)) !== false) {
+            if ($row === [null] || (count($row) === 1 && trim((string) $row[0]) === '')) {
+                continue;
+            }
+            if ($skipped < $skipDataRows) {
+                $skipped++;
+                continue;
+            }
+            $totalRows++;
+            if (count($previewRows) < $previewLimit) {
+                $previewRows[] = $row;
+            }
+        }
+        fclose($handle);
+
+        [$cleanedHeaders, $cleanedPreviewRows] = $this->cleanAllFileData(array_merge([$headers], $previewRows));
+
+        $this->data['origionalHeaders'] = $cleanedHeaders;
+        $this->data['origionalRows'] = $cleanedPreviewRows;
+        $this->data['headers'] = $cleanedHeaders;
+        $this->data['rows'] = $cleanedPreviewRows;
+
+        // Refresh tableColumns / mapping only when first loading the file (no skip).
+        if ($skipDataRows === 0) {
+            $manageableModel = (new $this->manageableModelClass)->getModelInstance();
+            $manageableModelColumns = Schema::getColumnListing($manageableModel->getTable());
+            $manageableModelColumns = array_diff($manageableModelColumns, ['id', 'created_at', 'updated_at', 'deleted_at']);
+            $this->data['tableColumns'] = array_combine($manageableModelColumns, $manageableModelColumns);
+            $this->data['tableColumns'] = ['' => ' - no column selected - '] + $this->data['tableColumns'];
+            $this->autoMapHeadersToColumns();
+            $this->data['currentStep'] = 2;
+        } else {
+            // Keep existing mapping but realign preview rows.
+            $this->alignHeadersAndRowsWithMappedColumns();
+        }
+
+        return [$cleanedHeaders, $cleanedPreviewRows, $totalRows];
+    }
+
+    /**
+     * Test-import a single row: take the first remaining data row, attempt to insert it,
+     * record the outcome, and "remove" it from the queue (it will be skipped on next reads
+     * and on the full import). Lets the user verify mapping row-by-row before committing.
+     */
+    public function importSingleRow(): void
+    {
+        $remaining = (int) $this->data['totalRows'];
+        if ($remaining <= 0) {
+            return;
+        }
+
+        $absolutePath = Storage::disk('local')->path($this->data['wrlaTmpFilePath']);
+        $handle = @fopen($absolutePath, 'r');
+        if ($handle === false) {
+            $this->appendSingleImportLog('error', 'Could not open source file.');
+            return;
+        }
+
+        // Skip header + any previously tested rows.
+        fgetcsv($handle);
+        $skip = (int) $this->data['testedRows'];
+        $skipped = 0;
+        $targetRow = null;
+        while (($row = fgetcsv($handle)) !== false) {
+            if ($row === [null] || (count($row) === 1 && trim((string) $row[0]) === '')) {
+                continue;
+            }
+            if ($skipped < $skip) {
+                $skipped++;
+                continue;
+            }
+            $targetRow = $row;
+            break;
+        }
+        fclose($handle);
+
+        if ($targetRow === null) {
+            $this->appendSingleImportLog('error', 'No more rows to test.');
+            return;
+        }
+
+        // Build mapped row data (mirrors processBatch()).
+        $rowData = [];
+        foreach ($this->headersMappedToColumns as $index => $column) {
+            if (! empty($column)) {
+                $value = $targetRow[$index] ?? null;
+                if (is_string($value)) {
+                    $value = preg_replace('/^\x{FEFF}/u', '', trim($value));
+                }
+                $rowData[$column] = $value;
+            }
+        }
+
+        // Global CSV row number (1-based, excludes header).
+        $globalRowNumber = $skip + 1;
+
+        if (empty($rowData)) {
+            $this->appendSingleImportLog(
+                'error',
+                'Row '.$globalRowNumber.': no columns mapped, nothing to insert.'
+            );
+            return;
+        }
+
+        $modelClass = (new $this->manageableModelClass)->getBaseModelClass();
+        try {
+            $modelClass::insert($rowData);
+            $this->data['successfullImports']++;
+            $this->appendSingleImportLog(
+                'success',
+                'Row '.$globalRowNumber.': imported successfully.',
+                $rowData
+            );
+        } catch (Throwable $e) {
+            $this->data['failedImports']++;
+            $this->appendSingleImportLog(
+                'error',
+                'Row '.$globalRowNumber.': '.$e->getMessage(),
+                $rowData
+            );
+        }
+
+        // Consume this row so subsequent test imports / full import skip it.
+        $this->data['testedRows']++;
+        $this->data['totalRows'] = max(0, $remaining - 1);
+
+        // Refresh preview (and realign with current mapping) without re-running auto-map.
+        $this->readHeadersPreviewAndCount($this->data['testedRows']);
+    }
+
+    /**
+     * Push an entry onto the on-screen single-import log, capped to maxSingleImportLog entries.
+     */
+    protected function appendSingleImportLog(string $status, string $message, array $rowData = []): void
+    {
+        $log = $this->data['singleImportLog'];
+        array_unshift($log, [
+            'status' => $status, // 'success' | 'error'
+            'message' => $message,
+            'rowData' => $rowData,
+            'at' => now()->format('H:i:s'),
+        ]);
+        $max = (int) $this->data['maxSingleImportLog'];
+        if ($max > 0 && count($log) > $max) {
+            $log = array_slice($log, 0, $max);
+        }
+        $this->data['singleImportLog'] = $log;
+    }
+
+    /**
      * Import data: split source CSV into chunk files, then process them one at a time.
      */
     public function importData(): void
     {
         $this->data['totalImported'] = 0;
-        $this->data['successfullImports'] = 0;
-        $this->data['failedImports'] = 0;
-        $this->data['failedReasons'] = [];
+        // Preserve any successes / failures already recorded by "Import 1" attempts so the
+        // final completed-screen totals reflect everything the user has done in this session.
         $this->data['currentChunkIndex'] = 0;
         $this->data['totalChunks'] = 0;
         $this->data['chunkSize'] = (int) config('wr-laravel-administration.csv_imports.chunk_size', 500);
@@ -394,6 +533,16 @@ class ImportDataModal extends ModalComponent
 
         // Skip the header row
         fgetcsv($handle);
+
+        // Skip any rows already consumed by single-row test imports.
+        $skipDataRows = (int) $this->data['testedRows'];
+        $skipped = 0;
+        while ($skipped < $skipDataRows && ($skipRow = fgetcsv($handle)) !== false) {
+            if ($skipRow === [null] || (count($skipRow) === 1 && trim((string) $skipRow[0]) === '')) {
+                continue;
+            }
+            $skipped++;
+        }
 
         $chunkSize = max(1, (int) $this->data['chunkSize']);
         $chunkIndex = 0;
@@ -528,8 +677,11 @@ class ImportDataModal extends ModalComponent
                 $this->data['failedImports']++;
 
                 if (count($this->data['failedReasons']) < $maxReasons) {
-                    // Reference the global CSV row number (1-based, excluding header)
-                    $globalRowNumber = ($this->data['currentChunkIndex'] * (int) $this->data['chunkSize']) + $rowIndex + 1;
+                    // Reference the global CSV row number (1-based, excluding header).
+                    // Add testedRows offset since chunks start after any single-row test imports.
+                    $globalRowNumber = (int) $this->data['testedRows']
+                        + ($this->data['currentChunkIndex'] * (int) $this->data['chunkSize'])
+                        + $rowIndex + 1;
                     $this->data['failedReasons'][] = 'Row '.$globalRowNumber.': '.$e->getMessage();
                 }
             }

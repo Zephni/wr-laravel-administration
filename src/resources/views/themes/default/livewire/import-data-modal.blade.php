@@ -114,7 +114,14 @@
 
                     <div class="flex gap-4 text-base">
                         <span>Columns: <b>{{ count($data['headers']) }}</b></span>
-                        <span>Rows: <b>{{ $data['totalRows'] }}</b></span>
+                        <span>
+                            @if((int)($data['testedRows'] ?? 0) > 0)
+                                Remaining rows: <b>{{ $data['totalRows'] }}</b>
+                                <span class="text-sm text-slate-500">(consumed {{ $data['testedRows'] }})</span>
+                            @else
+                                Rows: <b>{{ $data['totalRows'] }}</b>
+                            @endif
+                        </span>
                     </div>
                 </div>
 
@@ -158,12 +165,80 @@
                 </div>
             @endif
 
-            {{-- Import button --}}
-            <div class="flex justify-end mt-4">
+            {{-- Import buttons --}}
+            @php
+                $testedRows = (int) ($data['testedRows'] ?? 0);
+                $remainingRows = (int) $data['totalRows'];
+                $hasRemaining = $remainingRows > 0;
+                $singleImportLog = $data['singleImportLog'] ?? [];
+            @endphp
+
+            {{-- Single-row test import log: shows the user exactly what just happened --}}
+            @if(count($singleImportLog) > 0)
+                <div class="mt-4 border border-slate-300 dark:border-slate-600 rounded">
+                    <div class="px-3 py-1 bg-slate-100 dark:bg-slate-800 text-sm font-semibold flex justify-between items-center">
+                        <span>
+                            <i class="fas fa-vial pr-1"></i>
+                            Test-import results
+                            <span class="text-slate-500 font-normal">({{ $testedRows }} consumed, {{ $remainingRows }} remaining)</span>
+                        </span>
+                        <span class="text-xs text-slate-500 italic">Newest first</span>
+                    </div>
+                    <ul class="divide-y divide-slate-200 dark:divide-slate-700 max-h-48 overflow-auto text-sm">
+                        @foreach($singleImportLog as $entry)
+                            <li class="px-3 py-1 flex items-start gap-2">
+                                @if($entry['status'] === 'success')
+                                    <i class="fas fa-check-circle text-emerald-500 mt-1"></i>
+                                @else
+                                    <i class="fas fa-times-circle text-rose-500 mt-1"></i>
+                                @endif
+                                <div class="flex-1">
+                                    <div class="{{ $entry['status'] === 'success' ? 'text-emerald-700 dark:text-emerald-400' : 'text-rose-700 dark:text-rose-400' }}">
+                                        {{ $entry['message'] }}
+                                    </div>
+                                    @if(!empty($entry['rowData']))
+                                        <div class="text-xs text-slate-500 mt-0.5 truncate" title="{{ json_encode($entry['rowData']) }}">
+                                            {{ \Illuminate\Support\Str::limit(json_encode($entry['rowData']), 200) }}
+                                        </div>
+                                    @endif
+                                </div>
+                                <span class="text-xs text-slate-400">{{ $entry['at'] }}</span>
+                            </li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
+            <div class="flex flex-col sm:flex-row justify-end items-stretch sm:items-center gap-2 mt-4">
+                {{-- Import 1 (test) button: imports just the next remaining row and removes it from the list --}}
                 @themeComponent('forms.button', [
                     'text' => '
-                        <span wire:loading.remove wire:target="importData">Import '.$data['totalRows'].' rows into '.$manageableModelClass::getDisplayName(true).'</span>
-                        <span wire:loading wire:target="importData">Importing '.$data['totalRows'].', please wait...</span>
+                        <span wire:loading.remove wire:target="importSingleRow,importData">
+                            <i class="fas fa-vial pr-1"></i>
+                            Import 1 (test next row)
+                        </span>
+                        <span wire:loading wire:target="importSingleRow">
+                            <i class="fas fa-spinner fa-spin pr-1"></i> Testing...
+                        </span>
+                    ',
+                    'color' => 'secondary',
+                    'size' => 'medium',
+                    'attributes' => Arr::toAttributeBag([
+                        'wire:loading.attr' => 'disabled',
+                        'wire:loading.class' => 'opacity-70 cursor-not-allowed',
+                        'wire:click' => 'importSingleRow',
+                        'disabled' => $hasRemaining ? null : 'disabled',
+                        'class' => $hasRemaining ? '' : 'opacity-50 cursor-not-allowed',
+                    ])
+                ])
+
+                {{-- Import all remaining rows --}}
+                @themeComponent('forms.button', [
+                    'text' => '
+                        <span wire:loading.remove wire:target="importData,importSingleRow">'
+                            .($testedRows > 0 ? 'Import remaining '.$remainingRows.' rows' : 'Import '.$remainingRows.' rows')
+                            .' into '.$manageableModelClass::getDisplayName(true).'</span>
+                        <span wire:loading wire:target="importData">Importing '.$remainingRows.', please wait...</span>
                     ',
                     'icon' => 'fas fa-file-import',
                     'size' => 'medium',
@@ -171,6 +246,8 @@
                         'wire:loading.attr' => 'disabled',
                         'wire:loading.class' => 'opacity-70 cursor-not-allowed',
                         'wire:click' => 'importData',
+                        'disabled' => $hasRemaining ? null : 'disabled',
+                        'class' => $hasRemaining ? '' : 'opacity-50 cursor-not-allowed',
                     ])
                 ])
             </div>
@@ -211,7 +288,7 @@
             </div>
 
             {{-- Failed imports --}}
-            <div class="text-base text-slate-600 text-center mt-2">
+            <div class="text-base text-slate-600 text-center mt-2 max-h-80 overflow-y-auto">
                 <i class="fas fa-info-circle text-slate-500 pr-1"></i>
                 <b class="text-rose-500 text-lg">{{ $data['failedImports'] }}</b> rows of data failed to import.
 
