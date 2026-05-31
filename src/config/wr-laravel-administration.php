@@ -238,6 +238,7 @@ return [
     'csv_imports' => [
         'chunk_size' => 500,
         'max_failed_reasons' => 10,
+        'ignore_columns' => ['id'],
         'upload_rules' => [
             'required',
             'file',

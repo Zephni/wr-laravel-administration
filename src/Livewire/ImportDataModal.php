@@ -206,7 +206,7 @@ class ImportDataModal extends ModalComponent
         // Get all the table fields for this model
         $modelInstance = (new $this->manageableModelClass)->getModelInstance();
         $tableColumns = WRLAHelper::getTableColumns($modelInstance->getTable(), $modelInstance->getConnectionName());
-        $tableColumns = array_diff($tableColumns, ['id', 'created_at', 'updated_at', 'deleted_at']);
+        $tableColumns = array_diff($tableColumns, (array) config('wr-laravel-administration.csv_imports.ignore_columns', ['id']));
         $this->data['tableColumnsDisplay'] = array_combine($tableColumns, $tableColumns);
     }
 
@@ -374,7 +374,7 @@ class ImportDataModal extends ModalComponent
         if ($skipDataRows === 0) {
             $manageableModel = (new $this->manageableModelClass)->getModelInstance();
             $manageableModelColumns = Schema::getColumnListing($manageableModel->getTable());
-            $manageableModelColumns = array_diff($manageableModelColumns, ['id', 'created_at', 'updated_at', 'deleted_at']);
+            $manageableModelColumns = array_diff($manageableModelColumns, (array) config('wr-laravel-administration.csv_imports.ignore_columns', ['id']));
             $this->data['tableColumns'] = array_combine($manageableModelColumns, $manageableModelColumns);
             $this->data['tableColumns'] = ['' => ' - no column selected - '] + $this->data['tableColumns'];
             $this->autoMapHeadersToColumns();
@@ -807,7 +807,7 @@ class ImportDataModal extends ModalComponent
     {
         $modelInstance = (new $this->manageableModelClass)->getModelInstance();
         $tableColumns = WRLAHelper::getTableColumns($modelInstance->getTable(), $modelInstance->getConnectionName());
-        $tableColumns = array_diff($tableColumns, ['id', 'created_at', 'updated_at', 'deleted_at']);
+        $tableColumns = array_diff($tableColumns, (array) config('wr-laravel-administration.csv_imports.ignore_columns', ['id']));
 
         $fileName = (new ($this->manageableModelClass::getBaseModelClass()))->getTable().'-import-template.csv';
 
