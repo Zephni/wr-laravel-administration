@@ -175,6 +175,26 @@
                 </b>
             </div>
 
+            {{-- Chunk progress bar --}}
+            @php
+                $totalChunks = (int) ($data['totalChunks'] ?? 0);
+                $currentChunk = (int) ($data['currentChunkIndex'] ?? 0);
+                $progressPct = $totalChunks > 0 ? min(100, (int) floor(($currentChunk / $totalChunks) * 100)) : 0;
+            @endphp
+            <div class="w-full mb-3">
+                <div class="flex justify-between text-sm text-slate-600 mb-1">
+                    <span>
+                        Processing chunk <b>{{ $currentChunk }}</b> of <b>{{ $totalChunks }}</b>
+                    </span>
+                    <span>
+                        <b>{{ $data['totalImported'] }}</b> / {{ $data['totalRows'] }} rows
+                    </span>
+                </div>
+                <div class="w-full bg-slate-200 dark:bg-slate-700 rounded h-3 overflow-hidden">
+                    <div class="bg-emerald-500 h-3 transition-all duration-200" style="width: {{ $progressPct }}%"></div>
+                </div>
+            </div>
+
             {{-- Successfull imports --}}
             <div class="text-base text-slate-600 text-center">
                 <i class="fas fa-info-circle text-slate-500 pr-1"></i>
@@ -193,6 +213,13 @@
                             {{ $reason }}
                         </div>
                     @endforeach
+
+                    @php $remainingFailures = (int) $data['failedImports'] - count($data['failedReasons']); @endphp
+                    @if($remainingFailures > 0)
+                        <div class="text-sm text-rose-500 italic mt-1">
+                            +{{ $remainingFailures }} more
+                        </div>
+                    @endif
                 @endif
             </div>
 
@@ -223,6 +250,13 @@
                             {{ $reason }}
                         </div>
                     @endforeach
+
+                    @php $remainingFailures = (int) $data['failedImports'] - count($data['failedReasons']); @endphp
+                    @if($remainingFailures > 0)
+                        <div class="text-sm text-rose-500 italic mt-1">
+                            +{{ $remainingFailures }} more
+                        </div>
+                    @endif
                 @endif
             </div>
 

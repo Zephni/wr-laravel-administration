@@ -9,6 +9,7 @@ use Livewire\WithFileUploads;
 use LivewireUI\Modal\ModalComponent;
 use WebRegulate\LaravelAdministration\Classes\CSVHelper;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
+use Throwable;
 
 /**
  * Class ImportDataModal
@@ -47,8 +48,8 @@ class ImportDataModal extends ModalComponent
         'currentStep' => 1, // int or 'completed'
         'origionalHeaders' => [],
         'headers' => [],
-        'origionalRows' => [],
-        'rows' => [],
+        'origionalRows' => [], // preview-sized only
+        'rows' => [],          // preview-sized only
         'tableColumns' => [],
         'tableColumnsDisplay' => [],
         'totalRows' => 0,
@@ -57,6 +58,12 @@ class ImportDataModal extends ModalComponent
         'failedReasons' => [],
         'totalImports' => 0,
         'totalImported' => 0,
+        // Chunked import state
+        'chunkSize' => 500, // overridden from config('wr-laravel-administration.csv_imports.chunk_size') on import
+        'chunkBaseName' => '',   // e.g. "users-import-2025-01-01-12-00-00"
+        'chunkDir' => '',        // directory (relative to local disk) where chunk files live
+        'totalChunks' => 0,
+        'currentChunkIndex' => 0,
     ];
 
     /**
@@ -96,24 +103,45 @@ class ImportDataModal extends ModalComponent
 
         // Store file (that we will progressivly read and remove rows from later), and remove tmp file
         // File name should be tablename-import-Y-m-d-H-i-s.csv
-        $fileName = (new ($this->manageableModelClass::getBaseModelClass()))->getTable().'-import-'.now()->format('Y-m-d-H-i-s').'.csv';
+        $baseName = (new ($this->manageableModelClass::getBaseModelClass()))->getTable().'-import-'.now()->format('Y-m-d-H-i-s');
+        $fileName = $baseName.'.csv';
         $this->data['wrlaTmpFilePath'] = Storage::disk('local')->putFileAs('livewire-tmp', $this->file, $fileName);
+        $this->data['chunkBaseName'] = $baseName;
+        $this->data['chunkDir'] = 'livewire-tmp';
         Storage::disk('local')->delete('livewire-tmp/'.$this->file->getFilename());
 
-        // Get the real path of the uploaded file and read its contents
-        $file = file(Storage::disk('local')->path($this->data['wrlaTmpFilePath']));
-        $this->data['totalRows'] = count($file) - 1;
-        // Read the entire file so imports process all rows (not only first 100)
-        $fileData = array_map('str_getcsv', $file);
+        // Stream the file: read headers + preview rows only, then count remaining rows.
+        $absolutePath = Storage::disk('local')->path($this->data['wrlaTmpFilePath']);
+        $handle = fopen($absolutePath, 'r');
+        if ($handle === false) {
+            $this->file = null;
+            return;
+        }
 
-        // Clean the extracted data and seperate headers from rows
-        [$origionalHeaders, $originalRows] = $this->cleanAllFileData($fileData);
+        $headers = fgetcsv($handle) ?: [];
+        $previewRows = [];
+        $previewLimit = (int) $this->data['previewRowsMax'];
+        $totalRows = 0;
 
-        // Extract headers and rows from the CSV file
-        $this->data['origionalHeaders'] = $origionalHeaders;
-        $this->data['origionalRows'] = $originalRows;
+        while (($row = fgetcsv($handle)) !== false) {
+            // Skip completely empty lines
+            if ($row === [null] || (count($row) === 1 && trim((string) $row[0]) === '')) {
+                continue;
+            }
+            $totalRows++;
+            if (count($previewRows) < $previewLimit) {
+                $previewRows[] = $row;
+            }
+        }
+        fclose($handle);
 
-        // Set headers and rows
+        $this->data['totalRows'] = $totalRows;
+
+        // Clean preview headers and rows
+        [$cleanedHeaders, $cleanedPreviewRows] = $this->cleanAllFileData(array_merge([$headers], $previewRows));
+
+        $this->data['origionalHeaders'] = $cleanedHeaders;
+        $this->data['origionalRows'] = $cleanedPreviewRows;
         $this->data['headers'] = $this->data['origionalHeaders'];
         $this->data['rows'] = $this->data['origionalRows'];
 
@@ -222,61 +250,180 @@ class ImportDataModal extends ModalComponent
     }
 
     /**
-     * Import data
+     * Import data: split source CSV into chunk files, then process them one at a time.
      */
     public function importData(): void
     {
         $this->data['totalImported'] = 0;
+        $this->data['successfullImports'] = 0;
+        $this->data['failedImports'] = 0;
+        $this->data['failedReasons'] = [];
+        $this->data['currentChunkIndex'] = 0;
+        $this->data['totalChunks'] = 0;
+        $this->data['chunkSize'] = (int) config('wr-laravel-administration.csv_imports.chunk_size', 500);
+
         $this->data['currentStep'] = 'processing';
 
-        // Temp
+        // Split the source CSV file into chunk files (data rows only, no header)
+        $this->splitSourceIntoChunks();
+
+        // Kick off chunked processing
         $this->dispatch('process-next-batch');
     }
 
     /**
-     * Process a batch of data.
+     * Stream the source CSV and write data rows (no header) into chunk files.
+     * Naming: {chunkBaseName}_import_{i}.csv
+     */
+    protected function splitSourceIntoChunks(): void
+    {
+        $sourcePath = Storage::disk('local')->path($this->data['wrlaTmpFilePath']);
+        $handle = @fopen($sourcePath, 'r');
+        if ($handle === false) {
+            $this->data['currentStep'] = 'completed';
+            return;
+        }
+
+        // Skip the header row
+        fgetcsv($handle);
+
+        $chunkSize = max(1, (int) $this->data['chunkSize']);
+        $chunkIndex = 0;
+        $rowsInCurrentChunk = 0;
+        $outHandle = null;
+
+        while (($row = fgetcsv($handle)) !== false) {
+            if ($row === [null] || (count($row) === 1 && trim((string) $row[0]) === '')) {
+                continue;
+            }
+
+            if ($outHandle === null) {
+                $chunkRelativePath = $this->chunkFilePath($chunkIndex);
+                $chunkAbsolutePath = Storage::disk('local')->path($chunkRelativePath);
+                // Ensure directory exists
+                @mkdir(dirname($chunkAbsolutePath), 0775, true);
+                $outHandle = fopen($chunkAbsolutePath, 'w');
+                if ($outHandle === false) {
+                    break;
+                }
+            }
+
+            fputcsv($outHandle, $row);
+            $rowsInCurrentChunk++;
+
+            if ($rowsInCurrentChunk >= $chunkSize) {
+                fclose($outHandle);
+                $outHandle = null;
+                $chunkIndex++;
+                $rowsInCurrentChunk = 0;
+            }
+        }
+
+        if ($outHandle !== null) {
+            fclose($outHandle);
+            $chunkIndex++;
+        }
+
+        fclose($handle);
+
+        $this->data['totalChunks'] = $chunkIndex;
+
+        // Remove the original (now-split) source file to save disk space
+        Storage::disk('local')->delete($this->data['wrlaTmpFilePath']);
+        $this->data['wrlaTmpFilePath'] = '';
+    }
+
+    /**
+     * Build the relative storage path for a chunk file.
+     */
+    protected function chunkFilePath(int $index): string
+    {
+        return rtrim($this->data['chunkDir'], '/').'/'.$this->data['chunkBaseName'].'_import_'.$index.'.csv';
+    }
+
+    /**
+     * Process a single chunk file (one batch at a time, then dispatch next).
      */
     public function processBatch(): void
     {
+        if ($this->data['currentChunkIndex'] >= $this->data['totalChunks']) {
+            $this->data['currentStep'] = 'completed';
+            return;
+        }
+
         $modelClass = (new $this->manageableModelClass)->getBaseModelClass();
-        $batchSize = 100;
+        $chunkRelativePath = $this->chunkFilePath($this->data['currentChunkIndex']);
+        $chunkAbsolutePath = Storage::disk('local')->path($chunkRelativePath);
 
-        // Note that the array_splice function will modify the original array (passed by reference)
-        $batchData = array_splice($this->data['rows'], 0, $batchSize);
+        $formattedBatchData = [];
+        $rowsRead = 0;
 
-        if (! empty($batchData)) {
-            $formattedBatchData = [];
-            foreach ($batchData as $row) {
-                $rowData = [];
-                foreach ($this->headersMappedToColumns as $index => $column) {
-                    if (! empty($column)) {
-                        $rowData[$column] = $row[$index];
+        if (is_file($chunkAbsolutePath)) {
+            $handle = fopen($chunkAbsolutePath, 'r');
+            if ($handle !== false) {
+                while (($row = fgetcsv($handle)) !== false) {
+                    if ($row === [null] || (count($row) === 1 && trim((string) $row[0]) === '')) {
+                        continue;
+                    }
+
+                    $rowData = [];
+                    foreach ($this->headersMappedToColumns as $index => $column) {
+                        if (! empty($column)) {
+                            $value = $row[$index] ?? null;
+                            if (is_string($value)) {
+                                $value = preg_replace('/^\x{FEFF}/u', '', trim($value));
+                            }
+                            $rowData[$column] = $value;
+                        }
+                    }
+
+                    if (! empty($rowData)) {
+                        $formattedBatchData[] = $rowData;
+                        $rowsRead++;
                     }
                 }
-
-                $formattedBatchData[] = $rowData;
+                fclose($handle);
             }
 
-            // Insert batch and update total imported
-            $this->insertBatch($modelClass, $formattedBatchData);
-            $this->data['totalImported'] += count($formattedBatchData);
-
-            // Trigger the next batch processing
-            $this->dispatch('process-next-batch');
-        } else {
-            $this->data['currentStep'] = 'completed';
+            // Delete chunk file once read
+            Storage::disk('local')->delete($chunkRelativePath);
         }
+
+        if (! empty($formattedBatchData)) {
+            $this->insertRows($modelClass, $formattedBatchData);
+            $this->data['totalImported'] += $rowsRead;
+        }
+
+        $this->data['currentChunkIndex']++;
+
+        if ($this->data['currentChunkIndex'] >= $this->data['totalChunks']) {
+            $this->data['currentStep'] = 'completed';
+            return;
+        }
+
+        $this->dispatch('process-next-batch');
     }
 
-    private function insertBatch($modelClass, $batchData)
+    /**
+     * Insert rows one at a time so a single bad row does not fail the entire chunk.
+     * Tracks per-row success/failure counts and retains a configurable number of failure reasons.
+     */
+    private function insertRows($modelClass, array $rows): void
     {
-        try {
-            $modelClass::insert($batchData);
-            $this->data['successfullImports'] += count($batchData);
-        } catch (\Exception $e) {
-            $this->data['failedImports'] += count($batchData);
-            if (count($this->data['failedReasons']) < 5) {
-                $this->data['failedReasons'][] = $e->getMessage();
+        $maxReasons = (int) config('wr-laravel-administration.csv_imports.max_failed_reasons', 20);
+
+        foreach ($rows as $rowIndex => $rowData) {
+            try {
+                $modelClass::insert($rowData);
+                $this->data['successfullImports']++;
+            } catch (Throwable $e) {
+                $this->data['failedImports']++;
+
+                if (count($this->data['failedReasons']) < $maxReasons) {
+                    // Reference the global CSV row number (1-based, excluding header)
+                    $globalRowNumber = ($this->data['currentChunkIndex'] * (int) $this->data['chunkSize']) + $rowIndex + 1;
+                    $this->data['failedReasons'][] = 'Row '.$globalRowNumber.': '.$e->getMessage();
+                }
             }
         }
     }
@@ -288,11 +435,44 @@ class ImportDataModal extends ModalComponent
      */
     public function closeAndRefresh()
     {
+        // Best-effort cleanup of any remaining chunk files
+        $this->cleanupChunkFiles();
+
         // Close the modal
         $this->closeModal();
 
         // Refresh current URL
         $this->js('window.location.reload()');
+    }
+
+    /**
+     * Remove any leftover chunk files and the original uploaded source (if still present).
+     * Safe to call multiple times.
+     */
+    protected function cleanupChunkFiles(): void
+    {
+        $disk = Storage::disk('local');
+
+        // Remove remaining chunk files
+        if (! empty($this->data['chunkBaseName']) && ! empty($this->data['chunkDir'])) {
+            $totalChunks = (int) $this->data['totalChunks'];
+            $startIndex = (int) $this->data['currentChunkIndex'];
+
+            // If a stale split was produced, totalChunks may not yet be set; sweep a reasonable range too.
+            $end = max($totalChunks, $startIndex + 1);
+            for ($i = $startIndex; $i < $end; $i++) {
+                $path = $this->chunkFilePath($i);
+                if ($disk->exists($path)) {
+                    $disk->delete($path);
+                }
+            }
+        }
+
+        // Remove the original uploaded file if it still exists (eg. modal closed pre-split)
+        if (! empty($this->data['wrlaTmpFilePath']) && $disk->exists($this->data['wrlaTmpFilePath'])) {
+            $disk->delete($this->data['wrlaTmpFilePath']);
+            $this->data['wrlaTmpFilePath'] = '';
+        }
     }
 
     /**
