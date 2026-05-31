@@ -897,7 +897,7 @@ trait ManageableField
 
 
             if($modelInstance == null) {
-                dd('This model instance no longer exists', $modelInstance, $fieldName, $relationshipParts);
+                throw new \RuntimeException('Model instance no longer exists for field "'.$fieldName.'" (relationship: '.implode('.', $relationshipParts).')');
             }
 
             // Check relation exists on model instance

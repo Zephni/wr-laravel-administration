@@ -115,7 +115,8 @@ class EditUserCommand extends Command
                 $passwordField = WRLAHelper::getUserDataModelClass()::getPasswordField();
             } catch (\Exception $e) {
                 $this->error('Error getting wrlaUserData password field: ' . $e->getMessage());
-                dd('Aborting due to error.');
+                $this->error('Aborting due to error.');
+                return self::FAILURE;
             }
 
             // Special cases
@@ -128,7 +129,7 @@ class EditUserCommand extends Command
                             return WRLAHelper::getUserDataModelClass()::hashPassword($value); 
                         } catch (\Exception $e) {
                             $this->error('Error hashing password: ' . $e->getMessage());
-                            dd('Aborting due to hashing error.');
+                            throw new \RuntimeException('Aborting due to hashing error.', 0, $e);
                         }
                     },
                 ],

@@ -144,7 +144,6 @@ abstract class ManageableModel
                 
                 // If model instance is not found, throw an exception
                 if ($modelInstance == null) {
-                    dd("Model instance with ID {$modelInstanceOrId} not found for manageable model ".static::class);
                     throw new \Exception("Model instance with ID {$modelInstanceOrId} not found for manageable model ".static::class);
                 }
 

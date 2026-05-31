@@ -2,17 +2,18 @@
 
 namespace WebRegulate\LaravelAdministration\Livewire\ManageableModels;
 
-use Livewire\Component;
-use Livewire\WithPagination;
-use Illuminate\Support\Collection;
 use Illuminate\Database\Eloquent\Builder;
-use Symfony\Component\HttpFoundation\StreamedResponse;
+use Illuminate\Support\Collection;
+use Livewire\Component;
 use Livewire\Features\SupportRedirects\HandlesRedirects;
-use WebRegulate\LaravelAdministration\Classes\CSVHelper;
-use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
-use WebRegulate\LaravelAdministration\Classes\ManageableModel;
-use WebRegulate\LaravelAdministration\Enums\ManageableModelPermissions;
+use Livewire\WithPagination;
+use Symfony\Component\HttpFoundation\StreamedResponse;
+use Throwable;
 use WebRegulate\LaravelAdministration\Classes\BrowseColumns\BrowseColumnBase;
+use WebRegulate\LaravelAdministration\Classes\CSVHelper;
+use WebRegulate\LaravelAdministration\Classes\ManageableModel;
+use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
+use WebRegulate\LaravelAdministration\Enums\ManageableModelPermissions;
 use WebRegulate\LaravelAdministration\Traits\ManageableField;
 
 /**
@@ -233,7 +234,7 @@ class ManageableModelBrowse extends Component
      * @param  ?string  $manageableModelStaticExportMethod  The static export method to use in place of the standard export, method name must begin with 'export', takes collection of models and optional &$fileName, returns [string filename, array rowData (with keys as headings)]
      * @param  ?int  $limit  Optional limit on the number of rows to export.
      */
-    public function exportAsCSVAction(?string $manageableModelStaticExportMethod = null, ?int $limit = null): StreamedResponse
+    public function exportAsCSVAction(?string $manageableModelStaticExportMethod = null, ?int $limit = null): ?StreamedResponse
     {
         $query = $this->browseModels();
 
@@ -241,11 +242,17 @@ class ManageableModelBrowse extends Component
             $query->limit($limit);
         }
 
-        return CSVHelper::exportManageableModels(
-            $this->manageableModelClass,
-            $query->get(),
-            $manageableModelStaticExportMethod
-        );
+        try {
+            return CSVHelper::exportManageableModels(
+                $this->manageableModelClass,
+                $query->get(),
+                $manageableModelStaticExportMethod
+            );
+        } catch (Throwable $e) {
+            $this->addError('error', 'CSV export failed: '.$e->getMessage());
+
+            return null;
+        }
     }
 
     /**

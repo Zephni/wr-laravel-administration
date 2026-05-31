@@ -421,7 +421,7 @@ class WRLAServiceProvider extends ServiceProvider
                             return $existingWrlaUserData;
                         }
                     } else {
-                        dd($wrlaUserDataClass . '::where("user_id", ' . $userId . ') does not return any data, user id is empty.');
+                        throw new \RuntimeException($wrlaUserDataClass . '::where("user_id", ' . $userId . ') does not return any data, user id is empty.');
                     }
 
                     // Populate default user data from configuration.

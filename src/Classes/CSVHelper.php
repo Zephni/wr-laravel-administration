@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use DateTimeInterface;
 use Exception;
 use Illuminate\Support\Collection;
+use InvalidArgumentException;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class CSVHelper
@@ -27,12 +28,12 @@ class CSVHelper
 
         // If a static export method is provided, use that
         if ($manageableModelStaticExportMethod !== null) {
-            // If the method does not exist, or does not start with 'export', dd
+            // If the method does not exist, or does not start with 'export', throw
             if (! str($manageableModelStaticExportMethod)->startsWith('export')) {
-                dd("Export method name must begin with 'export', $manageableModelStaticExportMethod provided.");
+                throw new InvalidArgumentException("Export method name must begin with 'export', {$manageableModelStaticExportMethod} provided.");
             }
             if (! method_exists($manageableModelClass, $manageableModelStaticExportMethod)) {
-                dd("Export method $manageableModelStaticExportMethod does not exist on {$manageableModelClass}.");
+                throw new InvalidArgumentException("Export method {$manageableModelStaticExportMethod} does not exist on {$manageableModelClass}.");
             }
 
             $models = $manageableModelClass::$manageableModelStaticExportMethod($models, $fileName);

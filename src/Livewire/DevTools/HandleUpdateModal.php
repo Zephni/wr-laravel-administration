@@ -32,6 +32,6 @@ class HandleUpdateModal extends ModalComponent
 
     public function runCommand()
     {
-        dd('Working on this...');
+        session()->flash('error', 'Working on this...');
     }
 }
