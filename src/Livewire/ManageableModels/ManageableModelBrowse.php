@@ -231,14 +231,29 @@ class ManageableModelBrowse extends Component
      * Export as CSV action
      *
      * @param  ?string  $manageableModelStaticExportMethod  The static export method to use in place of the standard export, method name must begin with 'export', takes collection of models and optional &$fileName, returns [string filename, array rowData (with keys as headings)]
+     * @param  ?int  $limit  Optional limit on the number of rows to export.
      */
-    public function exportAsCSVAction(?string $manageableModelStaticExportMethod = null): StreamedResponse
+    public function exportAsCSVAction(?string $manageableModelStaticExportMethod = null, ?int $limit = null): StreamedResponse
     {
+        $query = $this->browseModels();
+
+        if (is_int($limit) && $limit > 0) {
+            $query->limit($limit);
+        }
+
         return CSVHelper::exportManageableModels(
             $this->manageableModelClass,
-            $this->browseModels()->get(),
+            $query->get(),
             $manageableModelStaticExportMethod
         );
+    }
+
+    /**
+     * Get the total number of rows that would be exported (respecting current filters).
+     */
+    public function getBrowseRowCount(): int
+    {
+        return $this->browseModels()->toBase()->getCountForPagination();
     }
 
     /**

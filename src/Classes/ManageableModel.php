@@ -702,7 +702,26 @@ abstract class ManageableModel
             'color' => 'primary',
             'size' => 'small',
             'attributes' => new ComponentAttributeBag([
-                'wire:click' => 'exportAsCSVAction',
+                'x-on:click' => <<<'JS'
+                    (async () => {
+                        const total = await $wire.getBrowseRowCount();
+                        let limit = null;
+                        if (total > 1000) {
+                            const response = window.prompt(
+                                'There are ' + total + ' rows in this table, how many would you like to export?',
+                                total
+                            );
+                            if (response === null) return;
+                            const parsed = parseInt(response, 10);
+                            if (isNaN(parsed) || parsed <= 0) return;
+                            limit = parsed;
+                        }
+                        $wire.exportAsCSVAction(null, limit);
+                    })();
+                JS,
+                'wire:target' => 'exportAsCSVAction',
+                'wire:loading.attr' => 'disabled',
+                'wire:loading.class' => 'opacity-80 cursor-not-allowed',
             ]),
         ]));
 
