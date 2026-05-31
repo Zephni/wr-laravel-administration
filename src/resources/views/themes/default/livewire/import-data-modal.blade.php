@@ -52,9 +52,18 @@
                     <b>B.</b> Select a .csv file to import:
                 </p>
                 <div>
+                    @php
+                        $uploadLimitsNote = '<b>Upload size limits in effect:</b><br /><ul class="list-disc list-inside mt-1">';
+                        foreach ($uploadLimits['items'] as $limit) {
+                            $cls = $limit['isLowest'] ? 'text-rose-600 font-semibold' : 'text-slate-600';
+                            $suffix = $limit['isLowest'] ? ' <span class="italic">(lowest – binding limit)</span>' : '';
+                            $uploadLimitsNote .= '<li class="'.$cls.'">'.e($limit['source']).': '.e($limit['display']).$suffix.'</li>';
+                        }
+                        $uploadLimitsNote .= '</ul><div class="mt-1 text-xs italic text-slate-500">Files larger than the lowest limit above will fail to upload. Raise the relevant php.ini / config value if you need to import bigger files.</div>';
+                    @endphp
                     @themeComponent('forms.input-file', [
                         'options' => [
-                            'notes' => '<b>NOTE:</b> The first row of the file MUST be a list of headers:<br /><br /><b class="text-grey-900">'.implode(', ', $data['tableColumnsDisplay']).'</b>',
+                            'notes' => '<b>NOTE:</b> The first row of the file MUST be a list of headers:<br /><br /><b class="text-grey-900">'.implode(', ', $data['tableColumnsDisplay']).'</b><br /><br />'.$uploadLimitsNote,
                             'chooseFileText' => 'Select a .csv file to import...',
                         ],
                         'fileSystemFileExists' => false,

@@ -250,7 +250,101 @@ class ImportDataModal extends ModalComponent
 
         return view(WRLAHelper::getViewPath('livewire.import-data-modal'), [
             'previewRows' => $previewRows,
+            'uploadLimits' => $this->getUploadLimitsForDisplay(),
         ]);
+    }
+
+    /**
+     * Collect the upload size limits currently in effect for display in the modal.
+     * Returns each source with its raw value plus a normalised KB figure, and
+     * flags the lowest (i.e. binding) limit so the view can highlight it.
+     *
+     * @return array{items: array<int, array{source: string, display: string, kb: int, isLowest: bool}>, lowest: ?array{source: string, display: string, kb: int}}
+     */
+    protected function getUploadLimitsForDisplay(): array
+    {
+        $items = [];
+
+        $uploadMax = (string) ini_get('upload_max_filesize');
+        $items[] = [
+            'source' => 'php.ini upload_max_filesize',
+            'display' => $uploadMax !== '' ? $uploadMax : '(unset)',
+            'kb' => (int) ceil($this->parseIniShorthandBytes($uploadMax) / 1024),
+        ];
+
+        $postMax = (string) ini_get('post_max_size');
+        $items[] = [
+            'source' => 'php.ini post_max_size',
+            'display' => $postMax !== '' ? $postMax : '(unset)',
+            'kb' => (int) ceil($this->parseIniShorthandBytes($postMax) / 1024),
+        ];
+
+        $livewireKb = $this->extractMaxKbFromRules((array) config('livewire.temporary_file_upload.rules', []));
+        if ($livewireKb !== null) {
+            $items[] = [
+                'source' => 'Livewire temporary_file_upload max',
+                'display' => number_format($livewireKb).' KB',
+                'kb' => $livewireKb,
+            ];
+        }
+
+        $componentKb = $this->extractMaxKbFromRules((array) config('wr-laravel-administration.csv_imports.upload_rules', []));
+        if ($componentKb !== null) {
+            $items[] = [
+                'source' => 'WRLA csv_imports.upload_rules max',
+                'display' => number_format($componentKb).' KB',
+                'kb' => $componentKb,
+            ];
+        }
+
+        // Only consider positive limits when picking the lowest binding one.
+        $positive = array_values(array_filter($items, fn ($i) => $i['kb'] > 0));
+        usort($positive, fn ($a, $b) => $a['kb'] <=> $b['kb']);
+        $lowest = $positive[0] ?? null;
+
+        foreach ($items as &$item) {
+            $item['isLowest'] = $lowest !== null && $item['source'] === $lowest['source'];
+        }
+
+        return [
+            'items' => $items,
+            'lowest' => $lowest,
+        ];
+    }
+
+    /**
+     * Parse a php.ini shorthand byte string (e.g. "8M", "512K", "1G") into bytes.
+     */
+    protected function parseIniShorthandBytes(string $value): int
+    {
+        $value = trim($value);
+        if ($value === '') {
+            return 0;
+        }
+
+        $unit = strtolower($value[strlen($value) - 1]);
+        $number = (int) $value;
+
+        return match ($unit) {
+            'g' => $number * 1024 * 1024 * 1024,
+            'm' => $number * 1024 * 1024,
+            'k' => $number * 1024,
+            default => (int) $value,
+        };
+    }
+
+    /**
+     * Find the first `max:N` rule (KB) in a Laravel validation rules array.
+     */
+    protected function extractMaxKbFromRules(array $rules): ?int
+    {
+        foreach ($rules as $rule) {
+            if (is_string($rule) && str_starts_with($rule, 'max:')) {
+                return (int) substr($rule, 4);
+            }
+        }
+
+        return null;
     }
 
     /**
