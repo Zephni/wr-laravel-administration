@@ -484,16 +484,43 @@ trait ManageableField
     }
 
     /**
-     * Set attribute.
-     *
-     * @param string $key
-     * @param ?string $value
-     * @return $this
+     * Boolean HTML attributes that should be removed entirely when set to a falsy value
+     * rather than rendered with a literal "false"/"0" string in the output.
      */
-    public function setAttribute(string $key, ?string $value): static
+    protected static array $booleanHtmlAttributes = [
+        'disabled',
+        'readonly',
+        'required',
+        'checked',
+        'selected',
+        'multiple',
+        'autofocus',
+        'hidden',
+        'novalidate',
+        'formnovalidate',
+        'open',
+        'reversed',
+        'default',
+        'autoplay',
+        'controls',
+        'loop',
+        'muted',
+        'playsinline',
+    ];
+
+    /**
+     * Set attribute.
+     */
+    public function setAttribute(string $key, string|bool|null $value): static
     {
         if($key == 'name') {
-            $value = $this->buildNameAttribute($value);
+            $value = $this->buildNameAttribute((string) $value);
+        }
+
+        // For boolean HTML attributes, a falsy value should remove the attribute entirely
+        // instead of rendering it (e.g. disabled="" still disables the field).
+        if(!$value && in_array(strtolower($key), self::$booleanHtmlAttributes, true)) {
+            return $this->removeAttribute($key);
         }
 
         $this->htmlAttributes[$key] = $value;
@@ -502,9 +529,6 @@ trait ManageableField
 
     /**
      * Get attribute.
-     *
-     * @param string $key
-     * @return mixed
      */
     public function getAttribute(string $key): mixed
     {
@@ -512,10 +536,7 @@ trait ManageableField
     }
 
     /**
-     * Remove attribute
-     *
-     * @param string $key
-     * @return $this
+     * Remove attribute.
      */
     public function removeAttribute(string $key): static
     {
@@ -525,25 +546,18 @@ trait ManageableField
 
     /**
      * Set attributes.
-     *
-     * @param ?array $attributes
-     * @return $this|array
      */
     public function setAttributes(array $attributes = []): static
     {
-        // If name is set then convert to special key
-        if(isset($attributes['name'])) {
-            $attributes['name'] = $this->buildNameAttribute($attributes['name']);
+        foreach($attributes as $key => $value) {
+            $this->setAttribute($key, $value);
         }
 
-        $this->htmlAttributes = array_merge($this->htmlAttributes, $attributes);
         return $this;
     }
 
     /**
      * Get attributes.
-     *
-     * @return array
      */
     public function getAttributes(): array
     {
@@ -565,9 +579,6 @@ trait ManageableField
     /**
      * Set livewire wire:model.live attribute with the livewireData. prefix for use in
      * the livewire component and other manageable fields.
-     *
-     * @param string $name
-     * @return $this
      */
     public function setLivewireModel(string $type = 'live'): static
     {
