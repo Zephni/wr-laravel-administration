@@ -6,6 +6,9 @@
 
     // Common tags
     $commonTags = $options['commonTags'] ?? [];
+
+    // Max tags (null = unlimited)
+    $maxTags = $options['maxTags'] ?? null;
 @endphp
 
 <div class="{{ $options['containerClass'] ?? 'w-full flex-1 flex flex-col gap-1 md:flex-auto' }}">
@@ -25,6 +28,10 @@
     newTag: '',
     editingIndex: null,
     editValue: '',
+    maxTags: {{ is_null($maxTags) ? 'null' : (int) $maxTags }},
+    get isFull() {
+        return this.maxTags !== null && this.tags.length >= this.maxTags;
+    },
     init() {
         // Set size to parent width on init and resize
         setTimeout(() => this.$el.style.width = this.$el.parentElement.offsetWidth + 'px', 0);
@@ -37,7 +44,12 @@
     },
     addTag(tag) {
         tag = tag.trim();
-        
+
+        if (this.isFull) {
+            this.newTag = '';
+            return;
+        }
+
         if (tag && !this.tags.includes(tag)) {
             this.tags.push(tag);
             this.newTag = '';
@@ -124,8 +136,10 @@ style="width: 100%; max-width: 100%;"
             @blur="addTag(newTag)"
             @keydown.enter.prevent="addTag(newTag)"
             @keydown.backspace="if (!newTag) removeTag(tags.length - 1)"
+            x-bind:disabled="isFull"
+            x-bind:placeholder="isFull ? 'Maximum of ' + maxTags + ' tags reached' : ''"
             class="border-none outline-none focus:ring-0 flex-1 bg-transparent
-            placeholder-slate-400 dark:placeholder-slate-600"
+            placeholder-slate-400 dark:placeholder-slate-600 disabled:cursor-not-allowed"
         />
     </div>
 
@@ -137,8 +151,9 @@ style="width: 100%; max-width: 100%;"
             @foreach($commonTags as $tag)
                 <button
                     type="button"
-                    class="inline-flex items-center px-2 bg-gray-100 hover:bg-primary-500 hover:bg-opacity-5 hover:border-primary-500 rounded-md border-2 border-gray-200" style="line-height: 20px;"
+                    class="inline-flex items-center px-2 bg-gray-100 hover:bg-primary-500 hover:bg-opacity-5 hover:border-primary-500 rounded-md border-2 border-gray-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-gray-100 disabled:hover:border-gray-200" style="line-height: 20px;"
                     title="Add tag"
+                    x-bind:disabled="isFull || tags.includes('{{ addslashes($tag) }}')"
                     x-on:click="addTag('{{ addslashes($tag) }}')"
                 >{{ $tag }}</button>
             @endforeach

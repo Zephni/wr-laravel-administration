@@ -3,12 +3,28 @@
 namespace WebRegulate\LaravelAdministration\Classes\ManageableFields;
 
 use Illuminate\View\ComponentAttributeBag;
+use WebRegulate\LaravelAdministration\Classes\ManageableModel;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 use WebRegulate\LaravelAdministration\Traits\ManageableField;
 
 class Tags
 {
     use ManageableField;
+
+    /**
+     * Make method (can be used in any class that extends FormComponent).
+     */
+    public static function make(?ManageableModel $manageableModel = null, ?string $column = null, ?array $options = null): static
+    {
+        $manageableField = new static($column, $manageableModel?->getModelInstance()->{$column}, $manageableModel);
+
+        $manageableField->setOptions(array_merge([
+            'commonTags' => [],
+            'maxTags' => null,
+        ], $options ?? []));
+
+        return $manageableField;
+    }
 
     /**
      * Render the input field.
@@ -33,6 +49,15 @@ class Tags
     public function commonTags(array $tags): static
     {
         $this->options['commonTags'] = $tags;
+        return $this;
+    }
+
+    /**
+     * Set the maximum number of tags allowed. Pass null to allow unlimited tags.
+     */
+    public function maxTags(?int $max): static
+    {
+        $this->options['maxTags'] = $max;
         return $this;
     }
 }
