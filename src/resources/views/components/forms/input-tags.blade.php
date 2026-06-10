@@ -137,8 +137,8 @@ style="width: 100%; max-width: 100%;"
             @keydown.enter.prevent="addTag(newTag)"
             @keydown.backspace="if (!newTag) removeTag(tags.length - 1)"
             x-bind:disabled="isFull"
-            x-bind:placeholder="isFull ? 'Maximum of ' + maxTags + ' tags reached' : ''"
-            class="border-none outline-none focus:ring-0 flex-1 bg-transparent
+            x-bind:placeholder="isFull ? ' - Maximum of ' + maxTags + ' tags reached' : ''"
+            class="pl-1 border-none outline-none focus:ring-0 flex-1 bg-transparent
             placeholder-slate-400 dark:placeholder-slate-600 disabled:cursor-not-allowed"
         />
     </div>
