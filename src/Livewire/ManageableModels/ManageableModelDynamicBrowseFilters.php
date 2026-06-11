@@ -96,7 +96,17 @@ class ManageableModelDynamicBrowseFilters extends Component
         $items = [];
         foreach ($this->browseFilterInputs as $key => $item) {
             $dynamicBrowseFilter = static::buildBrowseFilter($item);
-            $dynamicBrowseFilter->field->removeAttribute('wire:model.live');
+
+            // Remove ALL existing wire:model attributes that may have been set by makeBrowseFilter
+            // (e.g. wire:model.live.debounce.300ms => filters.{field}). If left in place, two
+            // dynamic filters using the same field would bind to the same Livewire property and
+            // update each other.
+            foreach (array_keys($dynamicBrowseFilter->field->getAttributes()) as $attrKey) {
+                if (is_string($attrKey) && str_starts_with($attrKey, 'wire:model')) {
+                    $dynamicBrowseFilter->field->removeAttribute($attrKey);
+                }
+            }
+
             $dynamicBrowseFilter->field->setAttribute('wire:model.live.debounce.400ms', "browseFilterInputs.$key.value");
             $items[] = $dynamicBrowseFilter;
         }
