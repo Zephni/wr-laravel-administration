@@ -1483,15 +1483,37 @@ abstract class ManageableModel
     }
 
     /**
-     * Is being created.
+     * Is being created. Returns true when the underlying model has not yet been
+     * persisted to the database. Uses Eloquent's $exists flag rather than the
+     * primary key value so that this remains correct for models that use UUIDs,
+     * custom primary key names, or pre-assigned keys (e.g. via the creating event).
      */
     public function isBeingCreated(): bool
     {
-        return $this->model()?->id == null;
+        $model = $this->model();
+
+        // If there is no model instance at all, treat it as "being created" to match
+        // the previous behaviour (constructor falls back to a fresh instance in the
+        // typical path, so a null here only occurs in unusual edge cases).
+        if ($model === null) {
+            return true;
+        }
+
+        // Eloquent sets $exists to true after a successful insert/update or when
+        // the model is hydrated from the database, and false for new instances.
+        if ($model instanceof Model) {
+            return ! $model->exists;
+        }
+
+        // Fallback for non-Eloquent models: rely on the primary key being unset.
+        $keyName = method_exists($model, 'getKeyName') ? $model->getKeyName() : 'id';
+        $key = method_exists($model, 'getKey') ? $model->getKey() : ($model->{$keyName} ?? null);
+
+        return $key === null;
     }
 
     /**
-     * Is being edited.
+     * Is being edited. Inverse of isBeingCreated().
      */
     public function isBeingEdited(): bool
     {
