@@ -985,6 +985,27 @@ abstract class ManageableModel
         // Simply remove any null values from the manageable fields
         $manageableFields = once(fn () => array_filter($this->getManageableFields()));
 
+        // Expand any closures within manageable fields by calling them and merging
+        // their returned arrays of manageable fields in place. Nested arrays returned
+        // from the closure are preserved so the group unpacking below still applies.
+        $manageableFields = array_reduce($manageableFields, function ($carry, $item) {
+            if ($item instanceof \Closure) {
+                $returned = $item();
+
+                if ($returned === null) {
+                    return $carry;
+                }
+
+                if (! is_array($returned)) {
+                    return array_merge($carry, [$returned]);
+                }
+
+                return array_merge($carry, array_filter($returned));
+            }
+
+            return array_merge($carry, [$item]);
+        }, []);
+
         // Unpack any nested arrays within manageable fields
         $manageableFields = array_reduce($manageableFields, function ($carry, $item) {
             if (is_array($item)) {
