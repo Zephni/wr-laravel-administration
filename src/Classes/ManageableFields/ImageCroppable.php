@@ -42,7 +42,7 @@ class ImageCroppable
             throw new Exception('Path is required for Image '.$column.' field');
         }
 
-        $imageInstance = new static($column, $manageableModel?->getModelInstance()->{$column}, $manageableModel);
+        $imageInstance = new static($column, $manageableModel?->model()->{$column}, $manageableModel);
         $imageInstance->setOptions([
             'fileSystem' => $fileSystem,
             'path' => $path,
@@ -64,7 +64,7 @@ class ImageCroppable
      */
     public static function getModelURL(ManageableModel $manageableModel, string $column): string
     {
-        $value = $manageableModel->getModelInstance()->{$column};
+        $value = $manageableModel->model()->{$column};
 
         if (empty($value)) {
             return WRLAHelper::getCurrentThemeData('no_image_src') ?? '';
@@ -72,7 +72,7 @@ class ImageCroppable
 
         $manageableField = $manageableModel->getManageableFieldByName($column);
         $urlPath = $manageableField->getFileSystem()->url(
-            trim($manageableField->getPathOnly().'/'.$manageableModel->getModelInstance()->{$column}, '/')
+            trim($manageableField->getPathOnly().'/'.$manageableModel->model()->{$column}, '/')
         );
 
         return $urlPath;
@@ -270,17 +270,17 @@ class ImageCroppable
 
         // If callable, call the function to get the name
         if (is_callable($name)) {
-            return $name($this->manageableModel->getModelInstance(), $originalFileName);
+            return $name($this->manageableModel->model(), $originalFileName);
         }
 
         // If find {id} in the name
         if (str_contains($name, '{id}')) {
             // Get the id of the model instance
-            $id = $this->manageableModel->getModelInstance()->id;
+            $id = $this->manageableModel->model()->id;
 
             // If id is null, get the next id from the model
             if (empty($id)) {
-                $id = $this->manageableModel->getModelInstance()->max('id') + 1;
+                $id = $this->manageableModel->model()->max('id') + 1;
             }
 
             // Replace {id} with the id of the model instance

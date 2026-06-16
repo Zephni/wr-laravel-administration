@@ -13,7 +13,7 @@ class InstanceActionRestore
         return InstanceAction::make($manageableModel, 'Restore', 'fa fa-undo', 'primary')
             ->enableOnCondition($manageableModel::getPermission(ManageableModelPermissions::RESTORE))
             ->setAdditionalAttributes([
-                'wire:click' => 'restoreModel(' . $manageableModel->getModelInstance()->id . ')',
+                'wire:click' => 'restoreModel(' . $manageableModel->model()->id . ')',
             ]);
     }
 }

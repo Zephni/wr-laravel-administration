@@ -179,7 +179,7 @@ class InstanceAction
     public function render(): View|string
     {
         // Get instance id
-        $instanceId = $this->manageableModelInstance->getModelInstance()->id;
+        $instanceId = $this->manageableModelInstance->model()->id;
 
         // Attributes
         if (is_string($this->action)) {

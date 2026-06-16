@@ -138,7 +138,7 @@ class EmailTemplate extends ManageableModel
                 ->default('Body text')
                 ->required(),
 
-            EmailTemplate::buildEmailTemplateBladeElement($this, $this->getModelInstance()),
+            EmailTemplate::buildEmailTemplateBladeElement($this, $this->model()),
         ];
     }
 

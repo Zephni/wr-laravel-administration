@@ -241,7 +241,7 @@ class ManageableModelUpsert extends Component
     /**
      * Get manageable model instance
      */
-    public function getModelInstance(): ManageableModel
+    public function model(): ManageableModel
     {
         return new $this->manageableModelClass;
     }

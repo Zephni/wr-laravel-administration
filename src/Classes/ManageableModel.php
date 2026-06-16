@@ -327,19 +327,19 @@ abstract class ManageableModel
     }
 
     /**
-     * Get the base model instance.
-     */
-    public function getModelInstance(): mixed
-    {
-        return $this->modelInstance;
-    }
-
-    /**
      * New shorter method name for getting model instance, keeping old one for time being
      */
     public function model(): mixed
     {
-        return $this->getModelInstance();
+        return $this->model();
+    }
+
+    /**
+     * Get the base model instance, kept for backward compatibility.
+     */
+    public function getModelInstance(): mixed
+    {
+        return $this->modelInstance;
     }
 
     /**
@@ -798,7 +798,7 @@ abstract class ManageableModel
         }
 
         // Get model instance and shared params
-        $model = $this->getModelInstance();
+        $model = $this->model();
         $modelUrlAlias = static::getUrlAlias();
         $modelId = $model->id ?? null;
 
@@ -940,7 +940,7 @@ abstract class ManageableModel
         }
 
         // If id is null, return empty collection
-        if ($this->getModelInstance()->id == null) {
+        if ($this->model()->id == null) {
             return collect();
         }
 
@@ -1046,7 +1046,7 @@ abstract class ManageableModel
     public function getInstanceJsonValue(string $key, ?Model $overrideInstance = null): mixed
     {
         // Get the model instance
-        $modelInstance = $overrideInstance ?? $this->getModelInstance();
+        $modelInstance = $overrideInstance ?? $this->model();
 
         $parts = explode('->', $key); // Split the key into parts using '->' as the delimiter.
         $column = $parts[0]; // The first part is the column name.
@@ -1065,7 +1065,7 @@ abstract class ManageableModel
     public function getInstanceRelationValue(string $key): mixed
     {
         // Get the model instance
-        $modelInstance = $this->getModelInstance();
+        $modelInstance = $this->model();
 
         // Get relationship parts
         $relationshipParts = WRLAHelper::parseBrowseColumnRelationship($key);
@@ -1172,13 +1172,13 @@ abstract class ManageableModel
             }
 
             // Only set default value if the current model instance value is empty
-            if(empty($this->getModelInstance()->{$columnName})) {
+            if(empty($this->model()->{$columnName})) {
                 // Get whether column exists on this model's table
-                $columnExistsInSchema = WRLAHelper::modelTableHasColumn($this->getModelInstance(), $columnName);
+                $columnExistsInSchema = WRLAHelper::modelTableHasColumn($this->model(), $columnName);
     
                 // If the column doesn't exist on the schema then set the default value
                 if (!$columnExistsInSchema) {
-                    $this->getModelInstance()->setAttribute($columnName, $columnData->Default);
+                    $this->model()->setAttribute($columnName, $columnData->Default);
                 }
             }
         }
@@ -1252,7 +1252,7 @@ abstract class ManageableModel
             throw new \Exception("Action not found: $actionKey");
         }
 
-        return call_user_func($this->registeredInstanceActions[$actionKey], $this->getModelInstance(), $parameters);
+        return call_user_func($this->registeredInstanceActions[$actionKey], $this->model(), $parameters);
     }
 
     /**
@@ -1487,7 +1487,15 @@ abstract class ManageableModel
      */
     public function isBeingCreated(): bool
     {
-        return $this->getModelInstance()->id == null;
+        return $this->model()->id == null;
+    }
+
+    /**
+     * Is being edited.
+     */
+    public function isBeingEdited(): bool
+    {
+        return !$this->isBeingCreated();
     }
 
     /**
@@ -1511,7 +1519,7 @@ abstract class ManageableModel
      */
     public static function getTableColumns(): array
     {
-        $modelInstance = (new static)->getModelInstance();
+        $modelInstance = (new static)->model();
         $table = str($modelInstance->getTable())->afterLast('.')->toString();
         $connection = $modelInstance->getConnectionName();
 

@@ -36,7 +36,7 @@ class MultiImage
             throw new Exception('Path is required for MultiImage ' . $column . ' field');
         }
 
-        $value = $manageableModel?->getModelInstance()->{$column};
+        $value = $manageableModel?->model()->{$column};
         if (is_array($value)) {
             $value = json_encode($value, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
         }
@@ -88,7 +88,7 @@ class MultiImage
 
         // If callable, delegate to it.
         if (is_callable($name)) {
-            return $name($this->manageableModel?->getModelInstance(), $originalFileName, $index);
+            return $name($this->manageableModel?->model(), $originalFileName, $index);
         }
 
         // Replace {index} with the current image index.
@@ -98,9 +98,9 @@ class MultiImage
 
         // Replace {id} with the model's id.
         if (str_contains($name, '{id}')) {
-            $id = $this->manageableModel?->getModelInstance()->id;
+            $id = $this->manageableModel?->model()->id;
             if (empty($id)) {
-                $id = $this->manageableModel?->getModelInstance()->max('id') + 1;
+                $id = $this->manageableModel?->model()->max('id') + 1;
             }
             $name = str_replace('{id}', $id, $name);
         }

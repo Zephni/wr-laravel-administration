@@ -97,7 +97,7 @@ class User extends ManageableModel
     public final function getBrowseColumns(): array
     {
         return [
-            'wrlaUserData.avatar' => BrowseColumnImage::make('Avatar', $this->getModelInstance()->wrlaUserData?->getProfileAvatar(), 80)->class('rounded-full')->aspect('1/1'),
+            'wrlaUserData.avatar' => BrowseColumnImage::make('Avatar', $this->model()->wrlaUserData?->getProfileAvatar(), 80)->class('rounded-full')->aspect('1/1'),
             'name' => 'Name',
             'email' => 'Email',
             'created_at' => 'Created',
@@ -113,7 +113,7 @@ class User extends ManageableModel
     public final function getManageableFields(): array
     {
         $currentUserData = WRLAHelper::getCurrentUserData();
-        $modelInstance = $this->getModelInstance();
+        $modelInstance = $this->model();
 
         return [
             Heading::make('User Information', 'fas fa-info-circle'),
@@ -179,7 +179,7 @@ class User extends ManageableModel
     public final function getInstanceActions(Collection $instanceActions): Collection
     {
         // Get user model and user data
-        $model = $this->getModelInstance();
+        $model = $this->model();
         $wrlaUserData = $model->wrlaUserData;
 
         // Reset 2FA

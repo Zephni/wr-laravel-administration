@@ -120,7 +120,7 @@ class SearchableValue
         if ($model instanceof \Illuminate\Database\Eloquent\Model) {
             // Do nothing
         } elseif ($model instanceof ManageableModel) {
-            $model = $model->getModelInstance();
+            $model = $model->model();
         } else {
             throw new \Exception('In SearchableValue ManageableField: Model must be an instance of ManageableModel');
         }
@@ -195,7 +195,7 @@ class SearchableValue
         if ($model instanceof \Illuminate\Database\Eloquent\Model) {
             // Do nothing
         } elseif ($model instanceof ManageableModel) {
-            $model = $model->getModelInstance();
+            $model = $model->model();
         } else {
             throw new \Exception('In SearchableValue ManageableField: Model must be an instance of ManageableModel');
         }

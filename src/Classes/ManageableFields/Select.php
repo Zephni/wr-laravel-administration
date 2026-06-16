@@ -65,7 +65,7 @@ class Select
         if ($model instanceof \Illuminate\Database\Eloquent\Model) {
             // Do nothing
         } elseif ($model instanceof ManageableModel) {
-            $model = $model->getModelInstance();
+            $model = $model->model();
         } else {
             throw new \Exception('In Select ManageableField: Model must be an instance of ManageableModel');
         }

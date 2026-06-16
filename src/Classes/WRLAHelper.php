@@ -247,7 +247,7 @@ class WRLAHelper
         }
 
         // Return the model instance of the current active manageable model instance
-        return static::$currentActiveManageableModelInstance->getModelInstance();
+        return static::$currentActiveManageableModelInstance->model();
     }
 
     /**

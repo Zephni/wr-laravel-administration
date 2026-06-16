@@ -90,7 +90,7 @@ class WRLAAdminController extends Controller
             WRLAHelper::setCurrentActiveManageableModelClass($manageableModelClass);
     
             // If model id doesn't exist then return to dashboard with error
-            if ($modelId != null && $manageableModelInstance->getModelInstance() == null) {
+            if ($modelId != null && $manageableModelInstance->model() == null) {
                 return redirect()->route('wrla.dashboard')->with('error', 'Model '.$manageableModelClass." with ID `$modelId` not found.");
             }
     
@@ -207,22 +207,22 @@ class WRLAAdminController extends Controller
 
             // Log event
             $created = $modelId == null;
-            WRLAHelper::logEvent(($created ? 'Created' : 'Updated')." `{$manageableModel->getUrlAlias()}` ".($created ? '' : "with ID `{$manageableModel->getmodelInstance()->id}`"), [
+            WRLAHelper::logEvent(($created ? 'Created' : 'Updated')." `{$manageableModel->getUrlAlias()}` ".($created ? '' : "with ID `{$manageableModel->model()->id}`"), [
                 'model_class' => $manageableModel::getBaseModelClass(),
-                'instance_id' => $manageableModel->getmodelInstance()->id,
+                'instance_id' => $manageableModel->model()->id,
                 'changes' => $created 
-                    ? $manageableModel->getmodelInstance()->getAttributes()
-                    : WRLAHelper::getModelChangeLogInfo($manageableModel->getmodelInstance()),
+                    ? $manageableModel->model()->getAttributes()
+                    : WRLAHelper::getModelChangeLogInfo($manageableModel->model()),
             ]);
 
             // Save the model
-            $manageableModel->getmodelInstance()->save();
+            $manageableModel->model()->save();
 
             // Perform any necessary actions after updating the model instance
-            $manageableModel->postUpdateModelInstance($request, $manageableModel->getmodelInstance());
+            $manageableModel->postUpdateModelInstance($request, $manageableModel->model());
 
             // Default success message
-            $defaultSuccessMessage = 'Saved '.$manageableModel->getDisplayName().' #'.$manageableModel->getmodelInstance()->id.' successfully.';
+            $defaultSuccessMessage = 'Saved '.$manageableModel->getDisplayName().' #'.$manageableModel->model()->id.' successfully.';
             $defaultSuccessMessage .= $modelId == null
                 ? ' <a href="'.route('wrla.manageable-models.create', ['modelUrlAlias' => $manageableModel->getUrlAlias()]).'" class="font-bold underline">Click here</a> to create another '.$manageableModel->getDisplayName(false).' record.'
                 : '';
@@ -240,7 +240,7 @@ class WRLAAdminController extends Controller
             // Redirect with success
             return redirect()->route('wrla.manageable-models.edit', [
                 'modelUrlAlias' => $manageableModel->getUrlAlias(),
-                'id' => $manageableModel->getmodelInstance()->id,
+                'id' => $manageableModel->model()->id,
             ])->with('success', $defaultSuccessMessage);
 
         // Catch
@@ -323,7 +323,7 @@ class WRLAAdminController extends Controller
             'livewireComponentData' => [
                 'manageableModelClass' => User::class,
                 'upsertType' => PageType::EDIT,
-                'modelId' => $manageableModel->getModelInstance()->id,
+                'modelId' => $manageableModel->model()->id,
                 'overrideTitle' => 'Manage Account',
             ],
         ]);

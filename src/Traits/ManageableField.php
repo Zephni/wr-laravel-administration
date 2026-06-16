@@ -163,18 +163,18 @@ trait ManageableField
         $name = $this->getName();
 
         // If attribute does not exist, get all column names from table and fill out empty values
-        if(!property_exists($this->manageableModel->getModelInstance(), $name)) {
+        if(!property_exists($this->manageableModel->model(), $name)) {
             $this->manageableModel->fillEmptyInstanceAttributesWithDefaults();
         }
 
         // Get whether column exists on this model's table
-        $columnExistsInSchema = WRLAHelper::modelTableHasColumn($this->manageableModel->getModelInstance(), $name);
+        $columnExistsInSchema = WRLAHelper::modelTableHasColumn($this->manageableModel->model(), $name);
 
         // If attribute still does not exist, return
         if(!$columnExistsInSchema) return;
 
         // Set manageable model property value
-        $this->manageableModel->getModelInstance()->setAttribute($name, $this->getValue());
+        $this->manageableModel->model()->setAttribute($name, $this->getValue());
     }
 
     /**
@@ -182,7 +182,7 @@ trait ManageableField
      */
     public static function make(?ManageableModel $manageableModel = null, ?string $column = null, ?array $options = null): static
     {
-        $value = $manageableModel?->getModelInstance()->{$column};
+        $value = $manageableModel?->model()->{$column};
         $valueIsArray = is_array($value);
         if($valueIsArray) {
             $value = json_encode($value, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
@@ -630,7 +630,7 @@ trait ManageableField
         // If model is being modified rather than created, then skip setting default value
         if($this->manageableModel?->isBeingCreated() === false) {
             // We setValue here to also handle the livewire field value
-            $this->setValue($this->manageableModel->getModelInstance()->{$this->getName()} ?? $value);
+            $this->setValue($this->manageableModel->model()->{$this->getName()} ?? $value);
 
             return $this;
         }
@@ -902,7 +902,7 @@ trait ManageableField
     {
         return once(function() {
             // Get model instance, field name and relationship parts.
-            $modelInstance = $this->manageableModel->getModelInstance();
+            $modelInstance = $this->manageableModel->model();
             $fieldName = str($this->htmlAttributes['name'])->replace(WRLAHelper::WRLA_REL_DOT, '.');
             $relationshipParts = WRLAHelper::parseBrowseColumnRelationship($fieldName);
 

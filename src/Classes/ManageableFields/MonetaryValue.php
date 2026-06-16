@@ -20,7 +20,7 @@ class MonetaryValue
      */
     public static function make(?ManageableModel $manageableModel = null, ?string $column = null, string $currencySymbol = '£', int $currencyDecimalMultiplier = 100, $decimalPlaces = 2): static
     {
-        $monetaryValueInstance = new static($column, $manageableModel?->getModelInstance()->{$column}, $manageableModel);
+        $monetaryValueInstance = new static($column, $manageableModel?->model()->{$column}, $manageableModel);
         $monetaryValueInstance->setOptions([
             'currencySymbol' => $currencySymbol,
             'currencyDecimalMultiplier' => $currencyDecimalMultiplier,

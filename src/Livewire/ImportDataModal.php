@@ -207,7 +207,7 @@ class ImportDataModal extends ModalComponent
         $this->manageableModelClass = $manageableModelClass;
 
         // Get all the table fields for this model
-        $modelInstance = (new $this->manageableModelClass)->getModelInstance();
+        $modelInstance = (new $this->manageableModelClass)->model();
         $tableColumns = WRLAHelper::getTableColumns($modelInstance->getTable(), $modelInstance->getConnectionName());
         $tableColumns = array_diff($tableColumns, (array) config('wr-laravel-administration.csv_imports.ignore_columns', ['id']));
         $this->data['tableColumnsDisplay'] = array_combine($tableColumns, $tableColumns);
@@ -432,7 +432,7 @@ class ImportDataModal extends ModalComponent
 
         // Refresh tableColumns / mapping only when first loading the file (no skip).
         if ($skipDataRows === 0) {
-            $manageableModel = (new $this->manageableModelClass)->getModelInstance();
+            $manageableModel = (new $this->manageableModelClass)->model();
             $manageableModelColumns = Schema::getColumnListing($manageableModel->getTable());
             $manageableModelColumns = array_diff($manageableModelColumns, (array) config('wr-laravel-administration.csv_imports.ignore_columns', ['id']));
             $this->data['tableColumns'] = array_combine($manageableModelColumns, $manageableModelColumns);
@@ -857,7 +857,7 @@ class ImportDataModal extends ModalComponent
      */
     public function actionDownloadTemplateCsv()
     {
-        $modelInstance = (new $this->manageableModelClass)->getModelInstance();
+        $modelInstance = (new $this->manageableModelClass)->model();
         $tableColumns = WRLAHelper::getTableColumns($modelInstance->getTable(), $modelInstance->getConnectionName());
         $tableColumns = array_diff($tableColumns, (array) config('wr-laravel-administration.csv_imports.ignore_columns', ['id']));
 

@@ -155,7 +155,7 @@ class ManageableModelBrowse extends Component
 
         // Get the manageable model and base model class
         $this->manageableModelClass = $manageableModelClass;
-        $manageableModelInstance = $this->getModelInstance();
+        $manageableModelInstance = $this->model();
         $modelClass = $manageableModelInstance::getBaseModelClass();
 
         // If the model class does not exist, redirect to the dashboard
@@ -211,7 +211,7 @@ class ManageableModelBrowse extends Component
     /**
      * Get manageable model instance
      */
-    public function getModelInstance(): ManageableModel
+    public function model(): ManageableModel
     {
         return new $this->manageableModelClass;
     }
@@ -322,7 +322,7 @@ class ManageableModelBrowse extends Component
             $this->manageableModelClass::browseSetupFinal($this->filters);
 
             // We need to run the below simply incase the browse columns appendPreQuery in any way
-            $manageableModelInstance = $this->getModelInstance();
+            $manageableModelInstance = $this->model();
             $manageableModelInstance->getBrowseColumns();
         }
 

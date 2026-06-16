@@ -29,7 +29,7 @@ class JsonUI
      */
     public static function make(?ManageableModel $manageableModel, ?string $column, ?array $fieldSettings = null, ?array $options = null): static
     {
-        $manageableField = new static($column, $manageableModel?->getModelInstance()->{$column}, $manageableModel);
+        $manageableField = new static($column, $manageableModel?->model()->{$column}, $manageableModel);
 
         $options['fieldSettings'] = $fieldSettings;
 

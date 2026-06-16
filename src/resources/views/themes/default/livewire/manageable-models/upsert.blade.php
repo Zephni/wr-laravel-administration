@@ -20,10 +20,10 @@
             @if(!empty($overrideTitle))
                 {{ $overrideTitle }}
             @else
-                @if($manageableModel->getmodelInstance()->id == null)
+                @if($manageableModel->model()->id == null)
                     Creating new {{ $manageableModel->getDisplayName() }}
                 @else
-                    Editing {{ $manageableModel->getDisplayName() }} #{{ $manageableModel->getmodelInstance()->id }}
+                    Editing {{ $manageableModel->getDisplayName() }} #{{ $manageableModel->model()->id }}
                 @endif
             @endif
         </div>
@@ -41,7 +41,7 @@
         id="upsert-form"
         action="{{ route('wrla.manageable-models.upsert.post', [
             'modelUrlAlias' => $manageableModel->getUrlAlias(),
-            'modelId' => $manageableModel->getmodelInstance()->id,
+            'modelId' => $manageableModel->model()->id,
         ]) }}"
         autocomplete="off"
         enctype="multipart/form-data"
@@ -65,13 +65,13 @@
             @endif
 
             {{-- Display model created / update / deleted datetimes --}}
-            @if(!empty($manageableModel->getmodelInstance()->id))
+            @if(!empty($manageableModel->model()->id))
                 <div class="w-full flex justify-end items-center gap-3 text-sm text-slate-500">
                     @php
                         $displayAts = [
-                            '<i class="fa fa-plus mr-0.5 opacity-70"></i> Created' =>  $manageableModel->getmodelInstance()->created_at ?? null,
-                            '<i class="fa fa-edit mr-0.5 opacity-70"></i> Last Updated' => $manageableModel->getmodelInstance()->updated_at ?? null,
-                            '<i class="fa fa-trash mr-0.5 opacity-70"></i> Deleted' => $manageableModel->getmodelInstance()->deleted_at ?? null,
+                            '<i class="fa fa-plus mr-0.5 opacity-70"></i> Created' =>  $manageableModel->model()->created_at ?? null,
+                            '<i class="fa fa-edit mr-0.5 opacity-70"></i> Last Updated' => $manageableModel->model()->updated_at ?? null,
+                            '<i class="fa fa-trash mr-0.5 opacity-70"></i> Deleted' => $manageableModel->model()->deleted_at ?? null,
                         ];
 
                         $displayAts = array_filter($displayAts);

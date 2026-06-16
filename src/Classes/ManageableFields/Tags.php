@@ -16,7 +16,7 @@ class Tags
      */
     public static function make(?ManageableModel $manageableModel = null, ?string $column = null, ?array $options = null): static
     {
-        $manageableField = new static($column, $manageableModel?->getModelInstance()->{$column}, $manageableModel);
+        $manageableField = new static($column, $manageableModel?->model()->{$column}, $manageableModel);
 
         $manageableField->setOptions(array_merge([
             'commonTags' => [],
