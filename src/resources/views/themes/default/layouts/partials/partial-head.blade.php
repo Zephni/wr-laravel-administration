@@ -178,6 +178,24 @@
         cursor: not-allowed;
     }
 
+    /* input-file component: visible label acts as the "Browse" button.
+       Dim it and block clicks when the underlying file input is disabled/readonly. */
+    input[type="file"]:disabled + label,
+    input[type="file"][readonly] + label {
+        opacity: 0.8;
+        cursor: not-allowed;
+        pointer-events: none;
+    }
+
+    /* input-image component: dim and disable the sibling Remove button
+       when the image input is disabled/readonly. */
+    .wrla_image_input:disabled ~ button,
+    .wrla_image_input[readonly] ~ button {
+        opacity: 0.8;
+        cursor: not-allowed;
+        pointer-events: none;
+    }
+
     {{ config('wr-laravel-administration.common_css') }}
 </style>
 
