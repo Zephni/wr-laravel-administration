@@ -331,7 +331,7 @@ abstract class ManageableModel
      */
     public function model(): mixed
     {
-        return $this->model();
+        return $this->modelInstance;
     }
 
     /**
@@ -1487,7 +1487,7 @@ abstract class ManageableModel
      */
     public function isBeingCreated(): bool
     {
-        return $this->model()->id == null;
+        return $this->model()?->id == null;
     }
 
     /**
