@@ -170,6 +170,14 @@
     ::-webkit-scrollbar-thumb:hover { background-color: #94a3b8BB; }
     ::-webkit-scrollbar-corner { background-color: #94a3b855; }
 
+    /* Disabled / readonly form fields - subtle visual cue that field is not editable */
+    input:disabled, input[readonly],
+    textarea:disabled, textarea[readonly],
+    select:disabled, select[readonly] {
+        opacity: 0.8;
+        cursor: not-allowed;
+    }
+
     {{ config('wr-laravel-administration.common_css') }}
 </style>
 
