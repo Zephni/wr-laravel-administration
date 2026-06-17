@@ -2,116 +2,85 @@
 
 namespace WebRegulate\LaravelAdministration\Classes\ManageableFields;
 
-use Exception;
-use Illuminate\Contracts\Filesystem\Filesystem;
-use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\View\ComponentAttributeBag;
 use Intervention\Image\Drivers\Gd\Driver;
 use Intervention\Image\ImageManager;
-use WebRegulate\LaravelAdministration\Classes\ManageableModel;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
-use WebRegulate\LaravelAdministration\Traits\ManageableField;
 
-class Image
+/**
+ * Image manageable field.
+ *
+ * Specialises {@see File} to:
+ *   - Run uploaded files through Intervention Image (with an optional
+ *     user-supplied manipulation callback) before writing them to disk.
+ *   - Add image-specific options (default image, aspect ratio, object-fit,
+ *     preview controls, rounded class helpers).
+ *   - Render via the image-specific blade view.
+ */
+class Image extends File
 {
-    use ManageableField;
-
     /**
-     * Manipulate image function, set with manipulateImage method on creation
+     * Manipulate image function, set with {@see manipulateImage()} on creation.
      *
-     * @var callable
+     * @var callable|null
      */
     public $manipulateImageFunction = null;
 
     /**
-     * Make method (can be used in any class that extends FormComponent).
-     *
-     * @param null|string|callable $filename  If string, can contain {id} and {time} placeholders. If callable, takes manageableModel, originalFilename params and must return the filename to store.
+     * Default options, augmenting {@see File::defaultOptions()} with the
+     * image-only options consumed by the input-image blade view.
      */
-    public static function make(?ManageableModel $manageableModel = null, ?string $column = null, ?string $path = null, null|string|callable $filename = null, string $fileSystem = 'public'): static
+    protected static function defaultOptions(): array
     {
-        // If path is empty, we throw an exception
-        if (empty($path)) {
-            throw new Exception('Path is required for Image '.$column.' field');
-        }
-
-        $imageInstance = new static($column, $manageableModel?->model()->{$column}, $manageableModel);
-        
-        $imageInstance->setOptions([
-            'fileSystem' => $fileSystem,
-            'path' => $path,
-            'filename' => $filename,
+        return array_merge(parent::defaultOptions(), [
             'defaultImage' => WRLAHelper::getCurrentThemeData('no_image_src'),
-            'unlinkOld' => true,
-            'allowRemove' => true,
             'aspect' => null,
             'objectFit' => 'fit',
-            'storeFilenameOnly' => true,
             'showPreview' => true,
             'previewContainerClass' => '',
-            'class' => '',
         ]);
-
-        return $imageInstance;
     }
 
     /**
-     * Get manageable model's absolute URL from manageable field
+     * When the model column is empty, fall back to the configured "no image"
+     * asset so the UI always renders a sensible placeholder.
      */
-    public static function getModelURL(ManageableModel $manageableModel, string $column): string
+    protected static function emptyModelUrl(): string
     {
-        $value = $manageableModel->model()->{$column};
-
-        if (empty($value)) {
-            return WRLAHelper::getCurrentThemeData('no_image_src') ?? '';
-        }
-
-        $manageableField = $manageableModel->getManageableFieldByName($column);
-        $urlPath = $manageableField->getFileSystem()->url(
-            trim($manageableField->getPathOnly().'/'.$manageableModel->model()->{$column}, '/')
-        );
-
-        return $urlPath;
+        return WRLAHelper::getCurrentThemeData('no_image_src') ?? '';
     }
 
     /**
-     * Upload the image from request and apply the value.
+     * Run the upload through Intervention Image, applying any user supplied
+     * manipulation callback, then write the encoded result to disk.
      */
-    public function applySubmittedValue(Request $request, mixed $value): mixed
+    protected function processUploadedFile(UploadedFile $file, string $path, string $filename): void
     {
-        // Get current value of image
-        $currentImage = $this->getAttribute('value');
+        $imageManager = new ImageManager(new Driver);
+        $image = $imageManager->read($file);
 
-        // If value is equal to the special constant WRLA_KEY_REMOVE, we delete the image
-        if ($value === WRLAHelper::WRLA_KEY_REMOVE) {
-            $this->deleteImage($currentImage);
-
-            return null;
+        if ($this->manipulateImageFunction !== null) {
+            $manipulateImageFunction = $this->manipulateImageFunction;
+            $image = $manipulateImageFunction($image);
         }
 
-        if ($request->hasFile($this->getAttribute('name'))) {
-            $value = $this->uploadImage($request->file($this->getAttribute('name')));
+        Storage::disk($this->getOption('fileSystem'))->put("$path/$filename", $image->encode());
+    }
 
-            // If unlinkOld option set, and an image already exists with the old value, we delete it
-            if ($this->getOption('unlinkOld') == true && ! empty($currentImage)) {
-                $this->deleteImage($currentImage);
-            }
-
-            // If storeFilenameOnly is false, store the entire filepath/filename.ext
-            if ($this->getOption('storeFilenameOnly') == false) {
-                return $value;
-            }
-
-            // Otherwise, we store only the filename.ext
-            $parts = explode('/', $value);
-            $value = end($parts);
-
-            return $value;
+    /**
+     * Get value. For synthetic placeholder fields (those prefixed with
+     * `wrla_field_`) the stored value isn't a real path; instead we resolve it
+     * by running the configured filename template through
+     * {@see formatFileName()}.
+     */
+    public function getValue(): string
+    {
+        if (!str_starts_with($this->getName(), 'wrla_field_')) {
+            return $this->getAttribute('value');
         }
 
-        return null;
+        return $this->formatFileName($this->getOption('filename'), $this->getAttribute('value'));
     }
 
     /**
@@ -132,56 +101,6 @@ class Image
         $this->setOption('previewContainerClass', $class);
 
         return $this;
-    }
-
-    /**
-     * Get file system
-     */
-    public function getFileSystem(): FileSystem
-    {
-        return Storage::disk($this->getOption('fileSystem'));
-    }
-
-    /**
-     * Upload image
-     *
-     * @return string The path to the stored image relative to the file system
-     */
-    public function uploadImage(UploadedFile $file): string
-    {
-        // Get file system
-        $fileSystem = $this->getFileSystem();
-
-        // Get path and filename
-        $path = WRLAHelper::forwardSlashPath($this->getPathOnly());
-        $filename = $this->formatImageName($this->options['filename'], $file->getClientOriginalName());
-
-        // If directory doesn't exist, create it
-        if (! $fileSystem->exists($path)) {
-            $fileSystem->makeDirectory($path);
-        }
-
-        // New, we now use Intervention
-        $imageManager = new ImageManager(new Driver);
-        $image = $imageManager->read($file);
-
-        if ($this->manipulateImageFunction !== null) {
-            $manipulateImageFunction = $this->manipulateImageFunction;
-            $image = $manipulateImageFunction($image);
-        }
-
-        // If no extension is provided in the filename, use the original file extension
-        if (! str($filename)->contains('.')) {
-            $filename .= '.'.$file->getClientOriginalExtension();
-        }
-
-        // Get file system
-        $fileSystem = $this->getOption('fileSystem');
-
-        // Store image
-        Storage::disk($fileSystem)->put("$path/$filename", $image->encode());
-
-        return ltrim(rtrim(ltrim($path, '/'), '/').'/'.$filename, '/');
     }
 
     /**
@@ -221,91 +140,6 @@ class Image
     }
 
     /**
-     * Get path
-     */
-    public function getPathOnly(): string
-    {
-        return ! empty($this->options['path']) ? $this->options['path'] : '';
-    }
-
-    /**
-     * Delete image file
-     */
-    public function deleteImage(string $filePathRelativeToFileSystem)
-    {
-        // Check is a filename
-        $parts = explode('/', ltrim($filePathRelativeToFileSystem, '/'));
-        $isAFileName = count($parts) > 0 && str_contains(end($parts), '.');
-
-        if ($isAFileName) {
-            $oldValue = WRLAHelper::forwardSlashPath($this->getPathOnly().'/'.$filePathRelativeToFileSystem);
-
-            // Get file system
-            $fileSystem = $this->getOption('fileSystem');
-
-            // If file exists, delete it from file system
-            Storage::disk($fileSystem)->delete($oldValue);
-        }
-    }
-
-    /**
-     * Get value
-     */
-    public function getValue(): string
-    {
-        // If name (column) is set, use standard value
-        if(!str_starts_with($this->getName(), 'wrla_field_')) {
-            return $this->getAttribute('value');
-        }
-
-        // Otherwise, calculate the value based on the formatted image name
-        return $this->formatImageName($this->getOption('filename'), $this->getAttribute('value'));
-    }
-
-    /**
-     * Format image name
-     * 
-     * @param string|callable $name If string, can contain {id} and {time} placeholders. If callable, takes (manageableModel, originalFilename) and must return the filename to store.
-     */
-    public function formatImageName(null|string|callable $name, string $originalFileName): string
-    {
-        // If name is empty, use original filename
-        if (empty($name)) {
-            return $originalFileName;
-        }
-
-        // If callable, call the function to get the name
-        if (is_callable($name)) {
-            return $name($this->manageableModel->model(), $originalFileName);
-        }
-
-        // If find {id} in the name
-        if (str_contains($name, '{id}')) {
-            // Get the id of the model instance
-            $id = $this->manageableModel->model()->id;
-
-            // If id is null, get the next id from the model
-            if (empty($id)) {
-                $id = $this->manageableModel->model()->max('id') + 1;
-            }
-
-            // Replace {id} with the id of the model instance
-            $name = str_replace('{id}', $id, $name);
-        }
-
-        // If find {time} in the name
-        if (str_contains($name, '{time}')) {
-            // Get the current time
-            $time = time();
-
-            // Replace {time} with the current time
-            $name = str_replace('{time}', $time, $name);
-        }
-
-        return $name;
-    }
-
-    /**
      * Default if no image is set
      *
      * @return $this
@@ -313,30 +147,6 @@ class Image
     public function defaultImage(?string $path): static
     {
         $this->setOption('defaultImage', $path);
-
-        return $this;
-    }
-
-    /**
-     * Set unlink old image option if new image is set
-     *
-     * @return $this
-     */
-    public function unlinkOld(bool $unlink = true): static
-    {
-        $this->setOption('unlinkOld', $unlink);
-
-        return $this;
-    }
-
-    /**
-     * Set allow remove option
-     *
-     * @return $this
-     */
-    public function allowRemove(bool $allow = true): static
-    {
-        $this->setOption('allowRemove', $allow);
 
         return $this;
     }
@@ -354,16 +164,6 @@ class Image
     {
         $this->setOption('aspect', $aspect);
         $this->setOption('objectFit', $position);
-
-        return $this;
-    }
-
-    /**
-     * Store filepath only
-     */
-    public function storeFilenameOnly(bool $storeFilenameOnly = true): static
-    {
-        $this->setOption('storeFilenameOnly', $storeFilenameOnly);
 
         return $this;
     }
@@ -389,80 +189,52 @@ class Image
     }
 
     /**
-     * Get disk storage path, returns the full path (including filename) relative to the filesystem
+     * Render hook: use the image input blade view.
      */
-    public function getDiskStoragePath(): string
+    protected function viewPath(): string
     {
-        $path = ($this->getOption('storeFilenameOnly') == true)
-            ? '/'.$this->getPathOnly()
-            : '';
-
-        return str_replace('//', '/', $path.'/'.$this->getValue());
+        return WRLAHelper::getViewPath('components.forms.input-image');
     }
 
     /**
-     * Get absolute path, full path to the file (including filename) on the server
+     * Render hook: image inputs use the disk storage path (with collapsed
+     * double slashes) rather than the file-style prefixed value.
      */
-    public function getAbsolutePath(): string
+    protected function renderInputValue(): string
     {
-        return $this->getFileSystem()->path($this->getDiskStoragePath());
+        return $this->getDiskStoragePath();
     }
 
     /**
-     * Get URL path, full URL to the file (including filename)
+     * Render hook: the image blade view consumes `fileSystemImageExists`
+     * (named for clarity / parity with the existing template).
      */
-    public function getURLPath(): string
+    protected function additionalViewData(bool $fileExists): array
     {
-        if (str($this->getValue())->startsWith('http')) {
-            return $this->getValue();
-        }
-
-        return $this->getFileSystem()->url($this->getDiskStoragePath());
+        return ['fileSystemImageExists' => $fileExists];
     }
 
     /**
-     * Get public URL path without domain
+     * @deprecated Use {@see uploadFile()} instead. Retained for backwards compatibility.
      */
-    public function getURLPathWithoutDomain(): string
+    public function uploadImage(UploadedFile $file): string
     {
-        if (str($this->getValue())->startsWith('http')) {
-            return $this->getValue();
-        }
-
-        $url = $this->getURLPath();
-
-        return parse_url($url, PHP_URL_PATH) ?? '';
+        return $this->uploadFile($file);
     }
 
     /**
-     * Render the input field.
+     * @deprecated Use {@see deleteFile()} instead. Retained for backwards compatibility.
      */
-    public function render(): mixed
+    public function deleteImage(string $filePathRelativeToFileSystem): void
     {
-        $fileSystemImageExists = true;
-        try {
-            if (! str($this->getValue())->startsWith('http')) {
-                $file = $this->getFileSystem()->get($this->getDiskStoragePath());
-                $fileSystemImageExists = !empty($file);
-            }
-        } catch (Exception) {
-            $fileSystemImageExists = false;
-        }
+        $this->deleteFile($filePathRelativeToFileSystem);
+    }
 
-        $HTML = view(WRLAHelper::getViewPath('components.forms.input-image'), [
-            'label' => $this->getLabel(),
-            'options' => $this->options,
-            'fileSystem' => $this->getFileSystem(),
-            'publicUrl' => $this->getURLPath(),
-            'publicUrlWithoutDomain' => $this->getURLPathWithoutDomain(),
-            'fileSystemImageExists' => $fileSystemImageExists,
-            'attributes' => new ComponentAttributeBag(array_merge($this->htmlAttributes, [
-                'name' => $this->getName(),
-                'value' => $this->getDiskStoragePath(),
-                'type' => 'file',
-            ])),
-        ])->render();
-
-        return $HTML;
+    /**
+     * @deprecated Use {@see formatFileName()} instead. Retained for backwards compatibility.
+     */
+    public function formatImageName(null|string|callable $name, string $originalFileName): string
+    {
+        return $this->formatFileName($name, $originalFileName);
     }
 }

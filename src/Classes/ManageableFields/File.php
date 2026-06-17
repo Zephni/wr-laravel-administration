@@ -12,6 +12,26 @@ use WebRegulate\LaravelAdministration\Classes\ManageableModel;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 use WebRegulate\LaravelAdministration\Traits\ManageableField;
 
+/**
+ * Base manageable field for file uploads stored on a Laravel filesystem disk.
+ *
+ * This class is the canonical home for the upload lifecycle (resolve path,
+ * format the stored filename, write the file, optionally unlink the old one,
+ * and render the input). Subclasses (eg. {@see Image}, {@see ImageCroppable})
+ * specialise behaviour via the following hooks rather than re-implementing the
+ * full pipeline:
+ *
+ *   - {@see defaultOptions()}      Declare the default options array.
+ *   - {@see emptyModelUrl()}       URL returned by {@see getModelURL()} when the
+ *                                  model column is empty.
+ *   - {@see processUploadedFile()} Performs the actual disk write inside
+ *                                  {@see uploadFile()}. Override to apply
+ *                                  transformations (eg. image manipulation).
+ *   - {@see viewPath()}            Blade view used by {@see render()}.
+ *   - {@see renderInputValue()}    String written to the file input's value
+ *                                  attribute.
+ *   - {@see additionalViewData()}  Extra keys merged into the render view data.
+ */
 class File
 {
     use ManageableField;
@@ -25,22 +45,36 @@ class File
     {
         // If path is empty, we throw an exception
         if (empty($path)) {
-            throw new Exception('Path is required for File '.$column.' field');
+            throw new Exception('Path is required for '.static::class.' '.$column.' field');
         }
 
-        $imageInstance = new static($column, $manageableModel?->model()->{$column}, $manageableModel);
+        $instance = new static($column, $manageableModel?->model()->{$column}, $manageableModel);
 
-        $imageInstance->setOptions([
+        // Merge subclass-provided defaults with the caller-provided values.
+        $instance->setOptions(array_merge(static::defaultOptions(), [
             'fileSystem' => $fileSystem,
             'path' => $path,
             'filename' => $filename,
+        ]));
+
+        return $instance;
+    }
+
+    /**
+     * Default options for this field. Subclasses should override and merge with
+     * {@code parent::defaultOptions()} to add their own keys.
+     */
+    protected static function defaultOptions(): array
+    {
+        return [
+            'fileSystem' => 'public',
+            'path' => '',
+            'filename' => null,
             'unlinkOld' => true,
             'allowRemove' => true,
             'storeFilenameOnly' => true,
             'class' => '',
-        ]);
-
-        return $imageInstance;
+        ];
     }
 
     /**
@@ -51,7 +85,7 @@ class File
         $value = $manageableModel->model()->{$column};
 
         if (empty($value)) {
-            return '';
+            return static::emptyModelUrl();
         }
 
         $manageableField = $manageableModel->getManageableFieldByName($column);
@@ -60,6 +94,15 @@ class File
         );
 
         return $urlPath;
+    }
+
+    /**
+     * URL returned by {@see getModelURL()} when the underlying column is empty.
+     * Override in subclasses to provide a placeholder (eg. a no-image asset).
+     */
+    protected static function emptyModelUrl(): string
+    {
+        return '';
     }
 
     /**
@@ -76,10 +119,11 @@ class File
         }
 
         // If file is uploaded, we upload the file and return the path to store in the database
-        if ($request->hasFile($this->getAttribute('name'))) {
-            $value = $this->uploadFile($request->file($this->getAttribute('name')));
+        if ($request->hasFile($this->getName())) {
+            $value = $this->uploadFile($request->file($this->getName()));
 
             // Only delete old file if it is different from the newly stored file
+            // (avoids removing a file that was just overwritten with the same name).
             if ($this->getOption('unlinkOld') == true && !empty($currentFile)) {
                 $newStoredPath = ltrim(WRLAHelper::forwardSlashPath($value), '/');
                 $oldStoredPath = ltrim(WRLAHelper::forwardSlashPath(
@@ -109,13 +153,15 @@ class File
     /**
      * Get file system
      */
-    public function getFileSystem(): FileSystem
+    public function getFileSystem(): Filesystem
     {
         return Storage::disk($this->getOption('fileSystem'));
     }
 
     /**
-     * Upload file
+     * Upload file. Resolves the destination directory and filename, ensures the
+     * extension is present, then delegates the actual write to
+     * {@see processUploadedFile()} so subclasses can apply processing.
      *
      * @return string The path to the stored file relative to the file system
      */
@@ -134,13 +180,28 @@ class File
             $filename .= '.'.$file->getClientOriginalExtension();
         }
 
-        // Use same disk and validate write result
-        $stored = $fileSystem->putFileAs($path, $file, $filename);
+        $this->processUploadedFile($file, $path, $filename);
+
+        return ltrim(rtrim(ltrim($path, '/'), '/').'/'.$filename, '/');
+    }
+
+    /**
+     * Hook: perform the actual disk write of the uploaded file.
+     *
+     * The default implementation streams the file straight to disk via
+     * {@code putFileAs}. Override in subclasses (eg. {@see Image}) to apply a
+     * processing pipeline (image manipulation, transcoding, etc.) before
+     * writing to the disk.
+     *
+     * @param  string  $path  The destination directory relative to the disk root.
+     * @param  string  $filename  The final filename (with extension).
+     */
+    protected function processUploadedFile(UploadedFile $file, string $path, string $filename): void
+    {
+        $stored = $this->getFileSystem()->putFileAs($path, $file, $filename);
         if ($stored === false) {
             throw new \RuntimeException('Failed to store uploaded file on disk: '.$this->getOption('fileSystem'));
         }
-
-        return ltrim(rtrim(ltrim($path, '/'), '/').'/'.$filename, '/');
     }
 
     /**
@@ -179,20 +240,20 @@ class File
         // If starts with http, return as is
         if (str_starts_with((string) $this->getAttribute('value'), 'http')) {
             return $this->getAttribute('value');
-            // Else, we apply a forward slash to the beginning of the path
-        } else {
-            // If no value is set, return empty string
-            if (empty($this->getAttribute('value'))) {
-                return '';
-            }
-
-            return '/'.ltrim(WRLAHelper::forwardSlashPath($this->getAttribute('value')), '/');
         }
+
+        // If no value is set, return empty string
+        if (empty($this->getAttribute('value'))) {
+            return '';
+        }
+
+        // Else, apply a forward slash to the beginning of the path
+        return '/'.ltrim(WRLAHelper::forwardSlashPath($this->getAttribute('value')), '/');
     }
 
     /**
      * Format file name
-     * 
+     *
      * @param string|callable $name If string, can contain {id} and {time} placeholders. If callable, takes (manageableModel, originalFilename) and must return the filename to store.
      */
     public function formatFileName(null|string|callable $name, string $originalFileName): string
@@ -223,11 +284,8 @@ class File
 
         // If find {time} in the name
         if (str_contains($name, '{time}')) {
-            // Get the current time
-            $time = time();
-
             // Replace {time} with the current time
-            $name = str_replace('{time}', $time, $name);
+            $name = str_replace('{time}', time(), $name);
         }
 
         return $name;
@@ -314,38 +372,74 @@ class File
     }
 
     /**
+     * Hook: blade view used by {@see render()}.
+     */
+    protected function viewPath(): string
+    {
+        return WRLAHelper::getViewPath('components.forms.input-file');
+    }
+
+    /**
+     * Hook: value rendered into the [type=file] input's `value` attribute.
+     */
+    protected function renderInputValue(): string
+    {
+        $path = ($this->getOption('storeFilenameOnly') == true)
+            ? '/'.ltrim(rtrim($this->getPathOnly(), '/'), '/').'/'
+            : '';
+
+        return $path.$this->getValue();
+    }
+
+    /**
+     * Hook: extra data keys merged into the render view payload. Subclasses
+     * should override to rename / add view variables consumed by their blade
+     * template (eg. Image uses `fileSystemImageExists`).
+     */
+    protected function additionalViewData(bool $fileExists): array
+    {
+        return ['fileSystemFileExists' => $fileExists];
+    }
+
+    /**
+     * Probe the disk to determine whether the current value resolves to an
+     * existing file (or is an external http(s) URL we treat as existing).
+     */
+    protected function checkFileExists(): bool
+    {
+        try {
+            if (str($this->getValue())->startsWith('http')) {
+                return true;
+            }
+
+            $file = $this->getFileSystem()->get($this->getDiskStoragePath());
+
+            return !empty($file);
+        } catch (Exception) {
+            return false;
+        }
+    }
+
+    /**
      * Render the input field.
      */
     public function render(): mixed
     {
-        $HTML = '';
+        $fileExists = $this->checkFileExists();
 
-        $fileSystemFileExists = true;
-        try {
-            if (! str($this->getValue())->startsWith('http')) {
-                $file = $this->getFileSystem()->get($this->getDiskStoragePath());
-                $fileSystemFileExists = !empty($file);
-            }
-        } catch (Exception) {
-            $fileSystemFileExists = false;
-        }
-
-        $path = ($this->getOption('storeFilenameOnly') == true) ? '/'.ltrim(rtrim($this->getPathOnly(), '/'), '/').'/' : '';
-
-        $HTML .= view(WRLAHelper::getViewPath('components.forms.input-file'), [
+        $data = array_merge([
             'label' => $this->getLabel(),
             'options' => $this->options,
             'fileSystem' => $this->getFileSystem(),
             'publicUrl' => $this->getURLPath(),
             'publicUrlWithoutDomain' => $this->getURLPathWithoutDomain(),
-            'fileSystemFileExists' => $fileSystemFileExists,
             'attributes' => new ComponentAttributeBag(array_merge($this->htmlAttributes, [
-                'name' => $this->getAttribute('name'),
-                'value' => $path.$this->getValue(),
+                'name' => $this->getName(),
+                'value' => $this->renderInputValue(),
                 'type' => 'file',
             ])),
-        ])->render();
+        ], $this->additionalViewData($fileExists));
 
-        return $HTML;
+        return view($this->viewPath(), $data)->render();
     }
 }
