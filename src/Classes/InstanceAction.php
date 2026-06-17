@@ -117,18 +117,20 @@ class InstanceAction
      * Prompt user and pass as ['input' => 'user input'] parameter to action
      * @param string $message
      * @param bool $allowEmpty If true, allows empty input; if false, user must provide input or cancel
+     * @param ?string $default Optional default value pre-filled in the prompt
      * @return InstanceAction
      */
-    public function ask(string $message, bool $allowEmpty = false): static
+    public function ask(string $message, bool $allowEmpty = false, ?string $default = null): static
     {
         // General escaping for JavaScript string
         $message = addslashes($message);
+        $defaultJs = is_null($default) ? 'null' : '`'.addslashes($default).'`';
 
         $allowEmptyJs = $allowEmpty ? 'true' : 'false';
 
         $this->additonalAttributes['onclick'] = $this->additonalAttributes['onclick'] ?? '';
         $this->additonalAttributes['onclick'] .= <<<JS
-            let input = prompt(`{$message}`);
+            let input = prompt(`{$message}`, {$defaultJs});
 
             if(input === null || (!{$allowEmptyJs} && input.trim() === '')) {
                 event.stopImmediatePropagation();

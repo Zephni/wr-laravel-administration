@@ -2,18 +2,18 @@
 
 namespace App\WRLA;
 
-use Illuminate\Support\Str;
-use Illuminate\Support\Collection;
+use Exception;
 use Illuminate\Database\Eloquent\Builder;
-use WebRegulate\LaravelAdministration\Enums\PageType;
-use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
-use WebRegulate\LaravelAdministration\Classes\BrowseFilter;
-use WebRegulate\LaravelAdministration\Classes\ManageableModel;
-use WebRegulate\LaravelAdministration\Classes\ManageableFields\Json;
-use WebRegulate\LaravelAdministration\Classes\ManageableFields\Text;
-use WebRegulate\LaravelAdministration\Classes\ManageableFields\Select;
-use WebRegulate\LaravelAdministration\Classes\ManageableFields\TextArea;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
 use WebRegulate\LaravelAdministration\Classes\ManageableFields\BladeElement;
+use WebRegulate\LaravelAdministration\Classes\ManageableFields\Json;
+use WebRegulate\LaravelAdministration\Classes\ManageableFields\Select;
+use WebRegulate\LaravelAdministration\Classes\ManageableFields\Text;
+use WebRegulate\LaravelAdministration\Classes\ManageableFields\TextArea;
+use WebRegulate\LaravelAdministration\Classes\ManageableModel;
+use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
+use WebRegulate\LaravelAdministration\Enums\PageType;
 
 class EmailTemplate extends ManageableModel
 {
@@ -198,29 +198,47 @@ class EmailTemplate extends ManageableModel
     public final function getInstanceActions(Collection $instanceActions): Collection
     {
         $user = WRLAHelper::getCurrentUser();
-        $sendEmailTo = $user->email ?? null;
+        $defaultEmails = $user->email ?? null;
 
-        return $instanceActions->prepend(
+        // Send test action
+        $instanceActions->prepend(
             $this->instanceAction('Send Test', 'fa fa-paper-plane', 'primary')
-                ->enableOnCondition(fn() => WRLAHelper::getCurrentPageType() === PageType::EDIT && !empty($sendEmailTo))
-                ->confirm("Note you must save your changes before sending a test. Send test email to: {$sendEmailTo}")
-                ->setAction(function() use ($sendEmailTo, $user) {
-                    try {
-                        $emailTemplate = $this->model();
+                ->enableOnCondition(fn() => WRLAHelper::getCurrentPageType() === PageType::EDIT && !empty($defaultEmails))
+                // Prompt for one or more recipients (comma separated), pre-filled with the current user's email.
+                ->ask('Send test email to (comma separated for multiple, save changes first):', false, $defaultEmails)
+                ->setAction(function($emailTemplate, $parameters) use ($user) {
+                    // Normalise the comma delimited input into a clean, validated list
+                    $emailsRaw = $parameters['input'] ?? '';
+                    $emails = collect(explode(',', $emailsRaw))
+                        ->map(fn($email) => trim($email))
+                        ->filter(fn($email) => $email !== '' && filter_var($email, FILTER_VALIDATE_EMAIL))
+                        ->values()
+                        ->all();
 
+                    if(empty($emails)) {
+                        return "No valid email addresses provided: {$emailsRaw}";
+                    }
+
+                    try {
+                        // Set data array for injections. Any keys not provided here
+                        // will fall back to string defaults defined in the template's
+                        // mappings JSON (handled by EmailTemplate::applyCustomisedDataValues).
                         $emailTemplate->setDataArray([
-                            'user' => $user
+                            'user' => $user,
                         ]);
 
-                        $success = $emailTemplate->sendEmail($sendEmailTo);
-    
-                        return $success
-                            ? "Email successfully sent to {$sendEmailTo}"
-                            : "Failed to send email to {$sendEmailTo}";
-                    } catch (\Exception $e) {
+                        // sendEmail() accepts an array or comma delimited string of recipients
+                        $success = $emailTemplate->sendEmail($emails);
+
+                        // Return a message indicating success or failure, along with the list of recipients
+                        return ($success ? 'Email successfully sent to ' : 'Failed to send email to ') . implode(', ', $emails);
+                    } catch (Exception $e) {
                         return "Error sending email: " . $e->getMessage();
                     }
                 })
         );
+
+        // Return instance actions
+        return $instanceActions;
     }
 }
