@@ -202,7 +202,7 @@ class EmailTemplate extends ManageableModel
 
         // Send test action
         $instanceActions->prepend(
-            $this->instanceAction('Send Test', 'fa fa-paper-plane', 'primary')
+            $this->instanceAction('Send Test', 'fa fa-paper-plane', 'secondary')
                 ->enableOnCondition(fn() => !empty($defaultEmails))
                 // Prompt for one or more recipients (comma separated), pre-filled with the current user's email.
                 ->ask('Send test email to (comma separated for multiple, save changes first):', false, $defaultEmails)
