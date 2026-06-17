@@ -39,6 +39,7 @@
                 'originalSrc' => $publicUrlWithoutDomain,
                 'class' => "wrla_image_preview {$options['class']} ".($fileSystemImageExists ? '' : 'wrla_no_image'),
                 'aspect' => $options["aspect"],
+                'objectFit' => $options['objectFit'] ?? 'cover',
             ])
         </div>
     @endif

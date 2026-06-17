@@ -51,6 +51,7 @@ class ImageCroppable
             'unlinkOld' => true,
             'allowRemove' => true,
             'aspect' => null,
+            'objectFit' => 'fit',
             'storeFilenameOnly' => true,
             'class' => '',
             'previewContainerClass' => '',
@@ -337,10 +338,17 @@ class ImageCroppable
 
     /**
      * Set aspect ratio using 1/1 format
+     *
+     * @param  ?string  $aspect  Aspect ratio string (eg. '1/1', '16/9'), or null for auto.
+     * @param  string  $position  How the image fits within the aspect-ratio box. Accepts 'fit'
+     *                            (alias of CSS object-contain, the default — preserves the image's
+     *                            original aspect ratio inside the box), or any CSS object-fit value
+     *                            ('cover', 'contain', 'fill', 'none', 'scale-down').
      */
-    public function aspect(?string $aspect = null): static
+    public function aspect(?string $aspect = null, string $position = 'fit'): static
     {
         $this->setOption('aspect', $aspect);
+        $this->setOption('objectFit', $position);
 
         return $this;
     }
