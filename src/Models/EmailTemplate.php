@@ -424,10 +424,25 @@ class EmailTemplate extends Model
             $smtpData['from']['name'] = config('mail.from.name');
         }
 
-        // If send seperate emails is false, set the toAddresses to an array
+        // Normalise to array
         if (!is_array($toAddresses)) {
             $toAddresses = [$toAddresses];
         }
+
+        // Flatten any comma-delimited entries (e.g. "a@x.com,b@y.com") and trim each address
+        $flattened = [];
+        foreach ($toAddresses as $entry) {
+            if (!is_string($entry)) {
+                continue;
+            }
+            foreach (explode(',', $entry) as $address) {
+                $address = trim($address);
+                if ($address !== '') {
+                    $flattened[] = $address;
+                }
+            }
+        }
+        $toAddresses = $flattened;
 
         // Remove any empty values or values without @ symbol
         $toAddresses = array_filter($toAddresses, fn ($toAddress) => ! empty($toAddress) && str($toAddress)->contains('@'));
