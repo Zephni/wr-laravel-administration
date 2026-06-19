@@ -55,6 +55,15 @@ class MultiImage
     }
 
     /**
+     * This field handles file uploads, so its raw value cannot be transferred
+     * to a new record (eg. when duplicating).
+     */
+    public function isFileUploadField(): bool
+    {
+        return true;
+    }
+
+    /**
      * Set filename option.
      *
      * @param null|string|callable $filename  If string, can contain {index}, {id}, {time} placeholders. If callable, takes (manageableModel, originalFilename, index) and must return the filename. If null, uses the original filename from the uploaded file.

@@ -260,6 +260,16 @@ trait ManageableField
     }
 
     /**
+     * Whether this field handles file/image uploads. Overridden by file based
+     * fields (eg. File, Image, MultiImage) so consumers can skip them where
+     * a raw value cannot be transferred (eg. duplicating a record).
+     */
+    public function isFileUploadField(): bool
+    {
+        return false;
+    }
+
+    /**
      * Moddeled with livewire
      */
     public function isModeledWithLivewire(): bool

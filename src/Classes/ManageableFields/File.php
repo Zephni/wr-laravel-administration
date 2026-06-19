@@ -78,6 +78,15 @@ class File
     }
 
     /**
+     * This field handles file uploads, so its raw value cannot be transferred
+     * to a new record (eg. when duplicating).
+     */
+    public function isFileUploadField(): bool
+    {
+        return true;
+    }
+
+    /**
      * Get manageable model's absolute URL from manageable field
      */
     public static function getModelURL(ManageableModel $manageableModel, string $column): string

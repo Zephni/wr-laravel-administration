@@ -55,6 +55,12 @@ class ManageableModelUpsert extends Component
     public ?int $modelId = null;
 
     /**
+     * Id of an existing model to prefill this create form from (duplicate),
+     * null when not duplicating. File/image fields are intentionally skipped.
+     */
+    public ?int $duplicateFromId = null;
+
+    /**
      * Override title
      */
     public ?string $overrideTitle = null;
@@ -96,6 +102,17 @@ class ManageableModelUpsert extends Component
         $this->modelId = $modelId;
         $this->upsertType = $upsertType;
         $this->overrideTitle = $overrideTitle;
+
+        // If creating, capture an optional source record to duplicate from (passed
+        // as a query parameter by the duplicate instance action). Stored as a public
+        // property so it persists across subsequent livewire renders.
+        if ($this->upsertType === PageType::CREATE) {
+            $duplicateFrom = request()->query('wrlaDuplicateFrom');
+
+            if (is_numeric($duplicateFrom)) {
+                $this->duplicateFromId = (int) $duplicateFrom;
+            }
+        }
 
         // Set page type
         WRLAHelper::setCurrentPageType($this->upsertType);
@@ -148,6 +165,11 @@ class ManageableModelUpsert extends Component
             // Get manageable model and fields data
             $manageableModel = $this->manageableModelClass::make($this->modelId, true);
             ManageableModel::$livewireFields = $this->livewireData;
+
+            // If duplicating, prefill the new model with the source record's values
+            // (file/image fields are skipped) before the fields are built.
+            $this->applyDuplicateValues($manageableModel);
+
             $manageableFields = $manageableModel->getManageableFieldsFinal();
 
             // Set page type
@@ -198,6 +220,76 @@ class ManageableModelUpsert extends Component
             redirect()->route('wrla.dashboard')->with('error', "Error loading manageable model `$this->manageableModelClass`: ".$e->getMessage());
 
             return '<div></div>';
+        }
+    }
+
+    /**
+     * Prefill the (create) model instance with values from the record being
+     * duplicated. File/image fields are skipped because their raw stored values
+     * cannot be transferred to a brand new record. Applied idempotently so the
+     * prefilled values survive subsequent livewire renders.
+     *
+     * @param  ManageableModel  $manageableModel  The new model instance being created.
+     */
+    protected function applyDuplicateValues(ManageableModel $manageableModel): void
+    {
+        // Only relevant when creating a new record from an existing source record
+        if ($this->upsertType !== PageType::CREATE || $this->duplicateFromId === null) {
+            return;
+        }
+
+        // Resolve the source manageable model (may be soft deleted)
+        try {
+            $sourceManageableModel = $this->manageableModelClass::make($this->duplicateFromId, true);
+        } catch (\Exception $e) {
+            return;
+        }
+
+        $sourceModel = $sourceManageableModel->model();
+
+        if ($sourceModel === null) {
+            return;
+        }
+
+        $sourceAttributes = $sourceModel->getAttributes();
+
+        // Build the set of root columns to copy: every non file/image field's column.
+        $columnsToCopy = [];
+        foreach ($sourceManageableModel->getManageableFieldsFinal() as $manageableField) {
+            if ($manageableField->isFileUploadField()) {
+                continue;
+            }
+
+            // Resolve the underlying database column, stripping json '->' and relationship dot notation.
+            $fieldName = str_replace(WRLAHelper::WRLA_REL_DOT, '.', $manageableField->getName());
+            $rootColumn = explode('.', explode('->', $fieldName)[0])[0];
+
+            // Only copy real, loaded columns on the source record.
+            if (array_key_exists($rootColumn, $sourceAttributes)) {
+                $columnsToCopy[$rootColumn] = true;
+            }
+        }
+
+        // Columns that should never be carried over to a brand new record.
+        $targetModel = $manageableModel->model();
+        $protectedColumns = [$targetModel->getKeyName()];
+
+        if ($targetModel->usesTimestamps()) {
+            $protectedColumns[] = $targetModel->getCreatedAtColumn();
+            $protectedColumns[] = $targetModel->getUpdatedAtColumn();
+        }
+
+        if (method_exists($targetModel, 'getDeletedAtColumn')) {
+            $protectedColumns[] = $targetModel->getDeletedAtColumn();
+        }
+
+        // Copy each eligible value using the casted value so json/array casts are preserved.
+        foreach (array_keys($columnsToCopy) as $column) {
+            if (in_array($column, $protectedColumns, true)) {
+                continue;
+            }
+
+            $targetModel->setAttribute($column, $sourceModel->getAttribute($column));
         }
     }
 
