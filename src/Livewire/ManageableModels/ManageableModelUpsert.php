@@ -238,6 +238,10 @@ class ManageableModelUpsert extends Component
             return;
         }
 
+        // Flag the model as duplicating so manageable field ->default() calls do not
+        // override the prefilled (duplicated) values.
+        $manageableModel->isDuplicating = true;
+
         // Resolve the source manageable model (may be soft deleted)
         try {
             $sourceManageableModel = $this->manageableModelClass::make($this->duplicateFromId, true);

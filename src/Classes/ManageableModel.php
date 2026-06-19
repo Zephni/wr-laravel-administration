@@ -63,6 +63,13 @@ abstract class ManageableModel
     public bool $usesWysiwygEditor = false;
 
     /**
+     * Whether this model instance is being prefilled from another record (duplicate).
+     * When true, manageable field ->default() calls must not override the already
+     * populated (duplicated) values.
+     */
+    public bool $isDuplicating = false;
+
+    /**
      * Model instance cache using {manageable model class} => [{model id} => {model instance}]
      */
     public static array $modelInstanceCache = [];

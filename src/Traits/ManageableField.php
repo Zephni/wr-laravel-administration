@@ -700,6 +700,17 @@ trait ManageableField
             return $this;
         }
 
+        // If the model is being prefilled from another record (duplicate), keep the
+        // already populated value rather than overriding it with the default. Only
+        // fall back to the default when no duplicated value exists for this field.
+        if($this->manageableModel?->isDuplicating === true) {
+            $currentValue = $this->getAttribute('value');
+
+            $this->setValue(($currentValue === null || $currentValue === '') ? $value : $currentValue);
+
+            return $this;
+        }
+
         // Set value
         $this->setValue($value);
 
