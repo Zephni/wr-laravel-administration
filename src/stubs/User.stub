@@ -188,13 +188,13 @@ class User extends ManageableModel
         return array_values(array_filter([
             // Impersonate action
             $this->instanceAction('Login', 'fas fa-sign-in-alt', 'secondary')
-                ->enableOnCondition($model->id !== Auth::id() && (!method_exists($model, 'trashed') || !$model->trashed()) && static::getPermission(self::IMPERSONATE))
+                ->requireCondition($model->id !== Auth::id() && (!method_exists($model, 'trashed') || !$model->trashed()) && static::getPermission(self::IMPERSONATE))
                 ->confirm("Login as {$model->email}?")
                 ->setAction(route('wrla.impersonate.login-as', ['id' => $model->id])),
 
             // Reset 2FA
             $this->instanceAction('Reset 2FA', 'fas fa-key', 'secondary')
-                ->enableOnCondition(fn() => WRLAHelper::getCurrentPageType() === PageType::EDIT && $wrlaUserData->mfa_secret !== null)
+                ->requireCondition(fn() => WRLAHelper::getCurrentPageType() === PageType::EDIT && $wrlaUserData->mfa_secret !== null)
                 ->setAction(function($user) use ($wrlaUserData) {
                     $wrlaUserData->mfa_secret = null;
                     $wrlaUserData->save();

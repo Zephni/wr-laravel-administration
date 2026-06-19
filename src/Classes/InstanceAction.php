@@ -14,7 +14,13 @@ class InstanceAction
     public mixed $action = null;
     public array $attributes = [];
     public array $additonalAttributes = [];
-    public mixed $enableOnCondition = true;
+    /**
+     * Conditions that must ALL evaluate to true for this instance action to be enabled.
+     * Each entry may be a bool or a callable that returns a bool. If the array is empty
+     * the action is always enabled.
+     * @var array<int, bool|callable>
+     */
+    public array $enableConditions = [];
     public ?string $actionKey = null; // Only used if action is callable
 
 
@@ -25,11 +31,11 @@ class InstanceAction
      * @param mixed $icon
      * @param mixed $color
      * @param null|callable|string $action Takes model instance, returns string message or RedirectResponse
-     * @param null|bool|callable $enableOnCondition
+     * @param null|bool|callable $enableCondition An initial enable condition (bool or callable returning bool)
      * @param null|array $additonalAttributes
      * @return InstanceAction
      */
-    public static function make(mixed $manageableModelInstance, string $text, ?string $icon = null, ?string $color = null, null|callable|string $action = null, null|bool|callable $enableOnCondition = null, ?array $additonalAttributes = null): InstanceAction
+    public static function make(mixed $manageableModelInstance, string $text, ?string $icon = null, ?string $color = null, null|callable|string $action = null, null|bool|callable $enableCondition = null, ?array $additonalAttributes = null): InstanceAction
     {
         // New static instance action
         $instanceAction = new static();
@@ -48,8 +54,8 @@ class InstanceAction
             $instanceAction->setAdditionalAttributes($additonalAttributes);
         }
         
-        if(!is_null($enableOnCondition)) {
-            $instanceAction->enableOnCondition($enableOnCondition);
+        if(!is_null($enableCondition)) {
+            $instanceAction->requireCondition($enableCondition);
         }
 
         // Return instance action
@@ -83,13 +89,17 @@ class InstanceAction
     }
 
     /**
-     * Enable on condition
-     * @param null|callable|bool $condition
+     * Append a condition that must be true for this instance action to be enabled.
+     *
+     * Conditions stack: the action is only enabled when every condition added here
+     * evaluates to true. Call this multiple times to layer on additional requirements.
+     *
+     * @param callable|bool $condition A bool, or a callable returning a bool (evaluated at render time)
      * @return InstanceAction
      */
-    public function enableOnCondition(callable|bool $condition): static
+    public function requireCondition(callable|bool $condition): static
     {
-        $this->enableOnCondition = $condition;
+        $this->enableConditions[] = $condition;
         return $this;
     }
 
@@ -207,10 +217,12 @@ class InstanceAction
             throw new \Exception('Action must be a string URL, callable, or null');
         }
 
-        // If display on condition is false, return empty view
-        if ($this->enableOnCondition !== null) {
-            $enableOnCondition = is_callable($this->enableOnCondition) ? call_user_func($this->enableOnCondition) : $this->enableOnCondition;
-            if(!$enableOnCondition) {
+        // Every enable condition must evaluate to true, otherwise return empty view.
+        // Each condition may be a bool or a callable returning a bool. An empty array
+        // means the action is always enabled.
+        foreach ($this->enableConditions as $condition) {
+            $passes = is_callable($condition) ? call_user_func($condition) : $condition;
+            if (!$passes) {
                 return '';
             }
         }

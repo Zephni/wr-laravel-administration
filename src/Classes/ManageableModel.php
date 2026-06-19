@@ -1282,9 +1282,9 @@ abstract class ManageableModel
      * 
      * @param null|callable|string $action Takes model instance, returns string message or RedirectResponse
      */
-    public function instanceAction(string $text, ?string $icon = null, ?string $color = null, null|callable|string $action = null, null|bool|callable $enableOnCondition = null, ?array $additonalAttributes = null): InstanceAction
+    public function instanceAction(string $text, ?string $icon = null, ?string $color = null, null|callable|string $action = null, null|bool|callable $enableCondition = null, ?array $additonalAttributes = null): InstanceAction
     {
-        return InstanceAction::make($this, $text, $icon, $color, $action, $enableOnCondition, $additonalAttributes);
+        return InstanceAction::make($this, $text, $icon, $color, $action, $enableCondition, $additonalAttributes);
     }
 
     /**

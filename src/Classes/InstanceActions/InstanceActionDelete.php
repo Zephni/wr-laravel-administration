@@ -30,7 +30,7 @@ class InstanceActionDelete
         }
 
         return InstanceAction::make($manageableModel, 'Delete', 'fa fa-trash', 'danger')
-            ->enableOnCondition($manageableModel::getPermission(ManageableModelPermissions::DELETE))
+            ->requireCondition($manageableModel::getPermission(ManageableModelPermissions::DELETE))
             ->setAdditionalAttributes($attributes);
     }
 }

@@ -11,7 +11,7 @@ class InstanceActionRestore
     public static function make(ManageableModel $manageableModel): InstanceAction
     {
         return InstanceAction::make($manageableModel, 'Restore', 'fa fa-undo', 'primary')
-            ->enableOnCondition(
+            ->requireCondition(
                 $manageableModel::getPermission(ManageableModelPermissions::RESTORE)
                 && $manageableModel->isModelSoftDeleted()
             )

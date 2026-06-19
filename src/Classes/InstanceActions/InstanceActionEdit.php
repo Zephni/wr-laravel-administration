@@ -14,7 +14,7 @@ class InstanceActionEdit
         $modelId ??= $manageableModel->model()->id ?? null;
 
         return InstanceAction::make($manageableModel, 'Edit', 'fa fa-edit', 'primary')
-            ->enableOnCondition($manageableModel::getPermission(ManageableModelPermissions::EDIT))
+            ->requireCondition($manageableModel::getPermission(ManageableModelPermissions::EDIT))
             ->setAction(route('wrla.manageable-models.edit', [
                 'modelUrlAlias' => $modelUrlAlias,
                 'id' => $modelId,
