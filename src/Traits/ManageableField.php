@@ -675,8 +675,17 @@ trait ManageableField
     {
         // If model is being modified rather than created, then skip setting default value
         if($this->manageableModel?->isBeingCreated() === false) {
-            // We setValue here to also handle the livewire field value
-            $this->setValue($this->manageableModel->model()->{$this->getName()} ?? $value);
+            // Use the field's already resolved current value rather than re-reading it from the model
+            // via the magic getter. The value attribute was correctly resolved during construction,
+            // including relationship ('.') and nested JSON ('->') notation. Reading directly with
+            // $this->model()->{$this->getName()} fails for those columns because Eloquent's magic
+            // getter cannot resolve '->' / WRLA_REL_DOT notation, returning null and incorrectly
+            // overriding the stored value with the default.
+            $currentValue = $this->getAttribute('value');
+
+            // We setValue here to also handle the livewire field value. Only fall back to the default
+            // when no value currently exists.
+            $this->setValue(($currentValue === null || $currentValue === '') ? $value : $currentValue);
 
             return $this;
         }
