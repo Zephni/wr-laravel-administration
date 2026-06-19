@@ -13,7 +13,7 @@ class InstanceActionDuplicate
         $modelUrlAlias ??= $manageableModel::getUrlAlias();
         $modelId ??= $manageableModel->model()->id ?? null;
 
-        return InstanceAction::make($manageableModel, 'Duplicate', 'fa fa-copy', 'primary')
+        return InstanceAction::make($manageableModel, 'Duplicate', 'fa fa-copy', 'secondary')
             ->enableOnCondition($manageableModel::getPermission(ManageableModelPermissions::CREATE))
             ->setAction(route('wrla.manageable-models.create', [
                 'modelUrlAlias' => $modelUrlAlias,
