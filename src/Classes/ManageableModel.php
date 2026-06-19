@@ -1073,8 +1073,20 @@ abstract class ManageableModel
         $column = $parts[0]; // The first part is the column name.
         $dotNotation = implode('.', array_slice($parts, 1)); // The remaining parts are the dot notation.
 
+        $columnValue = $modelInstance->{$column};
+
+        // If the column value is already an array or Collection (e.g. Eloquent 'array' / 'collection'
+        // cast), use it directly — casting to string would cause "Array to string conversion".
+        if (is_array($columnValue)) {
+            $decoded = $columnValue;
+        } elseif ($columnValue instanceof \Illuminate\Support\Collection) {
+            $decoded = $columnValue->all();
+        } else {
+            $decoded = json_decode((string) $columnValue, true);
+        }
+
         // Return the value from the json.
-        return data_get(json_decode((string) $modelInstance->{$column}, true), $dotNotation);
+        return data_get($decoded, $dotNotation);
     }
 
     /**
