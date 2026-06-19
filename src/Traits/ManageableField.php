@@ -182,6 +182,29 @@ trait ManageableField
      */
     public static function make(?ManageableModel $manageableModel = null, ?string $column = null, ?array $options = null): static
     {
+        // If the column uses dot notation but the first segment is an array/json-cast attribute
+        // on the model (rather than a defined relationship method), rewrite the dots to '->' so
+        // it is treated as nested JSON access instead of being mistakenly handled as a relationship.
+        // Example: 'additional.entry_success' on a model with $casts['additional'] = 'array'
+        // becomes 'additional->entry_success'.
+        if (
+            $manageableModel !== null
+            && $column !== null
+            && str_contains($column, '.')
+            && !str_contains($column, '->')
+        ) {
+            $modelInstance = $manageableModel->model();
+            $firstSegment = explode('.', $column)[0];
+
+            if (
+                $modelInstance !== null
+                && !method_exists($modelInstance, $firstSegment)
+                && WRLAHelper::isJsonCastAttribute($modelInstance, $firstSegment)
+            ) {
+                $column = str_replace('.', '->', $column);
+            }
+        }
+
         $value = $manageableModel?->model()->{$column};
         $valueIsArray = is_array($value);
         if($valueIsArray) {

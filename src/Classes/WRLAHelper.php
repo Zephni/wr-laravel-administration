@@ -1500,6 +1500,47 @@ class WRLAHelper
     }
 
     /**
+     * Determine whether the given attribute on the model uses an array/json-style cast
+     * (e.g. 'array', 'json', 'collection', 'object', or Eloquent's AsArrayObject / AsCollection
+     * class-based casts). Used to distinguish nested JSON access from relationship access when
+     * a dotted field name is provided (e.g. "additional.entry_success").
+     */
+    public static function isJsonCastAttribute(Model $model, string $attribute): bool
+    {
+        $casts = $model->getCasts();
+
+        if (!array_key_exists($attribute, $casts)) {
+            return false;
+        }
+
+        $cast = (string) $casts[$attribute];
+
+        // Simple string casts that represent JSON-stored data
+        if (in_array($cast, ['array', 'json', 'collection', 'object', 'encrypted:array', 'encrypted:collection', 'encrypted:json', 'encrypted:object'], true)) {
+            return true;
+        }
+
+        // Strip any cast arguments such as "AsCollection:className"
+        $castType = explode(':', $cast)[0];
+
+        // Eloquent's class-based "As..." JSON casts
+        $jsonCastClasses = [
+            \Illuminate\Database\Eloquent\Casts\AsArrayObject::class,
+            \Illuminate\Database\Eloquent\Casts\AsCollection::class,
+            \Illuminate\Database\Eloquent\Casts\AsEncryptedArrayObject::class,
+            \Illuminate\Database\Eloquent\Casts\AsEncryptedCollection::class,
+        ];
+
+        foreach ($jsonCastClasses as $jsonCastClass) {
+            if ($castType === $jsonCastClass || is_subclass_of($castType, $jsonCastClass)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * Model's table has column
      */
     public static function modelTableHasColumn(Model $model, string $column): bool
