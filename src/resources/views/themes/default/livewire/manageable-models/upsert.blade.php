@@ -68,10 +68,15 @@
             @if(!empty($manageableModel->model()->id))
                 <div class="w-full flex justify-end items-center gap-3 text-sm text-slate-500">
                     @php
+                        $model = $manageableModel->model();
+                        $createdAtColumn = method_exists($model, 'getCreatedAtColumn') ? $model->getCreatedAtColumn() : 'created_at';
+                        $updatedAtColumn = method_exists($model, 'getUpdatedAtColumn') ? $model->getUpdatedAtColumn() : 'updated_at';
+                        $deletedAtColumn = method_exists($model, 'getDeletedAtColumn') ? $model->getDeletedAtColumn() : 'deleted_at';
+
                         $displayAts = [
-                            '<i class="fa fa-plus mr-0.5 opacity-70"></i> Created' =>  $manageableModel->model()->created_at ?? null,
-                            '<i class="fa fa-edit mr-0.5 opacity-70"></i> Last Updated' => $manageableModel->model()->updated_at ?? null,
-                            '<i class="fa fa-trash mr-0.5 opacity-70"></i> Deleted' => $manageableModel->model()->deleted_at ?? null,
+                            '<i class="fa fa-plus mr-0.5 opacity-70"></i> Created' => data_get($model, $createdAtColumn),
+                            '<i class="fa fa-edit mr-0.5 opacity-70"></i> Last Updated' => data_get($model, $updatedAtColumn),
+                            '<i class="fa fa-trash mr-0.5 opacity-70"></i> Deleted' => data_get($model, $deletedAtColumn),
                         ];
 
                         $displayAts = array_filter($displayAts);
@@ -79,14 +84,20 @@
 
                     {{-- Display delimited key: datetimes --}}
                     @foreach($displayAts as $key => $value)
+                        @php
+                            $formattedValue = $value instanceof \Carbon\CarbonInterface
+                                ? $value->format('Y-m-d H:i')
+                                : (string) $value;
+                        @endphp
+
                         <span>
-                            {!! $key !!}: {{ $value->format('Y-m-d H:i') }}
+                            {!! $key !!}: {{ $formattedValue }}
                             @if(!$loop->last) <span class="mx-2">|</span> @endif
                         </span>
                     @endforeach
 
                     @php
-                        unset($createdAt, $updatedAt, $deletedAt, $displayAts);
+                        unset($model, $createdAtColumn, $updatedAtColumn, $deletedAtColumn, $displayAts, $formattedValue);
                     @endphp
                 </div>
             @endif
