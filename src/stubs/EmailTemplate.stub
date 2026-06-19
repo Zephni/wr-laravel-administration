@@ -13,6 +13,9 @@ use WebRegulate\LaravelAdministration\Classes\ManageableFields\Text;
 use WebRegulate\LaravelAdministration\Classes\ManageableFields\TextArea;
 use WebRegulate\LaravelAdministration\Classes\ManageableModel;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
+use WebRegulate\LaravelAdministration\Classes\InstanceActions\InstanceActionRestore;
+use WebRegulate\LaravelAdministration\Classes\InstanceActions\InstanceActionEdit;
+use WebRegulate\LaravelAdministration\Classes\InstanceActions\InstanceActionDelete;
 use WebRegulate\LaravelAdministration\Enums\PageType;
 
 class EmailTemplate extends ManageableModel
@@ -192,16 +195,15 @@ class EmailTemplate extends ManageableModel
     /**
      * Provide the model instance actions.
      *
-     * @param Collection $instanceActions default instance actions (edit, delete)
-     * @return Collection
+     * @return array
      */
-    public final function getInstanceActions(Collection $instanceActions): Collection
+    public final function getInstanceActions(): array
     {
         $user = WRLAHelper::getCurrentUser();
         $defaultEmails = $user->email ?? null;
 
-        // Send test action
-        $instanceActions->prepend(
+        return [
+            // Send test action
             $this->instanceAction('Send Test', 'fa fa-paper-plane', 'secondary')
                 ->enableOnCondition(fn() => !empty($defaultEmails))
                 // Prompt for one or more recipients (comma separated), pre-filled with the current user's email.
@@ -235,10 +237,12 @@ class EmailTemplate extends ManageableModel
                     } catch (Exception $e) {
                         return "Error sending email: " . $e->getMessage();
                     }
-                })
-        );
+                }),
 
-        // Return instance actions
-        return $instanceActions;
+            // Default actions
+            InstanceActionRestore::make($this),
+            InstanceActionEdit::make($this),
+            InstanceActionDelete::make($this, $this->isModelSoftDeleted()),
+        ];
     }
 }

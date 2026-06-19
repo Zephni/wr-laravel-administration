@@ -12,6 +12,10 @@ use WebRegulate\LaravelAdministration\Classes\ManageableFields\Select;
 use WebRegulate\LaravelAdministration\Classes\ManageableFields\Heading;
 use WebRegulate\LaravelAdministration\Enums\ManageableModelPermissions;
 use WebRegulate\LaravelAdministration\Classes\InstanceAction;
+use WebRegulate\LaravelAdministration\Classes\InstanceActions\InstanceActionRestore;
+use WebRegulate\LaravelAdministration\Classes\InstanceActions\InstanceActionEdit;
+use WebRegulate\LaravelAdministration\Classes\InstanceActions\InstanceActionDelete;
+use WebRegulate\LaravelAdministration\Classes\InstanceActions\InstanceActionDuplicate;
 
 class {{ $MODEL }} extends ManageableModel
 {
@@ -98,11 +102,15 @@ class {{ $MODEL }} extends ManageableModel
     /**
      * Provide the model instance actions.
      *
-     * @param Collection $instanceActions default instance actions (edit, delete)
-     * @return Collection
+     * @return array
      */
-    public final function getInstanceActions(Collection $instanceActions): Collection
+    public final function getInstanceActions(): array
     {
-        return $instanceActions;
+        return [
+            InstanceActionRestore::make($this),
+            // InstanceActionDuplicate::make($this),
+            InstanceActionEdit::make($this),
+            InstanceActionDelete::make($this, $this->isModelSoftDeleted()),
+        ];
     }
 }

@@ -249,7 +249,7 @@ abstract class ManageableModel
     /**
      * Abstract: Get instance actions.
      */
-    abstract public function getInstanceActions(Collection $instanceActions): Collection;
+    abstract public function getInstanceActions(): array;
 
     /**
      * Set static field
@@ -780,42 +780,31 @@ abstract class ManageableModel
     }
 
     /**
-     * Get item actions, such as edit, delete.
+     * Determine whether the current model instance is soft deleted.
+     *
+     * Returns true only if the base model uses soft deletes and its deleted at
+     * column currently holds a value. Accounts for a custom deleted at column
+     * when the base model defines a modified DELETED_AT constant.
      */
-    public function getDefaultInstanceActions(array $only = []): Collection
+    public function isModelSoftDeleted(): bool
     {
-        // Initialise collection
-        $instanceActions = collect();
+        $baseModelClass = static::getBaseModelClass();
 
-        // If has_access is false, return empty collection
-        if (! static::getPermission(ManageableModelPermissions::ENABLED)) {
-            return $instanceActions;
+        // Not soft deletable, so can never be soft deleted
+        if (! WRLAHelper::isSoftDeletable($baseModelClass)) {
+            return false;
         }
 
-        // If create page, return empty collection
-        if (WRLAHelper::getCurrentPageType() == PageType::CREATE) {
-            return $instanceActions;
-        }
-
-        // Get model instance and shared params
         $model = $this->model();
-        $modelUrlAlias = static::getUrlAlias();
-        $modelId = $model->id ?? null;
 
-        // If soft deleted
-        if (WRLAHelper::isSoftDeletable(static::getBaseModelClass()) && $model?->deleted_at != null) {
-            $instanceActions->put('restore', InstanceActionRestore::make($this));
-            $instanceActions->put('edit', InstanceActionEdit::make($this, $modelUrlAlias, $modelId));
-            $instanceActions->put('delete', InstanceActionDelete::make($this, $modelUrlAlias, $modelId, true));
-        }
-        // If not soft deleted
-        else {
-            $instanceActions->put('edit', InstanceActionEdit::make($this, $modelUrlAlias, $modelId));
-            $instanceActions->put('delete', InstanceActionDelete::make($this, $modelUrlAlias, $modelId));
+        if ($model === null) {
+            return false;
         }
 
-        // Filter to only the requested keys (if any)
-        return empty($only) ? $instanceActions : $instanceActions->only($only);
+        // Use the model's configured soft delete column (respects a custom DELETED_AT constant)
+        $deletedAtColumn = $model->getDeletedAtColumn();
+
+        return $model->{$deletedAtColumn} !== null;
     }
 
     /**
@@ -947,7 +936,7 @@ abstract class ManageableModel
         // Set currently active manageable model instance
         WRLAHelper::setCurrentActiveManageableModelInstance($this);
 
-        return $this->getInstanceActions($this->getDefaultInstanceActions());
+        return collect($this->getInstanceActions());
     }
 
     /**

@@ -8,8 +8,11 @@ use WebRegulate\LaravelAdministration\Enums\ManageableModelPermissions;
 
 class InstanceActionDelete
 {
-    public static function make(ManageableModel $manageableModel, string $modelUrlAlias, int|null $modelId, bool $permanent = false): InstanceAction
+    public static function make(ManageableModel $manageableModel, bool $permanent = false, ?string $modelUrlAlias = null, int|null $modelId = null): InstanceAction
     {
+        $modelUrlAlias ??= $manageableModel::getUrlAlias();
+        $modelId ??= $manageableModel->model()->id ?? null;
+
         $confirmMessage = $permanent
             ? 'Are you sure you want to permanently delete this item?'
             : 'Are you sure?';

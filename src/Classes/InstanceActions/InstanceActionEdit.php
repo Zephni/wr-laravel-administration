@@ -8,8 +8,11 @@ use WebRegulate\LaravelAdministration\Enums\ManageableModelPermissions;
 
 class InstanceActionEdit
 {
-    public static function make(ManageableModel $manageableModel, string $modelUrlAlias, int|null $modelId): InstanceAction
+    public static function make(ManageableModel $manageableModel, ?string $modelUrlAlias = null, int|null $modelId = null): InstanceAction
     {
+        $modelUrlAlias ??= $manageableModel::getUrlAlias();
+        $modelId ??= $manageableModel->model()->id ?? null;
+
         return InstanceAction::make($manageableModel, 'Edit', 'fa fa-edit', 'primary')
             ->enableOnCondition($manageableModel::getPermission(ManageableModelPermissions::EDIT))
             ->setAction(route('wrla.manageable-models.edit', [

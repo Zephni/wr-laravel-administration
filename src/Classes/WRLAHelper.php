@@ -1217,7 +1217,7 @@ class WRLAHelper
     public static function callManageableModelAction(mixed $livewireComponent, string $manageableModelClass, int $modelInstanceId, string $actionKey, array $parameters = [])
     {
         $manageableModelInstance = $manageableModelClass::make($modelInstanceId);
-        $manageableModelInstance->getInstanceActions(collect());
+        $manageableModelInstance->getInstanceActions();
         $returnedValue = $manageableModelInstance->callInstanceAction($actionKey, $parameters);
 
         // If returned value is a string, dispatch browserAlert

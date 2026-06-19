@@ -21,6 +21,9 @@ use WebRegulate\LaravelAdministration\Classes\BrowseColumns\BrowseColumn;
 use WebRegulate\LaravelAdministration\Classes\BrowseColumns\BrowseColumnImage;
 use WebRegulate\LaravelAdministration\Classes\ManageableFields\ImageCroppable;
 use WebRegulate\LaravelAdministration\Classes\InstanceAction;
+use WebRegulate\LaravelAdministration\Classes\InstanceActions\InstanceActionRestore;
+use WebRegulate\LaravelAdministration\Classes\InstanceActions\InstanceActionEdit;
+use WebRegulate\LaravelAdministration\Classes\InstanceActions\InstanceActionDelete;
 
 class User extends ManageableModel
 {
@@ -174,39 +177,36 @@ class User extends ManageableModel
     /**
      * Provide the model instance actions.
      *
-     * @param \Illuminate\Support\Collection $instanceActions default instance actions (edit, delete)
+     * @return array
      */
-    public final function getInstanceActions(Collection $instanceActions): Collection
+    public final function getInstanceActions(): array
     {
         // Get user model and user data
         $model = $this->model();
         $wrlaUserData = $model->wrlaUserData;
 
-        // Reset 2FA
-        $instanceActions->prepend(
+        return array_values(array_filter([
+            // Impersonate action
+            $this->instanceAction('Login', 'fas fa-sign-in-alt', 'secondary')
+                ->enableOnCondition($model->id !== Auth::id() && (!method_exists($model, 'trashed') || !$model->trashed()) && static::getPermission(self::IMPERSONATE))
+                ->confirm("Login as {$model->email}?")
+                ->setAction(route('wrla.impersonate.login-as', ['id' => $model->id])),
+
+            // Reset 2FA
             $this->instanceAction('Reset 2FA', 'fas fa-key', 'secondary')
                 ->enableOnCondition(fn() => WRLAHelper::getCurrentPageType() === PageType::EDIT && $wrlaUserData->mfa_secret !== null)
                 ->setAction(function($user) use ($wrlaUserData) {
                     $wrlaUserData->mfa_secret = null;
                     $wrlaUserData->save();
                     return "Successfully reset 2FA for {$user->email}";
-                })
-        );
+                }),
 
-        // Impersonate action
-        $instanceActions->prepend(
-            $this->instanceAction('Login', 'fas fa-sign-in-alt', 'secondary')
-                ->enableOnCondition($model->id !== Auth::id() && (!method_exists($model, 'trashed') || !$model->trashed()) && static::getPermission(self::IMPERSONATE))
-                ->confirm("Login as {$model->email}?")
-                ->setAction(route('wrla.impersonate.login-as', ['id' => $model->id]))
-        );
-
-        // If the model is the current user, remove the delete action
-        if($model->id == Auth::id()) {
-            $instanceActions->forget('delete');
-        }
-        
-        return $instanceActions;
+            // Default actions
+            InstanceActionRestore::make($this),
+            InstanceActionEdit::make($this),
+            // If the model is the current user, do not allow deletion
+            $model->id == Auth::id() ? null : InstanceActionDelete::make($this, $this->isModelSoftDeleted()),
+        ]));
     }
 
     /**
