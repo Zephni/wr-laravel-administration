@@ -134,7 +134,7 @@ class EmailTemplate extends ManageableModel
                 ->setAttributes([
                     'autocorrect' => 'false',
                     'spellcheck' => 'false',
-                    (WRLAHelper::getCurrentPageType() == PageType::EDIT ? 'autofocus' : 'donothing') => 'true',
+                    (WRLAHelper::isEditPage() ? 'autofocus' : 'donothing') => 'true',
                     'x-ref' => 'bodyTextArea',
                     'rows' => 10,
                 ])

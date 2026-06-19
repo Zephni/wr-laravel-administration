@@ -5,7 +5,6 @@ namespace WebRegulate\LaravelAdministration\Classes\NavigationItems;
 use Illuminate\Support\Facades\Route;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 use WebRegulate\LaravelAdministration\Enums\ManageableModelPermissions;
-use WebRegulate\LaravelAdministration\Enums\PageType;
 
 class NavigationItemManageableModel extends NavigationItem
 {
@@ -34,7 +33,7 @@ class NavigationItemManageableModel extends NavigationItem
     public function isChildActive(): bool
     {
         // If current page is edit
-        if (WRLAHelper::getCurrentPageType() === PageType::EDIT) {
+        if (WRLAHelper::isEditPage()) {
             // If modelUrlAlias doesn't exist, return false
             if (! isset(Route::current()->parameters['modelUrlAlias']) || ! isset($this->routeData['modelUrlAlias'])) {
                 return false;

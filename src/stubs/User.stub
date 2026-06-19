@@ -194,7 +194,7 @@ class User extends ManageableModel
 
             // Reset 2FA
             $this->instanceAction('Reset 2FA', 'fas fa-key', 'secondary')
-                ->requireCondition(fn() => WRLAHelper::getCurrentPageType() === PageType::EDIT && $wrlaUserData->mfa_secret !== null)
+                ->requireCondition(fn() => WRLAHelper::isEditPage() && $wrlaUserData->mfa_secret !== null)
                 ->setAction(function($user) use ($wrlaUserData) {
                     $wrlaUserData->mfa_secret = null;
                     $wrlaUserData->save();

@@ -7,7 +7,6 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Illuminate\View\ComponentAttributeBag;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
-use WebRegulate\LaravelAdministration\Enums\PageType;
 use WebRegulate\LaravelAdministration\Traits\ManageableField;
 
 class Password
@@ -48,9 +47,7 @@ class Password
     {
         $HTML = '';
 
-        $pageType = WRLAHelper::getCurrentPageType();
-
-        if ($pageType == PageType::EDIT) {
+        if (WRLAHelper::isEditPage()) {
             // Check if wrla_show_name is set
             $wrla_show = old('wrla_show_'.$this->getAttribute('name')) == '1' ? 'true' : 'false';
 
@@ -86,12 +83,12 @@ class Password
 
         // Render password field (hide if checkbox not checked)
         $HTML .= view(WRLAHelper::getViewPath('components.forms.input-text'), [
-            'label' => $pageType == PageType::EDIT ? null : $this->getLabel(),
+            'label' => WRLAHelper::isEditPage() ? null : $this->getLabel(),
             'attributes' => new ComponentAttributeBag(array_merge($this->htmlAttributes, [
                 'name' => $this->getAttribute('name'),
                 'value' => '',
                 'type' => 'password',
-            ], $pageType == PageType::EDIT ? [
+            ], WRLAHelper::isEditPage() ? [
                 'x-ref' => 'passwordField',
                 'x-show' => 'userWantsToChange',
                 'x-bind:disabled' => '!userWantsToChange',
@@ -105,13 +102,13 @@ class Password
                 'value' => '',
                 'type' => 'password',
                 'placeholder' => 'Confirm '.strtolower((string) $this->getLabel()),
-            ], $pageType == PageType::EDIT ? [
+            ], WRLAHelper::isEditPage() ? [
                 'x-show' => 'userWantsToChange',
                 'x-bind:disabled' => '!userWantsToChange',
             ] : [])),
         ])->render();
 
-        if ($pageType == PageType::EDIT) {
+        if (WRLAHelper::isEditPage()) {
             // Close parent div
             $HTML .= <<<'HTML'
                     </div>

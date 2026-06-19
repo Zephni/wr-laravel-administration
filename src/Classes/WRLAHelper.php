@@ -169,6 +169,38 @@ class WRLAHelper
     }
 
     /**
+     * Whether the current page type is the browse listing page.
+     */
+    public static function isBrowsePage(): bool
+    {
+        return static::$currentPageType === PageType::BROWSE;
+    }
+
+    /**
+     * Whether the current page type is the create page.
+     */
+    public static function isCreatePage(): bool
+    {
+        return static::$currentPageType === PageType::CREATE;
+    }
+
+    /**
+     * Whether the current page type is the edit page.
+     */
+    public static function isEditPage(): bool
+    {
+        return static::$currentPageType === PageType::EDIT;
+    }
+
+    /**
+     * Whether the current page type is the general (non model-specific) page.
+     */
+    public static function isGeneralPage(): bool
+    {
+        return static::$currentPageType === PageType::GENERAL;
+    }
+
+    /**
      * Set currently active manageable model.
      *
      * @param  ?string  $manageableModel  The manageable model to set as active.
