@@ -14,6 +14,7 @@ use WebRegulate\LaravelAdministration\Classes\CSVHelper;
 use WebRegulate\LaravelAdministration\Classes\ManageableModel;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 use WebRegulate\LaravelAdministration\Enums\ManageableModelPermissions;
+use WebRegulate\LaravelAdministration\Enums\PageType;
 use WebRegulate\LaravelAdministration\Traits\ManageableField;
 
 /**
@@ -148,6 +149,9 @@ class ManageableModelBrowse extends Component
      */
     public function mount(string $manageableModelClass, ?array $preFilters = null)
     {
+        // Set the page type so page-type aware logic resolves correctly for the browse view.
+        WRLAHelper::setCurrentPageType(PageType::BROWSE);
+
         // If the manageable model reference is null, redirect to the dashboard
         if (is_null($manageableModelClass)) {
             return redirect()->route('wrla.dashboard')->with('error', "Manageable model `$manageableModelClass` not found.");
@@ -262,6 +266,13 @@ class ManageableModelBrowse extends Component
      */
     public function render()
     {
+        // Re-assert the page type on every render. Livewire update requests bypass the
+        // HTTP controller (which is the only other place the page type is set), so without
+        // this the global WRLAHelper::$currentPageType would hold a stale/default value
+        // during browse renders, causing page-type aware conditions (e.g. instance action
+        // requireCondition checks) to evaluate incorrectly on the browse listing.
+        WRLAHelper::setCurrentPageType(PageType::BROWSE);
+
         $this->renders++;
         $models = $this->browseModels()->paginate(18);
 
