@@ -1394,13 +1394,35 @@ abstract class ManageableModel
             }
             // JSON notation
             else {
-                // If is relation, get current field value from relationship instance
-                if ($relationshipInstance != null) {
-                    $fieldValue = json_decode((string) $relationshipInstance->{$manageableField->getRelationshipFieldName()});
+                // Determine the target instance and attribute we are reading/writing
+                $targetInstance = $relationshipInstance ?? $this->modelInstance;
+                $targetKey = $relationshipInstance != null
+                    ? $manageableField->getRelationshipFieldName()
+                    : $fieldName;
+
+                // Whether the target model has an Eloquent JSON-style cast on this attribute
+                // (array, json, collection, object, AsArrayObject, AsCollection, etc.)
+                $hasJsonCast = WRLAHelper::isJsonCastAttribute($targetInstance, $targetKey);
+
+                // Read the current attribute value, normalising it into an array/object that
+                // data_set() can operate on. Supports models with or without JSON casts.
+                $currentValue = $targetInstance->{$targetKey};
+
+                if (is_array($currentValue)) {
+                    $fieldValue = $currentValue;
+                } elseif ($currentValue instanceof \Illuminate\Support\Collection) {
+                    $fieldValue = $currentValue->all();
+                } elseif (is_object($currentValue)) {
+                    // stdClass / ArrayObject / etc. data_set() can write to objects directly
+                    $fieldValue = $currentValue;
+                } elseif (is_string($currentValue) && $currentValue !== '') {
+                    $fieldValue = json_decode($currentValue, true);
+                } else {
+                    $fieldValue = null;
                 }
-                // Otherwise, get the perhaps updated value from the model instance (we may be updating the same field with different JSON notation)
-                else {
-                    $fieldValue = json_decode((string) $this->modelInstance->{$fieldName});
+
+                if ($fieldValue === null || $fieldValue === false) {
+                    $fieldValue = [];
                 }
 
                 // Apply the value to the form component and get the new value
@@ -1416,10 +1438,15 @@ abstract class ManageableModel
 
                 // dd($fieldName, $jsonNotation, $fieldValue, $newValue);
 
-                // Convert the field value to JSON
+                // If $newValue is an error bag we'll bubble that up below
                 if ($newValue instanceof MessageBag) {
                     return $newValue;
-                } else {
+                }
+
+                // Only json_encode here when the target model does NOT have a JSON-style cast.
+                // When the model does have one (e.g. 'array'), Eloquent will encode the array
+                // for us at save time — encoding here as well would produce double-encoded JSON.
+                if (!$hasJsonCast) {
                     $fieldValue = json_encode($fieldValue, JSON_UNESCAPED_SLASHES);
                 }
             }

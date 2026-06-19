@@ -205,7 +205,30 @@ trait ManageableField
             }
         }
 
-        $value = $manageableModel?->model()->{$column};
+        // If the column uses nested JSON notation (e.g. 'additional->entry_success'), look up
+        // the parent attribute on the model and dig into the (potentially cast) value with
+        // dot notation. Eloquent's __get does not resolve '->' style keys for us.
+        $valueIsNestedJson = $column !== null && $manageableModel?->model() !== null && str_contains($column, '->');
+
+        if ($valueIsNestedJson) {
+            [$rootColumn, $jsonNotation] = WRLAHelper::parseJsonNotation($column);
+
+            $rootValue = $manageableModel->model()->{$rootColumn};
+
+            if ($rootValue instanceof \Illuminate\Support\Collection) {
+                $rootValue = $rootValue->all();
+            } elseif (is_string($rootValue) && $rootValue !== '') {
+                $decodedRoot = json_decode($rootValue, true);
+                if (is_array($decodedRoot)) {
+                    $rootValue = $decodedRoot;
+                }
+            }
+
+            $value = data_get($rootValue, $jsonNotation);
+        } else {
+            $value = $manageableModel?->model()->{$column};
+        }
+
         $valueIsArray = is_array($value);
         if($valueIsArray) {
             $value = json_encode($value, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
