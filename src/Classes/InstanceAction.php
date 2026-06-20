@@ -40,6 +40,11 @@ class InstanceAction
     public ?string $multiActionConfirm = null;
 
     /**
+     * Optional text override for the browse multi action toolbar button.
+     */
+    public ?string $multiActionText = null;
+
+    /**
      * Optional conditions that must evaluate to true for this action to be shown in the
      * browse multi action toolbar for the current selection.
      *
@@ -150,6 +155,15 @@ class InstanceAction
     }
 
     /**
+     * Override the text shown for this action in the browse multi action toolbar.
+     */
+    public function setMultiActionText(string $text): static
+    {
+        $this->multiActionText = $text;
+        return $this;
+    }
+
+    /**
      * Append a condition that must be true for this multi action to be shown for the current selection.
      *
      * @param callable|bool $condition A bool, or a callable taking array $selectedIds and returning a bool
@@ -206,6 +220,8 @@ class InstanceAction
             return '';
         }
 
+        $buttonText = $this->multiActionText ?? $this->text;
+
         $confirmJs = '';
         if (! empty($this->multiActionConfirm)) {
             $message = addslashes($this->multiActionConfirm);
@@ -228,11 +244,11 @@ class InstanceAction
 
                 window.wrla.instanceAction.parameters = {};
             JS,
-            'title' => $this->text,
+            'title' => $buttonText,
         ];
 
         return view(WRLAHelper::getViewPath('components.forms.button'), [
-            'text' => $this->text,
+            'text' => $buttonText,
             'icon' => $this->icon ?? 'fa fa-cog',
             'color' => $this->color ?? 'primary',
             'size' => 'small',
