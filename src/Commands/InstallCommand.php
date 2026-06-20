@@ -173,7 +173,10 @@ class InstallCommand extends Command
         }
 
         // Ask if the user wants to open the local documentation
-        if ($this->confirm('Would you like to open the local documentation in your browser?', true)) {
+        $this->line('');
+        $this->info('📚 You can open the documentation at any time by running: <comment>php artisan wrla:docs</comment>');
+        $this->line('');
+        if ($this->confirm('Would you like to open the WRLA Documentation in your browser now?', true)) {
             $this->call('wrla:docs');
         }
 
