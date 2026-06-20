@@ -1,103 +1,95 @@
-<h1 class="text-3xl font-bold text-gray-900 mb-6">Installation</h1>
-                    
+<h1 class="docs-title">Installation</h1>
+
 <!-- Important Notice -->
-<div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-8">
-    <div class="flex">
-        <div class="flex-shrink-0">
-            <svg class="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
-                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
-            </svg>
-        </div>
-        <div class="ml-3">
-            <p class="text-sm text-yellow-700">
-                <strong>Important:</strong> Note that you MUST use at least Laravel v11 to use webregulate/laravel-administration.
-            </p>
-        </div>
+<div class="docs-callout docs-callout-warning">
+    <div class="docs-callout-icon">
+        <svg viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+        </svg>
+    </div>
+    <div class="docs-callout-body">
+        <strong>Important:</strong> Note that you MUST use at least Laravel v11 to use webregulate/laravel-administration.
     </div>
 </div>
 
 <!-- Step 1 -->
-<div class="mb-8">
-    <h2 class="text-2xl font-semibold text-gray-800 mb-4 flex items-center">
-        <span class="flex items-center justify-center w-8 h-8 bg-indigo-600 text-white rounded-full mr-3 text-sm">1</span>
+<div class="docs-section">
+    <h2 class="docs-heading">
+        <span class="docs-step-badge">1</span>
         Require the package with composer
     </h2>
-    <div class="bg-gray-900 rounded-lg p-4 overflow-x-auto">
-        <pre class="text-green-400 text-sm"><code>composer require webregulate/laravel-administration "dev-main"</code></pre>
+    <div class="docs-code-block">
+        <pre><code>composer require webregulate/laravel-administration "dev-main"</code></pre>
     </div>
 </div>
 
 <!-- Step 2 -->
-<div class="mb-8">
-    <h2 class="text-2xl font-semibold text-gray-800 mb-4 flex items-center">
-        <span class="flex items-center justify-center w-8 h-8 bg-indigo-600 text-white rounded-full mr-3 text-sm">2</span>
+<div class="docs-section">
+    <h2 class="docs-heading">
+        <span class="docs-step-badge">2</span>
         Install with the built-in command
     </h2>
-    <div class="bg-gray-900 rounded-lg p-4 overflow-x-auto mb-4">
-        <pre class="text-green-400 text-sm"><code>php artisan wrla:install</code></pre>
+    <div class="docs-code-block mb-4">
+        <pre><code>php artisan wrla:install</code></pre>
     </div>
-    <p class="text-gray-600 mb-4">
+    <p class="docs-body">
         Follow the steps provided by the installation wizard. Note that installing will publish a few assets which will be added to your project and mentioned in your terminal. You will also be asked if you want to run the migrations, and also whether you like to create a master user, which are necessary to use WRLA.
     </p>
 </div>
 
 <!-- Step 3 -->
-<div class="mb-8">
-    <h2 class="text-2xl font-semibold text-gray-800 mb-4 flex items-center">
-        <span class="flex items-center justify-center w-8 h-8 bg-indigo-600 text-white rounded-full mr-3 text-sm">3</span>
+<div class="docs-section">
+    <h2 class="docs-heading">
+        <span class="docs-step-badge">3</span>
         Access the administration section
     </h2>
-    <p class="text-gray-600 mb-4">
+    <p class="docs-body">
         You can now access the administration section by heading to:
     </p>
-    <div class="bg-gray-900 rounded-lg p-4 overflow-x-auto">
-        <pre class="text-green-400 text-sm"><code>{your app url}/wr-admin</code></pre>
+    <div class="docs-code-block">
+        <pre><code>{your app url}/wr-admin</code></pre>
     </div>
 </div>
 
 <!-- Step 4 -->
-<div class="mb-8">
-    <h2 class="text-2xl font-semibold text-gray-800 mb-4 flex items-center">
-        <span class="flex items-center justify-center w-8 h-8 bg-indigo-600 text-white rounded-full mr-3 text-sm">4</span>
+<div class="docs-section">
+    <h2 class="docs-heading">
+        <span class="docs-step-badge">4</span>
         Configure the package
     </h2>
-    <p class="text-gray-600 mb-4">
-        While installing, WRLA will create a config file at <code class="bg-gray-100 px-2 py-1 rounded text-sm">config/wr-laravel-administration.php</code>. Feel free to edit this as you wish. One of the first things you may want to change is the route URL for the admin section itself, which is the first key => value in the configuration file:
+    <p class="docs-body">
+        While installing, WRLA will create a config file at <code class="docs-inline-code">config/wr-laravel-administration.php</code>. Feel free to edit this as you wish. One of the first things you may want to change is the route URL for the admin section itself, which is the first key => value in the configuration file:
     </p>
-    <div class="bg-gray-900 rounded-lg p-4 overflow-x-auto">
-        <pre class="text-green-400 text-sm"><code>'base_url' => 'wr-admin',</code></pre>
+    <div class="docs-code-block">
+        <pre><code>'base_url' => 'wr-admin',</code></pre>
     </div>
 </div>
 
 <!-- Step 5 -->
-<div class="mb-8">
-    <h2 class="text-2xl font-semibold text-gray-800 mb-4 flex items-center">
-        <span class="flex items-center justify-center w-8 h-8 bg-indigo-600 text-white rounded-full mr-3 text-sm">5</span>
+<div class="docs-section">
+    <h2 class="docs-heading">
+        <span class="docs-step-badge">5</span>
         Add Manageable Models
     </h2>
-    <p class="text-gray-600 mb-4">
+    <p class="docs-body">
         Now you are ready to add Manageable Models. You can either create new models to manage within your new administration section or use them to setup models that already exist in your project.
     </p>
-    <div class="bg-gray-900 rounded-lg p-4 overflow-x-auto mb-4">
-        <pre class="text-green-400 text-sm"><code>php artisan wrla:manageable-model {?ModelName}</code></pre>
+    <div class="docs-code-block mb-4">
+        <pre><code>php artisan wrla:manageable-model {?ModelName}</code></pre>
     </div>
-    <p class="text-gray-600">
-        For more information on Manageable Models, see the <a href="manageable-models.html" class="text-indigo-600 hover:text-indigo-800 underline">Manageable Models documentation</a>.
+    <p class="docs-body">
+        For more information on Manageable Models, see the <a href="manageable-models.html" class="docs-link">Manageable Models documentation</a>.
     </p>
 </div>
 
 <!-- Additional Info -->
-<div class="bg-blue-50 border-l-4 border-blue-400 p-4">
-    <div class="flex">
-        <div class="flex-shrink-0">
-            <svg class="h-5 w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
-                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
-            </svg>
-        </div>
-        <div class="ml-3">
-            <p class="text-sm text-blue-700">
-                <strong>Note:</strong> If you wish to create other users from your terminal you can run the appropriate artisan command.
-            </p>
-        </div>
+<div class="docs-callout docs-callout-info">
+    <div class="docs-callout-icon">
+        <svg viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+        </svg>
+    </div>
+    <div class="docs-callout-body">
+        <strong>Note:</strong> If you wish to create other users from your terminal you can run the appropriate artisan command.
     </div>
 </div>
