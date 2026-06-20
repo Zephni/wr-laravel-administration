@@ -717,7 +717,10 @@ class ManageableModelBrowse extends Component
         // Set current active manageable model class and build a fresh instance so the multi actions
         // (and therefore their registered keys) are registered ready to be called by key.
         WRLAHelper::setCurrentActiveManageableModelClass($this->manageableModelClass);
-        $manageableModel = $this->manageableModelClass::make();
+        $seedId = (int) ($ids[0] ?? 0);
+        $manageableModel = $seedId > 0
+            ? $this->manageableModelClass::make($seedId, true)
+            : $this->manageableModelClass::make();
         WRLAHelper::setCurrentActiveManageableModelInstance($manageableModel);
         $manageableModel->getInstanceActions();
 

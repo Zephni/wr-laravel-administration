@@ -81,7 +81,13 @@
     @php
         $browseColumns = $manageableModelClass::make()->getBrowseColumnsFinal();
         $wrlaMultiSelectEnabled = $manageableModelClass::getMultiSelectEnabled();
-        $wrlaMultiActions = $wrlaMultiSelectEnabled ? $manageableModelClass::make()->getMultiInstanceActionsFinal() : collect();
+        $wrlaMultiActionsModel = $wrlaMultiSelectEnabled ? collect($models->items())->first() : null;
+        $wrlaMultiActionsManageableModel = $wrlaMultiSelectEnabled && $wrlaMultiActionsModel
+            ? $manageableModelClass::make($wrlaMultiActionsModel)
+            : null;
+        $wrlaMultiActions = $wrlaMultiActionsManageableModel
+            ? $wrlaMultiActionsManageableModel->getMultiInstanceActionsFinal()
+            : collect();
         $wrlaPageIds = $wrlaMultiSelectEnabled
             ? collect($models->items())->map(fn ($model) => (string) $model->getKey())->all()
             : [];
