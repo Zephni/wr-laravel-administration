@@ -958,8 +958,13 @@ abstract class ManageableModel
             return collect();
         }
 
-        // If id is null, return empty collection
-        if ($this->model()->id == null) {
+        // If model id is missing/invalid, return empty collection
+        $modelId = $this->model()->id ?? null;
+        if (
+            $modelId === null
+            || (is_string($modelId) && trim($modelId) === '')
+            || (is_numeric($modelId) && (int) $modelId <= 0)
+        ) {
             return collect();
         }
 
