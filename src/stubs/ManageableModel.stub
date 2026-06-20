@@ -55,8 +55,11 @@ class {{ $MODEL }} extends ManageableModel
         // Browse actions
         static::setBrowseActions(static::getDefaultBrowseActions());
 
+        // Enable multi selection
+        static::setMultiSelect(true);
+
         // Order by
-        static::setOrderBy();
+        static::setOrderBy('id', 'desc');
     }
 
     /**
