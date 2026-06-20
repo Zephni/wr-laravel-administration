@@ -153,7 +153,7 @@
                                     title="Select all on this page"
                                     class="w-4 h-4 cursor-pointer accent-primary-600"
                                     @checked($wrlaAllPageSelected)
-                                    x-on:click="$wire.toggleSelectAllOnPage(@js($wrlaPageIds))"
+                                    x-on:change="$wire.setSelectAllOnPage(@js($wrlaPageIds), $event.target.checked)"
                                 />
                             </div>
                         </th>

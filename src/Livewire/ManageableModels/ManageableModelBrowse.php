@@ -679,8 +679,26 @@ class ManageableModelBrowse extends Component
     }
 
     /**
-     * Toggle selection of all rows on the current page. If every page id is already selected, they are
-     * removed from the selection, otherwise the page ids are added to the selection.
+     * Set selection state for all rows on the current page.
+     *
+     * @param array $pageIds The primary keys of the rows currently displayed on the page.
+     * @param bool $isChecked Whether the page-level checkbox is currently checked.
+     */
+    public function setSelectAllOnPage(array $pageIds, bool $isChecked): void
+    {
+        $pageIds = array_map('strval', $pageIds);
+        $selected = array_map('strval', $this->wrlaSelectedIds);
+
+        if ($isChecked) {
+            $this->wrlaSelectedIds = array_values(array_unique(array_merge($selected, $pageIds)));
+            return;
+        }
+
+        $this->wrlaSelectedIds = array_values(array_diff($selected, $pageIds));
+    }
+
+    /**
+     * Backwards-compatible toggle helper for older callers.
      *
      * @param array $pageIds The primary keys of the rows currently displayed on the page.
      */
@@ -688,14 +706,9 @@ class ManageableModelBrowse extends Component
     {
         $pageIds = array_map('strval', $pageIds);
         $selected = array_map('strval', $this->wrlaSelectedIds);
-
         $allSelected = ! empty($pageIds) && empty(array_diff($pageIds, $selected));
 
-        if ($allSelected) {
-            $this->wrlaSelectedIds = array_values(array_diff($selected, $pageIds));
-        } else {
-            $this->wrlaSelectedIds = array_values(array_unique(array_merge($selected, $pageIds)));
-        }
+        $this->setSelectAllOnPage($pageIds, ! $allSelected);
     }
 
     /**
