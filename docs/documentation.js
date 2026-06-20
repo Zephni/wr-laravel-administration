@@ -216,8 +216,10 @@ class DocumentationApp {
         this.currentPage = filename;
         this.loadContent();
 
-        // Close mobile menu if open
+        // Close mobile menu and clear search if open
         this.mobileMenuOpen = false;
+        this.searchQuery = '';
+        this.searchResults = [];
 
         // Scroll to top
         window.scrollTo(0, 0);

@@ -235,61 +235,109 @@
     </style>
 </head>
 <body class="bg-gray-50 text-gray-900" x-data="documentationApp()" x-init="initApp()">
-    <!-- Header -->
+
+    <!-- ── Header ─────────────────────────────────────────────── -->
     <header class="bg-white border-b border-gray-200 sticky top-0 z-50">
-        <div class="flex justify-between items-center h-16">
-                <div class="flex items-center px-4 shrink-0">
-                    <a href="index.html" class="flex items-center gap-2.5 whitespace-nowrap">
-                        <img src="https://webregulate.co.uk/storage/images/wr-icon.png" alt="WR" class="h-7 w-7 shrink-0">
-                        <span class="text-xl font-bold"><span class="text-primary-500">WRLA</span> <span class="text-slate-700">Documentation</span></span>
-                    </a>
-                </div>
-                
-                <!-- Search -->
-                <div class="flex-1 max-w-lg mx-8">
-                    <div class="relative">
-                        <input 
-                            type="text" 
-                            x-model="searchQuery"
-                            @input="performSearch()"
-                            placeholder="Search documentation..." 
-                            class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                        >
-                        <svg class="absolute left-3 top-2.5 h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                        </svg>
+        <div class="flex items-center h-16 px-4">
+            <!-- Logo -->
+            <a href="index.html" class="flex items-center gap-2.5 whitespace-nowrap shrink-0">
+                <img src="https://webregulate.co.uk/storage/images/wr-icon.png" alt="WR" class="h-7 w-7 shrink-0">
+                <span class="text-xl font-bold"><span class="text-primary-500">WRLA</span> <span class="text-slate-700">Documentation</span></span>
+            </a>
+
+            <!-- Desktop search -->
+            <div class="hidden md:flex flex-1 justify-center px-8">
+                <div class="relative w-full max-w-lg">
+                    <input 
+                        type="text" 
+                        x-model="searchQuery"
+                        @input="performSearch()"
+                        placeholder="Search documentation..." 
+                        class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                    >
+                    <svg class="absolute left-3 top-2.5 h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                    <!-- Desktop Search Results Dropdown -->
+                    <div x-show="searchResults.length > 0" x-cloak class="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-80 overflow-y-auto">
+                        <template x-for="result in searchResults" :key="result.page">
+                            <a :href="result.url" class="block px-4 py-3 hover:bg-gray-50 border-b border-gray-100 last:border-0">
+                                <div class="font-medium text-primary-500" x-text="result.title"></div>
+                                <div class="text-sm text-gray-600" x-text="result.preview"></div>
+                            </a>
+                        </template>
                     </div>
                 </div>
-                
-                <!-- Mobile menu button -->
-                <button @click="mobileMenuOpen = !mobileMenuOpen" class="md:hidden p-2 mr-4 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100">
-                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-                    </svg>
-                </button>
-        </div>
-        
-        <!-- Search Results Dropdown -->
-        <div x-show="searchResults.length > 0" x-cloak class="absolute top-16 right-0 w-full max-w-lg bg-white border border-gray-200 rounded-lg shadow-lg mx-auto left-0 right-0 max-w-7xl mx-4" style="display: none;">
-            <div class="max-h-96 overflow-y-auto">
-                <template x-for="result in searchResults" :key="result.page">
-                    <a :href="result.url" class="block px-4 py-3 hover:bg-gray-50 border-b border-gray-100 last:border-0">
-                        <div class="font-medium text-primary-500" x-text="result.title"></div>
-                        <div class="text-sm text-gray-600" x-text="result.preview"></div>
-                    </a>
-                </template>
             </div>
+
+            <!-- Spacer (mobile only) -->
+            <div class="flex-1 md:hidden"></div>
+
+            <!-- Burger button (mobile only) -->
+            <button 
+                @click="mobileMenuOpen = !mobileMenuOpen" 
+                class="md:hidden p-2 rounded-md text-gray-500 hover:text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary-500"
+                aria-label="Toggle navigation menu"
+                :aria-expanded="mobileMenuOpen"
+            >
+                <!-- Hamburger icon (menu closed) -->
+                <svg x-show="!mobileMenuOpen" class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                </svg>
+                <!-- X icon (menu open) -->
+                <svg x-show="mobileMenuOpen" x-cloak class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
         </div>
     </header>
 
+    <!-- Mobile backdrop overlay -->
+    <div 
+        x-show="mobileMenuOpen" 
+        x-cloak
+        @click="mobileMenuOpen = false"
+        class="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"
+        x-transition:enter="transition-opacity ease-linear duration-200"
+        x-transition:enter-start="opacity-0"
+        x-transition:enter-end="opacity-100"
+        x-transition:leave="transition-opacity ease-linear duration-200"
+        x-transition:leave-start="opacity-100"
+        x-transition:leave-end="opacity-0"
+    ></div>
+
     <div class="flex">
-        <!-- Sidebar Navigation -->
+        <!-- Sidebar / Mobile Drawer -->
         <aside 
-            x-show="mobileMenuOpen || !isMobile()" 
-            x-cloak
-            class="w-64 bg-white border-r border-gray-200 min-h-screen fixed left-0 top-16 overflow-y-auto hidden md:block"
-            :class="{'block': mobileMenuOpen, 'hidden': !mobileMenuOpen && isMobile()}"
+            class="fixed left-0 top-16 h-[calc(100vh-4rem)] w-72 md:w-64 bg-white border-r border-gray-200 overflow-y-auto z-50 transition-transform duration-300 ease-in-out md:translate-x-0"
+            :class="mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'"
         >
+            <!-- Mobile search (inside drawer) -->
+            <div class="md:hidden p-4 border-b border-gray-100">
+                <div class="relative">
+                    <input 
+                        type="text" 
+                        x-model="searchQuery"
+                        @input="performSearch()"
+                        placeholder="Search documentation..." 
+                        class="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm"
+                    >
+                    <svg class="absolute left-2.5 top-2.5 h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                </div>
+                <!-- Mobile search results (inline in drawer) -->
+                <div x-show="searchResults.length > 0" x-cloak class="mt-2 border border-gray-200 rounded-lg overflow-hidden">
+                    <template x-for="result in searchResults" :key="result.page">
+                        <a :href="result.url" class="block px-3 py-2.5 hover:bg-gray-50 border-b border-gray-100 last:border-0">
+                            <div class="font-medium text-primary-500 text-sm" x-text="result.title"></div>
+                            <div class="text-xs text-gray-600 mt-0.5" x-text="result.preview"></div>
+                        </a>
+                    </template>
+                </div>
+            </div>
+
+            <!-- Navigation -->
             <nav class="p-4">
                 <div class="space-y-2">
                     <template x-for="section in navigation" :key="section.title">
@@ -312,10 +360,12 @@
         </aside>
 
         <!-- Main Content Area -->
-        <main class="flex-1 md:ml-64 p-8">
-            <div class="max-w-4xl mx-auto">
-                <div id="content-area" class="bg-white rounded-lg shadow-sm p-8">
-                    <!-- Dynamic content will be loaded here -->
+        <main class="flex-1 md:ml-64 min-w-0">
+            <div class="p-4 md:p-8">
+                <div class="max-w-4xl mx-auto">
+                    <div id="content-area" class="bg-white rounded-lg shadow-sm p-4 sm:p-6 md:p-8">
+                        <!-- Dynamic content will be loaded here -->
+                    </div>
                 </div>
             </div>
         </main>
