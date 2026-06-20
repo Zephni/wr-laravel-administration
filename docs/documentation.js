@@ -93,6 +93,62 @@ class DocumentationApp {
         contentArea.innerHTML = tag ? tag.innerHTML : '';
         this.updateTitle();
         this.contentLoaded = true;
+        this.initCopyButtons();
+    }
+
+    // Inject an absolutely-positioned copy button into every .docs-code-block
+    initCopyButtons() {
+        const CLIPBOARD_ICON = `<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+        </svg>`;
+        const CHECK_ICON = `<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+        </svg>`;
+
+        document.querySelectorAll('#content-area .docs-code-block').forEach(block => {
+            // Skip if a button was already injected
+            if (block.querySelector('.docs-copy-btn')) return;
+
+            const btn = document.createElement('button');
+            btn.className = 'docs-copy-btn absolute top-2 right-2 p-1.5 rounded text-gray-500 hover:text-white hover:bg-gray-700 transition-colors focus:outline-none';
+            btn.title = 'Copy to clipboard';
+            btn.innerHTML = CLIPBOARD_ICON;
+
+            btn.addEventListener('click', () => {
+                const codeEl = block.querySelector('code') || block.querySelector('pre');
+                const text = codeEl ? codeEl.textContent : block.innerText;
+                navigator.clipboard.writeText(text).then(() => {
+                    btn.innerHTML = CHECK_ICON;
+                    btn.classList.add('text-green-400');
+                    btn.classList.remove('text-gray-500');
+                    setTimeout(() => {
+                        btn.innerHTML = CLIPBOARD_ICON;
+                        btn.classList.remove('text-green-400');
+                        btn.classList.add('text-gray-500');
+                    }, 2000);
+                }).catch(() => {
+                    // Fallback for browsers without clipboard API
+                    const ta = document.createElement('textarea');
+                    ta.value = text;
+                    ta.style.position = 'fixed';
+                    ta.style.opacity = '0';
+                    document.body.appendChild(ta);
+                    ta.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(ta);
+                    btn.innerHTML = CHECK_ICON;
+                    btn.classList.add('text-green-400');
+                    btn.classList.remove('text-gray-500');
+                    setTimeout(() => {
+                        btn.innerHTML = CLIPBOARD_ICON;
+                        btn.classList.remove('text-green-400');
+                        btn.classList.add('text-gray-500');
+                    }, 2000);
+                });
+            });
+
+            block.appendChild(btn);
+        });
     }
 
     // Update page title
