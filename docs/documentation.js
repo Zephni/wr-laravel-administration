@@ -216,10 +216,10 @@ class DocumentationApp {
 
     // Navigate to a page using hash-based routing (compatible with file:// protocol)
     navigateTo(url) {
-        const filename = url.split('/').pop() || 'index.html';
+        const isHome = url === 'index.html' || url === 'quick-start.html';
         // Set hash; empty hash for quick-start page keeps the URL clean
-        window.location.hash = (filename === 'index.html' || filename === 'quick-start.html') ? '' : filename;
-        this.currentPage = filename;
+        window.location.hash = isHome ? '' : url;
+        this.currentPage = isHome ? 'quick-start.html' : url;
         this.loadContent();
 
         // Close mobile menu and clear search if open
