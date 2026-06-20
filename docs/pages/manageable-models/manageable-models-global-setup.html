@@ -1,0 +1,257 @@
+<h1 class="docs-title">globalSetup()</h1>
+<p class="docs-lead">
+    Called once per registered model, immediately <em>after</em> every model's
+    <code class="docs-inline-code">mainSetup()</code> has finished. Because all core identity data
+    (URL aliases, display names, etc.) is already set when this runs, it is the right place for
+    anything that may depend on other registered models — primarily the sidebar navigation children.
+</p>
+
+<!-- Default stub example -->
+<div class="docs-section">
+    <div class="docs-code-block">
+        <pre><code>// /App/WRLA/ManageableModels/Blog.php (example)
+
+public final static function globalSetup(): void
+{
+    // Navigation
+    static::setChildNavigationItems(parent::getDefaultChildNavigationItems());
+}</code></pre>
+    </div>
+</div>
+
+<!-- setChildNavigationItems -->
+<div class="docs-section">
+    <h2 class="docs-heading font-mono text-primary-600">setChildNavigationItems()</h2>
+    <p class="docs-body">
+        Defines the sub-links shown underneath this model's entry in the sidebar navigation.
+        Accepts any number of <code class="docs-inline-code">NavigationItem</code> instances (or
+        sub-classes), a flat array of them, or any mix — they are flattened automatically.
+    </p>
+    <div class="docs-code-block">
+        <pre><code>static::setChildNavigationItems(...$childNavigationItems);</code></pre>
+    </div>
+
+    <!-- getDefaultChildNavigationItems -->
+    <h3 class="docs-subheading mt-6 mb-3">getDefaultChildNavigationItems()</h3>
+    <p class="docs-body">
+        Returns a <code class="docs-inline-code">Collection</code> containing the two standard child
+        links — <strong>Browse</strong> and <strong>Create</strong> — already wired to the correct
+        admin routes for the calling model. This is what the generated stub uses.
+    </p>
+    <div class="docs-code-block mb-4">
+        <pre><code>static::setChildNavigationItems(parent::getDefaultChildNavigationItems());</code></pre>
+    </div>
+    <p class="docs-body">
+        The resulting sidebar entry will show two children:
+    </p>
+    <table class="docs-table mb-0">
+        <thead>
+            <tr>
+                <th>Label</th>
+                <th>Route</th>
+                <th>Icon</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Browse</td>
+                <td><code class="docs-inline-code">wrla.manageable-models.browse</code></td>
+                <td><code class="docs-inline-code">fa fa-list</code></td>
+            </tr>
+            <tr>
+                <td>Create</td>
+                <td><code class="docs-inline-code">wrla.manageable-models.create</code></td>
+                <td><code class="docs-inline-code">fa fa-plus</code></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- Custom NavigationItem -->
+<div class="docs-section">
+    <h2 class="docs-heading font-mono text-primary-600">NavigationItem</h2>
+    <p class="docs-body">
+        You can replace or extend the default children with hand-crafted
+        <code class="docs-inline-code">NavigationItem</code> instances, pointing to any named route
+        — including routes outside the admin panel.
+    </p>
+    <div class="docs-code-block mb-4">
+        <pre><code>use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItem;
+
+static::setChildNavigationItems(
+    new NavigationItem(
+        route: 'wrla.manageable-models.browse',
+        routeData: ['modelUrlAlias' => static::getUrlAlias()],
+        name: 'All Posts',
+        icon: 'fa fa-list',
+    ),
+    new NavigationItem(
+        route: 'wrla.manageable-models.create',
+        routeData: ['modelUrlAlias' => static::getUrlAlias()],
+        name: 'New Post',
+        icon: 'fa fa-plus',
+    ),
+);</code></pre>
+    </div>
+
+    <h3 class="docs-subheading mt-4 mb-3">NavigationItem::make()</h3>
+    <p class="docs-body">
+        A static factory that also resolves any ManageableModel class strings in the
+        <code class="docs-inline-code">$children</code> array by calling
+        <code class="docs-inline-code">getNavigationItem()</code> on them automatically.
+    </p>
+    <div class="docs-code-block">
+        <pre><code>NavigationItem::make(
+    route: 'wrla.manageable-models.browse',
+    routeData: ['modelUrlAlias' => static::getUrlAlias()],
+    name: 'All Posts',
+    icon: 'fa fa-list',
+);</code></pre>
+    </div>
+</div>
+
+<!-- NavigationItemDivider -->
+<div class="docs-section">
+    <h2 class="docs-heading font-mono text-primary-600">NavigationItemDivider</h2>
+    <p class="docs-body">
+        Inserts a visual horizontal rule between child navigation items. Optionally accepts a
+        title and/or icon to label the divider.
+    </p>
+    <div class="docs-code-block mb-4">
+        <pre><code>use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItem;
+use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItemDivider;
+
+static::setChildNavigationItems(
+    new NavigationItem(
+        route: 'wrla.manageable-models.browse',
+        routeData: ['modelUrlAlias' => static::getUrlAlias()],
+        name: 'All Posts',
+        icon: 'fa fa-list',
+    ),
+    new NavigationItemDivider(),               // plain rule
+    new NavigationItemDivider('Management'),   // labelled rule
+    new NavigationItemDivider('Tools', 'fa fa-wrench'), // labelled + icon
+    new NavigationItem(
+        route: 'wrla.manageable-models.create',
+        routeData: ['modelUrlAlias' => static::getUrlAlias()],
+        name: 'New Post',
+        icon: 'fa fa-plus',
+    ),
+);</code></pre>
+    </div>
+    <div class="docs-callout docs-callout-info">
+        <div class="docs-callout-icon">
+            <svg viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+            </svg>
+        </div>
+        <div class="docs-callout-body">
+            You can also create dividers via the convenience static factory
+            <code>NavigationItem::makeDivider('Title', 'fa fa-icon')</code>.
+        </div>
+    </div>
+</div>
+
+<!-- NavigationItemHTML -->
+<div class="docs-section">
+    <h2 class="docs-heading font-mono text-primary-600">NavigationItemHTML</h2>
+    <p class="docs-body">
+        Renders an arbitrary HTML/Blade string in place of a standard navigation entry. Useful for
+        badges, counters, or any custom UI you want embedded in the sidebar.
+    </p>
+    <div class="docs-code-block">
+        <pre><code>use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItemHTML;
+
+static::setChildNavigationItems(
+    parent::getDefaultChildNavigationItems(),
+    new NavigationItemHTML('<span class="text-xs text-yellow-400 px-2">&#x26A0; Under review</span>'),
+);</code></pre>
+    </div>
+</div>
+
+<!-- showOnCondition -->
+<div class="docs-section">
+    <h2 class="docs-heading font-mono text-primary-600">showOnCondition()</h2>
+    <p class="docs-body">
+        Fluent method available on any <code class="docs-inline-code">NavigationItem</code>.
+        When the callback returns <code class="docs-inline-code">false</code> the item is
+        completely hidden from the sidebar.
+    </p>
+    <div class="docs-code-block mb-4">
+        <pre><code>use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItem;
+
+static::setChildNavigationItems(
+    parent::getDefaultChildNavigationItems(),
+    (new NavigationItem(
+        route: 'wrla.manageable-models.browse',
+        routeData: ['modelUrlAlias' => 'drafts'],
+        name: 'Drafts',
+        icon: 'fa fa-pencil',
+    ))->showOnCondition(fn() => auth()->user()?->can('view-drafts')),
+);</code></pre>
+    </div>
+</div>
+
+<!-- enableOnCondition -->
+<div class="docs-section">
+    <h2 class="docs-heading font-mono text-primary-600">enableOnCondition()</h2>
+    <p class="docs-body">
+        Fluent method available on any <code class="docs-inline-code">NavigationItem</code>.
+        When the callback returns <code class="docs-inline-code">false</code>, or a <em>string</em>
+        reason, the item is visible but rendered as disabled. A string return value is displayed
+        as a tooltip explaining why the item is disabled.
+    </p>
+    <div class="docs-code-block">
+        <pre><code>use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItem;
+
+static::setChildNavigationItems(
+    parent::getDefaultChildNavigationItems(),
+    (new NavigationItem(
+        route: 'wrla.manageable-models.create',
+        routeData: ['modelUrlAlias' => static::getUrlAlias()],
+        name: 'New Post',
+        icon: 'fa fa-plus',
+    ))->enableOnCondition(
+        fn() => PostLimit::hasCapacity() ?: 'Monthly post limit reached'
+    ),
+);</code></pre>
+    </div>
+</div>
+
+<!-- openInNewTab -->
+<div class="docs-section">
+    <h2 class="docs-heading font-mono text-primary-600">openInNewTab()</h2>
+    <p class="docs-body">
+        Fluent method available on any <code class="docs-inline-code">NavigationItem</code>.
+        Forces the link to open in a new browser tab — useful when pointing to external URLs or
+        front-end preview pages.
+    </p>
+    <div class="docs-code-block">
+        <pre><code>use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItem;
+
+static::setChildNavigationItems(
+    parent::getDefaultChildNavigationItems(),
+    (new NavigationItem(
+        route: 'blog.index',
+        routeData: [],
+        name: 'View on Site',
+        icon: 'fa fa-external-link',
+    ))->openInNewTab(),
+);</code></pre>
+    </div>
+</div>
+
+<!-- Execution order note -->
+<div class="docs-callout docs-callout-info">
+    <div class="docs-callout-icon">
+        <svg viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+        </svg>
+    </div>
+    <div class="docs-callout-body">
+        <strong>Execution order</strong> — WRLA calls every model's <code>mainSetup()</code> first,
+        then loops back and calls every model's <code>globalSetup()</code>. This means you can
+        safely reference another model's URL alias or display name inside
+        <code>globalSetup()</code> without worrying about registration order.
+    </div>
+</div>
