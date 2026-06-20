@@ -86,6 +86,9 @@ class User extends ManageableModel
         // Browse actions (Remove import action #51)
         static::setBrowseActions(static::getDefaultBrowseActions()->forget(51));
 
+        // Enable multi selection
+        static::setMultiSelect(false);
+
         // Set order by
         static::setOrderBy();
     }
