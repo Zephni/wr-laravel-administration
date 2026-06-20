@@ -1,8 +1,7 @@
 // Documentation System - Dynamic Content Loading and Management
 
-// Page content is embedded in index.html as <script type="text/html" id="page-{filename}"> tags.
-// To add a new page: add one of those script tags to index.html (copying from docs/pages/),
-// then add the page to getNavigation() below.
+// Page content is stored in docs/pages/*.html files.
+// To add a new page: create a new file in docs/pages/, then add it to getNavigation() below.
 
 class DocumentationApp {
     constructor() {
@@ -11,7 +10,8 @@ class DocumentationApp {
         this.mobileMenuOpen = false;
         this.currentPage = this.getCurrentPage();
         this.navigation = this.getNavigation();
-        this.pages = this.loadPages();
+        this.pages = [];
+        this.pageCache = {};
         this.contentLoaded = false;
     }
 
@@ -54,30 +54,54 @@ class DocumentationApp {
         ];
     }
 
-    // Build pages index by scanning <script type="text/html" id="page-{filename}"> tags
-    loadPages() {
+    // Fetch a single page from pages/ directory (with caching)
+    async fetchPage(filename) {
+        if (this.pageCache[filename] !== undefined) {
+            return this.pageCache[filename];
+        }
+        try {
+            const response = await fetch(`pages/${filename}`);
+            const html = response.ok ? await response.text() : null;
+            this.pageCache[filename] = html;
+            return html;
+        } catch {
+            this.pageCache[filename] = null;
+            return null;
+        }
+    }
+
+    // Build search index by fetching all navigation pages
+    async loadPages() {
         const parser = new DOMParser();
-        return Array.from(document.querySelectorAll('script[type="text/html"][id^="page-"]')).map(tag => {
-            const filename = tag.id.replace(/^page-/, '');
-            const html = tag.innerHTML;
+        const filenames = ['home.html', ...this.navigation.flatMap(s => s.items.map(i => i.url))];
+        const unique = [...new Set(filenames)];
+
+        const settled = await Promise.allSettled(unique.map(async filename => {
+            const html = await this.fetchPage(filename);
+            if (!html) return null;
             const doc = parser.parseFromString(html, 'text/html');
             const h1 = doc.querySelector('h1');
             const title = h1 ? h1.textContent.trim() : filename.replace('.html', '');
             const content = doc.body.textContent.replace(/\s+/g, ' ').trim();
             const navUrl = filename === 'home.html' ? 'index.html' : filename;
             return { url: navUrl, file: filename, title, content };
-        });
+        }));
+
+        this.pages = settled
+            .filter(r => r.status === 'fulfilled' && r.value)
+            .map(r => r.value);
     }
 
     // Initialize the application
-    initApp() {
+    async initApp() {
         this.currentPage = this.getCurrentPage();
-        this.loadContent();
+        await this.loadPages();
+        await this.loadContent();
         this.setupInterception();
     }
 
-    // Load content from the matching <script type="text/html"> tag
-    loadContent() {
+    // Load content for the current page from pages/ directory
+    async loadContent() {
         const contentArea = document.getElementById('content-area');
         if (!contentArea) return;
 
@@ -88,9 +112,9 @@ class DocumentationApp {
             contentFile = 'home.html';
         }
 
-        const tag = document.getElementById(`page-${contentFile}`)
-            || document.getElementById('page-home.html');
-        contentArea.innerHTML = tag ? tag.innerHTML : '';
+        const html = await this.fetchPage(contentFile);
+        contentArea.innerHTML = html
+            ?? '<p class="text-gray-500 italic mt-4">This page is coming soon.</p>';
         this.updateTitle();
         this.contentLoaded = true;
         this.initCopyButtons();
