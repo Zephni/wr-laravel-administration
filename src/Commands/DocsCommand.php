@@ -35,6 +35,14 @@ class DocsCommand extends Command
             return 1;
         }
 
+        // Ensure shell script is executable on Unix-like systems
+        if (PHP_OS_FAMILY !== 'Windows') {
+            $shellScript = $docsPath . '/serve.sh';
+            if (file_exists($shellScript) && ! is_executable($shellScript)) {
+                chmod($shellScript, 0755);
+            }
+        }
+
         $url = "http://localhost:{$port}";
 
         $this->line('');
