@@ -3,27 +3,23 @@
 namespace App\WRLA;
 
 use Exception;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
-use WebRegulate\LaravelAdministration\Classes\ManageableFields\BladeElement;
-use WebRegulate\LaravelAdministration\Classes\ManageableFields\Json;
-use WebRegulate\LaravelAdministration\Classes\ManageableFields\Select;
-use WebRegulate\LaravelAdministration\Classes\ManageableFields\Text;
-use WebRegulate\LaravelAdministration\Classes\ManageableFields\TextArea;
+use Illuminate\Database\Eloquent\Builder;
 use WebRegulate\LaravelAdministration\Classes\ManageableModel;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 use WebRegulate\LaravelAdministration\Classes\InstanceActions\InstanceActionRestore;
 use WebRegulate\LaravelAdministration\Classes\InstanceActions\InstanceActionEdit;
 use WebRegulate\LaravelAdministration\Classes\InstanceActions\InstanceActionDelete;
-use WebRegulate\LaravelAdministration\Enums\PageType;
+use WebRegulate\LaravelAdministration\Classes\ManageableFields\BladeElement;
+use WebRegulate\LaravelAdministration\Classes\ManageableFields\Json;
+use WebRegulate\LaravelAdministration\Classes\ManageableFields\Text;
+use WebRegulate\LaravelAdministration\Classes\ManageableFields\TextArea;
+use WebRegulate\LaravelAdministration\Classes\ManageableFields\Select;
 
 class EmailTemplate extends ManageableModel
 {
     /**
      * Setup the main properties of the model.
-     *
-     * @return void
      */
     public final static function mainSetup(): void
     {
@@ -35,8 +31,6 @@ class EmailTemplate extends ManageableModel
 
     /**
      * Setup global properties of this manageable model.
-     *
-     * @return void
      */
     public final static function globalSetup(): void
     {
@@ -46,8 +40,6 @@ class EmailTemplate extends ManageableModel
 
     /**
      * Setup browse properties of this manageable model.
-     *
-     * @return void
      */
     public final static function browseSetup(): void
     {
@@ -76,8 +68,6 @@ class EmailTemplate extends ManageableModel
 
     /**
      * Provide an array of columns to display in the browse view.
-     *
-     * @return array
      */
     public final function getBrowseColumns(): array
     {
@@ -88,9 +78,59 @@ class EmailTemplate extends ManageableModel
     }
 
     /**
+     * Provide the model instance actions.
+     */
+    public final function getInstanceActions(): array
+    {
+        $user = WRLAHelper::getCurrentUser();
+        $defaultEmails = $user->email ?? null;
+
+        return [
+            // Send test action
+            $this->instanceAction('Send Test', 'fa fa-paper-plane', 'secondary')
+                ->requireCondition(fn() => !empty($defaultEmails))
+                // Prompt for one or more recipients (comma separated), pre-filled with the current user's email.
+                ->ask('Send test email to (comma separated for multiple, save changes first):', false, $defaultEmails)
+                ->setAction(function($emailTemplate, $parameters) use ($user) {
+                    // Normalise the comma delimited input into a clean, validated list
+                    $emailsRaw = $parameters['input'] ?? '';
+                    $emails = collect(explode(',', $emailsRaw))
+                        ->map(fn($email) => trim($email))
+                        ->filter(fn($email) => $email !== '' && filter_var($email, FILTER_VALIDATE_EMAIL))
+                        ->values()
+                        ->all();
+
+                    if(empty($emails)) {
+                        return "No valid email addresses provided: {$emailsRaw}";
+                    }
+
+                    try {
+                        // Set data array for injections. Any keys not provided here
+                        // will fall back to string defaults defined in the template's
+                        // mappings JSON (handled by EmailTemplate::applyCustomisedDataValues).
+                        $emailTemplate->setDataArray([
+                            'user' => $user,
+                        ]);
+
+                        // sendEmail() accepts an array or comma delimited string of recipients
+                        $success = $emailTemplate->sendEmail($emails);
+
+                        // Return a message indicating success or failure, along with the list of recipients
+                        return ($success ? 'Email successfully sent to ' : 'Failed to send email to ') . implode(', ', $emails);
+                    } catch (Exception $e) {
+                        return "Error sending email: " . $e->getMessage();
+                    }
+                }),
+
+            // Default actions
+            InstanceActionRestore::make($this),
+            InstanceActionEdit::make($this),
+            InstanceActionDelete::make($this, $this->isModelSoftDeleted()),
+        ];
+    }
+
+    /**
      * Provide an array of manageable fields to display in the upsert view.
-     *
-     * @return array
      */
     public final function getManageableFields(): array
     {
@@ -190,59 +230,5 @@ class EmailTemplate extends ManageableModel
                 </div>
             HTML;
         });
-    }
-
-    /**
-     * Provide the model instance actions.
-     *
-     * @return array
-     */
-    public final function getInstanceActions(): array
-    {
-        $user = WRLAHelper::getCurrentUser();
-        $defaultEmails = $user->email ?? null;
-
-        return [
-            // Send test action
-            $this->instanceAction('Send Test', 'fa fa-paper-plane', 'secondary')
-                ->requireCondition(fn() => !empty($defaultEmails))
-                // Prompt for one or more recipients (comma separated), pre-filled with the current user's email.
-                ->ask('Send test email to (comma separated for multiple, save changes first):', false, $defaultEmails)
-                ->setAction(function($emailTemplate, $parameters) use ($user) {
-                    // Normalise the comma delimited input into a clean, validated list
-                    $emailsRaw = $parameters['input'] ?? '';
-                    $emails = collect(explode(',', $emailsRaw))
-                        ->map(fn($email) => trim($email))
-                        ->filter(fn($email) => $email !== '' && filter_var($email, FILTER_VALIDATE_EMAIL))
-                        ->values()
-                        ->all();
-
-                    if(empty($emails)) {
-                        return "No valid email addresses provided: {$emailsRaw}";
-                    }
-
-                    try {
-                        // Set data array for injections. Any keys not provided here
-                        // will fall back to string defaults defined in the template's
-                        // mappings JSON (handled by EmailTemplate::applyCustomisedDataValues).
-                        $emailTemplate->setDataArray([
-                            'user' => $user,
-                        ]);
-
-                        // sendEmail() accepts an array or comma delimited string of recipients
-                        $success = $emailTemplate->sendEmail($emails);
-
-                        // Return a message indicating success or failure, along with the list of recipients
-                        return ($success ? 'Email successfully sent to ' : 'Failed to send email to ') . implode(', ', $emails);
-                    } catch (Exception $e) {
-                        return "Error sending email: " . $e->getMessage();
-                    }
-                }),
-
-            // Default actions
-            InstanceActionRestore::make($this),
-            InstanceActionEdit::make($this),
-            InstanceActionDelete::make($this, $this->isModelSoftDeleted()),
-        ];
     }
 }
