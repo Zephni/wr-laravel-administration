@@ -26,7 +26,12 @@ class {{ $MODEL }} extends ManageableModel
         static::setIcon('{{ $ICON }}');
 
         // Permissions
-        // static::setPermission(ManageableModelPermissions::DELETE, false);
+        static::setPermission(ManageableModelPermissions::ENABLED, true);
+        static::setPermission(ManageableModelPermissions::BROWSE, true);
+        static::setPermission(ManageableModelPermissions::CREATE, true);
+        static::setPermission(ManageableModelPermissions::EDIT, true);
+        static::setPermission(ManageableModelPermissions::DELETE, true);
+        static::setPermission(ManageableModelPermissions::RESTORE, true);
     }
 
     /**

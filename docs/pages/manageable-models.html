@@ -1,1 +1,122 @@
 <h1 class="docs-title">Manageable Models</h1>
+<p class="docs-lead">
+    A <strong>Manageable Model</strong> wraps an Eloquent model and exposes full CRUD management —
+    browse, create, edit, and delete — inside the admin panel. Each one lives in
+    <code class="docs-inline-code">app/WRLA/</code> and extends the abstract
+    <code class="docs-inline-code">ManageableModel</code> class.
+</p>
+
+<!-- Creating -->
+<div class="docs-section">
+    <h2 class="docs-heading">
+        <span class="docs-step-badge">1</span>
+        Generate with Artisan
+    </h2>
+    <div class="docs-code-block mb-4">
+        <pre><code>php artisan wrla:manageable-model {?ModelName}</code></pre>
+    </div>
+    <p class="docs-body">
+        The model name is optional — if omitted the command will prompt you. Sub-directory namespacing is
+        supported using backslash notation (e.g. <code class="docs-inline-code">Admin\User</code>).
+    </p>
+    <p class="docs-body">The interactive wizard walks you through three optional extras:</p>
+    <ol class="list-decimal list-inside space-y-2 text-gray-600 mb-4 ml-2">
+        <li><strong>Icon</strong> — a Font Awesome v6 class string (e.g. <code class="docs-inline-code">fa fa-file-alt</code>). Defaults to <code class="docs-inline-code">fa fa-question-circle</code>.</li>
+        <li><strong>Create base Eloquent model?</strong> — optionally runs <code class="docs-inline-code">php artisan make:model</code> for you.</li>
+        <li><strong>Create migration?</strong> — optionally runs <code class="docs-inline-code">php artisan make:migration</code> for you.</li>
+    </ol>
+    <p class="docs-body">The generated manageable model is placed at <code class="docs-inline-code">app/WRLA/{ModelName}.php</code>.</p>
+</div>
+
+<!-- Auto-discovery -->
+<div class="docs-section">
+    <h2 class="docs-heading">
+        <span class="docs-step-badge">2</span>
+        Registration (automatic)
+    </h2>
+    <div class="docs-callout docs-callout-success">
+        <div class="docs-callout-icon">
+            <svg viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+            </svg>
+        </div>
+        <div class="docs-callout-body">
+            <strong>No registration needed.</strong> At boot, WRLA automatically scans <code>app/WRLA/</code>
+            (recursively) and registers every class that extends <code>ManageableModel</code>.
+            Just drop the file in the directory and you're done.
+        </div>
+    </div>
+</div>
+
+<!-- Anatomy -->
+<div class="docs-section">
+    <h2 class="docs-heading">
+        <span class="docs-step-badge">3</span>
+        Anatomy of the generated stub
+    </h2>
+    <p class="docs-body">
+        The stub contains three <em>static setup methods</em> called automatically by WRLA on registration,
+        plus three <em>instance methods</em> that define what the browse table and edit/create form look like.
+    </p>
+
+    <h3 class="docs-subheading mt-6 mb-3">Static setup methods</h3>
+    <table class="docs-table mb-6">
+        <thead>
+            <tr>
+                <th>Method</th>
+                <th>Purpose</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><code class="docs-inline-code">mainSetup()</code></td>
+                <td>Core identity — base model class, display name, URL alias, icon, and permission overrides</td>
+            </tr>
+            <tr>
+                <td><code class="docs-inline-code">globalSetup()</code></td>
+                <td>Navigation children and other global per-model options</td>
+            </tr>
+            <tr>
+                <td><code class="docs-inline-code">browseSetup()</code></td>
+                <td>Browse-page configuration — filters, ordering, multi-select, and bulk actions</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h3 class="docs-subheading mb-3">Instance methods</h3>
+    <table class="docs-table">
+        <thead>
+            <tr>
+                <th>Method</th>
+                <th>Purpose</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><code class="docs-inline-code">getBrowseColumns()</code></td>
+                <td>Columns shown in the browse table</td>
+            </tr>
+            <tr>
+                <td><code class="docs-inline-code">getInstanceActions()</code></td>
+                <td>Per-row action buttons — edit, delete, restore, duplicate, etc.</td>
+            </tr>
+            <tr>
+                <td><code class="docs-inline-code">getManageableFields()</code></td>
+                <td>Fields rendered in the create / edit form</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- See subsections -->
+<div class="docs-callout docs-callout-info">
+    <div class="docs-callout-icon">
+        <svg viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+        </svg>
+    </div>
+    <div class="docs-callout-body">
+        Each method is covered in detail in the sub-sections listed under <strong>Manageable Models</strong>
+        in the left navigation.
+    </div>
+</div>

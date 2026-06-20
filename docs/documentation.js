@@ -38,7 +38,13 @@ class DocumentationApp {
             {
                 title: 'Core Concepts',
                 items: [
-                    { title: 'Manageable Models', url: 'manageable-models.html' },
+                    {
+                        title: 'Manageable Models',
+                        url: 'manageable-models.html',
+                        children: [
+                            { title: 'mainSetup', url: 'manageable-models-main-setup.html' },
+                        ]
+                    },
                     { title: 'Authentication', url: 'authentication.html' },
                     { title: 'Authorization', url: 'authorization.html' },
                     { title: 'Permissions', url: 'permissions.html' }
@@ -74,7 +80,7 @@ class DocumentationApp {
     // Build search index by fetching all navigation pages
     async loadPages() {
         const parser = new DOMParser();
-        const filenames = [...this.navigation.flatMap(s => s.items.map(i => i.url))];
+        const filenames = [...this.navigation.flatMap(s => s.items.flatMap(i => [i.url, ...(i.children || []).map(c => c.url)]))];
         const unique = [...new Set(filenames)];
 
         const settled = await Promise.allSettled(unique.map(async filename => {

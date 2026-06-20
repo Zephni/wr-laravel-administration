@@ -134,6 +134,10 @@
             @apply flex items-center py-2 px-3 text-sm font-medium rounded-md transition-colors;
         }
 
+        .docs-nav-link-sub {
+            @apply flex items-center py-1.5 pl-6 pr-3 text-xs font-medium rounded-md transition-colors;
+        }
+
         .docs-nav-link-active {
             @apply bg-primary-50 text-primary-600;
         }
@@ -144,6 +148,25 @@
 
         .docs-nav-link-inactive:hover {
             @apply bg-gray-100;
+        }
+
+        /* ── Table ───────────────────────────────────────── */
+        .docs-table {
+            @apply w-full text-sm text-left mb-4;
+            border-collapse: collapse;
+        }
+        .docs-table th {
+            @apply bg-gray-100 text-gray-700 font-semibold text-left;
+            padding: 0.625rem 1rem;
+            border: 1px solid #e5e7eb;
+        }
+        .docs-table td {
+            @apply text-gray-600 align-top;
+            padding: 0.625rem 1rem;
+            border: 1px solid #e5e7eb;
+        }
+        .docs-table tbody tr:nth-child(even) td {
+            @apply bg-gray-50;
         }
 
         /* ── Lead / intro paragraph ──────────────────────── */
@@ -345,12 +368,26 @@
                             <h3 class="docs-nav-label" x-text="section.title"></h3>
                             <div class="space-y-1">
                                 <template x-for="item in section.items" :key="item.title">
-                                    <a 
-                                        :href="item.url" 
-                                        class="docs-nav-link"
-                                        :class="currentPage === item.url ? 'docs-nav-link-active' : 'docs-nav-link-inactive'"
-                                        x-text="item.title"
-                                    ></a>
+                                    <div>
+                                        <a 
+                                            :href="item.url" 
+                                            class="docs-nav-link"
+                                            :class="currentPage === item.url ? 'docs-nav-link-active' : 'docs-nav-link-inactive'"
+                                            x-text="item.title"
+                                        ></a>
+                                        <template x-if="item.children && item.children.length > 0">
+                                            <div class="mt-0.5 mb-1 space-y-0.5">
+                                                <template x-for="child in item.children" :key="child.title">
+                                                    <a
+                                                        :href="child.url"
+                                                        class="docs-nav-link docs-nav-link-sub"
+                                                        :class="currentPage === child.url ? 'docs-nav-link-active' : 'docs-nav-link-inactive'"
+                                                        x-text="child.title"
+                                                    ></a>
+                                                </template>
+                                            </div>
+                                        </template>
+                                    </div>
                                 </template>
                             </div>
                         </div>
