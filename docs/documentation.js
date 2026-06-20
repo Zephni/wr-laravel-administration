@@ -1,7 +1,7 @@
 // Documentation System - Dynamic Content Loading and Management
 
-// Page content is stored in docs/pages/*.html files.
-// To add a new page: create a new file in docs/pages/, then add it to getNavigation() below.
+// Page content is stored in docs/pages/**/*.html files.
+// To add a new page: create a new file in docs/pages/ (or a subdirectory), then add it to getNavigation() below.
 
 class DocumentationApp {
     constructor() {
@@ -40,9 +40,9 @@ class DocumentationApp {
                 items: [
                     {
                         title: 'Manageable Models',
-                        url: 'manageable-models.html',
+                        url: 'manageable-models/manageable-models.html',
                         children: [
-                            { title: 'mainSetup', url: 'manageable-models-main-setup.html' },
+                            { title: 'mainSetup', url: 'manageable-models/manageable-models-main-setup.html' },
                         ]
                     },
                     { title: 'Authentication', url: 'authentication.html' },

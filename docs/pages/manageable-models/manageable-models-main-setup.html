@@ -1,0 +1,170 @@
+<h1 class="docs-title">mainSetup()</h1>
+<p class="docs-lead">
+    Called once when the manageable model is registered at boot. Use it to define the model's core
+    identity — which Eloquent model it wraps, how it appears in the UI, its URL, and any permission overrides.
+</p>
+
+<!-- Default stub example -->
+<div class="docs-section">
+    <div class="docs-code-block">
+        <pre><code>// /App/WRLA/ManageableModels/Blog.php (example)
+
+public final static function mainSetup(): void
+{
+    // Main
+    static::setBaseModelClass(\App\Models\BlogPost::class);
+    static::setDisplayName();
+    static::setUrlAlias('blog-post');
+    static::setIcon('fa fa-file-alt');
+
+    // Permissions
+    static::setPermission(ManageableModelPermissions::ENABLED, true);
+    static::setPermission(ManageableModelPermissions::BROWSE, true);
+    static::setPermission(ManageableModelPermissions::CREATE, true);
+    static::setPermission(ManageableModelPermissions::EDIT, true);
+    static::setPermission(ManageableModelPermissions::DELETE, true);
+    static::setPermission(ManageableModelPermissions::RESTORE, true);
+}</code></pre>
+    </div>
+</div>
+
+<!-- setBaseModelClass -->
+<div class="docs-section">
+    <h2 class="docs-heading font-mono text-primary-600">setBaseModelClass()</h2>
+    <p class="docs-body">
+        Links the manageable model to its underlying Eloquent model. This is the only strictly
+        required call inside <code class="docs-inline-code">mainSetup()</code>.
+    </p>
+    <div class="docs-code-block">
+        <pre><code>static::setBaseModelClass(\App\Models\BlogPost::class);</code></pre>
+    </div>
+</div>
+
+<!-- setDisplayName -->
+<div class="docs-section">
+    <h2 class="docs-heading font-mono text-primary-600">setDisplayName()</h2>
+    <p class="docs-body">
+        Sets the human-readable name shown in page titles, breadcrumbs, and buttons.
+        Both arguments are optional — if omitted, WRLA auto-generates them from the class name.
+    </p>
+    <div class="docs-code-block mb-4">
+        <pre><code>static::setDisplayName();                          // auto: "Blog Post" / "Blog Posts"
+static::setDisplayName('Article');                 // "Article" / "Articles" (auto-plural)
+static::setDisplayName('Article', 'All Articles'); // fully explicit</code></pre>
+    </div>
+    <div class="docs-callout docs-callout-info">
+        <div class="docs-callout-icon">
+            <svg viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+            </svg>
+        </div>
+        <div class="docs-callout-body">
+            Auto-generation converts StudlyCase to title case and pluralises using Laravel's inflector —
+            e.g. <code>BlogPost</code> → <strong>"Blog Post"</strong> / <strong>"Blog Posts"</strong>.
+        </div>
+    </div>
+</div>
+
+<!-- setUrlAlias -->
+<div class="docs-section">
+    <h2 class="docs-heading font-mono text-primary-600">setUrlAlias()</h2>
+    <p class="docs-body">
+        Defines the URL slug used for this model's admin routes. For example an alias of
+        <code class="docs-inline-code">blog-posts</code> produces
+        <code class="docs-inline-code">/wr-admin/manageable-models/blog-posts</code>.
+        The artisan command pre-fills this with a kebab-case version of your model name.
+    </p>
+    <div class="docs-code-block">
+        <pre><code>static::setUrlAlias('blog-posts');</code></pre>
+    </div>
+</div>
+
+<!-- setIcon -->
+<div class="docs-section">
+    <h2 class="docs-heading font-mono text-primary-600">setIcon()</h2>
+    <p class="docs-body">
+        Sets the Font Awesome icon class displayed next to this model in the sidebar navigation.
+        The artisan command asks for this during generation — browse the full library at
+        <a href="https://fontawesome.com/v6/search" class="docs-link" target="_blank">fontawesome.com/v6</a>.
+    </p>
+    <div class="docs-code-block">
+        <pre><code>static::setIcon('fa fa-file-alt');</code></pre>
+    </div>
+</div>
+
+<!-- setPermission -->
+<div class="docs-section">
+    <h2 class="docs-heading font-mono text-primary-600">setPermission()</h2>
+    <p class="docs-body">
+        Overrides a specific permission for this model. The second argument can be a static
+        <code class="docs-inline-code">bool</code> <em>or</em> a <strong>callable</strong> that receives
+        the current user's WRLA data and returns a <code class="docs-inline-code">bool</code> —
+        useful for role-based access control.
+    </p>
+    <div class="docs-code-block mb-4">
+        <pre><code>// Boolean
+static::setPermission(ManageableModelPermissions::DELETE, false);
+
+// Callable - See UserData class for available methods
+static::setPermission(ManageableModelPermissions::DELETE, fn($userData) => $userData->isMaster());
+</code></pre>
+    </div>
+
+    <h3 class="docs-subheading mb-3">Available permissions</h3>
+    <p class="docs-body">
+        All permissions default to <code class="docs-inline-code">true</code> unless overridden globally in
+        <code class="docs-inline-code">config/wr-laravel-administration.php</code> under
+        <code class="docs-inline-code">default_manageable_model_permissions</code>.
+    </p>
+    <table class="docs-table">
+        <thead>
+            <tr>
+                <th>Enum case</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><code class="docs-inline-code">ENABLED</code></td>
+                <td>Enables or disables the entire model in the admin panel</td>
+            </tr>
+            <tr>
+                <td><code class="docs-inline-code">CREATE</code></td>
+                <td>Allow creating new records</td>
+            </tr>
+            <tr>
+                <td><code class="docs-inline-code">BROWSE</code></td>
+                <td>Allow browsing and listing records</td>
+            </tr>
+            <tr>
+                <td><code class="docs-inline-code">EDIT</code></td>
+                <td>Allow editing existing records</td>
+            </tr>
+            <tr>
+                <td><code class="docs-inline-code">DELETE</code></td>
+                <td>Allow deleting records</td>
+            </tr>
+            <tr>
+                <td><code class="docs-inline-code">RESTORE</code></td>
+                <td>Allow restoring soft-deleted records</td>
+            </tr>
+            <tr>
+                <td><code class="docs-inline-code">SHOW_IN_NAV</code></td>
+                <td>Show this model in the sidebar navigation</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="docs-callout docs-callout-info">
+        <div class="docs-callout-icon">
+            <svg viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+            </svg>
+        </div>
+        <div class="docs-callout-body">
+            <code>ENABLED</code> acts as a master switch — setting it to <code>false</code> hides the model
+            entirely regardless of other permission values. <code>SHOW_IN_NAV</code> only controls sidebar
+            visibility; the model's routes remain accessible.
+        </div>
+    </div>
+</div>
