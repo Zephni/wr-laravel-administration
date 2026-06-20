@@ -79,15 +79,13 @@ public final static function globalSetup(): void
         <pre><code>use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItem;
 
 static::setChildNavigationItems(
-    new NavigationItem(
-        route: 'wrla.manageable-models.browse',
-        routeData: ['modelUrlAlias' => static::getUrlAlias()],
+    NavigationItem::make(
+        url: route('wrla.manageable-models.browse', ['modelUrlAlias' => static::getUrlAlias()]),
         name: 'All Posts',
         icon: 'fa fa-list',
     ),
-    new NavigationItem(
-        route: 'wrla.manageable-models.create',
-        routeData: ['modelUrlAlias' => static::getUrlAlias()],
+    NavigationItem::make(
+        url: route('wrla.manageable-models.create', ['modelUrlAlias' => static::getUrlAlias()]),
         name: 'New Post',
         icon: 'fa fa-plus',
     ),
@@ -122,7 +120,7 @@ static::setChildNavigationItems(
 use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItemDivider;
 
 static::setChildNavigationItems(
-    new NavigationItem(
+    NavigationItem::make(
         route: 'wrla.manageable-models.browse',
         routeData: ['modelUrlAlias' => static::getUrlAlias()],
         name: 'All Posts',
@@ -131,7 +129,7 @@ static::setChildNavigationItems(
     new NavigationItemDivider(),               // plain rule
     new NavigationItemDivider('Management'),   // labelled rule
     new NavigationItemDivider('Tools', 'fa fa-wrench'), // labelled + icon
-    new NavigationItem(
+    NavigationItem::make(
         route: 'wrla.manageable-models.create',
         routeData: ['modelUrlAlias' => static::getUrlAlias()],
         name: 'New Post',
@@ -182,12 +180,12 @@ static::setChildNavigationItems(
 
 static::setChildNavigationItems(
     parent::getDefaultChildNavigationItems(),
-    (new NavigationItem(
+    NavigationItem::make(
         route: 'wrla.manageable-models.browse',
         routeData: ['modelUrlAlias' => 'drafts'],
         name: 'Drafts',
         icon: 'fa fa-pencil',
-    ))->showOnCondition(fn() => auth()->user()?->can('view-drafts')),
+    )->showOnCondition(fn() => auth()->user()?->can('view-drafts')),
 );</code></pre>
     </div>
 </div>
@@ -206,12 +204,12 @@ static::setChildNavigationItems(
 
 static::setChildNavigationItems(
     parent::getDefaultChildNavigationItems(),
-    (new NavigationItem(
+    NavigationItem::make(
         route: 'wrla.manageable-models.create',
         routeData: ['modelUrlAlias' => static::getUrlAlias()],
         name: 'New Post',
         icon: 'fa fa-plus',
-    ))->enableOnCondition(
+    )->enableOnCondition(
         fn() => PostLimit::hasCapacity() ?: 'Monthly post limit reached'
     ),
 );</code></pre>
@@ -231,12 +229,12 @@ static::setChildNavigationItems(
 
 static::setChildNavigationItems(
     parent::getDefaultChildNavigationItems(),
-    (new NavigationItem(
+    NavigationItem::make(
         route: 'blog.index',
         routeData: [],
         name: 'View on Site',
         icon: 'fa fa-external-link',
-    ))->openInNewTab(),
+    )->openInNewTab(),
 );</code></pre>
     </div>
 </div>

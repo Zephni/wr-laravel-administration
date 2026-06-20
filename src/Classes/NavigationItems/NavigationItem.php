@@ -32,11 +32,12 @@ class NavigationItem
      * Constructor
      */
     public function __construct(
-        public ?string $route,
-        public ?array $routeData,
-        public string $name,
+        public ?string $route = null,
+        public ?array $routeData = null,
+        public string $name = '',
         public string $icon = 'fa fa-question',
         public array $children = [],
+        public ?string $url = null,
     ) {
         // Increment index
         static::$indexTotal++;
@@ -47,8 +48,10 @@ class NavigationItem
 
     /**
      * Make (static constructor)
+     *
+     * @param  ?string  $url  Optional direct URL. When set, overrides $route and $routeData entirely.
      */
-    public static function make(?string $route, ?array $routeData, string $name, string $icon = 'fa fa-question', array $children = []): static
+    public static function make(?string $route = null, ?array $routeData = null, string $name = '', string $icon = 'fa fa-question', array $children = [], ?string $url = null): static
     {
         // Replace any classes (strings) by calling getNavigationItem() method on each
         foreach ($children as $key => $child) {
@@ -57,7 +60,7 @@ class NavigationItem
             }
         }
 
-        return new static($route, $routeData, $name, $icon, $children);
+        return new static($route, $routeData, $name, $icon, $children, $url);
     }
 
     /**
@@ -91,6 +94,10 @@ class NavigationItem
      */
     public function getUrl(): string
     {
+        if ($this->url !== null) {
+            return $this->url;
+        }
+
         if (empty($this->route)) {
             return '#';
         }
@@ -103,6 +110,10 @@ class NavigationItem
      */
     public function isActive(): bool
     {
+        if ($this->url !== null) {
+            return request()->url() === $this->url;
+        }
+
         return WRLAHelper::isCurrentRouteWithParameters($this->route, $this->routeData ?? []);
     }
 

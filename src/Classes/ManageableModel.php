@@ -664,17 +664,15 @@ abstract class ManageableModel
     public static function getDefaultChildNavigationItems(): Collection
     {
         return collect([
-            new NavigationItem(
-                'wrla.manageable-models.browse',
-                ['modelUrlAlias' => static::getStaticOption(static::class, 'urlAlias')],
-                'Browse',
-                'fa fa-list'
+            NavigationItem::make(
+                url: route('wrla.manageable-models.browse', ['modelUrlAlias' => static::getStaticOption(static::class, 'urlAlias')]),
+                name: 'Browse',
+                icon: 'fa fa-list',
             ),
-            new NavigationItem(
-                'wrla.manageable-models.create',
-                ['modelUrlAlias' => static::getStaticOption(static::class, 'urlAlias')],
-                'Create',
-                'fa fa-plus'
+            NavigationItem::make(
+                url: route('wrla.manageable-models.create', ['modelUrlAlias' => static::getStaticOption(static::class, 'urlAlias')]),
+                name: 'Create',
+                icon: 'fa fa-plus',
             ),
         ]);
     }
