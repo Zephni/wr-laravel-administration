@@ -95,17 +95,25 @@
     @endphp
 
     {{-- Multi selection action toolbar --}}
-    @if ($wrlaMultiSelectEnabled && $wrlaMultiActions->isNotEmpty() && count($wrlaSelectedIds) > 0)
-        <div class="flex flex-row flex-wrap items-center gap-3 w-full rounded-lg px-3 py-2 bg-slate-100 shadow-md dark:bg-slate-800">
-            <span class="text-sm text-slate-600 dark:text-slate-300">
-                {{ count($wrlaSelectedIds) }} selected
-            </span>
-            @foreach ($wrlaMultiActions as $wrlaMultiAction)
-                {!! $wrlaMultiAction->renderMultiActionButton() !!}
-            @endforeach
-            <button type="button" class="ml-auto text-xs text-slate-500 dark:text-slate-300 hover:underline" wire:click="$set('wrlaSelectedIds', [])">
-                Clear selection
-            </button>
+    @if ($wrlaMultiSelectEnabled && $wrlaMultiActions->isNotEmpty())
+        <div x-data="{ wrlaSelectedIds: @entangle('wrlaSelectedIds').live }" x-show="wrlaSelectedIds.length > 0" x-cloak class="w-full">
+            <div class="flex flex-row flex-wrap items-center gap-3 w-full rounded-lg px-3 py-2 bg-slate-100 shadow-md dark:bg-slate-800" wire:loading.remove wire:target="wrlaSelectedIds">
+                <span class="text-sm text-slate-600 dark:text-slate-300">
+                    {{ count($wrlaSelectedIds) }} selected
+                </span>
+                @foreach ($wrlaMultiActions as $wrlaMultiAction)
+                    {!! $wrlaMultiAction->renderMultiActionButton() !!}
+                @endforeach
+                <button type="button" class="ml-auto text-xs text-slate-500 dark:text-slate-300 hover:underline" wire:click="$set('wrlaSelectedIds', [])">
+                    <i class="fas fa-times mr-1"></i>
+                    Clear selection
+                </button>
+            </div>
+
+            <div class="flex flex-row flex-wrap items-center gap-2 w-full rounded-lg px-3 py-2 bg-slate-100 shadow-md dark:bg-slate-800" wire:loading.flex wire:target="wrlaSelectedIds">
+                <i class="fas fa-spinner animate-spin text-slate-500 dark:text-slate-300"></i>
+                <span class="text-sm text-slate-600 dark:text-slate-300">Please wait...</span>
+            </div>
         </div>
     @endif
 
