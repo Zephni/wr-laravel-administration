@@ -20,7 +20,7 @@ use WebRegulate\LaravelAdministration\Traits\ManageableField;
  * Storage: by default the field stores a JSON array of form groups, each form group being an
  * associative array keyed by the inner item keys (eg. [{"image": "...", "date": "...", "url": "..."}]).
  * Use {@see overrideFinalValue()} to transform the assembled form groups before they are stored,
- * and {@see skipFormGroup()} to drop form groups that should not be persisted.
+ * and {@see skipItem()} to drop form groups that should not be persisted.
  */
 class MultiField
 {
@@ -53,11 +53,12 @@ class MultiField
         $instance->setOptions([
             'items' => [],
             'maxFormGroups' => 0,
-            'addFormGroupLabel' => 'Add new',
+            'addItemLabel' => 'Add new',
             'emptyText' => 'No items yet added, click the button below to add one.',
-            'skipFormGroup' => null,
+            'skipItem' => null,
             'finalValueOverride' => null,
             'layout' => self::LAYOUT_ROW,
+            'columns' => 4,
         ]);
 
         return $instance;
@@ -117,9 +118,9 @@ class MultiField
     /**
      * Set the label of the "add form group" button.
      */
-    public function addFormGroupLabel(string $label): static
+    public function addItemLabel(string $label): static
     {
-        $this->setOption('addFormGroupLabel', $label);
+        $this->setOption('addItemLabel', $label);
         return $this;
     }
 
@@ -149,26 +150,37 @@ class MultiField
     }
 
     /**
-     * Use column layout — inner fields stack vertically, entries flow like the MultiImage grid.
+     * Use column layout — inner fields stack vertically, entries flow in a wrapping grid like the
+     * MultiImage field. Accepts the number of columns the grid should use (defaults to 4).
      */
-    public function useColumnLayout(): static
+    public function useColumnLayout(int $columns = 4): static
     {
+        $this->setColumns($columns);
         return $this->setLayout(self::LAYOUT_COLUMN);
+    }
+
+    /**
+     * Set the number of columns used by the column layout grid (minimum 1).
+     */
+    public function setColumns(int $columns): static
+    {
+        $this->setOption('columns', max(1, $columns));
+        return $this;
     }
 
     /**
      * Provide a callback that determines whether an assembled form group should be skipped
      * (excluded) when building the final stored value. Receives the form group associative array.
      */
-    public function skipFormGroup(callable $callback): static
+    public function skipItem(callable $callback): static
     {
-        $this->setOption('skipFormGroup', $callback);
+        $this->setOption('skipItem', $callback);
         return $this;
     }
 
     /**
      * Override the final stored value. The callback receives the assembled array of form groups
-     * (after image resolution and the skipFormGroup filter) and must return the value to store.
+     * (after image resolution and the skipItem filter) and must return the value to store.
      * Use this when the storage shape must differ from the default key => value mapping.
      */
     public function overrideFinalValue(callable $callback): static
@@ -294,9 +306,10 @@ class MultiField
             'fieldName' => $this->getName(),
             'items' => array_map(fn (MultiFieldItem $c) => $c->toViewArray(), $items),
             'maxFormGroups' => $this->getOption('maxFormGroups'),
-            'addFormGroupLabel' => $this->getOption('addFormGroupLabel'),
+            'addItemLabel' => $this->getOption('addItemLabel'),
             'emptyText' => $this->getOption('emptyText'),
             'layout' => $this->getOption('layout'),
+            'columns' => $this->getOption('columns'),
             'formGroups' => $formGroups,
             'existingImages' => $existingImages,
         ])->render();
@@ -375,10 +388,10 @@ class MultiField
             $resultGroups[] = $assembled;
         }
 
-        // Apply skipFormGroup filter.
-        $skipFormGroup = $this->getOption('skipFormGroup');
-        if (is_callable($skipFormGroup)) {
-            $resultGroups = array_values(array_filter($resultGroups, fn (array $group) => !$skipFormGroup($group)));
+        // Apply skipItem filter.
+        $skipItem = $this->getOption('skipItem');
+        if (is_callable($skipItem)) {
+            $resultGroups = array_values(array_filter($resultGroups, fn (array $group) => !$skipItem($group)));
         }
 
         // Apply final value override (allows mapping the stored shape differently).

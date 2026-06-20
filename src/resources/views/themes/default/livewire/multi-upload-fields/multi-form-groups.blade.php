@@ -17,17 +17,40 @@
     $existingImagesNameMap = collect($existingImages)->map(fn ($v) => $v['name'] ?? null)->filter()->toArray();
 
     // Layout mode: 'column' stacks each form group's inner fields vertically and flows form groups
-    // in a wrapping grid (like MultiImage); 'row' (default) lays inner fields out horizontally,
-    // vertically centered, with form groups stacked on top of each other.
+    // in a uniform wrapping grid (like MultiImage); 'row' (default) lays inner fields out
+    // horizontally, vertically centered, with form groups stacked on top of each other.
     $isColumnLayout = ($layout ?? 'row') === 'column';
 
+    // Responsive grid column classes keyed by the configured number of columns. Written as literal
+    // class strings so Tailwind's JIT scanner picks them up. Falls back to a 4-column grid.
+    $columnLayoutGridClasses = [
+        1 => 'grid-cols-1',
+        2 => 'grid-cols-1 sm:grid-cols-2',
+        3 => 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3',
+        4 => 'grid-cols-2 sm:grid-cols-2 md:grid-cols-4',
+        5 => 'grid-cols-2 sm:grid-cols-3 md:grid-cols-5',
+        6 => 'grid-cols-2 sm:grid-cols-3 md:grid-cols-6',
+        7 => 'grid-cols-2 sm:grid-cols-4 md:grid-cols-7',
+        8 => 'grid-cols-2 sm:grid-cols-4 md:grid-cols-8',
+    ];
+    $gridColsClass = $columnLayoutGridClasses[(int) ($columns ?? 4)] ?? 'grid-cols-2 sm:grid-cols-2 md:grid-cols-4';
+
     $groupsContainerClass = $isColumnLayout
-        ? 'flex flex-wrap items-start gap-4'
+        ? 'grid ' . $gridColsClass . ' items-start gap-4'
         : 'flex flex-col gap-y-3';
 
     $entryClass = $isColumnLayout
-        ? 'relative flex flex-col gap-3 rounded-md border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/40 p-3 w-full sm:w-72'
+        ? 'relative flex flex-col gap-3 rounded-md border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/40 p-3'
         : 'relative flex flex-col md:flex-row md:items-center gap-4 rounded-md border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/40 p-3';
+
+    // Derive a readable base label for each form group title from the add button label.
+    // Example: "Add auto update" -> "Auto update".
+    $groupTitleBase = preg_replace('/^\s*add\s+/i', '', (string) $addItemLabel);
+    $groupTitleBase = trim((string) $groupTitleBase);
+    if ($groupTitleBase === '') {
+        $groupTitleBase = 'Row';
+    }
+    $groupTitleBase = ucfirst($groupTitleBase);
 @endphp
 
 <div wire:key="multi-field-{{ $fieldName }}" class="mt-2 flex flex-col gap-y-3">
@@ -45,7 +68,7 @@
             @foreach($items as $item)
                 <div class="{{ $item['itemClass'] ?? 'flex-1' }}">
                     @if(!empty($item['label']))
-                        <span class="text-sm font-medium text-slate-600 dark:text-slate-300">{!! $item['label'] !!}</span>
+                        <span class="text-sm font-medium text-slate-600 dark:text-slate-300">{!! $item['label'] !!}
                     @endif
                 </div>
             @endforeach
@@ -59,6 +82,10 @@
             wire:key="multi-form-group-{{ $fieldName }}-{{ $groupIndex }}"
             class="{{ $entryClass }}"
         >
+            <div class="relative top-[-1px] text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400 pr-8">
+                {{ $groupTitleBase }} #{{ $groupIndex + 1 }}
+            </div>
+
             {{-- Marker so every rendered form group index is present in the submitted _groups array. --}}
             <input type="hidden" name="{{ $fieldName }}_groups[{{ $groupIndex }}][__exists]" value="1">
 
@@ -74,7 +101,7 @@
                 <div class="{{ $itemClass }} flex flex-col gap-1 min-w-0">
 
                     {{-- Field label. Row layout shows labels in the shared desktop header so the
-                         per-item label is mobile-only; column layout always shows it above the item. --}}
+                        per-item label is mobile-only; column layout always shows it above the item. --}}
                     @if(!empty($item['label']))
                         <span class="{{ $isColumnLayout ? 'block -mt-1 mb-1' : 'md:hidden' }} text-sm font-medium text-slate-600 dark:text-slate-300">{!! $item['label'] !!}</span>
                     @endif
@@ -173,11 +200,11 @@
                                 <button
                                     type="button"
                                     wire:click.stop="removeImage('{{ $compositeKey }}')"
-                                    class="absolute top-1 right-1 z-30 h-5 w-5 border border-white opacity-60 hover:opacity-100 flex justify-center items-center rounded-full bg-rose-600 text-white shadow focus:outline-none transition-colors cursor-pointer"
+                                    class="absolute top-1 right-1 z-30 h-4 w-4 border border-white opacity-60 hover:opacity-100 flex justify-center items-center rounded-full bg-slate-600 hover:bg-rose-600 text-white shadow focus:outline-none transition-colors cursor-pointer"
                                     title="Remove image"
                                     aria-label="Remove image"
                                 >
-                                    <i class="fa-solid fa-xmark text-xs"></i>
+                                    <i class="fa-solid fa-xmark text-[10px] leading-none"></i>
                                 </button>
                             @endif
                         </div>
@@ -248,7 +275,7 @@
                 class="inline-flex items-center gap-2 px-3 py-1.5 rounded-md border border-primary-500 text-primary-600 dark:text-primary-400 hover:bg-primary-500 hover:text-white transition-colors text-sm font-medium cursor-pointer"
             >
                 <i class="fa-solid fa-plus"></i>
-                {{ $addFormGroupLabel }}
+                {{ $addItemLabel }}
             </button>
         </div>
     @endif

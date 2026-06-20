@@ -38,7 +38,7 @@ class MultiFormGroups extends Component
     /**
      * Label for the add-form-group button.
      */
-    public string $addFormGroupLabel = 'Add row';
+    public string $addItemLabel = 'Add row';
 
     /**
      * Text shown when there are no form groups.
@@ -49,6 +49,11 @@ class MultiFormGroups extends Component
      * Layout mode for each form group's inner fields ('row' or 'column').
      */
     public string $layout = 'row';
+
+    /**
+     * Number of columns used by the column layout grid.
+     */
+    public int $columns = 4;
 
     /**
      * Scalar form group values: array of [itemKey => value], indexed by form group position.
@@ -77,18 +82,20 @@ class MultiFormGroups extends Component
         string $fieldName,
         array $items,
         int $maxFormGroups = 0,
-        string $addFormGroupLabel = 'Add row',
+        string $addItemLabel = 'Add row',
         string $emptyText = 'No rows yet.',
         string $layout = 'row',
+        int $columns = 4,
         array $formGroups = [],
         array $existingImages = [],
     ): void {
         $this->fieldName = $fieldName;
         $this->items = $items;
         $this->maxFormGroups = $maxFormGroups;
-        $this->addFormGroupLabel = $addFormGroupLabel;
+        $this->addItemLabel = $addItemLabel;
         $this->emptyText = $emptyText;
         $this->layout = $layout;
+        $this->columns = max(1, $columns);
         $this->formGroups = array_values($formGroups);
         $this->existingImages = $existingImages;
     }
