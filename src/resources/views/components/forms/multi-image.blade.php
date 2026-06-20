@@ -1,4 +1,12 @@
-@props(['options' => [], 'label' => null, 'fieldName' => 'images', 'maxImages' => 5, 'validation' => 'image|mimes:jpeg,png,jpg|max:10240', 'existingImages' => [], 'parseError' => null])
+@props([
+    'options' => [],
+    'label' => null,
+    'fieldName' => 'images',
+    'maxImages' => 5,
+    'validation' => 'image|mimes:jpeg,png,jpg|max:10240',
+    'existingImages' => [],
+    'parseError' => null
+])
 
 <div class="{{ $options['containerClass'] ?? 'w-full' }}">
 

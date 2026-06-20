@@ -1,4 +1,16 @@
-@props(['options' => [], 'label' => null, 'fieldName' => 'multi_field', 'items' => [], 'maxFormGroups' => 0, 'addItemLabel' => 'Add row', 'emptyText' => 'No rows yet.', 'layout' => 'row', 'columns' => 4, 'formGroups' => [], 'existingImages' => []])
+@props([
+    'options' => [],
+    'label' => null,
+    'fieldName' => 'multi_field',
+    'items' => [],
+    'maxFormGroups' => 0,
+    'addItemLabel' => 'Add row',
+    'emptyText' => 'No rows yet.',
+    'layout' => 'row',
+    'columns' => 4,
+    'formGroups' => [],
+    'existingImages' => []
+])
 
 <div class="{{ $options['containerClass'] ?? 'w-full' }}">
 
@@ -15,7 +27,7 @@
         'fieldName'         => $fieldName,
         'items'             => $items,
         'maxFormGroups'     => $maxFormGroups,
-        'addItemLabel' => $addItemLabel,
+        'addItemLabel'      => $addItemLabel,
         'emptyText'         => $emptyText,
         'layout'            => $layout,
         'columns'           => $columns,
