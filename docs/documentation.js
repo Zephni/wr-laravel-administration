@@ -19,7 +19,7 @@ class DocumentationApp {
     getCurrentPage() {
         const hash = window.location.hash.replace('#', '');
         if (!hash || hash === 'index.html') {
-            return 'index.html';
+            return 'quick-start.html';
         }
         return hash.endsWith('.html') ? hash : hash + '.html';
     }
@@ -30,9 +30,9 @@ class DocumentationApp {
             {
                 title: 'Getting Started',
                 items: [
+                    { title: 'Quick Start', url: 'quick-start.html' },
                     { title: 'Installation', url: 'installation.html' },
-                    { title: 'Configuration', url: 'configuration.html' },
-                    { title: 'Quick Start', url: 'quick-start.html' }
+                    { title: 'Configuration', url: 'configuration.html' }
                 ]
             },
             {
@@ -40,6 +40,7 @@ class DocumentationApp {
                 items: [
                     { title: 'Manageable Models', url: 'manageable-models.html' },
                     { title: 'Authentication', url: 'authentication.html' },
+                    { title: 'Authorization', url: 'authorization.html' },
                     { title: 'Permissions', url: 'permissions.html' }
                 ]
             },
@@ -73,7 +74,7 @@ class DocumentationApp {
     // Build search index by fetching all navigation pages
     async loadPages() {
         const parser = new DOMParser();
-        const filenames = ['home.html', ...this.navigation.flatMap(s => s.items.map(i => i.url))];
+        const filenames = [...this.navigation.flatMap(s => s.items.map(i => i.url))];
         const unique = [...new Set(filenames)];
 
         const settled = await Promise.allSettled(unique.map(async filename => {
@@ -83,7 +84,7 @@ class DocumentationApp {
             const h1 = doc.querySelector('h1');
             const title = h1 ? h1.textContent.trim() : filename.replace('.html', '');
             const content = doc.body.textContent.replace(/\s+/g, ' ').trim();
-            const navUrl = filename === 'home.html' ? 'index.html' : filename;
+            const navUrl = filename === 'quick-start.html' ? 'quick-start.html' : filename;
             return { url: navUrl, file: filename, title, content };
         }));
 
@@ -107,9 +108,9 @@ class DocumentationApp {
 
         let contentFile = this.currentPage;
 
-        // If it's index.html, show home content
+        // If it's index.html, show quick-start content
         if (contentFile === 'index.html' || contentFile === '') {
-            contentFile = 'home.html';
+            contentFile = 'quick-start.html';
         }
 
         const html = await this.fetchPage(contentFile);
@@ -210,8 +211,8 @@ class DocumentationApp {
     // Navigate to a page using hash-based routing (compatible with file:// protocol)
     navigateTo(url) {
         const filename = url.split('/').pop() || 'index.html';
-        // Set hash; empty hash for home page keeps the URL clean
-        window.location.hash = (filename === 'index.html') ? '' : filename;
+        // Set hash; empty hash for quick-start page keeps the URL clean
+        window.location.hash = (filename === 'index.html' || filename === 'quick-start.html') ? '' : filename;
         this.currentPage = filename;
         this.loadContent();
 

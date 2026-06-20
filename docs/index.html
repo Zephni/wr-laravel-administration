@@ -145,6 +145,93 @@
         .docs-nav-link-inactive:hover {
             @apply bg-gray-100;
         }
+
+        /* ── Lead / intro paragraph ──────────────────────── */
+        .docs-lead {
+            @apply text-lg text-gray-600 mb-8;
+        }
+
+        /* ── Quick-start nav cards ───────────────────────── */
+        .docs-card {
+            @apply flex flex-col gap-3 p-6 border rounded-xl transition-all;
+        }
+
+        .docs-card-header {
+            @apply flex items-center gap-3;
+        }
+
+        .docs-card-icon {
+            @apply flex items-center justify-center w-10 h-10 rounded-lg transition-colors shrink-0;
+        }
+
+        .docs-card-icon svg {
+            @apply h-5 w-5;
+        }
+
+        .docs-card-title {
+            @apply text-base font-semibold;
+        }
+
+        .docs-card-body {
+            @apply text-sm leading-relaxed;
+        }
+
+        .docs-card-link {
+            @apply mt-auto text-xs font-medium;
+        }
+
+        .docs-card:hover .docs-card-link {
+            @apply underline;
+        }
+
+        /* Card colour variants */
+        .docs-card-teal                      { @apply bg-teal-50   border-teal-200   hover:bg-teal-100   hover:border-teal-300;   }
+        .docs-card-teal   .docs-card-icon    { @apply bg-teal-100;   }
+        .docs-card-teal:hover .docs-card-icon { @apply bg-teal-200; }
+        .docs-card-teal   .docs-card-icon svg { @apply text-teal-600;   }
+        .docs-card-teal   .docs-card-title   { @apply text-teal-900;   }
+        .docs-card-teal   .docs-card-body    { @apply text-teal-700;   }
+        .docs-card-teal   .docs-card-link    { @apply text-teal-600;   }
+
+        .docs-card-green                      { @apply bg-green-50  border-green-200  hover:bg-green-100  hover:border-green-300;  }
+        .docs-card-green  .docs-card-icon    { @apply bg-green-100;  }
+        .docs-card-green:hover .docs-card-icon { @apply bg-green-200; }
+        .docs-card-green  .docs-card-icon svg { @apply text-green-600;  }
+        .docs-card-green  .docs-card-title   { @apply text-green-900;  }
+        .docs-card-green  .docs-card-body    { @apply text-green-700;  }
+        .docs-card-green  .docs-card-link    { @apply text-green-600;  }
+
+        .docs-card-orange                      { @apply bg-orange-50 border-orange-200 hover:bg-orange-100 hover:border-orange-300; }
+        .docs-card-orange .docs-card-icon    { @apply bg-orange-100; }
+        .docs-card-orange:hover .docs-card-icon { @apply bg-orange-200; }
+        .docs-card-orange .docs-card-icon svg { @apply text-orange-600; }
+        .docs-card-orange .docs-card-title   { @apply text-orange-900; }
+        .docs-card-orange .docs-card-body    { @apply text-orange-700; }
+        .docs-card-orange .docs-card-link    { @apply text-orange-600; }
+
+        .docs-card-purple                      { @apply bg-purple-50 border-purple-200 hover:bg-purple-100 hover:border-purple-300; }
+        .docs-card-purple .docs-card-icon    { @apply bg-purple-100; }
+        .docs-card-purple:hover .docs-card-icon { @apply bg-purple-200; }
+        .docs-card-purple .docs-card-icon svg { @apply text-purple-600; }
+        .docs-card-purple .docs-card-title   { @apply text-purple-900; }
+        .docs-card-purple .docs-card-body    { @apply text-purple-700; }
+        .docs-card-purple .docs-card-link    { @apply text-purple-600; }
+
+        .docs-card-blue                      { @apply bg-blue-50   border-blue-200   hover:bg-blue-100   hover:border-blue-300;   }
+        .docs-card-blue   .docs-card-icon    { @apply bg-blue-100;   }
+        .docs-card-blue:hover .docs-card-icon { @apply bg-blue-200; }
+        .docs-card-blue   .docs-card-icon svg { @apply text-blue-600;   }
+        .docs-card-blue   .docs-card-title   { @apply text-blue-900;   }
+        .docs-card-blue   .docs-card-body    { @apply text-blue-700;   }
+        .docs-card-blue   .docs-card-link    { @apply text-blue-600;   }
+
+        .docs-card-rose                      { @apply bg-rose-50   border-rose-200   hover:bg-rose-100   hover:border-rose-300;   }
+        .docs-card-rose   .docs-card-icon    { @apply bg-rose-100;   }
+        .docs-card-rose:hover .docs-card-icon { @apply bg-rose-200; }
+        .docs-card-rose   .docs-card-icon svg { @apply text-rose-600;   }
+        .docs-card-rose   .docs-card-title   { @apply text-rose-900;   }
+        .docs-card-rose   .docs-card-body    { @apply text-rose-700;   }
+        .docs-card-rose   .docs-card-link    { @apply text-rose-600;   }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-900" x-data="documentationApp()" x-init="initApp()">
