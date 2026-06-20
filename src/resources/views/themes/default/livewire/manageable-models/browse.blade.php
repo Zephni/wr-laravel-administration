@@ -80,12 +80,37 @@
 
     @php
         $browseColumns = $manageableModelClass::make()->getBrowseColumnsFinal();
+        $wrlaMultiSelectEnabled = $manageableModelClass::getMultiSelectEnabled();
+        $wrlaMultiActions = $wrlaMultiSelectEnabled ? $manageableModelClass::make()->getMultiInstanceActionsFinal() : collect();
+        $wrlaPageIds = $wrlaMultiSelectEnabled
+            ? collect($models->items())->map(fn ($model) => (string) $model->getKey())->all()
+            : [];
+        $wrlaAllPageSelected = !empty($wrlaPageIds) && empty(array_diff($wrlaPageIds, array_map('strval', $wrlaSelectedIds)));
     @endphp
+
+    {{-- Multi selection action toolbar --}}
+    @if ($wrlaMultiSelectEnabled && $wrlaMultiActions->isNotEmpty() && count($wrlaSelectedIds) > 0)
+        <div class="flex flex-row flex-wrap items-center gap-3 w-full rounded-lg px-3 py-2 bg-slate-100 shadow-md dark:bg-slate-800">
+            <span class="text-sm text-slate-600 dark:text-slate-300">
+                {{ count($wrlaSelectedIds) }} selected
+            </span>
+            @foreach ($wrlaMultiActions as $wrlaMultiAction)
+                {!! $wrlaMultiAction->renderMultiActionButton() !!}
+            @endforeach
+            <button type="button" class="ml-auto text-xs text-slate-500 dark:text-slate-300 hover:underline" wire:click="$set('wrlaSelectedIds', [])">
+                Clear selection
+            </button>
+        </div>
+    @endif
+
 
     {{-- Main data table --}}
     <div class="w-full block overflow-x-auto rounded-md shadow-lg shadow-slate-300 dark:shadow-slate-850">
         <table class="w-full table-auto text-left border-collapse" style="table-layout: auto /* fixed */;">
             <colgroup>
+                @if ($wrlaMultiSelectEnabled)
+                    <col style="width: 44px; min-width: 44px; max-width: 44px;" />
+                @endif
                 @foreach ($browseColumns as $column => $browseColumn)
                     @if($browseColumn === null)
                         <col style="width: auto;" />
@@ -106,6 +131,19 @@
             </colgroup>
             <thead>
                 <tr>
+                    @if ($wrlaMultiSelectEnabled)
+                        <th class="px-3 py-2 bg-slate-700 dark:bg-slate-700 border-b border-slate-400 dark:border-slate-600" scope="col">
+                            <div class="flex items-center justify-center">
+                                <input
+                                    type="checkbox"
+                                    title="Select all on this page"
+                                    class="w-4 h-4 cursor-pointer accent-primary-600"
+                                    @checked($wrlaAllPageSelected)
+                                    x-on:click="$wire.toggleSelectAllOnPage(@js($wrlaPageIds))"
+                                />
+                            </div>
+                        </th>
+                    @endif
                     @foreach ($browseColumns as $column => $browseColumn)
                         @continue($browseColumn === null)
                         <th @if ($browseColumn->getOption('allowOrdering'))
@@ -144,6 +182,18 @@
                         $manageableModel = $manageableModelClass::make($model);
                     @endphp
                     <tr class="odd:bg-slate-100 dark:odd:bg-slate-800">
+                        @if ($wrlaMultiSelectEnabled)
+                            <td class="px-3 py-2 bg-inherit text-sm">
+                                <div class="flex items-center justify-center">
+                                    <input
+                                        type="checkbox"
+                                        class="w-4 h-4 cursor-pointer accent-primary-600"
+                                        value="{{ $model->getKey() }}"
+                                        wire:model.live="wrlaSelectedIds"
+                                    />
+                                </div>
+                            </td>
+                        @endif
                         @foreach ($manageableModel->getBrowseColumnsFinal() as $column => $browseColumn)
                             @continue($browseColumn === null)
                             @php

@@ -23,6 +23,22 @@ class InstanceAction
     public array $enableConditions = [];
     public ?string $actionKey = null; // Only used if action is callable
 
+    /**
+     * Multi action handler (callable taking an array of selected ids). Only used when the manageable
+     * model has multi selection enabled and this action is rendered in the browse multi action toolbar.
+     */
+    public mixed $multiAction = null;
+
+    /**
+     * Multi action key, used to call the registered multi action handler via Livewire.
+     */
+    public ?string $multiActionKey = null;
+
+    /**
+     * Optional confirmation message shown before running the multi action.
+     */
+    public ?string $multiActionConfirm = null;
+
 
     /**
      * Create instance action button
@@ -101,6 +117,80 @@ class InstanceAction
     {
         $this->enableConditions[] = $condition;
         return $this;
+    }
+
+    /**
+     * Define how this action should handle a multi selection. The given callable receives an array of
+     * the selected primary keys (and an optional parameters array). It may return a string message,
+     * a RedirectResponse, or a file download response - the same as a normal callable action.
+     *
+     * This action will then be rendered in the browse multi action toolbar when the manageable model
+     * has multi selection enabled (see ManageableModel::setMultiSelect).
+     *
+     * @param callable $action Takes (array $ids, array $parameters)
+     * @param ?string $confirm Optional confirmation message shown before running the action
+     * @return InstanceAction
+     */
+    public function multiAction(callable $action, ?string $confirm = null): static
+    {
+        $this->multiAction = $action;
+        $this->multiActionKey = $this->manageableModelInstance->registerMultiInstanceAction($action);
+        $this->multiActionConfirm = $confirm;
+        return $this;
+    }
+
+    /**
+     * Whether this instance action has a multi action handler defined.
+     * @return bool
+     */
+    public function hasMultiAction(): bool
+    {
+        return $this->multiAction !== null && $this->multiActionKey !== null;
+    }
+
+    /**
+     * Render the multi action button for the browse multi action toolbar. The button calls the
+     * Livewire callMultiInstanceAction method which runs the handler against the currently selected ids.
+     * @return string|View
+     */
+    public function renderMultiActionButton(): View|string
+    {
+        if (! $this->hasMultiAction()) {
+            return '';
+        }
+
+        $confirmJs = '';
+        if (! empty($this->multiActionConfirm)) {
+            $message = addslashes($this->multiActionConfirm);
+            $confirmJs = <<<JS
+                if(!confirm(`{$message}`)) {
+                    event.stopImmediatePropagation();
+                    return;
+                }
+            JS;
+        }
+
+        $attributes = [
+            'type' => 'button',
+            'x-on:click' => <<<JS
+                {$confirmJs}
+                \$wire.callMultiInstanceAction(
+                    '{$this->multiActionKey}',
+                    window.wrla.instanceAction.parameters ?? {}
+                );
+
+                window.wrla.instanceAction.parameters = {};
+            JS,
+            'title' => $this->text,
+        ];
+
+        return view(WRLAHelper::getViewPath('components.forms.button'), [
+            'text' => $this->text,
+            'icon' => $this->icon ?? 'fa fa-cog',
+            'color' => $this->color ?? 'primary',
+            'size' => 'small',
+            'attributes' => Arr::toAttributeBag($attributes),
+        ]);
     }
 
     /**

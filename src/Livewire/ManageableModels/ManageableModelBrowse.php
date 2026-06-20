@@ -2,13 +2,9 @@
 
 namespace WebRegulate\LaravelAdministration\Livewire\ManageableModels;
 
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Collection;
 use Livewire\Component;
 use Livewire\Features\SupportRedirects\HandlesRedirects;
-use Livewire\WithPagination;
 use Symfony\Component\HttpFoundation\StreamedResponse;
-use Throwable;
 use WebRegulate\LaravelAdministration\Classes\BrowseColumns\BrowseColumnBase;
 use WebRegulate\LaravelAdministration\Classes\CSVHelper;
 use WebRegulate\LaravelAdministration\Classes\ManageableModel;
@@ -16,6 +12,10 @@ use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 use WebRegulate\LaravelAdministration\Enums\ManageableModelPermissions;
 use WebRegulate\LaravelAdministration\Enums\PageType;
 use WebRegulate\LaravelAdministration\Traits\ManageableField;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Collection;
+use Livewire\WithPagination;
+use Throwable;
 
 /**
  * Class ManageableModelBrowse
@@ -104,6 +104,14 @@ class ManageableModelBrowse extends Component
      * Renders
      */
     public int $renders = 0;
+
+    /**
+     * Selected row ids (primary keys) when multi selection is enabled. Stored as strings as they
+     * originate from checkbox values.
+     *
+     * @var array
+     */
+    public array $wrlaSelectedIds = [];
 
     /**
      * Listeners
@@ -668,5 +676,73 @@ class ManageableModelBrowse extends Component
             $this->dispatch('instanceActionCompleted');
         }
         return $result;
+    }
+
+    /**
+     * Toggle selection of all rows on the current page. If every page id is already selected, they are
+     * removed from the selection, otherwise the page ids are added to the selection.
+     *
+     * @param array $pageIds The primary keys of the rows currently displayed on the page.
+     */
+    public function toggleSelectAllOnPage(array $pageIds): void
+    {
+        $pageIds = array_map('strval', $pageIds);
+        $selected = array_map('strval', $this->wrlaSelectedIds);
+
+        $allSelected = ! empty($pageIds) && empty(array_diff($pageIds, $selected));
+
+        if ($allSelected) {
+            $this->wrlaSelectedIds = array_values(array_diff($selected, $pageIds));
+        } else {
+            $this->wrlaSelectedIds = array_values(array_unique(array_merge($selected, $pageIds)));
+        }
+    }
+
+    /**
+     * Call a multi instance action against the currently selected rows.
+     *
+     * @param string $actionKey The registered multi action key.
+     * @param array $parameters Optional parameters passed to the action handler.
+     */
+    public function callMultiInstanceAction(string $actionKey, array $parameters = [])
+    {
+        $ids = array_values($this->wrlaSelectedIds);
+
+        if (empty($ids)) {
+            $this->errorMessage = 'No rows selected.';
+            $this->successMessage = null;
+            return;
+        }
+
+        // Set current active manageable model class and build a fresh instance so the multi actions
+        // (and therefore their registered keys) are registered ready to be called by key.
+        WRLAHelper::setCurrentActiveManageableModelClass($this->manageableModelClass);
+        $manageableModel = $this->manageableModelClass::make();
+        WRLAHelper::setCurrentActiveManageableModelInstance($manageableModel);
+        $manageableModel->getInstanceActions();
+
+        $result = $manageableModel->callMultiInstanceAction($actionKey, $ids, $parameters);
+
+        // Clear the selection now the action has run.
+        $this->wrlaSelectedIds = [];
+
+        // If a file download response is returned, hand it straight back to Livewire.
+        if ($result instanceof \Symfony\Component\HttpFoundation\BinaryFileResponse || $result instanceof \Symfony\Component\HttpFoundation\StreamedResponse) {
+            return $result;
+        }
+
+        // If a redirect is returned, redirect to the given route.
+        if ($result instanceof \Illuminate\Http\RedirectResponse) {
+            return redirect($result->getTargetUrl());
+        }
+
+        // If a string message is returned, show it as a success message.
+        if (is_string($result)) {
+            $this->successMessage = $result;
+            $this->errorMessage = null;
+        }
+
+        $this->resetPage();
+        $this->dispatch('instanceActionCompleted');
     }
 }

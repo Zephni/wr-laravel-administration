@@ -58,6 +58,11 @@ abstract class ManageableModel
     public array $registeredInstanceActions = [];
 
     /**
+     * Registered multi instance actions (keyed by action key, value is callable taking array of ids)
+     */
+    public array $registeredMultiInstanceActions = [];
+
+    /**
      * Uses wysiwyg editor
      */
     public bool $usesWysiwygEditor = false;
@@ -583,6 +588,24 @@ abstract class ManageableModel
     }
 
     /**
+     * Enable (or disable) multi selection on the browse page. When enabled, the browse view renders
+     * a checkbox on each row (and a select-all checkbox in the header) allowing instance actions that
+     * define a multi action handler (see InstanceAction::multiAction) to be run against the selected rows.
+     */
+    public static function setMultiSelect(bool $enabled = true): void
+    {
+        static::setStaticOption('browse.multiSelect.enabled', $enabled);
+    }
+
+    /**
+     * Whether multi selection is enabled on the browse page.
+     */
+    public static function getMultiSelectEnabled(): bool
+    {
+        return (bool) static::getStaticOption(static::class, 'browse.multiSelect.enabled');
+    }
+
+    /**
      * Set browse actions.
      */
     public static function setBrowseActions(... $browseActions)
@@ -947,6 +970,26 @@ abstract class ManageableModel
     }
 
     /**
+     * Get the instance actions that expose a multi action handler. Used by the browse view to render
+     * the multi selection action toolbar. Unlike getInstanceActionsFinal this does NOT require a model
+     * instance id, as multi actions operate on a list of selected ids rather than a single model.
+     */
+    final public function getMultiInstanceActionsFinal(): Collection
+    {
+        // If ENABLED permission is false, return empty collection
+        if (! static::getPermission(ManageableModelPermissions::ENABLED)) {
+            return collect();
+        }
+
+        // Set currently active manageable model instance
+        WRLAHelper::setCurrentActiveManageableModelInstance($this);
+
+        return collect($this->getInstanceActions())
+            ->filter(fn ($instanceAction) => $instanceAction instanceof InstanceAction && $instanceAction->hasMultiAction())
+            ->values();
+    }
+
+    /**
      * Get browse columns (final) and make sure all values are BrowseColumn instances.
      */
     public function getBrowseColumnsFinal(): Collection
@@ -1282,6 +1325,35 @@ abstract class ManageableModel
         }
 
         return call_user_func($this->registeredInstanceActions[$actionKey], $this->model(), $parameters);
+    }
+
+    /**
+     * Register a multi instance action handler.
+     * @param callable $action A callable that takes an array of selected ids (and an optional parameters array)
+     * @return string The generated multi action key
+     */
+    public function registerMultiInstanceAction(callable $action): string
+    {
+        $actionKey = 'multiAction'.count($this->registeredMultiInstanceActions);
+        $this->registeredMultiInstanceActions[$actionKey] = $action;
+        return $actionKey;
+    }
+
+    /**
+     * Call a registered multi instance action by its key against the given ids.
+     * @param string $actionKey
+     * @param array $ids List of selected primary keys
+     * @param array $parameters
+     * @throws \Exception
+     * @return mixed String shows message, RedirectResponse redirects, file response downloads
+     */
+    public function callMultiInstanceAction(string $actionKey, array $ids, array $parameters = []): mixed
+    {
+        if (! array_key_exists($actionKey, $this->registeredMultiInstanceActions)) {
+            throw new \Exception("Multi action not found: $actionKey");
+        }
+
+        return call_user_func($this->registeredMultiInstanceActions[$actionKey], $ids, $parameters);
     }
 
     /**
