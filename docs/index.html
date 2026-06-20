@@ -5,6 +5,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WRLA Documentation</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50:  '#e0f8f5',
+                            100: '#b3f0e9',
+                            200: '#80e6d9',
+                            300: '#4ddcc9',
+                            400: '#26d4bc',
+                            500: '#00BFA6',
+                            600: '#00a892',
+                            700: '#00907c',
+                            800: '#007564',
+                            900: '#005940',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <style>
         [x-cloak] { display: none !important; }
@@ -29,12 +51,12 @@
                 @apply text-gray-600 mb-4;
             }
             .docs-link {
-                @apply text-indigo-600 hover:text-indigo-800 underline;
+                @apply text-primary-500 hover:text-primary-700 underline;
             }
 
             /* ── Step badge (numbered circle beside a heading) ── */
             .docs-step-badge {
-                @apply inline-flex items-center justify-center w-8 h-8 bg-indigo-600 text-white rounded-full mr-3 text-sm flex-shrink-0;
+                @apply inline-flex items-center justify-center w-8 h-8 bg-primary-500 text-white rounded-full mr-3 text-sm flex-shrink-0;
             }
 
             /* ── Section wrapper ─────────────────────────────── */
@@ -97,7 +119,7 @@
                 @apply flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors;
             }
             .docs-nav-link-active {
-                @apply bg-indigo-50 text-indigo-700;
+                @apply bg-primary-50 text-primary-600;
             }
             .docs-nav-link-inactive {
                 @apply text-gray-700 hover:bg-gray-100;
@@ -111,7 +133,7 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
                 <div class="flex items-center">
-                    <a href="index.html" class="text-xl font-bold text-indigo-600 hover:text-indigo-700">WRLA Documentation</a>
+                    <a href="index.html" class="text-xl font-bold text-primary-500 hover:text-primary-600">WRLA Documentation</a>
                 </div>
                 
                 <!-- Search -->
@@ -122,7 +144,7 @@
                             x-model="searchQuery"
                             @input="performSearch()"
                             placeholder="Search documentation..." 
-                            class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                            class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                         >
                         <svg class="absolute left-3 top-2.5 h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
@@ -144,7 +166,7 @@
             <div class="max-h-96 overflow-y-auto">
                 <template x-for="result in searchResults" :key="result.page">
                     <a :href="result.url" class="block px-4 py-3 hover:bg-gray-50 border-b border-gray-100 last:border-0">
-                        <div class="font-medium text-indigo-600" x-text="result.title"></div>
+                        <div class="font-medium text-primary-500" x-text="result.title"></div>
                         <div class="text-sm text-gray-600" x-text="result.preview"></div>
                     </a>
                 </template>
@@ -203,14 +225,14 @@
 
         <!-- Quick Start Cards -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-            <a href="installation.html" class="block p-6 bg-indigo-50 rounded-lg hover:bg-indigo-100 transition-colors">
+            <a href="installation.html" class="block p-6 bg-primary-50 rounded-lg hover:bg-primary-100 transition-colors">
                 <div class="flex items-center mb-3">
-                    <svg class="h-8 w-8 text-indigo-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="h-8 w-8 text-primary-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
                     </svg>
-                    <h3 class="text-xl font-semibold text-indigo-900">Installation</h3>
+                    <h3 class="text-xl font-semibold text-primary-900">Installation</h3>
                 </div>
-                <p class="text-indigo-700">Get started by installing WRLA in your Laravel application.</p>
+                <p class="text-primary-700">Get started by installing WRLA in your Laravel application.</p>
             </a>
 
             <a href="configuration.html" class="block p-6 bg-green-50 rounded-lg hover:bg-green-100 transition-colors">
@@ -387,6 +409,14 @@
             </div>
             <div class="docs-callout-body">
                 <strong>Note:</strong> If you wish to create other users from your terminal you can run the appropriate artisan command.
+                <div class="docs-code-block mt-3">
+                    <pre><code># Create a new user (optionally pass 'master' to create a master user directly)
+php artisan wrla:user
+php artisan wrla:user master
+
+# Edit an existing user — change values, password, or admin/master privileges
+php artisan wrla:edit-user</code></pre>
+                </div>
             </div>
         </div>
     </script>
