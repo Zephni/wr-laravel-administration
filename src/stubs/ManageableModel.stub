@@ -2,27 +2,25 @@
 
 namespace {{ $NAMESPACE }};
 
-use Illuminate\Support\Collection;
 use WebRegulate\LaravelAdministration\Classes\ManageableModel;
 use WebRegulate\LaravelAdministration\Classes\BrowseColumns\BrowseColumn;
-use WebRegulate\LaravelAdministration\Classes\ManageableFields\Text;
-use WebRegulate\LaravelAdministration\Classes\ManageableFields\Image;
-use WebRegulate\LaravelAdministration\Classes\ManageableFields\TextArea;
-use WebRegulate\LaravelAdministration\Classes\ManageableFields\Select;
-use WebRegulate\LaravelAdministration\Classes\ManageableFields\Heading;
 use WebRegulate\LaravelAdministration\Enums\ManageableModelPermissions;
 use WebRegulate\LaravelAdministration\Classes\InstanceAction;
 use WebRegulate\LaravelAdministration\Classes\InstanceActions\InstanceActionRestore;
 use WebRegulate\LaravelAdministration\Classes\InstanceActions\InstanceActionEdit;
 use WebRegulate\LaravelAdministration\Classes\InstanceActions\InstanceActionDelete;
 use WebRegulate\LaravelAdministration\Classes\InstanceActions\InstanceActionDuplicate;
+use WebRegulate\LaravelAdministration\Classes\ManageableFields\Heading;
+use WebRegulate\LaravelAdministration\Classes\ManageableFields\Text;
+use WebRegulate\LaravelAdministration\Classes\ManageableFields\Image;
+use WebRegulate\LaravelAdministration\Classes\ManageableFields\TextArea;
+use WebRegulate\LaravelAdministration\Classes\ManageableFields\Select;
+use Illuminate\Support\Collection;
 
 class {{ $MODEL }} extends ManageableModel
 {
     /**
      * Setup the main properties of the model.
-     *
-     * @return void
      */
     public final static function mainSetup(): void
     {
@@ -38,8 +36,6 @@ class {{ $MODEL }} extends ManageableModel
 
     /**
      * Setup global properties of this manageable model.
-     *
-     * @return void
      */
     public final static function globalSetup(): void
     {
@@ -49,8 +45,6 @@ class {{ $MODEL }} extends ManageableModel
 
     /**
      * Setup browse properties of this manageable model.
-     *
-     * @return void
      */
     public final static function browseSetup(): void
     {
@@ -72,8 +66,6 @@ class {{ $MODEL }} extends ManageableModel
 
     /**
      * Provide an array of columns to display in the browse view.
-     *
-     * @return array
      */
     public final function getBrowseColumns(): array
     {
@@ -85,24 +77,7 @@ class {{ $MODEL }} extends ManageableModel
     }
 
     /**
-     * Provide an array of manageable fields to display in the upsert view.
-     *
-     * @return array
-     */
-    public final function getManageableFields(): array
-    {
-        return [
-            // Text::make($this, 'name')
-            //     ->required()
-            //     ->validation('string|max:255')
-            //     ->setAttribute('placeholder', 'John Doe'),
-        ];
-    }
-
-    /**
      * Provide the model instance actions.
-     *
-     * @return array
      */
     public final function getInstanceActions(): array
     {
@@ -111,6 +86,19 @@ class {{ $MODEL }} extends ManageableModel
             // InstanceActionDuplicate::make($this),
             InstanceActionEdit::make($this),
             InstanceActionDelete::make($this, $this->isModelSoftDeleted()),
+        ];
+    }
+
+    /**
+     * Provide an array of manageable fields to display in the upsert view.
+     */
+    public final function getManageableFields(): array
+    {
+        return [
+            // Text::make($this, 'name')
+            //     ->required()
+            //     ->validation('string|max:255')
+            //     ->setAttribute('placeholder', 'John Doe'),
         ];
     }
 }
