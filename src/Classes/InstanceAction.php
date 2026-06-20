@@ -39,6 +39,16 @@ class InstanceAction
      */
     public ?string $multiActionConfirm = null;
 
+    /**
+     * Optional conditions that must evaluate to true for this action to be shown in the
+     * browse multi action toolbar for the current selection.
+     *
+     * Each entry may be a bool or a callable taking the selected ids and returning a bool.
+     *
+     * @var array<int, bool|callable>
+     */
+    public array $multiActionEnableConditions = [];
+
 
     /**
      * Create instance action button
@@ -140,12 +150,49 @@ class InstanceAction
     }
 
     /**
+     * Append a condition that must be true for this multi action to be shown for the current selection.
+     *
+     * @param callable|bool $condition A bool, or a callable taking array $selectedIds and returning a bool
+     * @return InstanceAction
+     */
+    public function requireMultiActionCondition(callable|bool $condition): static
+    {
+        $this->multiActionEnableConditions[] = $condition;
+        return $this;
+    }
+
+    /**
      * Whether this instance action has a multi action handler defined.
      * @return bool
      */
     public function hasMultiAction(): bool
     {
         return $this->multiAction !== null && $this->multiActionKey !== null;
+    }
+
+    /**
+     * Whether this multi action should be shown for the given selection.
+     *
+     * @param array $selectedIds
+     * @return bool
+     */
+    public function shouldShowForSelection(array $selectedIds): bool
+    {
+        if (! $this->hasMultiAction()) {
+            return false;
+        }
+
+        foreach ($this->multiActionEnableConditions as $condition) {
+            $result = is_callable($condition)
+                ? (bool) $condition($selectedIds)
+                : (bool) $condition;
+
+            if (! $result) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**

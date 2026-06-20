@@ -85,8 +85,11 @@
         $wrlaMultiActionsManageableModel = $wrlaMultiSelectEnabled && $wrlaMultiActionsModel
             ? $manageableModelClass::make($wrlaMultiActionsModel)
             : null;
+        $wrlaSelectedIdsForActions = array_map('strval', $wrlaSelectedIds);
         $wrlaMultiActions = $wrlaMultiActionsManageableModel
             ? $wrlaMultiActionsManageableModel->getMultiInstanceActionsFinal()
+                ->filter(fn ($wrlaMultiAction) => $wrlaMultiAction->shouldShowForSelection($wrlaSelectedIdsForActions))
+                ->values()
             : collect();
         $wrlaPageIds = $wrlaMultiSelectEnabled
             ? collect($models->items())->map(fn ($model) => (string) $model->getKey())->all()

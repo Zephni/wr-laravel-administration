@@ -17,6 +17,19 @@ class InstanceActionRestore
                 $manageableModel::getPermission(ManageableModelPermissions::RESTORE)
                 && $manageableModel->isModelSoftDeleted()
             )
+            ->requireMultiActionCondition(function (array $ids) use ($manageableModel) {
+                if (empty($ids) || ! $manageableModel::getPermission(ManageableModelPermissions::RESTORE)) {
+                    return false;
+                }
+
+                $manageableModelClass = $manageableModel::class;
+                $baseModelClass = $manageableModelClass::getStaticOption($manageableModelClass, 'baseModelClass');
+
+                return $baseModelClass::withTrashed()
+                    ->whereIn($baseModelClass::make()->getKeyName(), array_map('intval', $ids))
+                    ->get()
+                    ->contains(fn ($model) => method_exists($model, 'trashed') && $model->trashed());
+            })
             ->setAdditionalAttributes([
                 'wire:click' => 'restoreModel(' . $manageableModel->model()->id . ')',
             ])
