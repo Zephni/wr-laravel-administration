@@ -36,6 +36,7 @@ use WebRegulate\LaravelAdministration\Livewire\ManageableModels\ManageableModelB
 use WebRegulate\LaravelAdministration\Livewire\ManageableModels\ManageableModelUpsert;
 use WebRegulate\LaravelAdministration\Livewire\ManageableModels\ManageableModelDynamicBrowseFilters;
 use WebRegulate\LaravelAdministration\Livewire\MultiUploadFields\MultiImageUploads;
+use WebRegulate\LaravelAdministration\Livewire\MultiUploadFields\MultiFormGroups;
 
 class WRLAServiceProvider extends ServiceProvider
 {
@@ -202,6 +203,7 @@ class WRLAServiceProvider extends ServiceProvider
         Livewire::component('wrla.file-manager', FileManager::class);
         Livewire::component('wrla.logs', Logs::class);
         Livewire::component('wrla.multi-upload-fields.multi-image-uploads', MultiImageUploads::class);
+        Livewire::component('wrla.multi-upload-fields.multi-form-groups', MultiFormGroups::class);
         Livewire::forceAssetInjection();
 
         // Load custom blade directives
