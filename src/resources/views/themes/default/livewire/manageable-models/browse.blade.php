@@ -147,13 +147,17 @@
                 <tr>
                     @if ($wrlaMultiSelectEnabled)
                         <th class="px-3 py-2 bg-slate-700 dark:bg-slate-700 border-b border-slate-400 dark:border-slate-600" scope="col">
-                            <div class="flex items-center justify-center">
+                            <div
+                                class="flex items-center justify-center"
+                                x-data="{ wrlaSelectedIds: @entangle('wrlaSelectedIds').live, wrlaPageIds: @js($wrlaPageIds) }"
+                            >
                                 <input
                                     type="checkbox"
                                     title="Select all on this page"
                                     class="w-4 h-4 cursor-pointer accent-primary-600"
                                     @checked($wrlaAllPageSelected)
                                     x-on:change="$wire.setSelectAllOnPage(@js($wrlaPageIds), $event.target.checked)"
+                                    x-bind:checked="wrlaPageIds.length > 0 && wrlaPageIds.every((id) => wrlaSelectedIds.map(String).includes(String(id)))"
                                 />
                             </div>
                         </th>
