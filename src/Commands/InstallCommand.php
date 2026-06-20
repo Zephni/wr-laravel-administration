@@ -172,8 +172,10 @@ class InstallCommand extends Command
             }
         }
 
-        // Show link to documentation
-        $this->alert('Please visit '.WRLAHelper::getDocumentationUrl().' for documentation.');
+        // Ask if the user wants to open the local documentation
+        if ($this->confirm('Would you like to open the local documentation in your browser?', true)) {
+            $this->call('wrla:docs');
+        }
 
         // New line for separation
         $this->line('');

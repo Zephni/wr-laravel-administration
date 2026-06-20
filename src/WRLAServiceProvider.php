@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\View\ComponentAttributeBag;
 use WebRegulate\LaravelAdministration\Livewire\Logs;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
-use WebRegulate\LaravelAdministration\Commands\WikiCommand;
+use WebRegulate\LaravelAdministration\Commands\DocsCommand;
 use WebRegulate\LaravelAdministration\Livewire\FileManager;
 use WebRegulate\LaravelAdministration\Commands\UpdateCommand;
 use WebRegulate\LaravelAdministration\Commands\InstallCommand;
@@ -134,8 +134,8 @@ class WRLAServiceProvider extends ServiceProvider
             CreateManageableModelCommand::class,
             CreateUserCommand::class,
             EditUserCommand::class,
-            WikiCommand::class,
             UninstallCommand::class,
+            DocsCommand::class,
         ]);
 
         // Custom logging channels

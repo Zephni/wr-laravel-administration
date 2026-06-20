@@ -69,14 +69,6 @@ class WRLAHelper
     public static ?ManageableModel $currentActiveManageableModelInstance = null;
 
     /**
-     * Get documenation URL
-     */
-    public static function getDocumentationUrl(): string
-    {
-        return 'https://github.com/Zephni/wr-laravel-administration/wiki';
-    }
-
-    /**
      * Get wrla user model class
      */
     public static function getUserModelClass(): string

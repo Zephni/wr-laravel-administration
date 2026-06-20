@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WRLA Documentation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <style>
+        [x-cloak] { display: none !important; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-900" x-data="documentationApp()" x-init="initApp()">
+    <!-- Header -->
+    <header class="bg-white border-b border-gray-200 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <a href="index.html" class="text-xl font-bold text-indigo-600 hover:text-indigo-700">WRLA Documentation</a>
+                </div>
+                
+                <!-- Search -->
+                <div class="flex-1 max-w-lg mx-8">
+                    <div class="relative">
+                        <input 
+                            type="text" 
+                            x-model="searchQuery"
+                            @input="performSearch()"
+                            placeholder="Search documentation..." 
+                            class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                        >
+                        <svg class="absolute left-3 top-2.5 h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+                
+                <!-- Mobile menu button -->
+                <button @click="mobileMenuOpen = !mobileMenuOpen" class="md:hidden p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Search Results Dropdown -->
+        <div x-show="searchResults.length > 0" x-cloak class="absolute top-16 right-0 w-full max-w-lg bg-white border border-gray-200 rounded-lg shadow-lg mx-auto left-0 right-0 max-w-7xl mx-4" style="display: none;">
+            <div class="max-h-96 overflow-y-auto">
+                <template x-for="result in searchResults" :key="result.page">
+                    <a :href="result.url" class="block px-4 py-3 hover:bg-gray-50 border-b border-gray-100 last:border-0">
+                        <div class="font-medium text-indigo-600" x-text="result.title"></div>
+                        <div class="text-sm text-gray-600" x-text="result.preview"></div>
+                    </a>
+                </template>
+            </div>
+        </div>
+    </header>
+
+    <div class="flex">
+        <!-- Sidebar Navigation -->
+        <aside 
+            x-show="mobileMenuOpen || !isMobile()" 
+            x-cloak
+            class="w-64 bg-white border-r border-gray-200 min-h-screen fixed left-0 top-16 overflow-y-auto hidden md:block"
+            :class="{'block': mobileMenuOpen, 'hidden': !mobileMenuOpen && isMobile()}"
+        >
+            <nav class="p-4">
+                <div class="space-y-2">
+                    <template x-for="section in navigation" :key="section.title">
+                        <div>
+                            <h3 class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2" x-text="section.title"></h3>
+                            <div class="space-y-1">
+                                <template x-for="item in section.items" :key="item.title">
+                                    <a 
+                                        :href="item.url" 
+                                        class="flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors"
+                                        :class="currentPage === item.url ? 'bg-indigo-50 text-indigo-700' : 'text-gray-700 hover:bg-gray-100'"
+                                        x-text="item.title"
+                                    ></a>
+                                </template>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 md:ml-64 p-8">
+            <div class="max-w-4xl mx-auto">
+                <div id="content-area" class="bg-white rounded-lg shadow-sm p-8">
+                    <!-- Dynamic content will be loaded here -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Page content — each file in docs/pages/ is mirrored here as a script tag.
+         To add a new page: copy the file content into a new tag below with id="page-{filename}",
+         then add it to getNavigation() in documentation.js. -->
+    <script type="text/html" id="page-home.html">
+        <h1 class="text-3xl font-bold text-gray-900 mb-6">Welcome to WRLA Documentation</h1>
+
+        <p class="text-lg text-gray-600 mb-8">
+            WebRegulate Laravel Administration (WRLA) is a powerful administration panel package for Laravel applications. This documentation will guide you through installation, configuration, and advanced usage.
+        </p>
+
+        <!-- Quick Start Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <a href="installation.html" class="block p-6 bg-indigo-50 rounded-lg hover:bg-indigo-100 transition-colors">
+                <div class="flex items-center mb-3">
+                    <svg class="h-8 w-8 text-indigo-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                    </svg>
+                    <h3 class="text-xl font-semibold text-indigo-900">Installation</h3>
+                </div>
+                <p class="text-indigo-700">Get started by installing WRLA in your Laravel application.</p>
+            </a>
+
+            <a href="configuration.html" class="block p-6 bg-green-50 rounded-lg hover:bg-green-100 transition-colors">
+                <div class="flex items-center mb-3">
+                    <svg class="h-8 w-8 text-green-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    </svg>
+                    <h3 class="text-xl font-semibold text-green-900">Configuration</h3>
+                </div>
+                <p class="text-green-700">Configure WRLA to match your application's needs.</p>
+            </a>
+
+            <a href="manageable-models.html" class="block p-6 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors">
+                <div class="flex items-center mb-3">
+                    <svg class="h-8 w-8 text-purple-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                    </svg>
+                    <h3 class="text-xl font-semibold text-purple-900">Manageable Models</h3>
+                </div>
+                <p class="text-purple-700">Learn how to create and manage models in the admin panel.</p>
+            </a>
+
+            <a href="authentication.html" class="block p-6 bg-orange-50 rounded-lg hover:bg-orange-100 transition-colors">
+                <div class="flex items-center mb-3">
+                    <svg class="h-8 w-8 text-orange-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                    </svg>
+                    <h3 class="text-xl font-semibold text-orange-900">Authentication</h3>
+                </div>
+                <p class="text-orange-700">Set up authentication and user management.</p>
+            </a>
+        </div>
+
+        <!-- Requirements -->
+        <div class="bg-blue-50 border-l-4 border-blue-400 p-4 mb-8">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <svg class="h-5 w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    <p class="text-sm text-blue-700">
+                        <strong>Requirements:</strong> Laravel v11 or higher is required to use WRLA.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Key Features -->
+        <h2 class="text-2xl font-semibold text-gray-800 mb-4">Key Features</h2>
+        <ul class="space-y-3 text-gray-600">
+            <li class="flex items-start">
+                <svg class="h-5 w-5 text-green-500 mr-2 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                </svg>
+                <span>Easy installation with a single artisan command</span>
+            </li>
+            <li class="flex items-start">
+                <svg class="h-5 w-5 text-green-500 mr-2 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                </svg>
+                <span>Intuitive model management interface</span>
+            </li>
+            <li class="flex items-start">
+                <svg class="h-5 w-5 text-green-500 mr-2 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                </svg>
+                <span>Built-in authentication and permissions system</span>
+            </li>
+            <li class="flex items-start">
+                <svg class="h-5 w-5 text-green-500 mr-2 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                </svg>
+                <span>Highly customizable and extensible</span>
+            </li>
+            <li class="flex items-start">
+                <svg class="h-5 w-5 text-green-500 mr-2 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                </svg>
+                <span>Modern, responsive UI with Tailwind CSS</span>
+            </li>
+        </ul>
+    </script>
+
+    <script type="text/html" id="page-installation.html">
+        <h1 class="text-3xl font-bold text-gray-900 mb-6">Installation</h1>
+
+        <!-- Important Notice -->
+        <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-8">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <svg class="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    <p class="text-sm text-yellow-700">
+                        <strong>Important:</strong> Note that you MUST use at least Laravel v11 to use webregulate/laravel-administration.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 1 -->
+        <div class="mb-8">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4 flex items-center">
+                <span class="flex items-center justify-center w-8 h-8 bg-indigo-600 text-white rounded-full mr-3 text-sm">1</span>
+                Require the package with composer
+            </h2>
+            <div class="bg-gray-900 rounded-lg p-4 overflow-x-auto">
+                <pre class="text-green-400 text-sm"><code>composer require webregulate/laravel-administration "dev-main"</code></pre>
+            </div>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="mb-8">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4 flex items-center">
+                <span class="flex items-center justify-center w-8 h-8 bg-indigo-600 text-white rounded-full mr-3 text-sm">2</span>
+                Install with the built-in command
+            </h2>
+            <div class="bg-gray-900 rounded-lg p-4 overflow-x-auto mb-4">
+                <pre class="text-green-400 text-sm"><code>php artisan wrla:install</code></pre>
+            </div>
+            <p class="text-gray-600 mb-4">
+                Follow the steps provided by the installation wizard. Note that installing will publish a few assets which will be added to your project and mentioned in your terminal. You will also be asked if you want to run the migrations, and also whether you like to create a master user, which are necessary to use WRLA.
+            </p>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="mb-8">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4 flex items-center">
+                <span class="flex items-center justify-center w-8 h-8 bg-indigo-600 text-white rounded-full mr-3 text-sm">3</span>
+                Access the administration section
+            </h2>
+            <p class="text-gray-600 mb-4">
+                You can now access the administration section by heading to:
+            </p>
+            <div class="bg-gray-900 rounded-lg p-4 overflow-x-auto">
+                <pre class="text-green-400 text-sm"><code>{your app url}/wr-admin</code></pre>
+            </div>
+        </div>
+
+        <!-- Step 4 -->
+        <div class="mb-8">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4 flex items-center">
+                <span class="flex items-center justify-center w-8 h-8 bg-indigo-600 text-white rounded-full mr-3 text-sm">4</span>
+                Configure the package
+            </h2>
+            <p class="text-gray-600 mb-4">
+                While installing, WRLA will create a config file at <code class="bg-gray-100 px-2 py-1 rounded text-sm">config/wr-laravel-administration.php</code>. Feel free to edit this as you wish. One of the first things you may want to change is the route URL for the admin section itself, which is the first key => value in the configuration file:
+            </p>
+            <div class="bg-gray-900 rounded-lg p-4 overflow-x-auto">
+                <pre class="text-green-400 text-sm"><code>'base_url' => 'wr-admin',</code></pre>
+            </div>
+        </div>
+
+        <!-- Step 5 -->
+        <div class="mb-8">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4 flex items-center">
+                <span class="flex items-center justify-center w-8 h-8 bg-indigo-600 text-white rounded-full mr-3 text-sm">5</span>
+                Add Manageable Models
+            </h2>
+            <p class="text-gray-600 mb-4">
+                Now you are ready to add Manageable Models. You can either create new models to manage within your new administration section or use them to setup models that already exist in your project.
+            </p>
+        </div>
+
+        <!-- Additional Info -->
+        <div class="bg-blue-50 border-l-4 border-blue-400 p-4">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <svg class="h-5 w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    <p class="text-sm text-blue-700">
+                        <strong>Note:</strong> If you wish to create other users from your terminal you can run the appropriate artisan command.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </script>
+
+    <script src="documentation.js"></script>
+</body>
+</html>
