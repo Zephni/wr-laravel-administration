@@ -10,12 +10,16 @@ use Faker;
 class CreateUserCommand extends Command
 {
     /**
+     * The user that was created by this command, available after handle() completes.
+     */
+    public mixed $createdUser = null;
+    /**
      * The name and signature of the console command.
      *
      * @var string
      */
     // Signature can optionally have master flag
-    protected $signature = 'wrla:user {master?} {--user-model=}';
+    protected $signature = 'wrla:create-user {master?} {--user-model=}';
 
     /**
      * The console command description.
@@ -103,6 +107,8 @@ class CreateUserCommand extends Command
         $wrlaUserData->settings = json_encode([]);
         $wrlaUserData->data = json_encode([]);
         $wrlaUserData->save();
+
+        $this->createdUser = $user;
 
         // Success message, display email and password on seperate lines, the text should be white, but the email and password should be in green
         $this->line('');

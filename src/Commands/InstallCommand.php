@@ -47,14 +47,15 @@ class InstallCommand extends Command
         $this->generateEmailTemplateMailBlade();
 
         $this->line('');
-        $this->info('WRLA installed successfully.');
+        $this->info('🥳 WRLA installed successfully.');
 
         [$databaseConnectionExists, $databaseName] = $this->checkDatabaseConnection();
         $migrationsRan = $this->promptRunMigrations($databaseConnectionExists, $databaseName);
         $this->promptCreateStorageSymlink();
 
+        $createdUser = null;
         if ($migrationsRan || $databaseConnectionExists) {
-            $this->promptCreateMasterUser($databaseConnectionExists);
+            $createdUser = $this->promptCreateMasterUser($databaseConnectionExists);
         }
 
         $this->promptOpenDocumentation();
@@ -240,14 +241,26 @@ class InstallCommand extends Command
         }
     }
 
-    private function promptCreateMasterUser(bool $databaseConnectionExists): void
+    private function promptCreateMasterUser(bool $databaseConnectionExists): mixed
     {
         $userModelClass = ltrim($this->userModelClass, '\\');
         $anyUsersExist = $databaseConnectionExists ? $userModelClass::limit(1)->count() > 0 : false;
 
         if ($this->confirm('Would you like to create a master user?', ! $anyUsersExist)) {
-            $this->call('wrla:user', ['master' => true, '--user-model' => $this->userModelClass]);
+            /** @var CreateUserCommand $command */
+            $command = $this->getApplication()->find('wrla:create-user');
+            $command->run(
+                new \Symfony\Component\Console\Input\ArrayInput([
+                    'master' => true,
+                    '--user-model' => $this->userModelClass,
+                ]),
+                $this->getOutput()
+            );
+
+            return $command->createdUser;
         }
+
+        return null;
     }
 
     private function promptOpenDocumentation(): void
