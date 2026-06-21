@@ -492,7 +492,7 @@ abstract class ManageableModel
      *
      * @param  Closure|Collection|array  $childNavigationItems
      */
-    public static function setChildNavigationItems(...$childNavigationItems): void
+    public static function setNavigationItems(...$childNavigationItems): void
     {
         // Single closure: store raw and resolve lazily in getChildNavigationItems().
         if (count($childNavigationItems) === 1 && $childNavigationItems[0] instanceof \Closure) {

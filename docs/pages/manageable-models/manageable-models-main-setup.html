@@ -27,7 +27,7 @@ public final static function mainSetup(): void
     static::setPermission(ManageableModelPermissions::RESTORE, true);
 
     // Navigation (resolved lazily at navigation build time)
-    static::setChildNavigationItems(fn () => [
+    static::setNavigationItems(fn () => [
         NavigationItemBrowse::make(static::class),
         NavigationItemCreate::make(static::class),
     ]);
@@ -181,16 +181,16 @@ static::setPermission(ManageableModelPermissions::DELETE, fn($userData) => $user
     <h2 class="docs-heading">Child Navigation</h2>
     <p class="docs-body">
         Sidebar sub-links for a model are defined via
-        <code class="docs-inline-code">setChildNavigationItems()</code>. Pass a <strong>Closure</strong>
+        <code class="docs-inline-code">setNavigationItems()</code>. Pass a <strong>Closure</strong>
         to have the items resolved lazily at navigation build time — this avoids any cross-model
         ordering concerns (every model's URL alias and display name is already set by then) and skips
         the work entirely when the sidebar isn't rendered.
     </p>
 </div>
 
-<!-- setChildNavigationItems -->
+<!-- setNavigationItems -->
 <div class="docs-section">
-    <h2 class="docs-heading font-mono text-primary-600">setChildNavigationItems()</h2>
+    <h2 class="docs-heading font-mono text-primary-600">setNavigationItems()</h2>
     <p class="docs-body">
         Defines the sub-links shown underneath this model's entry in the sidebar navigation.
         Accepts any number of <code class="docs-inline-code">NavigationItem</code> instances (or
@@ -200,10 +200,10 @@ static::setPermission(ManageableModelPermissions::DELETE, fn($userData) => $user
     </p>
     <div class="docs-code-block">
         <pre><code>// Eager — items built immediately
-static::setChildNavigationItems(...$childNavigationItems);
+static::setNavigationItems(...$childNavigationItems);
 
 // Lazy (recommended) — resolved at navigation build time
-static::setChildNavigationItems(fn () => [...$childNavigationItems]);</code></pre>
+static::setNavigationItems(fn () => [...$childNavigationItems]);</code></pre>
     </div>
 
     <!-- NavigationItemBrowse / NavigationItemCreate -->
@@ -219,7 +219,7 @@ static::setChildNavigationItems(fn () => [...$childNavigationItems]);</code></pr
         <pre><code>use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItemBrowse;
 use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItemCreate;
 
-static::setChildNavigationItems(fn () => [
+static::setNavigationItems(fn () => [
     NavigationItemBrowse::make(static::class),
     NavigationItemCreate::make(static::class),
 ]);</code></pre>
@@ -261,7 +261,7 @@ static::setChildNavigationItems(fn () => [
     <div class="docs-code-block mb-4">
         <pre><code>use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItem;
 
-static::setChildNavigationItems(
+static::setNavigationItems(
     NavigationItem::make(
         url: route('wrla.manageable-models.browse', ['modelUrlAlias' => static::getUrlAlias()]),
         name: 'All Posts',
@@ -301,7 +301,7 @@ static::setChildNavigationItems(
         <pre><code>use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItem;
 use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItemDivider;
 
-static::setChildNavigationItems(
+static::setNavigationItems(
     NavigationItem::make(
         url: route('wrla.manageable-models.browse', ['modelUrlAlias' => static::getUrlAlias()]),
         name: 'All Posts',
@@ -340,7 +340,7 @@ static::setChildNavigationItems(
     <div class="docs-code-block">
         <pre><code>use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItemHTML;
 
-static::setChildNavigationItems(
+static::setNavigationItems(
     NavigationItemBrowse::make(static::class),
     NavigationItemCreate::make(static::class),
     new NavigationItemHTML('<span class="text-xs text-yellow-400 px-2">&#x26A0; Under review</span>'),
@@ -359,7 +359,7 @@ static::setChildNavigationItems(
     <div class="docs-code-block mb-4">
         <pre><code>use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItem;
 
-static::setChildNavigationItems(
+static::setNavigationItems(
     NavigationItemBrowse::make(static::class),
     NavigationItemCreate::make(static::class),
     NavigationItem::make(
@@ -383,7 +383,7 @@ static::setChildNavigationItems(
     <div class="docs-code-block">
         <pre><code>use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItem;
 
-static::setChildNavigationItems(
+static::setNavigationItems(
     NavigationItemBrowse::make(static::class),
     NavigationItemCreate::make(static::class),
     NavigationItem::make(
@@ -408,7 +408,7 @@ static::setChildNavigationItems(
     <div class="docs-code-block">
         <pre><code>use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItem;
 
-static::setChildNavigationItems(
+static::setNavigationItems(
     NavigationItemBrowse::make(static::class),
     NavigationItemCreate::make(static::class),
     NavigationItem::make(

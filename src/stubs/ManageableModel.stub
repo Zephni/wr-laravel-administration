@@ -36,7 +36,7 @@ class {{ $MODEL }} extends ManageableModel
         static::setPermission(ManageableModelPermissions::RESTORE, true);
 
         // Navigation
-        static::setChildNavigationItems(fn () => [
+        static::setNavigationItems(fn () => [
             NavigationItemBrowse::make(static::class),
             NavigationItemCreate::make(static::class),
         ]);
