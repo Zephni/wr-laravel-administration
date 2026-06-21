@@ -805,6 +805,35 @@ class WRLAHelper
     }
 
     /**
+     * Whether the documentation page is enabled (accessible)
+     */
+    public static function documentationEnabled(): bool
+    {
+        return (bool) config('wr-laravel-administration.documentation.enabled', true);
+    }
+
+    /**
+     * Whether to show the documentation link in the top bar
+     */
+    public static function showDocumentationLink(): bool
+    {
+        return once(function() {
+            if(!WRLAHelper::documentationEnabled()) return false;
+
+            $showLinkConfig = config('wr-laravel-administration.documentation.show_link', false);
+
+            // If the config is callable, invoke it
+            if(is_callable($showLinkConfig)) {
+                $userData = WRLAHelper::getCurrentUserData();
+                if(empty($userData)) return false;
+                $showLinkConfig = call_user_func($showLinkConfig, $userData);
+            }
+
+            return $showLinkConfig ?? false;
+        });
+    }
+
+    /**
      * Is JSON
      *
      * @param  string  $string  The string to check if is json.

@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use WebRegulate\LaravelAdministration\Http\Controllers\WRLAAdminController;
 use WebRegulate\LaravelAdministration\Http\Controllers\WRLAAuthController;
+use WebRegulate\LaravelAdministration\Http\Controllers\WRLADocumentationController;
 
 Route::group(['namespace' => 'WebRegulate\LaravelAdministration\Http\Controllers'], function (): void {
 
@@ -63,6 +64,12 @@ Route::group(['namespace' => 'WebRegulate\LaravelAdministration\Http\Controllers
             Route::get('edit/{modelUrlAlias}/{id}', 'upsert')->name('manageable-models.edit');
             Route::post('create/{modelUrlAlias}/{modelId?}', 'upsertPost')->name('manageable-models.upsert.post');
             Route::post('edit/{modelUrlAlias}/{modelId?}', 'upsertPost')->name('manageable-models.upsert.post');
+        });
+
+        // Documentation routes
+        Route::group(['controller' => WRLADocumentationController::class, 'middleware' => ['wrla_is_admin']], function (): void {
+            Route::get('documentation', 'index')->name('documentation');
+            Route::get('documentation/static/{path}', 'static')->where('path', '.*')->name('documentation.static');
         });
 
         // Impersonate routes

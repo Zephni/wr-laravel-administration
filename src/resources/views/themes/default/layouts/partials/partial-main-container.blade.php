@@ -4,8 +4,16 @@
     class="absolute md:relative flex-1 h-full">
     {{-- Top bar --}}
     <div style="z-index: 5;" class="relative left-0 flex w-full gap-5 h-9 justify-between items-center border-b-2 border-slate-300 dark:border-slate-700 shadow-md dark:shadow-slate-900 bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-400">
-        {{-- Version --}}
-        <div>
+        {{-- Documentation + Version --}}
+        <div class="flex items-center">
+            {{-- Documentation link --}}
+            @if($WRLAHelper::showDocumentationLink())
+                <a href="{{ route('wrla.documentation') }}"
+                    class="hidden md:flex items-center gap-1.5 pl-6 text-xs text-gray-500 hover:text-primary-600 dark:hover:text-slate-400 transition-colors whitespace-nowrap">
+                    <i class="fas fa-book"></i>
+                    <span>Documentation</span>
+                </a>
+            @endif
             @if($WRLAHelper::userIsDev())
                 <div class="hidden md:inline-block pl-6 text-sm">
                     @php
@@ -14,7 +22,7 @@
                         $localCurrentSha = $versionHandlerClass::$localPackageCurrentSha;
                         $remotePackageLatestSha = $versionHandlerClass::$remotePackageLatestSha;
                     @endphp
-                    Version:
+                    <i class="fas fa-code-branch text-xs mr-1 text-slate-400/70"></i>Version:
                     {{ $localComposerVersion }}
                     <span class="px-1.5">-</span>
                     @if($localCurrentSha === $remotePackageLatestSha)

@@ -257,7 +257,7 @@
         .docs-card-rose   .docs-card-link    { @apply text-rose-600;   }
     </style>
 </head>
-<body class="bg-gray-50 text-gray-900" x-data="documentationApp()" x-init="initApp()">
+<body class="relative bg-gray-50 text-gray-900" x-data="documentationApp()" x-init="initApp()">
 
     <!-- ── Header ─────────────────────────────────────────────── -->
     <header class="bg-white border-b border-gray-200 sticky top-0 z-50">
@@ -398,9 +398,28 @@
 
         <!-- Main Content Area -->
         <main class="flex-1 md:ml-64 min-w-0">
+            <!-- ── Early Development Warning Banner ───────────────── -->
+            <div class="sticky top-16 z-20 bg-red-600 border-b border-red-700 text-white py-2.5 px-4">
+                <div class="flex items-center justify-center gap-2.5 max-w-4xl mx-auto">
+                    <svg class="h-5 w-5 shrink-0" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                        <path fill-rule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/>
+                    </svg>
+                    <p class="text-sm font-medium text-center">
+                        <strong>Early Development Notice:</strong> This package is not yet v1.0 or ready for public use. Documentation is in the very early stages and things are likely to change before official release.
+                    </p>
+                </div>
+            </div>
             <div class="p-4 md:p-8">
                 <div class="max-w-4xl mx-auto">
-                    <div id="content-area" class="bg-white rounded-lg shadow-sm p-4 sm:p-6 md:p-8">
+                    <div id="content-area" class="relative bg-white rounded-lg shadow-sm p-4 sm:p-6 md:p-8 min-h-[300px]">
+                        <!-- Loading spinner (hidden once content loads) -->
+                        <div id="content-spinner" class="absolute inset-0 flex flex-col items-center justify-center gap-3 rounded-lg bg-white z-10">
+                            <svg class="animate-spin h-8 w-8 text-primary-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                            </svg>
+                            <span class="text-sm text-gray-500 font-medium">Please wait&hellip;</span>
+                        </div>
                         <!-- Dynamic content will be loaded here -->
                     </div>
                 </div>

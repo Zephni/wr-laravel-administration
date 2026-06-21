@@ -103,9 +103,11 @@ class DocumentationApp {
     // Initialize the application
     async initApp() {
         this.currentPage = this.getCurrentPage();
-        await this.loadPages();
+        this.setupInterception(); // Set up immediately — before any async loading
+        // Load the current page first so the spinner is visible during the fetch.
+        // Then build the search index in the background (no await).
         await this.loadContent();
-        this.setupInterception();
+        this.loadPages();
     }
 
     // Load content for the current page from pages/ directory
@@ -121,6 +123,8 @@ class DocumentationApp {
         }
 
         const html = await this.fetchPage(contentFile);
+        const spinner = document.getElementById('content-spinner');
+        if (spinner) spinner.remove();
         contentArea.innerHTML = html
             ?? '<p class="text-gray-500 italic mt-4">This page is coming soon.</p>';
         this.updateTitle();

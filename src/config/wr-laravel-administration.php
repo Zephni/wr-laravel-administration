@@ -105,6 +105,14 @@ return [
     // Callback for enabling developer tools, takes wrlaUserData and must return boolean.
     'enable_developer_tools' => fn($wrlaUserData) => false, // EG. use: $wrlaUserData->isMaster() to enable for master users only
 
+    // Documentation configuration
+    'documentation' => [
+        // Whether the documentation page is accessible at all
+        'enabled' => true,
+        // Whether to show the documentation link in the top bar. Accepts bool or Closure taking wrlaUserData and returning bool.
+        'show_link' => fn($wrlaUserData) => $wrlaUserData->isMaster(),
+    ],
+
 
     /*-------------------------------------------------------------------------
         GENERAL CONFIGURATION
