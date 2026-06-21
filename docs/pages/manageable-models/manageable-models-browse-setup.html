@@ -1,0 +1,422 @@
+<h1 class="docs-title">browseSetup()</h1>
+<p class="docs-lead">
+    Called every time the browse page mounts. Use it to configure how the model's record listing
+    behaves — filters, default sort order, bulk selection, browse action buttons, query modifications,
+    and optional HTML injected around the table.
+</p>
+
+<!-- Default stub example -->
+<div class="docs-section">
+    <div class="docs-code-block">
+        <pre><code>// /App/WRLA/ManageableModels/Blog.php (example)
+
+public final static function browseSetup(): void
+{
+    // Browse filters
+    static::setBrowseFilters(
+        static::getBrowseFilterSearch(),
+        static::getBrowseFilterSoftDeleted(),
+    );
+
+    // Remember filters
+    static::setRememberFilters(true);
+
+    // Browse actions
+    static::setBrowseActions(static::getDefaultBrowseActions());
+
+    // Enable multi selection
+    static::setMultiSelect(true);
+
+    // Order by
+    static::setOrderBy('id', 'desc');
+}</code></pre>
+    </div>
+</div>
+
+<!-- setBrowseFilters -->
+<div class="docs-section">
+    <h2 class="docs-heading font-mono text-primary-600">setBrowseFilters()</h2>
+    <p class="docs-body">
+        Registers the filter controls shown above the browse table. Pass any number of
+        <code class="docs-inline-code">BrowseFilter</code> instances (or <code class="docs-inline-code">null</code>
+        values — they are silently ignored), either as individual arguments or nested arrays; WRLA flattens
+        them automatically.
+    </p>
+    <div class="docs-code-block mb-4">
+        <pre><code>static::setBrowseFilters(
+    static::getBrowseFilterSearch(),
+    static::getBrowseFilterSoftDeleted(),
+);</code></pre>
+    </div>
+
+    <!-- getBrowseFilterSearch -->
+    <h3 class="docs-subheading mt-6 mb-3">getBrowseFilterSearch()</h3>
+    <p class="docs-body">
+        Returns a pre-built text <code class="docs-inline-code">BrowseFilter</code> that searches
+        across every column shown in <code class="docs-inline-code">getBrowseColumns()</code>. The
+        search is case-insensitive and uses <code class="docs-inline-code">LIKE</code> matching.
+        Relationship columns (dot-notation) are handled automatically via
+        <code class="docs-inline-code">orWhereRelation</code>.
+    </p>
+    <div class="docs-code-block mb-4">
+        <pre><code>static::setBrowseFilters(
+    static::getBrowseFilterSearch(),
+);</code></pre>
+    </div>
+    <p class="docs-body">
+        Customize the filter by chaining <code class="docs-inline-code">setOption()</code> or
+        <code class="docs-inline-code">setOptions()</code> on the returned instance:
+    </p>
+    <div class="docs-code-block mb-4">
+        <pre><code>// Merge extra columns into the search (e.g. computed / aliased columns)
+static::getBrowseFilterSearch()
+    ->setOption('mergeColumns', ['full_name', 'tags.name']);</code></pre>
+    </div>
+
+    <!-- getBrowseFilterSoftDeleted -->
+    <h3 class="docs-subheading mt-6 mb-3">getBrowseFilterSoftDeleted()</h3>
+    <p class="docs-body">
+        Returns a pre-built select <code class="docs-inline-code">BrowseFilter</code> that lets users
+        switch between active, soft-deleted, and all records. Only available when the underlying
+        Eloquent model uses <code class="docs-inline-code">SoftDeletes</code> — returns
+        <code class="docs-inline-code">null</code> otherwise (safe to always include).
+    </p>
+    <div class="docs-code-block mb-4">
+        <pre><code>static::setBrowseFilters(
+    static::getBrowseFilterSearch(),
+    static::getBrowseFilterSoftDeleted(), // null-safe — no-op if model has no soft deletes
+);</code></pre>
+    </div>
+    <table class="docs-table">
+        <thead>
+            <tr>
+                <th>Option value</th>
+                <th>Behaviour</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><code class="docs-inline-code">not_trashed</code></td>
+                <td>Active records only (default)</td>
+            </tr>
+            <tr>
+                <td><code class="docs-inline-code">trashed</code></td>
+                <td>Soft-deleted records only</td>
+            </tr>
+            <tr>
+                <td><code class="docs-inline-code">all</code></td>
+                <td>All records including soft-deleted</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- Custom BrowseFilter -->
+    <h3 class="docs-subheading mt-6 mb-3">Custom BrowseFilter</h3>
+    <p class="docs-body">
+        Any manageable field type can be turned into a browse filter by calling
+        <code class="docs-inline-code">makeBrowseFilter()</code> on it and chaining
+        <code class="docs-inline-code">browseFilterApply()</code> with a closure. The closure receives
+        the current Eloquent <code class="docs-inline-code">Builder</code>, the table name, the visible
+        column map, and the current filter value.
+    </p>
+    <div class="docs-code-block">
+        <pre><code>use WebRegulate\LaravelAdministration\Classes\BrowseFilter;
+use WebRegulate\LaravelAdministration\Classes\ManageableFields\Select;
+use Illuminate\Database\Eloquent\Builder;
+
+static::setBrowseFilters(
+    static::getBrowseFilterSearch(),
+
+    // Custom "Status" dropdown filter
+    Select::makeBrowseFilter('statusFilter')
+        ->setLabel('Status', 'fas fa-tag text-slate-400 !mr-1')
+        ->setItems([
+            'all'       => 'All',
+            'published' => 'Published',
+            'draft'     => 'Draft',
+        ])
+        ->setOption('containerClass', 'w-1/6')
+        ->browseFilterApply(function (Builder $query, $table, $columns, $value) {
+            if ($value === 'all') return $query;
+            return $query->where("$table.status", $value);
+        }),
+);</code></pre>
+    </div>
+</div>
+
+<!-- setDynamicBrowseFilters -->
+<div class="docs-section">
+    <h2 class="docs-heading font-mono text-primary-600">setDynamicBrowseFilters()</h2>
+    <p class="docs-body">
+        Switches the browse page to a <em>dynamic filter builder</em> mode. Instead of a fixed set of
+        filter controls, the user can add, configure, and combine filter conditions at runtime. Optionally
+        pass an array of default filter configurations that are pre-loaded when the page first opens.
+    </p>
+    <div class="docs-code-block mb-4">
+        <pre><code>// Enable dynamic filters (no defaults)
+static::setDynamicBrowseFilters();
+
+// Enable dynamic filters with a pre-applied default condition
+static::setDynamicBrowseFilters([
+    ['field' => 'status', 'operator' => '=', 'value' => 'published'],
+]);</code></pre>
+    </div>
+    <div class="docs-callout docs-callout-info">
+        <div class="docs-callout-icon">
+            <svg viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+            </svg>
+        </div>
+        <div class="docs-callout-body">
+            Calling <code>setDynamicBrowseFilters()</code> automatically clears any filters previously
+            set with <code>setBrowseFilters()</code> — the two modes are mutually exclusive.
+        </div>
+    </div>
+</div>
+
+<!-- setRememberFilters -->
+<div class="docs-section">
+    <h2 class="docs-heading font-mono text-primary-600">setRememberFilters()</h2>
+    <p class="docs-body">
+        When enabled, the current filter values are persisted in the session so they survive page
+        refreshes and navigation away from the browse page. Defaults to
+        <code class="docs-inline-code">true</code> in the generated stub.
+    </p>
+    <div class="docs-code-block mb-4">
+        <pre><code>static::setRememberFilters(true);  // persist filters in session (default)
+static::setRememberFilters(false); // reset filters on every page load</code></pre>
+    </div>
+</div>
+
+<!-- setBrowseActions -->
+<div class="docs-section">
+    <h2 class="docs-heading font-mono text-primary-600">setBrowseActions()</h2>
+    <p class="docs-body">
+        Registers the action buttons rendered in the top-right area of the browse page (above the
+        filter bar). Pass any number of Blade view strings, Livewire-aware HTML strings, or view
+        instances; they are merged and sorted by key. The generated stub includes
+        <code class="docs-inline-code">getDefaultBrowseActions()</code> which provides a
+        <strong>Create</strong> button and an <strong>Export CSV</strong> button.
+    </p>
+    <div class="docs-code-block mb-4">
+        <pre><code>// Use the built-in defaults (Create + Export CSV)
+static::setBrowseActions(static::getDefaultBrowseActions());
+
+// Entirely custom actions
+static::setBrowseActions(
+    static::getDefaultBrowseActions(),
+    view('wrla::components.forms.button', [
+        'text'  => 'Import',
+        'icon'  => 'fa fa-upload',
+        'color' => 'secondary',
+        'size'  => 'small',
+        'href'  => route('admin.import'),
+    ]),
+);</code></pre>
+    </div>
+
+    <!-- getDefaultBrowseActions -->
+    <h3 class="docs-subheading mt-6 mb-3">getDefaultBrowseActions()</h3>
+    <p class="docs-body">
+        Returns a keyed <code class="docs-inline-code">Collection</code> containing the two standard
+        browse actions. Both buttons are permission-aware — they only render if the corresponding
+        <code class="docs-inline-code">ManageableModelPermissions</code> is granted.
+    </p>
+    <table class="docs-table">
+        <thead>
+            <tr>
+                <th>Button</th>
+                <th>Required permission</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>Create</strong></td>
+                <td><code class="docs-inline-code">CREATE</code></td>
+                <td>Links to the model's create route</td>
+            </tr>
+            <tr>
+                <td><strong>Export CSV</strong></td>
+                <td><code class="docs-inline-code">BROWSE</code></td>
+                <td>Exports the current filtered result set as a CSV file, with an optional row-count prompt</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- setMultiSelect -->
+<div class="docs-section">
+    <h2 class="docs-heading font-mono text-primary-600">setMultiSelect()</h2>
+    <p class="docs-body">
+        Enables (or disables) row checkboxes in the browse table. When multi-select is on, a
+        toolbar appears above the table whenever rows are selected, showing any
+        <code class="docs-inline-code">InstanceAction</code> that defines a
+        <code class="docs-inline-code">multiAction()</code> handler. The built-in
+        <code class="docs-inline-code">InstanceActionDelete</code> and
+        <code class="docs-inline-code">InstanceActionRestore</code> both include multi-action support
+        out of the box.
+    </p>
+    <div class="docs-code-block mb-4">
+        <pre><code>static::setMultiSelect(true);  // enable row checkboxes (default in stub)
+static::setMultiSelect(false); // hide checkboxes</code></pre>
+    </div>
+    <p class="docs-body">
+        To add a custom bulk action, define a
+        <code class="docs-inline-code">multiAction()</code> on any
+        <code class="docs-inline-code">InstanceAction</code> returned from
+        <code class="docs-inline-code">getInstanceActions()</code>:
+    </p>
+    <div class="docs-code-block">
+        <pre><code>use WebRegulate\LaravelAdministration\Classes\InstanceAction;
+
+// Inside getInstanceActions():
+InstanceAction::make($this, 'Publish', 'fa fa-globe', 'primary')
+    ->requireCondition($this::getPermission(ManageableModelPermissions::EDIT))
+    ->setAction(fn ($model) => 'Row action triggered')
+    ->multiAction(function (array $ids) {
+        \App\Models\BlogPost::whereIn('id', $ids)->update(['status' => 'published']);
+        return count($ids).' posts published.';
+    }, 'Publish the selected posts?') // optional confirmation prompt
+    ->setMultiActionText('Publish Selected'); // optional toolbar button label override</code></pre>
+    </div>
+</div>
+
+<!-- setOrderBy -->
+<div class="docs-section">
+    <h2 class="docs-heading font-mono text-primary-600">setOrderBy()</h2>
+    <p class="docs-body">
+        Sets the default column and direction used to sort records when the browse page first loads.
+        Users can override this interactively by clicking column headers. Both arguments default to
+        <code class="docs-inline-code">'id'</code> and <code class="docs-inline-code">'desc'</code>
+        respectively.
+    </p>
+    <div class="docs-code-block mb-4">
+        <pre><code>static::setOrderBy('id', 'desc');          // newest first (default)
+static::setOrderBy('created_at', 'asc');   // oldest first
+static::setOrderBy('title');               // alphabetical (direction defaults to 'desc')</code></pre>
+    </div>
+    <div class="docs-callout docs-callout-info">
+        <div class="docs-callout-icon">
+            <svg viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+            </svg>
+        </div>
+        <div class="docs-callout-body">
+            <code>setOrderBy()</code> only controls the <em>initial</em> sort. Once a user clicks a
+            column header to change the order, their selection takes precedence for that session.
+        </div>
+    </div>
+</div>
+
+<!-- setPreQuery -->
+<div class="docs-section">
+    <h2 class="docs-heading font-mono text-primary-600">setPreQuery()</h2>
+    <p class="docs-body">
+        Registers a callable that receives the base Eloquent
+        <code class="docs-inline-code">Builder</code> and the current array of raw filter values, and
+        must return a modified <code class="docs-inline-code">Builder</code>. WRLA applies this before
+        running any of the user-facing filters, so it is the right place for permanent constraints —
+        tenancy scoping, eager loads, additional joins, or computed columns added via
+        <code class="docs-inline-code">selectRaw</code>.
+    </p>
+    <div class="docs-code-block mb-4">
+        <pre><code>use Illuminate\Database\Eloquent\Builder;
+
+// Scope records to the authenticated team
+static::setPreQuery(function (Builder $query, array $filters): Builder {
+    return $query->where('team_id', auth()->user()->team_id);
+});
+
+// Eager-load a relationship and add a computed column
+static::setPreQuery(function (Builder $query, array $filters): Builder {
+    return $query
+        ->with('author')
+        ->selectRaw('*, CONCAT(first_name, " ", last_name) AS full_name');
+});</code></pre>
+    </div>
+    <div class="docs-callout docs-callout-info">
+        <div class="docs-callout-icon">
+            <svg viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+            </svg>
+        </div>
+        <div class="docs-callout-body">
+            The second argument <code>$filters</code> is the raw key → value map of every registered
+            browse filter. You can use it to make the base query react to filter state — for example
+            conditionally adding a <code>JOIN</code> only when a relational filter is active.
+        </div>
+    </div>
+
+    <!-- appendPreQuery -->
+    <h3 class="docs-subheading mt-6 mb-3">appendPreQuery()</h3>
+    <p class="docs-body">
+        Like <code class="docs-inline-code">setPreQuery()</code> but <em>stacks</em> on top of any
+        callable already registered instead of replacing it. Useful in base or trait classes where you
+        want to add constraints without overriding subclass queries.
+    </p>
+    <div class="docs-code-block">
+        <pre><code>// In a shared trait used by multiple manageable models:
+static::appendPreQuery(function (Builder $query, array $filters): Builder {
+    return $query->where('is_active', true);
+});</code></pre>
+    </div>
+</div>
+
+<!-- setAdditionalRender -->
+<div class="docs-section">
+    <h2 class="docs-heading font-mono text-primary-600">setAdditionalRender()</h2>
+    <p class="docs-body">
+        Injects arbitrary HTML into one of several named positions on the browse page. The second
+        argument is a zero-parameter callable that returns an HTML string. Multiple calls to the same
+        position are supported — each overwrites the previous callable for that position.
+    </p>
+    <div class="docs-code-block mb-4">
+        <pre><code>use WebRegulate\LaravelAdministration\Enums\AdditionalRenderPosition;
+
+static::setAdditionalRender(
+    AdditionalRenderPosition::BROWSE_BELOW_FILTERS,
+    fn () => '<p class="text-sm text-yellow-600 px-4">Content is reviewed daily.</p>',
+);</code></pre>
+    </div>
+
+    <h3 class="docs-subheading mt-6 mb-3">Available positions</h3>
+    <table class="docs-table">
+        <thead>
+            <tr>
+                <th>Enum case</th>
+                <th>Where the HTML is injected</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><code class="docs-inline-code">BROWSE_TOP</code></td>
+                <td>Very top of the browse page, before the heading</td>
+            </tr>
+            <tr>
+                <td><code class="docs-inline-code">BROWSE_BELOW_HEADING</code></td>
+                <td>Directly below the page heading / breadcrumb area</td>
+            </tr>
+            <tr>
+                <td><code class="docs-inline-code">BROWSE_BELOW_ACTIONS</code></td>
+                <td>Below the browse action buttons, above the filter bar</td>
+            </tr>
+            <tr>
+                <td><code class="docs-inline-code">BROWSE_BELOW_FILTERS</code></td>
+                <td>Below the filter bar, directly above the results table</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="docs-callout docs-callout-info mt-4">
+        <div class="docs-callout-icon">
+            <svg viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+            </svg>
+        </div>
+        <div class="docs-callout-body">
+            The callable is executed at render time, so it has full access to the current request,
+            session, and authenticated user — useful for contextual banners or stat summaries.
+        </div>
+    </div>
+</div>

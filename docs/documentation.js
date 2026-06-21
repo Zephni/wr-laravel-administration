@@ -44,6 +44,7 @@ class DocumentationApp {
                         children: [
                             { title: 'mainSetup', url: 'manageable-models/manageable-models-main-setup.html' },
                             { title: 'globalSetup', url: 'manageable-models/manageable-models-global-setup.html' },
+                            { title: 'browseSetup', url: 'manageable-models/manageable-models-browse-setup.html' },
                         ]
                     },
                     { title: 'Authentication', url: 'authentication.html' },
