@@ -1,3 +1,3 @@
 # WebRegulate Laravel Administration
 #### See documentation here:
-https://github.com/Zephni/wr-laravel-administration/wiki/2.-Installation
+[https://zephni.github.io/wr-laravel-administration](https://zephni.github.io/wr-laravel-administration)
