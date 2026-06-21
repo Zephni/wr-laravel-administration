@@ -9,20 +9,20 @@
             {{-- Documentation link --}}
             @if($WRLAHelper::showDocumentationLink())
                 <a href="{{ route('wrla.documentation') }}"
-                    class="hidden md:flex items-center gap-1.5 pl-6 text-xs text-gray-500 hover:text-sky-600 dark:hover:text-slate-400 transition-colors whitespace-nowrap">
+                    class="hidden md:flex items-center gap-1.5 pl-6 text-xs text-gray-600 hover:text-sky-600 dark:hover:text-slate-400 transition-colors whitespace-nowrap">
                     <i class="fas fa-book"></i>
                     <span class="underline">Documentation</span>
                 </a>
             @endif
             @if($WRLAHelper::userIsDev())
-                <div class="hidden md:inline-block pl-6 text-sm">
+                <div class="hidden md:inline-block pl-6 text-xs text-gray-600">
                     @php
                         $versionHandlerClass = \WebRegulate\LaravelAdministration\Classes\VersionHandler\VersionHandler::class;
                         $localComposerVersion = $versionHandlerClass::$localPackageCurrentVersion;
                         $localCurrentSha = $versionHandlerClass::$localPackageCurrentSha;
                         $remotePackageLatestSha = $versionHandlerClass::$remotePackageLatestSha;
                     @endphp
-                    <i class="fas fa-code-branch text-xs mr-1 text-gray-500"></i>Version:
+                    <i class="fas fa-code-branch text-xs mr-1"></i>Version:
                     {{ $localComposerVersion }}
                     <span class="px-1.5">-</span>
                     @if($localCurrentSha === $remotePackageLatestSha)
