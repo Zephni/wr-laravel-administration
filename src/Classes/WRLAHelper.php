@@ -5,7 +5,6 @@ namespace WebRegulate\LaravelAdministration\Classes;
 use Livewire\Livewire;
 use Illuminate\Http\Request;
 use Psr\Log\LoggerInterface;
-use Illuminate\Http\Response;
 use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;

@@ -2,11 +2,10 @@
 
 namespace WebRegulate\LaravelAdministration\Commands;
 
-use App\Models\User;
-use Faker;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Hash;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
+use Faker;
 
 class CreateUserCommand extends Command
 {
@@ -16,7 +15,7 @@ class CreateUserCommand extends Command
      * @var string
      */
     // Signature can optionally have master flag
-    protected $signature = 'wrla:user {master?}';
+    protected $signature = 'wrla:user {master?} {--user-model=}';
 
     /**
      * The console command description.
@@ -32,6 +31,11 @@ class CreateUserCommand extends Command
      */
     public function handle()
     {
+        // Resolve user model class (use passed option or fall back to config default)
+        $userModel = $this->option('user-model')
+            ? ltrim($this->option('user-model'), '\\')
+            : ltrim(WRLAHelper::getUserModelClass(), '\\');
+
         // Check if master flag passed
         $master = $this->argument('master') !== null;
 
@@ -67,7 +71,7 @@ class CreateUserCommand extends Command
             $email = $this->ask('Enter the email for the user', $defaults['email']);
 
             // Check if user already exists
-            $user = User::where('email', $email)->first();
+            $user = $userModel::where('email', $email)->first();
 
             if ($user == null && filter_var($email, FILTER_VALIDATE_EMAIL) !== false) {
                 $emailSuccess = true;
@@ -81,7 +85,7 @@ class CreateUserCommand extends Command
         $password = $this->ask('Enter the password for the '.$userText->lower(), $defaultPassword);
 
         // Create a standard user
-        $user = new User;
+        $user = new $userModel;
         $user->name = $name;
         $user->email = $email;
         $user->password = Hash::make($password);

@@ -3,12 +3,16 @@
 namespace WebRegulate\LaravelAdministration\Commands;
 
 use Illuminate\Console\Command;
-use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 
 class InstallCommand extends Command
 {
+    /**
+     * Resolved User model class (with leading backslash).
+     */
+    private string $userModelClass = '';
+
     /**
      * The name and signature of the console command.
      *
@@ -30,7 +34,9 @@ class InstallCommand extends Command
      */
     public function handle()
     {
+        $this->userModelClass = $this->promptUserModelClass();
         $this->publishConfig();
+        $this->updatePublishedConfig();
         $this->publishAssets();
         $this->publishLogViewerAssets();
         $this->generateUserDataModel();
@@ -58,12 +64,39 @@ class InstallCommand extends Command
         return 1;
     }
 
+    private function promptUserModelClass(): string
+    {
+        while (true) {
+            $modelClass = $this->ask('Enter the fully qualified class name of your User model:', '\App\Models\User');
+            $normalizedClass = ltrim($modelClass, '\\');
+            if (class_exists($normalizedClass)) {
+                return '\\' . $normalizedClass;
+            }
+            $this->error("Class '{$modelClass}' not found. Please check the namespace and try again.");
+        }
+    }
+
     private function publishConfig(): void
     {
         $this->call('vendor:publish', [
             '--provider' => \WebRegulate\LaravelAdministration\WRLAServiceProvider::class,
             '--tag' => 'wrla-config',
         ]);
+    }
+
+    private function updatePublishedConfig(): void
+    {
+        $configPath = config_path('wr-laravel-administration.php');
+        if (! file_exists($configPath)) {
+            return;
+        }
+        $contents = file_get_contents($configPath);
+        $updated = str_replace(
+            "'user' => \\App\\Models\\User::class",
+            "'user' => {$this->userModelClass}::class",
+            $contents
+        );
+        file_put_contents($configPath, $updated);
     }
 
     private function publishAssets(): void
@@ -209,10 +242,11 @@ class InstallCommand extends Command
 
     private function promptCreateMasterUser(bool $databaseConnectionExists): void
     {
-        $anyUsersExist = $databaseConnectionExists ? User::limit(1)->count() > 0 : false;
+        $userModelClass = ltrim($this->userModelClass, '\\');
+        $anyUsersExist = $databaseConnectionExists ? $userModelClass::limit(1)->count() > 0 : false;
 
         if ($this->confirm('Would you like to create a master user?', ! $anyUsersExist)) {
-            $this->call('wrla:user', ['master' => true]);
+            $this->call('wrla:user', ['master' => true, '--user-model' => $this->userModelClass]);
         }
     }
 
