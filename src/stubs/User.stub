@@ -207,26 +207,6 @@ class User extends ManageableModel
     }
 
     /**
-     * Is model soft deletable
-     */
-    public static function isSoftDeletable(): bool
-    {
-        // Get whether base model has SoftDeletes trait
-        return once(function(){
-            return in_array('Illuminate\Database\Eloquent\SoftDeletes', class_uses(WRLAHelper::getUserModelClass())) ?? false;
-        });
-    }
-
-    /**
-     * Get current user manageable model
-     */
-    public static function current(): User {
-        return new User(
-            WRLAHelper::getCurrentUser()
-        );
-    }
-
-    /**
      * Pre update relationship instance field hook. Note that this is called after validation but before the relationship instance is updated and saved for each field it's associated with.
      *
      * @param mixed $modelInstance The model instance.
@@ -254,8 +234,6 @@ class User extends ManageableModel
 
     /**
      * Pre delete model instance hook
-     *
-     * @return void
      */
     public function preDeleteModelInstance(Request $request, int $oldId, bool $soft): void
     {
@@ -270,15 +248,5 @@ class User extends ManageableModel
 
         // Delete the user data
         WRLAHelper::getUserDataModelClass()::where('user_id', $userIdToDelete)->delete();
-    }
-
-    /**
-     * Get specific validation rule
-     *
-     * @return string
-     */
-    public function getValidationRule($column): string
-    {
-        return $this->getValidationRules()->get($column);
     }
 }

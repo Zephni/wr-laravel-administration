@@ -1055,8 +1055,6 @@ abstract class ManageableModel
 
     /**
      * Get manageable field by name
-     *
-     * @param  string  $name
      */
     public function getManageableFieldByName(string $columnName): ?object
     {
@@ -1241,8 +1239,6 @@ abstract class ManageableModel
 
     /**
      * Get all columns
-     * 
-     * @return array
      */
     public static function getAllColumns(): array
     {
@@ -1284,8 +1280,6 @@ abstract class ManageableModel
 
     /**
      * Register instance action
-     * @param callable $action
-     * @return string
      */
     public function registerInstanceAction(callable $action): string
     {
@@ -1296,9 +1290,7 @@ abstract class ManageableModel
 
     /**
      * Call a registered instance action by it's key
-     * @param string $actionKey
-     * @param array $parameters
-     * @throws \Exception
+     * 
      * @return string|RedirectResponse String shows message in browser alert message, RedirectResponse redirects to the specified URL
      */
     public function callInstanceAction(string $actionKey, array $parameters): mixed
@@ -1629,6 +1621,14 @@ abstract class ManageableModel
     public function isBeingEdited(): bool
     {
         return !$this->isBeingCreated();
+    }
+
+    /**
+     * Is soft deleteable
+     */
+    public static function isSoftDeleteable(): bool
+    {
+        return WRLAHelper::isSoftDeletable(static::getBaseModelClass());
     }
 
     /**
