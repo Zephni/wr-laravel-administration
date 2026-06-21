@@ -486,21 +486,14 @@ abstract class ManageableModel
     }
 
     /**
-     * Set child navigation items. Accepts either plain items/arrays (resolved eagerly) or a single
-     * Closure (stored as-is and resolved lazily at navigation build time). Using a Closure avoids
-     * any cross-model ordering issues and skips processing entirely when the navigation isn't rendered.
+     * Set child navigation items. Accepts a Closure that returns an array of NavigationItem instances.
+     * The Closure is stored as-is and resolved lazily at navigation build time, avoiding any
+     * cross-model ordering issues and skipping processing entirely when the sidebar isn't rendered.
      *
-     * @param  Closure|Collection|array  $childNavigationItems
+     * @param  \Closure  $childNavigationItems
      */
-    public static function setNavigationItems(...$childNavigationItems): void
+    public static function setNavigationItems(\Closure $childNavigationItems): void
     {
-        // Single closure: store raw and resolve lazily in getChildNavigationItems().
-        if (count($childNavigationItems) === 1 && $childNavigationItems[0] instanceof \Closure) {
-            static::setStaticOption('navigation.children', $childNavigationItems[0]);
-            return;
-        }
-
-        $childNavigationItems = WRLAHelper::flattenArray($childNavigationItems);
         static::setStaticOption('navigation.children', $childNavigationItems);
     }
 
@@ -651,19 +644,14 @@ abstract class ManageableModel
     }
 
     /**
-     * Get child navigation items. Resolves a stored Closure lazily (at navigation build time).
+     * Get child navigation items. Invokes the stored Closure lazily (at navigation build time).
      */
     public static function getChildNavigationItems(): Collection
     {
         $childNavigationItems = static::getStaticOption(static::class, 'navigation.children');
 
-        // Resolve lazily-stored closure.
         if ($childNavigationItems instanceof \Closure) {
             $childNavigationItems = $childNavigationItems();
-        }
-
-        if ($childNavigationItems instanceof Collection) {
-            $childNavigationItems = $childNavigationItems->all();
         }
 
         return collect(WRLAHelper::flattenArray((array) ($childNavigationItems ?? [])));

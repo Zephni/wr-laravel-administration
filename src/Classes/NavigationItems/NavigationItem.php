@@ -2,6 +2,7 @@
 
 namespace WebRegulate\LaravelAdministration\Classes\NavigationItems;
 
+use App\Models\UserData;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 
 class NavigationItem
@@ -176,7 +177,7 @@ class NavigationItem
             return true;
         }
 
-        return call_user_func($this->enableOnConditionCallback);
+        return call_user_func($this->enableOnConditionCallback, UserData::getCurrentUserData());
     }
 
     /**

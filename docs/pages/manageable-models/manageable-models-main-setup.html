@@ -192,59 +192,46 @@ static::setPermission(ManageableModelPermissions::DELETE, fn($userData) => $user
 <div class="docs-section">
     <h2 class="docs-heading font-mono text-primary-600">setNavigationItems()</h2>
     <p class="docs-body">
-        Defines the sub-links shown underneath this model's entry in the sidebar navigation.
-        Accepts any number of <code class="docs-inline-code">NavigationItem</code> instances (or
-        sub-classes), a flat array of them, or any mix — they are flattened automatically.
-        Alternatively, pass a single <code class="docs-inline-code">Closure</code> returning the
-        items: it is stored as-is and resolved lazily when the navigation is built.
+        Defines the sub-links shown under this model in the sidebar.
+        Pass a <code class="docs-inline-code">Closure</code> that returns an array of
+        <code class="docs-inline-code">NavigationItem</code> instances.
     </p>
     <div class="docs-code-block">
-        <pre><code>// Eager — items built immediately
-static::setNavigationItems(...$childNavigationItems);
-
-// Lazy (recommended) — resolved at navigation build time
-static::setNavigationItems(fn () => [...$childNavigationItems]);</code></pre>
-    </div>
-
-    <!-- NavigationItemBrowse / NavigationItemCreate -->
-    <h3 class="docs-subheading mt-6 mb-3">NavigationItemBrowse / NavigationItemCreate</h3>
-    <p class="docs-body">
-        Lightweight factory classes that build the two standard child links —
-        <strong>Browse</strong> and <strong>Create</strong> — already wired to the correct admin
-        routes for the given model class. This is what the generated stub uses. Each
-        <code class="docs-inline-code">make()</code> accepts the manageable model class and optional
-        <code class="docs-inline-code">$name</code> / <code class="docs-inline-code">$icon</code> overrides.
-    </p>
-    <div class="docs-code-block mb-4">
-        <pre><code>use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItemBrowse;
-use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItemCreate;
-
-static::setNavigationItems(fn () => [
+        <pre><code>static::setNavigationItems(fn () => [
     NavigationItemBrowse::make(static::class),
     NavigationItemCreate::make(static::class),
+    NavigationItem::make(...), // Custom
 ]);</code></pre>
     </div>
-    <p class="docs-body">
-        The resulting sidebar entry will show two children:
-    </p>
+
+    <h3 class="docs-subheading mt-4 mb-3">Helpful methods</h3>
     <table class="docs-table mb-0">
         <thead>
             <tr>
-                <th>Label</th>
-                <th>Route</th>
-                <th>Icon</th>
+                <th>Method</th>
+                <th>Description</th>
             </tr>
         </thead>
         <tbody>
             <tr>
-                <td>Browse</td>
-                <td><code class="docs-inline-code">wrla.manageable-models.browse</code></td>
-                <td><code class="docs-inline-code">fa fa-list</code></td>
+                <td><code class="docs-inline-code">NavigationItem::make(...)</code></td>
+                <td>Creates a custom navigation item from a URL, name, and icon.</td>
             </tr>
             <tr>
-                <td>Create</td>
-                <td><code class="docs-inline-code">wrla.manageable-models.create</code></td>
-                <td><code class="docs-inline-code">fa fa-plus</code></td>
+                <td><code class="docs-inline-code">->showOnCondition(fn() => ...)</code></td>
+                <td>Hides the item entirely when the callback returns <code class="docs-inline-code">false</code>.</td>
+            </tr>
+            <tr>
+                <td><code class="docs-inline-code">->enableOnCondition(fn($userData) => ...)</code></td>
+                <td>Disables the item when the callback returns <code class="docs-inline-code">false</code>; return a string to show it as a tooltip.</td>
+            </tr>
+            <tr>
+                <td><code class="docs-inline-code">->openInNewTab()</code></td>
+                <td>Opens the link in a new browser tab.</td>
+            </tr>
+            <tr>
+                <td><code class="docs-inline-code">NavigationItem::makeDivider(...)</code></td>
+                <td>Inserts a visual divider, with an optional title and icon.</td>
             </tr>
         </tbody>
     </table>
@@ -261,7 +248,7 @@ static::setNavigationItems(fn () => [
     <div class="docs-code-block mb-4">
         <pre><code>use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItem;
 
-static::setNavigationItems(
+static::setNavigationItems(fn () => [
     NavigationItem::make(
         url: route('wrla.manageable-models.browse', ['modelUrlAlias' => static::getUrlAlias()]),
         name: 'All Posts',
@@ -272,7 +259,7 @@ static::setNavigationItems(
         name: 'New Post',
         icon: 'fa fa-plus',
     ),
-);</code></pre>
+]);</code></pre>
     </div>
 
     <h3 class="docs-subheading mt-4 mb-3">NavigationItem::make()</h3>
@@ -301,7 +288,7 @@ static::setNavigationItems(
         <pre><code>use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItem;
 use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItemDivider;
 
-static::setNavigationItems(
+static::setNavigationItems(fn () => [
     NavigationItem::make(
         url: route('wrla.manageable-models.browse', ['modelUrlAlias' => static::getUrlAlias()]),
         name: 'All Posts',
@@ -315,7 +302,7 @@ static::setNavigationItems(
         name: 'New Post',
         icon: 'fa fa-plus',
     ),
-);</code></pre>
+]);</code></pre>
     </div>
     <div class="docs-callout docs-callout-info">
         <div class="docs-callout-icon">
@@ -340,11 +327,11 @@ static::setNavigationItems(
     <div class="docs-code-block">
         <pre><code>use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItemHTML;
 
-static::setNavigationItems(
+static::setNavigationItems(fn () => [
     NavigationItemBrowse::make(static::class),
     NavigationItemCreate::make(static::class),
     new NavigationItemHTML('<span class="text-xs text-yellow-400 px-2">&#x26A0; Under review</span>'),
-);</code></pre>
+]);</code></pre>
     </div>
 </div>
 
@@ -359,7 +346,7 @@ static::setNavigationItems(
     <div class="docs-code-block mb-4">
         <pre><code>use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItem;
 
-static::setNavigationItems(
+static::setNavigationItems(fn () => [
     NavigationItemBrowse::make(static::class),
     NavigationItemCreate::make(static::class),
     NavigationItem::make(
@@ -367,7 +354,7 @@ static::setNavigationItems(
         name: 'Drafts',
         icon: 'fa fa-pencil',
     )->showOnCondition(fn() => auth()->user()?->can('view-drafts')),
-);</code></pre>
+]);</code></pre>
     </div>
 </div>
 
@@ -383,7 +370,7 @@ static::setNavigationItems(
     <div class="docs-code-block">
         <pre><code>use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItem;
 
-static::setNavigationItems(
+static::setNavigationItems(fn () => [
     NavigationItemBrowse::make(static::class),
     NavigationItemCreate::make(static::class),
     NavigationItem::make(
@@ -393,7 +380,7 @@ static::setNavigationItems(
     )->enableOnCondition(
         fn() => PostLimit::hasCapacity() ?: 'Monthly post limit reached'
     ),
-);</code></pre>
+]);</code></pre>
     </div>
 </div>
 
@@ -408,7 +395,7 @@ static::setNavigationItems(
     <div class="docs-code-block">
         <pre><code>use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItem;
 
-static::setNavigationItems(
+static::setNavigationItems(fn () => [
     NavigationItemBrowse::make(static::class),
     NavigationItemCreate::make(static::class),
     NavigationItem::make(
@@ -416,7 +403,7 @@ static::setNavigationItems(
         name: 'View on Site',
         icon: 'fa fa-external-link',
     )->openInNewTab(),
-);</code></pre>
+]);</code></pre>
     </div>
 </div>
 
