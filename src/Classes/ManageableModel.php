@@ -391,7 +391,7 @@ abstract class ManageableModel
      */
     public static function getByModelClass(string $modelClass): mixed
     {
-        return static::$manageableModels->first(fn ($manageableModel) => $manageableModel::getStaticOption($manageableModel::class, 'baseModelClass') === $modelClass);
+        return static::$manageableModels->first(fn ($manageableModel) => $manageableModel::getStaticOption($manageableModel, 'baseModelClass') === $modelClass);
     }
 
     /**

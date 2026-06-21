@@ -103,7 +103,6 @@ class WRLAServiceProvider extends ServiceProvider
 
     /**
      * Set publishable assets
-     * @return void
      */
     protected function publishableAssets(): void
     {
@@ -123,7 +122,6 @@ class WRLAServiceProvider extends ServiceProvider
 
     /**
      * Main setup - Loading assets, routes, etc.
-     * @return void
      */
     protected function mainSetup(): void
     {
@@ -213,8 +211,6 @@ class WRLAServiceProvider extends ServiceProvider
 
     /**
      * Configure rate limiting for applicable routes.
-     *
-     * @param Request $request
      */
     protected function configureRateLimiting(Request $request)
     {
@@ -244,8 +240,6 @@ class WRLAServiceProvider extends ServiceProvider
 
     /**
      * Define gates
-     *
-     * @return void
      */
     protected function defineGates(): void
     {
@@ -254,8 +248,6 @@ class WRLAServiceProvider extends ServiceProvider
 
     /**
      * Register custom validation rules
-     *
-     * @return void
      */
     protected function registerValidationRules(): void
     {
@@ -296,7 +288,6 @@ class WRLAServiceProvider extends ServiceProvider
 
     /**
      * Pass variables to all views within this package
-     * @return void
      */
     protected function passVariablesToViews(): void
     {
@@ -319,7 +310,6 @@ class WRLAServiceProvider extends ServiceProvider
 
     /**
      * Provide blade directives
-     * @return void
      */
     protected function provideBladeDirectives(): void
     {
@@ -375,8 +365,6 @@ class WRLAServiceProvider extends ServiceProvider
 
     /**
      * Build custom macros
-     *
-     * @return void
      */
     private function buildCustomMacros(): void
     {
@@ -395,7 +383,6 @@ class WRLAServiceProvider extends ServiceProvider
 
     /**
      * Auto models setup
-     * @return void
      */
     protected function autoModelsSetup(): void
     {
@@ -452,11 +439,10 @@ class WRLAServiceProvider extends ServiceProvider
 
     /**
      * Handle vendor / packages booting
-     * @return void
      */
     protected function handleVendorBooting(): void
     {
-        
+        // Currently does nothing
     }
 
     /**
@@ -481,12 +467,10 @@ class WRLAServiceProvider extends ServiceProvider
 
     /**
      * Post boot calls
-     * @return void
      */
     protected function postBootCalls(): void
     {
-        // Run mainSetup on all manageable models. Child navigation defined here via a Closure is
-        // resolved lazily at navigation build time, so no separate global setup pass is required.
+        // Run mainSetup on all manageable models.
         foreach(WRLAHelper::$globalManageableModelData as $className => $value) {
             $className::mainSetup();
         }
