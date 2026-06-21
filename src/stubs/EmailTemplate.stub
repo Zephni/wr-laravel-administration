@@ -30,7 +30,7 @@ class EmailTemplate extends ManageableModel
         static::setUrlAlias('email-template');
         static::setIcon('fas fa-palette');
 
-        // Navigation (resolved lazily at navigation build time)
+        // Navigation
         static::setNavigationItems(fn () => [
             NavigationItemBrowse::make(static::class),
             NavigationItemCreate::make(static::class),
