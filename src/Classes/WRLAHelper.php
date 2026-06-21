@@ -101,6 +101,29 @@ class WRLAHelper
     }
 
     /**
+     * Get the manageable model class that wraps the configured user model.
+     */
+    public static function getUserManageableModelClass(): ?string
+    {
+        return ManageableModel::getByModelClass(static::getUserModelClass());
+    }
+
+    /**
+     * Get the current authenticated user as a manageable model instance.
+     */
+    public static function getCurrentUserManageableModel(): ?ManageableModel
+    {
+        $userManageableModelClass = static::getUserManageableModelClass();
+        $currentUser = static::getCurrentUser();
+
+        if ($userManageableModelClass === null || $currentUser === null) {
+            return null;
+        }
+
+        return new $userManageableModelClass($currentUser);
+    }
+
+    /**
      * Build user id from user model instance.
      * 
      * @param mixed $user  The user model instance to build the user id from.

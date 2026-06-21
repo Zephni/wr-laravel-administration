@@ -4,7 +4,6 @@ namespace WebRegulate\LaravelAdministration\Http\Controllers;
 
 use Exception;
 use Throwable;
-use App\WRLA\User;
 use Illuminate\View\View;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -312,16 +311,17 @@ class WRLAAdminController extends Controller
     {
         // Set page type
         WRLAHelper::setCurrentPageType(PageType::EDIT);
-        WRLAHelper::setCurrentActiveManageableModelClass(User::class);
+        $userManageableModelClass = WRLAHelper::getUserManageableModelClass();
+        WRLAHelper::setCurrentActiveManageableModelClass($userManageableModelClass);
 
         // Get manageable model instance
-        $manageableModel = User::current();
+        $manageableModel = WRLAHelper::getCurrentUserManageableModel();
 
         return view(WRLAHelper::getViewPath('livewire-content'), [
             'title' => 'Manage Account',
             'livewireComponentAlias' => 'wrla.manageable-models.upsert',
             'livewireComponentData' => [
-                'manageableModelClass' => User::class,
+                'manageableModelClass' => $userManageableModelClass,
                 'upsertType' => PageType::EDIT,
                 'modelId' => $manageableModel->model()->id,
                 'overrideTitle' => 'Manage Account',
