@@ -289,7 +289,7 @@ class InstallCommand extends Command
         $selectedChoice = $this->choice(
             'Who should have developer tools enabled?',
             $choices,
-            count($choices) - 1
+            0
         );
 
         $selectedValue = $values[array_search($selectedChoice, $choices)];
