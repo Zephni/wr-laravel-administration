@@ -53,11 +53,11 @@ class InstallCommand extends Command
         $migrationsRan = $this->promptRunMigrations($databaseConnectionExists, $databaseName);
         $this->promptCreateStorageSymlink();
 
-        $createdUser = null;
-        if ($migrationsRan || $databaseConnectionExists) {
-            $createdUser = $this->promptCreateMasterUser($databaseConnectionExists);
-        }
+        $createdUser = $migrationsRan || $databaseConnectionExists
+            ? $this->promptCreateMasterUser($databaseConnectionExists)
+            : null;
 
+        $this->promptConfigureDeveloperTools($createdUser);
         $this->promptOpenDocumentation();
 
         $this->line('');
@@ -261,6 +261,60 @@ class InstallCommand extends Command
         }
 
         return null;
+    }
+
+    private function promptConfigureDeveloperTools(mixed $createdUser): void
+    {
+        $this->line('');
+        $this->info('🔧 Developer tools enables updating WRLA through the backend, shows debug info, and provides a documentation link in the backend.');
+
+        $choices = [];
+        $values  = [];
+
+        if ($createdUser !== null) {
+            $emailOrId = $createdUser->getEmailForPasswordReset() ?? "User ID #$createdUser->id";
+            $choices[] = "For {$emailOrId} only";
+            $values[]  = "fn(\$wrlaUserData) => \$wrlaUserData?->user_id === {$createdUser->id}";
+        }
+
+        $choices[] = 'For all Master users';
+        $values[]  = 'fn($wrlaUserData) => $wrlaUserData?->isMaster()';
+
+        $choices[] = 'For all admin users';
+        $values[]  = 'fn($wrlaUserData) => $wrlaUserData?->isAdmin()';
+
+        $choices[] = 'Disabled for all users (I will configure this myself if needed)';
+        $values[]  = 'fn($wrlaUserData) => false';
+
+        $selectedChoice = $this->choice(
+            'Who should have developer tools enabled?',
+            $choices,
+            count($choices) - 1
+        );
+
+        $selectedValue = $values[array_search($selectedChoice, $choices)];
+
+        if ($selectedValue === 'fn($wrlaUserData) => false') {
+            return;
+        }
+
+        $configPath = config_path('wr-laravel-administration.php');
+        if (! file_exists($configPath)) {
+            $this->warn(' - Config file not found, could not update developer tools setting.');
+            return;
+        }
+
+        $contents = file_get_contents($configPath);
+        $updated  = preg_replace_callback(
+            "/'enable_developer_tools'\s*=>\s*fn\(\\\$wrlaUserData\)\s*=>\s*false,.*$/m",
+            function () use ($selectedValue) {
+                return "'enable_developer_tools' => {$selectedValue},";
+            },
+            $contents
+        );
+
+        file_put_contents($configPath, $updated);
+        $this->info(' - Developer tools configuration updated successfully.');
     }
 
     private function promptOpenDocumentation(): void
