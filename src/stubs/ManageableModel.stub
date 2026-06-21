@@ -10,6 +10,8 @@ use WebRegulate\LaravelAdministration\Classes\InstanceActions\InstanceActionRest
 use WebRegulate\LaravelAdministration\Classes\InstanceActions\InstanceActionEdit;
 use WebRegulate\LaravelAdministration\Classes\InstanceActions\InstanceActionDelete;
 use WebRegulate\LaravelAdministration\Classes\InstanceActions\InstanceActionDuplicate;
+use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItemBrowse;
+use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItemCreate;
 use WebRegulate\LaravelAdministration\Classes\ManageableFields\Text;
 
 class {{ $MODEL }} extends ManageableModel
@@ -32,15 +34,12 @@ class {{ $MODEL }} extends ManageableModel
         static::setPermission(ManageableModelPermissions::EDIT, true);
         static::setPermission(ManageableModelPermissions::DELETE, true);
         static::setPermission(ManageableModelPermissions::RESTORE, true);
-    }
 
-    /**
-     * Setup global properties of this manageable model.
-     */
-    public final static function globalSetup(): void
-    {
         // Navigation
-        static::setChildNavigationItems(parent::getDefaultChildNavigationItems());
+        static::setChildNavigationItems(fn () => [
+            NavigationItemBrowse::make(static::class),
+            NavigationItemCreate::make(static::class),
+        ]);
     }
 
     /**

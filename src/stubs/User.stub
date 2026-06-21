@@ -14,6 +14,8 @@ use WebRegulate\LaravelAdministration\Classes\BrowseColumns\BrowseColumnImage;
 use WebRegulate\LaravelAdministration\Classes\InstanceActions\InstanceActionRestore;
 use WebRegulate\LaravelAdministration\Classes\InstanceActions\InstanceActionEdit;
 use WebRegulate\LaravelAdministration\Classes\InstanceActions\InstanceActionDelete;
+use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItemBrowse;
+use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItemCreate;
 use WebRegulate\LaravelAdministration\Classes\ManageableFields\Heading;
 use WebRegulate\LaravelAdministration\Classes\ManageableFields\Text;
 use WebRegulate\LaravelAdministration\Classes\ManageableFields\Password;
@@ -43,15 +45,12 @@ class User extends ManageableModel
         static::setPermission(self::IMPERSONATE, fn($wrlaUserData) => false); // Note if enabled for certain users, they can impersonate your account also unless you actively condition against it
         static::setPermission(ManageableModelPermissions::ENABLED, fn($wrlaUserData) => $wrlaUserData->isMaster() || $wrlaUserData->user_id == WRLAHelper::buildUserId(WRLAHelper::getActiveModelInstance()));
         static::setPermission(ManageableModelPermissions::DELETE, fn($wrlaUserData) => $wrlaUserData->isMaster() && $wrlaUserData->user_id != WRLAHelper::buildUserId(WRLAHelper::getActiveModelInstance()));
-    }
 
-    /**
-     * Setup global properties of this manageable model.
-     */
-    public final static function globalSetup(): void
-    {
-        // Navigation
-        static::setChildNavigationItems(static::getDefaultChildNavigationItems());
+        // Navigation (resolved lazily at navigation build time)
+        static::setChildNavigationItems(fn () => [
+            NavigationItemBrowse::make(static::class),
+            NavigationItemCreate::make(static::class),
+        ]);
     }
 
     /**

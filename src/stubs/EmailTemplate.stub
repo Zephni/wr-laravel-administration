@@ -10,6 +10,8 @@ use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 use WebRegulate\LaravelAdministration\Classes\InstanceActions\InstanceActionRestore;
 use WebRegulate\LaravelAdministration\Classes\InstanceActions\InstanceActionEdit;
 use WebRegulate\LaravelAdministration\Classes\InstanceActions\InstanceActionDelete;
+use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItemBrowse;
+use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItemCreate;
 use WebRegulate\LaravelAdministration\Classes\ManageableFields\BladeElement;
 use WebRegulate\LaravelAdministration\Classes\ManageableFields\Json;
 use WebRegulate\LaravelAdministration\Classes\ManageableFields\Text;
@@ -27,15 +29,12 @@ class EmailTemplate extends ManageableModel
         static::setDisplayName();
         static::setUrlAlias('email-template');
         static::setIcon('fas fa-palette');
-    }
 
-    /**
-     * Setup global properties of this manageable model.
-     */
-    public final static function globalSetup(): void
-    {
-        // Navigation
-        static::setChildNavigationItems(parent::getDefaultChildNavigationItems());
+        // Navigation (resolved lazily at navigation build time)
+        static::setChildNavigationItems(fn () => [
+            NavigationItemBrowse::make(static::class),
+            NavigationItemCreate::make(static::class),
+        ]);
     }
 
     /**

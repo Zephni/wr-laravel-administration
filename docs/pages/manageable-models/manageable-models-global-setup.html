@@ -1,9 +1,11 @@
-<h1 class="docs-title">globalSetup()</h1>
+<h1 class="docs-title">Child Navigation</h1>
 <p class="docs-lead">
-    Called once per registered model, immediately <em>after</em> every model's
-    <code class="docs-inline-code">mainSetup()</code> has finished. Because all core identity data
-    (URL aliases, display names, etc.) is already set when this runs, it is the right place for
-    anything that may depend on other registered models — primarily the sidebar navigation children.
+    Sidebar sub-links for a model are defined inside
+    <code class="docs-inline-code">mainSetup()</code> via
+    <code class="docs-inline-code">setChildNavigationItems()</code>. Pass a <strong>Closure</strong>
+    to have the items resolved lazily at navigation build time — this avoids any cross-model
+    ordering concerns (every model's URL alias and display name is already set by then) and skips
+    the work entirely when the sidebar isn't rendered.
 </p>
 
 <!-- Default stub example -->
@@ -11,11 +13,27 @@
     <div class="docs-code-block">
         <pre><code>// /App/WRLA/ManageableModels/Blog.php (example)
 
-public final static function globalSetup(): void
+public final static function mainSetup(): void
 {
-    // Navigation
-    static::setChildNavigationItems(parent::getDefaultChildNavigationItems());
+    static::setBaseModelClass(\App\Models\Blog::class);
+    static::setDisplayName();
+    static::setUrlAlias('blog');
+    static::setIcon('fa fa-newspaper');
+
+    // Navigation (resolved lazily at navigation build time)
+    static::setChildNavigationItems(fn () => [
+        NavigationItemBrowse::make(static::class),
+        NavigationItemCreate::make(static::class),
+    ]);
 }</code></pre>
+    </div>
+    <div class="docs-callout docs-callout-warning">
+        <div class="docs-callout-body">
+            <strong>Breaking change</strong> — the previous <code>globalSetup()</code> method has been
+            removed. Move any child-navigation (or other global) setup into <code>mainSetup()</code>.
+            Wrap navigation in a <code>fn () => ...</code> closure so anything referencing other
+            models still resolves safely regardless of registration order.
+        </div>
     </div>
 </div>
 
@@ -26,20 +44,34 @@ public final static function globalSetup(): void
         Defines the sub-links shown underneath this model's entry in the sidebar navigation.
         Accepts any number of <code class="docs-inline-code">NavigationItem</code> instances (or
         sub-classes), a flat array of them, or any mix — they are flattened automatically.
+        Alternatively, pass a single <code class="docs-inline-code">Closure</code> returning the
+        items: it is stored as-is and resolved lazily when the navigation is built.
     </p>
     <div class="docs-code-block">
-        <pre><code>static::setChildNavigationItems(...$childNavigationItems);</code></pre>
+        <pre><code>// Eager — items built immediately
+static::setChildNavigationItems(...$childNavigationItems);
+
+// Lazy (recommended) — resolved at navigation build time
+static::setChildNavigationItems(fn () => [...$childNavigationItems]);</code></pre>
     </div>
 
-    <!-- getDefaultChildNavigationItems -->
-    <h3 class="docs-subheading mt-6 mb-3">getDefaultChildNavigationItems()</h3>
+    <!-- NavigationItemBrowse / NavigationItemCreate -->
+    <h3 class="docs-subheading mt-6 mb-3">NavigationItemBrowse / NavigationItemCreate</h3>
     <p class="docs-body">
-        Returns a <code class="docs-inline-code">Collection</code> containing the two standard child
-        links — <strong>Browse</strong> and <strong>Create</strong> — already wired to the correct
-        admin routes for the calling model. This is what the generated stub uses.
+        Lightweight factory classes that build the two standard child links —
+        <strong>Browse</strong> and <strong>Create</strong> — already wired to the correct admin
+        routes for the given model class. This is what the generated stub uses. Each
+        <code class="docs-inline-code">make()</code> accepts the manageable model class and optional
+        <code class="docs-inline-code">$name</code> / <code class="docs-inline-code">$icon</code> overrides.
     </p>
     <div class="docs-code-block mb-4">
-        <pre><code>static::setChildNavigationItems(parent::getDefaultChildNavigationItems());</code></pre>
+        <pre><code>use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItemBrowse;
+use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItemCreate;
+
+static::setChildNavigationItems(fn () => [
+    NavigationItemBrowse::make(static::class),
+    NavigationItemCreate::make(static::class),
+]);</code></pre>
     </div>
     <p class="docs-body">
         The resulting sidebar entry will show two children:
@@ -161,7 +193,8 @@ static::setChildNavigationItems(
         <pre><code>use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItemHTML;
 
 static::setChildNavigationItems(
-    parent::getDefaultChildNavigationItems(),
+    NavigationItemBrowse::make(static::class),
+    NavigationItemCreate::make(static::class),
     new NavigationItemHTML('<span class="text-xs text-yellow-400 px-2">&#x26A0; Under review</span>'),
 );</code></pre>
     </div>
@@ -179,7 +212,8 @@ static::setChildNavigationItems(
         <pre><code>use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItem;
 
 static::setChildNavigationItems(
-    parent::getDefaultChildNavigationItems(),
+    NavigationItemBrowse::make(static::class),
+    NavigationItemCreate::make(static::class),
     NavigationItem::make(
         route: 'wrla.manageable-models.browse',
         routeData: ['modelUrlAlias' => 'drafts'],
@@ -203,7 +237,8 @@ static::setChildNavigationItems(
         <pre><code>use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItem;
 
 static::setChildNavigationItems(
-    parent::getDefaultChildNavigationItems(),
+    NavigationItemBrowse::make(static::class),
+    NavigationItemCreate::make(static::class),
     NavigationItem::make(
         route: 'wrla.manageable-models.create',
         routeData: ['modelUrlAlias' => static::getUrlAlias()],
@@ -228,7 +263,8 @@ static::setChildNavigationItems(
         <pre><code>use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItem;
 
 static::setChildNavigationItems(
-    parent::getDefaultChildNavigationItems(),
+    NavigationItemBrowse::make(static::class),
+    NavigationItemCreate::make(static::class),
     NavigationItem::make(
         route: 'blog.index',
         routeData: [],
@@ -247,9 +283,9 @@ static::setChildNavigationItems(
         </svg>
     </div>
     <div class="docs-callout-body">
-        <strong>Execution order</strong> — WRLA calls every model's <code>mainSetup()</code> first,
-        then loops back and calls every model's <code>globalSetup()</code>. This means you can
-        safely reference another model's URL alias or display name inside
-        <code>globalSetup()</code> without worrying about registration order.
+        <strong>Execution order</strong> — WRLA calls every model's <code>mainSetup()</code> during
+        boot, but a navigation <code>Closure</code> is only invoked later, when the sidebar is built.
+        By then every model is fully registered, so you can safely reference another model's URL
+        alias or display name from inside the closure without worrying about registration order.
     </div>
 </div>

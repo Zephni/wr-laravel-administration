@@ -22,7 +22,6 @@ use WebRegulate\LaravelAdministration\Classes\BrowseColumns\BrowseColumnBase;
 use WebRegulate\LaravelAdministration\Classes\InstanceActions\InstanceActionDelete;
 use WebRegulate\LaravelAdministration\Classes\InstanceActions\InstanceActionEdit;
 use WebRegulate\LaravelAdministration\Classes\InstanceActions\InstanceActionRestore;
-use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItem;
 use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItemManageableModel;
 
 abstract class ManageableModel
@@ -184,11 +183,6 @@ abstract class ManageableModel
      * Abstract: Main setup.
      */
     abstract public static function mainSetup(): void;
-
-    /**
-     * Abstract: Global setup.
-     */
-    abstract public static function globalSetup(): void;
 
     /**
      * Abstract: Browse setup.
@@ -492,12 +486,20 @@ abstract class ManageableModel
     }
 
     /**
-     * Set child navigation items.
+     * Set child navigation items. Accepts either plain items/arrays (resolved eagerly) or a single
+     * Closure (stored as-is and resolved lazily at navigation build time). Using a Closure avoids
+     * any cross-model ordering issues and skips processing entirely when the navigation isn't rendered.
      *
-     * @param  Collection|array  $childNavigationItems
+     * @param  Closure|Collection|array  $childNavigationItems
      */
     public static function setChildNavigationItems(...$childNavigationItems): void
     {
+        // Single closure: store raw and resolve lazily in getChildNavigationItems().
+        if (count($childNavigationItems) === 1 && $childNavigationItems[0] instanceof \Closure) {
+            static::setStaticOption('navigation.children', $childNavigationItems[0]);
+            return;
+        }
+
         $childNavigationItems = WRLAHelper::flattenArray($childNavigationItems);
         static::setStaticOption('navigation.children', $childNavigationItems);
     }
@@ -649,32 +651,22 @@ abstract class ManageableModel
     }
 
     /**
-     * Get child navigation items.
+     * Get child navigation items. Resolves a stored Closure lazily (at navigation build time).
      */
     public static function getChildNavigationItems(): Collection
     {
-        return collect(static::getStaticOption(static::class, 'navigation.children'));
-    }
+        $childNavigationItems = static::getStaticOption(static::class, 'navigation.children');
 
-    /**
-     * Get default child navigation items
-     *
-     * @var Collection
-     */
-    public static function getDefaultChildNavigationItems(): Collection
-    {
-        return collect([
-            NavigationItem::make(
-                url: route('wrla.manageable-models.browse', ['modelUrlAlias' => static::getStaticOption(static::class, 'urlAlias')]),
-                name: 'Browse',
-                icon: 'fa fa-list',
-            ),
-            NavigationItem::make(
-                url: route('wrla.manageable-models.create', ['modelUrlAlias' => static::getStaticOption(static::class, 'urlAlias')]),
-                name: 'Create',
-                icon: 'fa fa-plus',
-            ),
-        ]);
+        // Resolve lazily-stored closure.
+        if ($childNavigationItems instanceof \Closure) {
+            $childNavigationItems = $childNavigationItems();
+        }
+
+        if ($childNavigationItems instanceof Collection) {
+            $childNavigationItems = $childNavigationItems->all();
+        }
+
+        return collect(WRLAHelper::flattenArray((array) ($childNavigationItems ?? [])));
     }
 
     /**

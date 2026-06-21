@@ -43,7 +43,7 @@ class DocumentationApp {
                         url: 'manageable-models/manageable-models.html',
                         children: [
                             { title: 'mainSetup', url: 'manageable-models/manageable-models-main-setup.html' },
-                            { title: 'globalSetup', url: 'manageable-models/manageable-models-global-setup.html' },
+                            { title: 'Child Navigation', url: 'manageable-models/manageable-models-global-setup.html' },
                             { title: 'browseSetup', url: 'manageable-models/manageable-models-browse-setup.html' },
                         ]
                     },
