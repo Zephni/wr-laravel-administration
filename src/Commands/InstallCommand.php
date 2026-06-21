@@ -30,25 +30,60 @@ class InstallCommand extends Command
      */
     public function handle()
     {
-        // Publish config
+        $this->publishConfig();
+        $this->publishAssets();
+        $this->publishLogViewerAssets();
+        $this->generateUserDataModel();
+        $this->generateUserManageableModel();
+        $this->generateEmailTemplateManageableModel();
+        $this->generateWRLASettingsClass();
+        $this->generateNotificationCustomClass();
+        $this->generateEmailTemplateMailBlade();
+
+        $this->line('');
+        $this->info('WRLA installed successfully.');
+
+        [$databaseConnectionExists, $databaseName] = $this->checkDatabaseConnection();
+        $migrationsRan = $this->promptRunMigrations($databaseConnectionExists, $databaseName);
+        $this->promptCreateStorageSymlink();
+
+        if ($migrationsRan || $databaseConnectionExists) {
+            $this->promptCreateMasterUser($databaseConnectionExists);
+        }
+
+        $this->promptOpenDocumentation();
+
+        $this->line('');
+
+        return 1;
+    }
+
+    private function publishConfig(): void
+    {
         $this->call('vendor:publish', [
             '--provider' => \WebRegulate\LaravelAdministration\WRLAServiceProvider::class,
             '--tag' => 'wrla-config',
         ]);
+    }
 
-        // Publish assets
+    private function publishAssets(): void
+    {
         $this->call('vendor:publish', [
             '--provider' => \WebRegulate\LaravelAdministration\WRLAServiceProvider::class,
             '--tag' => 'wrla-assets',
         ]);
+    }
 
-        // Publish log-viewer assets
+    private function publishLogViewerAssets(): void
+    {
         $this->call('log-viewer:publish');
         $this->call('vendor:publish', [
             '--tag' => 'log-viewer-config',
         ]);
+    }
 
-        // Create UserData.php model in app/Models
+    private function generateUserDataModel(): void
+    {
         $envConnection = env('DB_CONNECTION', 'mysql');
         WRLAHelper::generateFileFromStub(
             'UserData.stub',
@@ -58,82 +93,85 @@ class InstallCommand extends Command
             ],
             app_path('Models/UserData.php')
         );
+    }
 
-        // Create user manageable model
+    private function generateUserManageableModel(): void
+    {
         $createdUserAt = WRLAHelper::generateFileFromStub(
             'User.stub',
             [],
             app_path('WRLA/User.php')
         );
 
-        // If the user model was created, show a message
         if ($createdUserAt !== false) {
             $this->info(' - User model created successfully here: '.$createdUserAt);
         } else {
             $this->warn(' - User model already exists at '.WRLAHelper::removeBasePath(app_path('WRLA/User.php')).'. To replace it delete the file and run again.');
         }
+    }
 
-        // Create EmailTemplate manageable model
+    private function generateEmailTemplateManageableModel(): void
+    {
         $createdEmailTemplateAt = WRLAHelper::generateFileFromStub(
             'EmailTemplate.stub',
             [],
             app_path('WRLA/EmailTemplate.php')
         );
 
-        // If the EmailTemplate model was created, show a message
         if ($createdEmailTemplateAt !== false) {
             $this->info(' - EmailTemplate model created successfully here: '.$createdEmailTemplateAt);
         } else {
             $this->warn(' - EmailTemplate model already exists at '.WRLAHelper::removeBasePath(app_path('WRLA/EmailTemplate.php')).'. To replace it delete the file and run again.');
         }
+    }
 
-        // Create WRLASettings class
+    private function generateWRLASettingsClass(): void
+    {
         $createdWRLASettingsAt = WRLAHelper::generateFileFromStub(
             'WRLASettings.stub',
             [],
             app_path('WRLA/WRLASettings.php')
         );
 
-        // If the WRLASettings class was created
         if ($createdWRLASettingsAt !== false) {
             $this->info(' - WRLASettings class created successfully here: '.$createdWRLASettingsAt);
         } else {
             $this->warn(' - WRLASettings class already exists at '.WRLAHelper::removeBasePath(app_path('WRLA/WRLASettings.php')).'. To replace it delete the file and run again.');
         }
+    }
 
-        // Create NotificationCustom class
+    private function generateNotificationCustomClass(): void
+    {
         $notificationBaseFile = WRLAHelper::generateFileFromStub(
             'NotificationCustom.stub',
             [],
             app_path('WRLA/NotificationDefinitions/NotificationCustom.php')
         );
 
-        // If the NotificationExample class was created
         if ($notificationBaseFile !== false) {
             $this->info(' - NotificationCustom class created successfully here: '.$notificationBaseFile);
         } else {
             $this->warn(' - NotificationCustom class already exists at '.WRLAHelper::removeBasePath(app_path('WRLA/NotificationDefinitions/NotificationCustom.php')).'. To replace it delete the file and run again.');
         }
+    }
 
-        // Create notification-mail.blade.php file
+    private function generateEmailTemplateMailBlade(): void
+    {
         $emailTemplateMailBladeFile = WRLAHelper::generateFileFromStub(
             'email-template-mail.blade.stub',
             [],
             resource_path('views/email/wrla/email-template-mail.blade.php')
         );
 
-        // If the notification-mail.blade.php file was created
         if ($emailTemplateMailBladeFile !== false) {
             $this->info(' - email-template-mail.blade.php created successfully here: '.$emailTemplateMailBladeFile);
         } else {
             $this->warn(' - email-template-mail.blade.php already exists at '.WRLAHelper::removeBasePath(resource_path('views/email/wrla/email-template-mail.blade.php')).'. To replace it delete the file and run again.');
         }
+    }
 
-        // Success message
-        $this->line('');
-        $this->info('WRLA installed successfully.');
-
-        // get database name and check if database connection already exists
+    private function checkDatabaseConnection(): array
+    {
         $databaseConnectionExists = false;
         $databaseName = 'null';
         try {
@@ -145,13 +183,21 @@ class InstallCommand extends Command
             $databaseConnectionExists = false;
         }
 
-        // Would you like to run the migrations, default to true
+        return [$databaseConnectionExists, $databaseName];
+    }
+
+    private function promptRunMigrations(bool $databaseConnectionExists, string $databaseName): bool
+    {
         $runMigrations = $this->confirm('Would you like to run the migrations'.($databaseConnectionExists ? " (Connected to $databaseName)" : '').'?', true);
         if ($runMigrations) {
             $this->call('migrate');
         }
 
-        // Add symlink for storage (if doesn't already exist)
+        return $runMigrations;
+    }
+
+    private function promptCreateStorageSymlink(): void
+    {
         if (! file_exists(public_path('storage'))) {
             if ($this->confirm('Would you like to create a symlink for the storage folder?', true)) {
                 $this->call('storage:link');
@@ -159,30 +205,24 @@ class InstallCommand extends Command
         } else {
             $this->warn(' - storage symlink already exists');
         }
+    }
 
-        // If ran migrations or database connection exists, ask user if wants to create a master user
-        if ($runMigrations || $databaseConnectionExists) {
-            // Check to see if there are any users exist in the database already
-            $anyUsersExist = $databaseConnectionExists ? User::limit(1)->count() > 0 : false;
+    private function promptCreateMasterUser(bool $databaseConnectionExists): void
+    {
+        $anyUsersExist = $databaseConnectionExists ? User::limit(1)->count() > 0 : false;
 
-            // Ask if the user wants to create a default master user, default to true if no users exist
-            if ($this->confirm('Would you like to create a master user?', ! $anyUsersExist)) {
-                // Run wrla:user command
-                $this->call('wrla:user', ['master' => true]);
-            }
+        if ($this->confirm('Would you like to create a master user?', ! $anyUsersExist)) {
+            $this->call('wrla:user', ['master' => true]);
         }
+    }
 
-        // Ask if the user wants to open the local documentation
+    private function promptOpenDocumentation(): void
+    {
         $this->line('');
         $this->info('📚 You can open the documentation at any time by running: <comment>php artisan wrla:docs</comment>');
         $this->line('');
         if ($this->confirm('Would you like to open the WRLA Documentation in your browser now?', true)) {
             $this->call('wrla:docs');
         }
-
-        // New line for separation
-        $this->line('');
-
-        return 1;
     }
 }
