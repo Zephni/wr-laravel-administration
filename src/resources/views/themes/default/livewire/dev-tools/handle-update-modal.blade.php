@@ -16,7 +16,7 @@
         <h3 class="text-lg font-semibold mb-2 flex items-center gap-2">
             Console Output:
             @if($running)
-                <span class="text-amber-400 text-sm font-normal">⏳ running...</span>
+                <span class="text-amber-400 text-sm font-normal"><i class="fa-solid fa-hourglass fa-spin"></i> running...</span>
             @endif
         </h3>
         <div x-data="{
@@ -34,7 +34,7 @@
         <div class="flex gap-4 mt-4">
             <button wire:click="runCommand" wire:loading.attr="disabled" wire:target="runCommand"
                 @disabled($running) class="whitespace-nowrap disabled:opacity-50">
-                <span wire:loading.remove wire:target="runCommand">{{ $running ? '⏳ Running...' : '✅ Run updates' }}</span>
+                <span wire:loading.remove wire:target="runCommand">@if($running)<i class="fa-solid fa-hourglass fa-spin"></i> Running...@else✅ Run updates@endif</span>
                 <span wire:loading wire:target="runCommand"><i class="fa-solid fa-hourglass fa-spin inline-block"></i> Starting...</span>
             </button>
         </div>
