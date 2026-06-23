@@ -1,9 +1,10 @@
 <h1 class="docs-title">Updating &amp; Version Handling</h1>
 <p class="docs-lead">
     WRLA ships with a version handling system that upgrades your application in a controlled,
-    repeatable way. Rather than just pulling new package code, each release that needs migration
-    work defines its own <strong>version update</strong> — a single class that performs whatever
-    steps are required: running composer, mutating config files, asking questions, and so on.
+    repeatable way. Every update first runs <code class="docs-inline-code">composer update</code> to
+    pull the latest package code, then each release that needs migration work applies its own
+    <strong>version update</strong> — a single class that performs whatever steps are required:
+    mutating config files, asking questions, and so on.
 </p>
 
 <!-- How it works -->
@@ -13,11 +14,14 @@
         How updates are applied
     </h2>
     <p class="docs-body">
-        The currently applied version is stored in
+        When an update runs, the <code class="docs-inline-code">VersionHandler</code> always runs
+        <code class="docs-inline-code">composer update</code> first — regardless of the stored version —
+        so you can always refresh the package code from the UI or the artisan command. The currently
+        applied version is stored in
         <code class="docs-inline-code">public/vendor/wr-laravel-administration/version.json</code>.
-        When an update runs, the <code class="docs-inline-code">VersionHandler</code> discovers every
-        version update definition, sorts them in ascending order, and runs only those newer than your
-        stored version — updating the stored version after each one succeeds.
+        After composer finishes, the handler discovers every version update definition, sorts them in
+        ascending order, and runs only those newer than your stored version — updating the stored
+        version after each one succeeds.
     </p>
     <p class="docs-body">
         Versions use a three-digit-per-group scheme, e.g.
@@ -52,9 +56,9 @@
         Composer behaviour (<code class="docs-inline-code">--no-dev</code>)
     </h2>
     <p class="docs-body">
-        Version updates that run <code class="docs-inline-code">composer update</code> decide whether to
-        pass <code class="docs-inline-code">--no-dev</code> based on the current app environment.
-        Configure which environments should exclude dev dependencies under the
+        The <code class="docs-inline-code">composer update</code> that runs at the start of every update
+        decides whether to pass <code class="docs-inline-code">--no-dev</code> based on the current app
+        environment. Configure which environments should exclude dev dependencies under the
         <code class="docs-inline-code">developer.composer.no_dev</code> config key:
     </p>
     <div class="docs-code-block">
@@ -93,17 +97,14 @@ class Version_0_1_001 extends VersionUpdate
 
     public function title(): string
     {
-        return 'Composer update &amp; developer config restructure';
+        return 'Developer config restructure';
     }
 
     public function run(VersionUpdateContext $context): void
     {
-        // Run composer update (honours developer.composer.no_dev)
-        if (! $this->runComposerUpdate($context)) {
-            throw new \RuntimeException('composer update failed.');
-        }
-
-        // ...then apply any custom changes, e.g. migrate a config key
+        // composer update has already run globally before this point, so a
+        // version update only needs to apply its own migration steps,
+        // e.g. migrate a config key
         $context->info('Migrating configuration...');
     }
 }</code></pre>

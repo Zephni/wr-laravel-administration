@@ -9,7 +9,6 @@ use WebRegulate\LaravelAdministration\Classes\VersionHandler\VersionUpdateContex
 /**
  * Version 0.1.001
  *
- * - Runs composer update (honouring developer.composer.no_dev per environment).
  * - Migrates the published config from the legacy `enable_developer_tools`
  *   callback to the new grouped `developer` structure:
  *
@@ -29,22 +28,14 @@ class Version_0_1_001 extends VersionUpdate
 
     public function title(): string
     {
-        return 'Composer update & developer config restructure';
+        return 'Developer config restructure';
     }
 
     public function run(VersionUpdateContext $context): void
     {
-        // 1. Pull the latest package code via composer
-        $context->line('Step 1/2: Updating composer dependencies...');
-
-        if (! $this->runComposerUpdate($context)) {
-            throw new \RuntimeException('composer update did not complete successfully.');
-        }
-
-        $context->line('');
-
-        // 2. Migrate the published config to the new developer group structure
-        $context->line('Step 2/2: Migrating developer tools configuration...');
+        // composer update is now run globally by VersionHandler before any version
+        // handlers, so this version only needs to migrate the published config.
+        $context->line('Migrating developer tools configuration...');
         $this->migrateDeveloperConfig($context);
     }
 

@@ -140,6 +140,20 @@ class VersionHandler
         // Extract current version or use the starting version
         $currentVersion = $versionData['version'] ?? '0.1.0';
 
+        // Always pull the latest package code via composer first, regardless of the
+        // version recorded in version.json. This lets the user update the package
+        // through the UI or artisan command even when no per-version migrations are
+        // pending, ensuring they can fetch newer code before any version handlers run.
+        $this->context->line('Updating composer dependencies...');
+        $this->context->line('-------------------------------------');
+
+        if (!$this->runComposerUpdate()) {
+            $this->context->error('composer update did not complete successfully.');
+            return false;
+        }
+
+        $this->context->line('');
+
         // Discover all version update definitions (ascending order)
         $versionUpdates = $this->getVersionUpdates();
 
@@ -204,12 +218,41 @@ class VersionHandler
 
         // If no updates were found, inform the user
         if (!$foundUpdate) {
-            $this->context->info('No updates required, current version: ' . $currentVersion . PHP_EOL);
+            $this->context->info('Composer dependencies updated. No further version changes required, current version: ' . $currentVersion . PHP_EOL);
             return false;
         }
 
         // Indicate that all updates have successfully run
         return true;
+    }
+
+    /**
+     * Run `composer update` honouring the developer.composer.no_dev config (the
+     * list of app environments that should update without dev dependencies).
+     *
+     * This is run unconditionally at the start of an update so the package code
+     * can always be refreshed via the UI or artisan command, independent of the
+     * per-version migrations tracked in version.json.
+     */
+    private function runComposerUpdate(): bool
+    {
+        $noDevEnvironments = config('wr-laravel-administration.developer.composer.no_dev', ['production']);
+        $useNoDev = in_array(app()->environment(), (array) $noDevEnvironments, true);
+
+        $command = ['composer', 'update', '--no-interaction'];
+        if ($useNoDev) {
+            $command[] = '--no-dev';
+        }
+
+        $this->context->line('Running: ' . implode(' ', $command));
+
+        $success = $this->context->runProcess($command);
+
+        if (!$success) {
+            $this->context->error('composer update failed.');
+        }
+
+        return $success;
     }
 
     /**
