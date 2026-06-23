@@ -19,16 +19,15 @@
                     @php
                         $versionHandlerClass = \WebRegulate\LaravelAdministration\Classes\VersionHandler\VersionHandler::class;
                         $localComposerVersion = $versionHandlerClass::$localPackageCurrentVersion;
-                        $localCurrentSha = $versionHandlerClass::$localPackageCurrentSha;
-                        $remotePackageLatestSha = $versionHandlerClass::$remotePackageLatestSha;
+                        $updateAvailable = $versionHandlerClass::pendingUpdatesAvailable();
                     @endphp
                     <i class="fas fa-code-branch text-xs mr-1"></i>Version:
                     {{ $localComposerVersion }}
                     <span class="px-1.5">-</span>
-                    @if($localCurrentSha === $remotePackageLatestSha)
+                    @if(!$updateAvailable)
                         <b onclick="window.loadLivewireModal(this, 'dev-tools.handle-update-modal')"
-                            class="cursor-help"
-                            title="Current sha: {{ $localCurrentSha }}">
+                            class="cursor-pointer"
+                            title="No pending updates">
                             <i class="fas fa-info-circle text-xs text-slate-400"></i>
                             <span class="pl-1">Up to date</span>
                         </b>
@@ -36,7 +35,7 @@
                         <button
                             onclick="window.loadLivewireModal(this, 'dev-tools.handle-update-modal')"
                             class="text-sky-600 font-semibold cursor-pointer"
-                            title="Current sha: {{ $localCurrentSha }} - Latest sha: {{ $remotePackageLatestSha }}">
+                            title="Pending version updates are available to run">
                             <i class="fas fa-exclamation-triangle text-sky-600"></i>
                             <span class="pl-1">Update available</span>
                         </button>

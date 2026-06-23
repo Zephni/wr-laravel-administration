@@ -39,6 +39,12 @@ class HandleUpdateModal extends ModalComponent
      */
     public bool $authorised = true;
 
+    /**
+     * Whether there are pending version updates to apply. Shared with the header
+     * indicator so the modal and header can never report different states.
+     */
+    public bool $updatesAvailable = false;
+
     public function mount()
     {
         // Resolve authorisation, but NEVER abort(404) here. The update indicator /
@@ -57,8 +63,16 @@ class HandleUpdateModal extends ModalComponent
             return;
         }
 
-        // Show the current applied version on open
-        $this->consoleOutput = 'Current version: ' . ($this->currentVersion() ?? '0.1.0') . PHP_EOL;
+        // Determine pending state from the same source of truth as the header
+        $versionHandler = new VersionHandler(new WebVersionUpdateContext());
+        $this->updatesAvailable = $versionHandler->hasPendingUpdates();
+
+        // Show the current applied version and pending status on open
+        $currentVersion = $versionHandler->getVersion() ?? '0.1.0';
+        $this->consoleOutput = 'Current version: ' . $currentVersion . PHP_EOL;
+        $this->consoleOutput .= $this->updatesAvailable
+            ? 'Update available - press "Run updates" to apply pending changes.' . PHP_EOL
+            : 'You are on the latest version, no updates required.' . PHP_EOL;
 
         // Dispatch an event indicating that the modal has been opened
         $this->dispatch('dev-tools.handle-update-modal.opened');
@@ -108,6 +122,9 @@ class HandleUpdateModal extends ModalComponent
         // Preserve any message already shown (e.g. a live-mode fallback notice)
         $this->consoleOutput .= $context->getOutput();
         $this->running = false;
+
+        // Refresh pending state so the modal/header reflect the new applied version
+        $this->updatesAvailable = (new VersionHandler(new WebVersionUpdateContext()))->hasPendingUpdates();
     }
 
     /**
@@ -153,6 +170,9 @@ class HandleUpdateModal extends ModalComponent
         if (str_contains($output, self::DONE_MARKER)) {
             $output = trim(str_replace(self::DONE_MARKER, '', $output));
             $this->running = false;
+
+            // Refresh pending state now the background update has finished
+            $this->updatesAvailable = (new VersionHandler(new WebVersionUpdateContext()))->hasPendingUpdates();
         }
 
         $this->consoleOutput = $output;
@@ -164,13 +184,5 @@ class HandleUpdateModal extends ModalComponent
     protected function logPath(): string
     {
         return storage_path('app/wrla/update.log');
-    }
-
-    /**
-     * The currently applied WRLA version.
-     */
-    protected function currentVersion(): ?string
-    {
-        return (new VersionHandler(new WebVersionUpdateContext()))->getVersion();
     }
 }

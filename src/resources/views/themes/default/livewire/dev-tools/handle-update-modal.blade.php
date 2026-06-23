@@ -33,17 +33,21 @@
         </div>
         <div class="flex gap-4 mt-4">
             @if($authorised)
-                <button wire:click="runCommand" wire:loading.attr="disabled" wire:target="runCommand"
-                    @disabled($running) class="whitespace-nowrap disabled:opacity-50">
-                    <span wire:loading.remove wire:target="runCommand">
-                        @if($running)
-                            <i class="fa-solid fa-hourglass fa-spin"></i> Running...
-                        @else
-                            ✅ Run updates
-                        @endif
-                    </span>
-                    <span wire:loading wire:target="runCommand"><i class="fa-solid fa-hourglass fa-spin inline-block"></i> Starting...</span>
-                </button>
+                @if($updatesAvailable || $running)
+                    <button wire:click="runCommand" wire:loading.attr="disabled" wire:target="runCommand"
+                        @disabled($running) class="whitespace-nowrap disabled:opacity-50">
+                        <span wire:loading.remove wire:target="runCommand">
+                            @if($running)
+                                <i class="fa-solid fa-hourglass fa-spin"></i> Running...
+                            @else
+                                ✅ Run updates
+                            @endif
+                        </span>
+                        <span wire:loading wire:target="runCommand"><i class="fa-solid fa-hourglass fa-spin inline-block"></i> Starting...</span>
+                    </button>
+                @else
+                    <span class="text-emerald-400 text-sm"><i class="fa-solid fa-circle-check"></i> You are on the latest version.</span>
+                @endif
             @else
                 <span class="text-amber-400 text-sm"><i class="fa-solid fa-lock"></i> Updates are not available for your account.</span>
             @endif

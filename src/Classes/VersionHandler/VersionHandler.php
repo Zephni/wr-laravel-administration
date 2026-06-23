@@ -7,8 +7,6 @@ use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 class VersionHandler
 {
     public static $localPackageCurrentVersion = null;
-    public static $localPackageCurrentSha = null;
-    public static $remotePackageLatestSha = null;
 
     private string $versionFilePath = 'vendor/wr-laravel-administration/version.json';
     private VersionUpdateContext $context;
@@ -84,6 +82,43 @@ class VersionHandler
     public function getVersion(): ?string
     {
         return $this->getVersionData()['version'] ?? null;
+    }
+
+    /**
+     * Get all version update definitions that have not yet been applied
+     * (i.e. whose version is greater than the currently stored version).
+     *
+     * @return array<int, VersionUpdate>
+     */
+    public function getPendingUpdates(): array
+    {
+        $currentVersion = $this->getVersion() ?? '0.1.0';
+
+        return array_values(array_filter(
+            $this->getVersionUpdates(),
+            fn(VersionUpdate $update) => version_compare($currentVersion, $update->version(), '<')
+        ));
+    }
+
+    /**
+     * Whether there are any pending version updates to apply.
+     *
+     * This is the single source of truth shared by the header indicator and the
+     * update modal, so the two can never disagree (e.g. the header claiming an
+     * update is available while the modal reports it is already up to date).
+     */
+    public function hasPendingUpdates(): bool
+    {
+        return count($this->getPendingUpdates()) > 0;
+    }
+
+    /**
+     * Convenience accessor for views: determine whether updates are pending
+     * without needing to construct a context manually.
+     */
+    public static function pendingUpdatesAvailable(): bool
+    {
+        return (new self(new WebVersionUpdateContext()))->hasPendingUpdates();
     }
 
     public function runUpdates(): bool
@@ -178,14 +213,20 @@ class VersionHandler
     }
 
     /**
-     * Sets properties for local and remote package information.
+     * Resolve the locally installed package version for display purposes.
+     *
+     * Whether an update is "available" is determined separately by the version
+     * update system (see {@see hasPendingUpdates()}), which is the single source
+     * of truth shared by the header indicator and the update modal.
      */
     public static function buildLocalAndRemotePackageInformation(): void
     {
-        /* Local
-        ----------------------------------------------------------------*/
-        // Get actual version from composer.lock instead
+        // Get actual version from composer.lock
         $composerLockPath = base_path('composer.lock');
+
+        if (!file_exists($composerLockPath)) {
+            return;
+        }
 
         // Find applicable package data in composer.lock
         $composerData = json_decode(file_get_contents($composerLockPath), true);
@@ -193,33 +234,8 @@ class VersionHandler
             foreach ($composerData['packages'] as $package) {
                 if ($package['name'] === 'webregulate/laravel-administration') {
                     VersionHandler::$localPackageCurrentVersion = $package['version'] ?? null;
-                    VersionHandler::$localPackageCurrentSha = $package['dist']['reference'] ?? null;
                 }
             }
-        }
-
-        /* Remote
-        ----------------------------------------------------------------*/
-        try {
-            $appKey = config('app.key', config('app.url', 'invalid-key'));
-            VersionHandler::$remotePackageLatestSha = cache()->remember("wrla.$appKey.remotePackageLatestSha", 3600, function ()  {
-                $context = stream_context_create([
-                    'http' => [
-                        'method' => 'GET',
-                        'header' => 'User-Agent: WebRegulate Laravel Administration - '.config('app.url', 'Unknown domain')
-                    ]
-                ]);
-                
-                $branchData = json_decode(
-                    file_get_contents('https://api.github.com/repos/Zephni/wr-laravel-administration/branches/main', false, $context)
-                , true);
-        
-                return $branchData['commit']['sha'] ?? null;
-            });
-        }
-        // Just in case we cannot retrieve the remote SHA, we set it to the local one so no update 
-        catch (\Exception $e) {
-            VersionHandler::$remotePackageLatestSha = VersionHandler::$localPackageCurrentSha;
         }
     }
 }
