@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WRLA Documentation</title>
     <link rel="icon" type="image/png" href="https://webregulate.co.uk/storage/images/wr-icon.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -70,7 +71,7 @@
 
         /* ── Code ────────────────────────────────────────── */
         .docs-code-block {
-            @apply relative bg-gray-900 rounded-lg p-4 overflow-x-auto;
+            @apply relative bg-gray-900 rounded-lg px-4 py-3 overflow-x-auto;
         }
 
         .docs-code-block pre,
@@ -79,7 +80,7 @@
         }
 
         .docs-inline-code {
-            @apply border border-gray-300 bg-gray-50 text-green-800 pt-[1px] pb-[2px] px-2 rounded text-sm font-mono;
+            @apply relative top-[-1px] border border-slate-200 bg-gray-100 text-green-600 my-[1px] pt-[2px] pb-[4px] px-2.5 rounded text-sm font-mono;
         }
 
         /* ── Callout / Alert ─────────────────────────────── */

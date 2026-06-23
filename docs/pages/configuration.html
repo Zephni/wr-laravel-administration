@@ -1,0 +1,642 @@
+<h1 class="docs-title"><i class="fa-solid fa-gear mr-3 text-primary-500"></i>Configuration</h1>
+<p class="docs-lead">
+    After running <code class="docs-inline-code">php artisan wrla:install</code>, the configuration file is
+    published to <code class="docs-inline-code">config/wr-laravel-administration.php</code>.
+    The options are grouped into four sections matching the comments in that file.
+</p>
+
+<!-- ── 1. Structural ─────────────────────────────────────────────────────── -->
+<div class="docs-section">
+    <h2 class="docs-heading">Structural</h2>
+    <p class="docs-body">Core wiring — URLs, models, and middleware.</p>
+
+    <table class="docs-table">
+        <thead>
+            <tr>
+                <th style="width:30%">Key</th>
+                <th style="width:20%">Type</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><code class="docs-inline-code">base_url</code></td>
+                <td>string</td>
+                <td>URL prefix for the admin panel. Default: <code class="docs-inline-code">'wr-admin'</code></td>
+            </tr>
+            <tr>
+                <td><code class="docs-inline-code">models.user</code></td>
+                <td>class-string</td>
+                <td>The Eloquent User model class used throughout WRLA.</td>
+            </tr>
+            <tr>
+                <td><code class="docs-inline-code">models.wrla_user_data</code></td>
+                <td>class-string</td>
+                <td>The Eloquent UserData model class that stores WRLA-specific user meta.</td>
+            </tr>
+            <tr>
+                <td><code class="docs-inline-code">middleware.prepend</code></td>
+                <td>array</td>
+                <td>Middleware class strings prepended to every WRLA request.</td>
+            </tr>
+            <tr>
+                <td><code class="docs-inline-code">middleware.append</code></td>
+                <td>array</td>
+                <td>Middleware class strings appended to every WRLA request.</td>
+            </tr>
+            <tr>
+                <td><code class="docs-inline-code">middleware.commands</code></td>
+                <td>array</td>
+                <td>Middleware applied to WRLA artisan commands.</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- ── 2. Security ───────────────────────────────────────────────────────── -->
+<div class="docs-section">
+    <h2 class="docs-heading">Security</h2>
+
+    <!-- Auth routes -->
+    <h3 class="docs-subheading">Auth Routes</h3>
+    <table class="docs-table mb-6">
+        <thead>
+            <tr>
+                <th style="width:30%">Key</th>
+                <th style="width:20%">Type</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><code class="docs-inline-code">wrla_auth_routes_enabled</code></td>
+                <td>bool</td>
+                <td>Enable or disable WRLA's built-in login, forgot-password, and reset-password routes.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- Captcha -->
+    <h3 class="docs-subheading">Captcha</h3>
+    <p class="docs-body">Protects the login and forgot-password forms. Set <code class="docs-inline-code">captcha.current</code> to <code class="docs-inline-code">null</code> to disable.</p>
+    <table class="docs-table mb-6">
+        <thead>
+            <tr>
+                <th style="width:30%">Key</th>
+                <th style="width:20%">Type / Values</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><code class="docs-inline-code">captcha.current</code></td>
+                <td><code class="docs-inline-code">'turnstile'</code> | <code class="docs-inline-code">null</code></td>
+                <td>Active captcha provider. <code class="docs-inline-code">null</code> disables captcha entirely.</td>
+            </tr>
+            <tr>
+                <td><code class="docs-inline-code">captcha.turnstile.site_key</code></td>
+                <td>string</td>
+                <td>CloudFlare Turnstile site key. Set via <code class="docs-inline-code">CLOUDFLARE_TURNSTILE_SITEKEY</code> in <code class="docs-inline-code">.env</code>.</td>
+            </tr>
+            <tr>
+                <td><code class="docs-inline-code">captcha.turnstile.secret_key</code></td>
+                <td>string</td>
+                <td>CloudFlare Turnstile secret key. Set via <code class="docs-inline-code">CLOUDFLARE_TURNSTILE_SECRET</code> in <code class="docs-inline-code">.env</code>.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- MFA -->
+    <h3 class="docs-subheading">Multi-Factor Authentication (MFA)</h3>
+    <p class="docs-body">Set <code class="docs-inline-code">mfa.current</code> to <code class="docs-inline-code">null</code> to disable MFA.</p>
+    <table class="docs-table mb-4">
+        <thead>
+            <tr>
+                <th style="width:30%">Key</th>
+                <th style="width:20%">Type / Values</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><code class="docs-inline-code">mfa.current</code></td>
+                <td><code class="docs-inline-code">'pragmarx/google2fa'</code> | <code class="docs-inline-code">null</code></td>
+                <td>Active MFA provider.</td>
+            </tr>
+            <tr>
+                <td><code class="docs-inline-code">mfa.pragmarx/google2fa.title</code></td>
+                <td>string</td>
+                <td>Issuer name shown in the authenticator app. Supports <code class="docs-inline-code">{app.name}</code> placeholder.</td>
+            </tr>
+        </tbody>
+    </table>
+    <div class="docs-callout docs-callout-info mb-6">
+        <div class="docs-callout-icon">
+            <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg>
+        </div>
+        <div class="docs-callout-body">
+            To use <code>pragmarx/google2fa</code>, install the required packages first:
+            <div class="docs-code-block mt-2">
+                <pre><code>composer require pragmarx/google2fa-qrcode bacon/bacon-qr-code</code></pre>
+            </div>
+        </div>
+    </div>
+
+    <!-- Rate Limiting -->
+    <h3 class="docs-subheading">Rate Limiting</h3>
+    <p class="docs-body">
+        Each key under <code class="docs-inline-code">rate_limiting</code> corresponds to a route name and is automatically bound to
+        <code class="docs-inline-code">throttle:{route_name}</code> middleware by the service provider.
+        The three routes configured by default are <code class="docs-inline-code">login.post</code>,
+        <code class="docs-inline-code">forgot-password.post</code>, and <code class="docs-inline-code">reset-password.post</code>.
+    </p>
+    <table class="docs-table mb-6">
+        <thead>
+            <tr>
+                <th style="width:30%">Sub-key</th>
+                <th style="width:20%">Type</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><code class="docs-inline-code">rule</code></td>
+                <td>string</td>
+                <td>Rate limit identity. Use space-separated identifiers, e.g. <code class="docs-inline-code">'input:email ip'</code> to bucket by email + IP.</td>
+            </tr>
+            <tr>
+                <td><code class="docs-inline-code">max_attempts</code></td>
+                <td>int</td>
+                <td>Maximum requests allowed within the decay window.</td>
+            </tr>
+            <tr>
+                <td><code class="docs-inline-code">decay_minutes</code></td>
+                <td>int</td>
+                <td>Time window in minutes before the attempt counter resets.</td>
+            </tr>
+            <tr>
+                <td><code class="docs-inline-code">message</code></td>
+                <td>string</td>
+                <td>Error message returned when the limit is exceeded. Supports <code class="docs-inline-code">:decay_minutes</code> placeholder.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- Default Validation Rules -->
+    <h3 class="docs-subheading">Default Validation Rules</h3>
+    <table class="docs-table mb-6">
+        <thead>
+            <tr>
+                <th style="width:30%">Key</th>
+                <th style="width:20%">Type</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><code class="docs-inline-code">default_validation_rules</code></td>
+                <td>array</td>
+                <td>
+                    Map of manageable field class strings to their default Laravel validation rule strings.
+                    Applied automatically unless a field overrides them.
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- Default Permissions -->
+    <h3 class="docs-subheading">Default Manageable Model Permissions</h3>
+    <p class="docs-body">
+        Defines the default permission gates for all manageable models. Each value can be a
+        <code class="docs-inline-code">bool</code> or a <code class="docs-inline-code">Closure</code> receiving
+        <code class="docs-inline-code">$wrlaUserData</code> and returning a <code class="docs-inline-code">bool</code>.
+        These can be overridden per model inside <code class="docs-inline-code">mainSetup()</code>.
+    </p>
+    <table class="docs-table mb-6">
+        <thead>
+            <tr>
+                <th style="width:30%">Permission key</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td><code class="docs-inline-code">ENABLED</code></td><td>Whether the model appears in the admin panel at all.</td></tr>
+            <tr><td><code class="docs-inline-code">CREATE</code></td><td>Allow creating new records.</td></tr>
+            <tr><td><code class="docs-inline-code">BROWSE</code></td><td>Allow browsing the record list.</td></tr>
+            <tr><td><code class="docs-inline-code">EDIT</code></td><td>Allow editing existing records.</td></tr>
+            <tr><td><code class="docs-inline-code">DELETE</code></td><td>Allow deleting records.</td></tr>
+            <tr><td><code class="docs-inline-code">RESTORE</code></td><td>Allow restoring soft-deleted records.</td></tr>
+        </tbody>
+    </table>
+
+    <!-- Developer -->
+    <h3 class="docs-subheading">Developer Tools</h3>
+    <table class="docs-table mb-6">
+        <thead>
+            <tr>
+                <th style="width:30%">Key</th>
+                <th style="width:20%">Type / Values</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><code class="docs-inline-code">developer.enable</code></td>
+                <td>Closure | <code class="docs-inline-code">null</code></td>
+                <td>
+                    Controls who can access developer tools. Receives <code class="docs-inline-code">$wrlaUserData</code> and must return
+                    a <code class="docs-inline-code">bool</code>. When <code class="docs-inline-code">null</code>, falls back to the legacy
+                    <code class="docs-inline-code">enable_developer_tools</code> key for backwards compatibility.
+                    <br>
+                    Example: <code class="docs-inline-code">fn($wrlaUserData) => $wrlaUserData?->isMaster()</code>
+                </td>
+            </tr>
+            <tr>
+                <td><code class="docs-inline-code">developer.composer.no_dev</code></td>
+                <td>array</td>
+                <td>App environments in which <code class="docs-inline-code">composer update --no-dev</code> is used instead of a standard update.</td>
+            </tr>
+            <tr>
+                <td><code class="docs-inline-code">developer.update.mode</code></td>
+                <td><code class="docs-inline-code">'live'</code> | <code class="docs-inline-code">'blocking'</code></td>
+                <td>
+                    How the in-UI "Update WRLA" modal streams output.
+                    <strong>live</strong> — runs in the background and streams output as it happens.
+                    <strong>blocking</strong> — runs synchronously and shows the full output once complete.
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- Documentation -->
+    <h3 class="docs-subheading">Documentation</h3>
+    <table class="docs-table">
+        <thead>
+            <tr>
+                <th style="width:30%">Key</th>
+                <th style="width:20%">Type</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><code class="docs-inline-code">documentation.enabled</code></td>
+                <td>bool</td>
+                <td>Whether the documentation page route is accessible at all.</td>
+            </tr>
+            <tr>
+                <td><code class="docs-inline-code">documentation.show_link</code></td>
+                <td>bool | Closure</td>
+                <td>Whether to show the documentation link in the top bar. Closure receives <code class="docs-inline-code">$wrlaUserData</code>.</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- ── 3. General ────────────────────────────────────────────────────────── -->
+<div class="docs-section">
+    <h2 class="docs-heading">General</h2>
+
+    <!-- Title / Logo -->
+    <h3 class="docs-subheading">Appearance</h3>
+    <table class="docs-table mb-6">
+        <thead>
+            <tr>
+                <th style="width:30%">Key</th>
+                <th style="width:20%">Type</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><code class="docs-inline-code">title_template</code></td>
+                <td>string</td>
+                <td>Browser tab title format. Use <code class="docs-inline-code">{page_title}</code> as the dynamic placeholder. Default: <code class="docs-inline-code">'{page_title} - WebRegulate Admin'</code></td>
+            </tr>
+            <tr>
+                <td><code class="docs-inline-code">logo.light</code></td>
+                <td>string</td>
+                <td>Public asset path to the logo shown in light mode.</td>
+            </tr>
+            <tr>
+                <td><code class="docs-inline-code">logo.dark</code></td>
+                <td>string</td>
+                <td>Public asset path to the logo shown in dark mode.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- Logging -->
+    <h3 class="docs-subheading">Logging</h3>
+    <p class="docs-body">
+        WRLA maintains three dedicated daily log channels. Each channel follows the same structure and can be individually enabled or disabled.
+    </p>
+    <table class="docs-table mb-4">
+        <thead>
+            <tr>
+                <th style="width:25%">Channel</th>
+                <th>Purpose</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td><code class="docs-inline-code">wrla-errors</code></td><td>Captures error-level events from within WRLA.</td></tr>
+            <tr><td><code class="docs-inline-code">wrla-info</code></td><td>General informational log entries.</td></tr>
+            <tr><td><code class="docs-inline-code">wrla-events</code></td><td>Domain events (model upserts, imports, etc.).</td></tr>
+        </tbody>
+    </table>
+    <p class="docs-body">Each channel accepts the following keys:</p>
+    <table class="docs-table mb-6">
+        <thead>
+            <tr>
+                <th style="width:30%">Sub-key</th>
+                <th style="width:20%">Type</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td><code class="docs-inline-code">enabled</code></td><td>bool</td><td>Enable or disable this channel.</td></tr>
+            <tr><td><code class="docs-inline-code">config.driver</code></td><td>string</td><td>Laravel log driver (e.g. <code class="docs-inline-code">'daily'</code>).</td></tr>
+            <tr><td><code class="docs-inline-code">config.path</code></td><td>string</td><td>Absolute path to the log file.</td></tr>
+            <tr><td><code class="docs-inline-code">config.level</code></td><td>string</td><td>Minimum log level (<code class="docs-inline-code">'error'</code>, <code class="docs-inline-code">'info'</code>, etc.).</td></tr>
+            <tr><td><code class="docs-inline-code">config.days</code></td><td>int</td><td>Number of days to retain daily log files.</td></tr>
+        </tbody>
+    </table>
+
+    <!-- WYSIWYG -->
+    <h3 class="docs-subheading">WYSIWYG Editors</h3>
+    <table class="docs-table mb-6">
+        <thead>
+            <tr>
+                <th style="width:30%">Key</th>
+                <th style="width:20%">Type / Values</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><code class="docs-inline-code">wysiwyg_editors.current</code></td>
+                <td><code class="docs-inline-code">'quill'</code> | <code class="docs-inline-code">'tinymce'</code></td>
+                <td>Which WYSIWYG editor to use for rich-text manageable fields.</td>
+            </tr>
+            <tr>
+                <td><code class="docs-inline-code">wysiwyg_editors.quill.initialise</code></td>
+                <td>JS string</td>
+                <td>Raw JavaScript options passed to the Quill constructor (theme, toolbar, modules, etc.).</td>
+            </tr>
+            <tr>
+                <td><code class="docs-inline-code">wysiwyg_editors.quill.class</code></td>
+                <td>string</td>
+                <td>Additional CSS classes added to the Quill editor container.</td>
+            </tr>
+            <tr>
+                <td><code class="docs-inline-code">wysiwyg_editors.quill.image_uploads.filesystem</code></td>
+                <td>string</td>
+                <td>Laravel filesystem disk used when uploading images from the editor.</td>
+            </tr>
+            <tr>
+                <td><code class="docs-inline-code">wysiwyg_editors.quill.image_uploads.path</code></td>
+                <td>string</td>
+                <td>Storage path (relative to the disk root) where uploaded images are saved.</td>
+            </tr>
+            <tr>
+                <td><code class="docs-inline-code">wysiwyg_editors.tinymce.apikey</code></td>
+                <td>string</td>
+                <td>TinyMCE API key. Set via <code class="docs-inline-code">TINYMCE_API_KEY</code> in <code class="docs-inline-code">.env</code>.</td>
+            </tr>
+            <tr>
+                <td><code class="docs-inline-code">wysiwyg_editors.tinymce.plugins</code></td>
+                <td>string</td>
+                <td>Space-separated list of TinyMCE plugins to load.</td>
+            </tr>
+            <tr>
+                <td><code class="docs-inline-code">wysiwyg_editors.tinymce.toolbar</code></td>
+                <td>string</td>
+                <td>TinyMCE toolbar definition string.</td>
+            </tr>
+            <tr>
+                <td><code class="docs-inline-code">wysiwyg_editors.tinymce.image_uploads.*</code></td>
+                <td>—</td>
+                <td>Same <code class="docs-inline-code">filesystem</code> / <code class="docs-inline-code">path</code> keys as Quill above.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- User -->
+    <h3 class="docs-subheading">Users &amp; User Data</h3>
+    <table class="docs-table mb-6">
+        <thead>
+            <tr>
+                <th style="width:30%">Key</th>
+                <th style="width:20%">Type</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><code class="docs-inline-code">user_avatar</code></td>
+                <td>Closure | <code class="docs-inline-code">null</code></td>
+                <td>
+                    Closure receiving the User model and returning the avatar URL/path.
+                    <code class="docs-inline-code">null</code> uses the default placeholder image.<br>
+                    Example: <code class="docs-inline-code">fn($user) => $user->profile_image</code>
+                </td>
+            </tr>
+            <tr>
+                <td><code class="docs-inline-code">default_user_data</code></td>
+                <td>array</td>
+                <td>Default JSON structure written to new user data records. Contains <code class="docs-inline-code">permissions</code>, <code class="docs-inline-code">settings</code>, and <code class="docs-inline-code">data</code> keys.</td>
+            </tr>
+            <tr>
+                <td><code class="docs-inline-code">user_groups</code></td>
+                <td>array</td>
+                <td>Named closures, each returning a Collection of User models for that group. Used for dashboard notifications and other group-based features.</td>
+            </tr>
+            <tr>
+                <td><code class="docs-inline-code">build_wrla_user_data_id</code></td>
+                <td>Closure</td>
+                <td>Builds the identifier used to link a User to their UserData record. Receives the User model; defaults to returning <code class="docs-inline-code">$user->id</code>.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- Misc -->
+    <h3 class="docs-subheading">Misc</h3>
+    <table class="docs-table mb-6">
+        <thead>
+            <tr>
+                <th style="width:30%">Key</th>
+                <th style="width:20%">Type / Values</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><code class="docs-inline-code">catch_errors.upsert</code></td>
+                <td>bool</td>
+                <td>When <code class="docs-inline-code">true</code>, errors during create/edit upsert operations are caught and displayed in the UI rather than throwing an exception.</td>
+            </tr>
+            <tr>
+                <td><code class="docs-inline-code">email_templates.render_mode</code></td>
+                <td><code class="docs-inline-code">'markdown'</code> | <code class="docs-inline-code">'html'</code> | <code class="docs-inline-code">'text'</code></td>
+                <td>How email template bodies are rendered when sending.</td>
+            </tr>
+            <tr>
+                <td><code class="docs-inline-code">dashboard.notifications.user_groups</code></td>
+                <td>array</td>
+                <td>Notification feeds shown on the dashboard. Use <code class="docs-inline-code">'@self'</code> for the current user's own notifications, or any key from <code class="docs-inline-code">user_groups</code>.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- CSV Imports -->
+    <h3 class="docs-subheading">CSV Imports</h3>
+    <table class="docs-table mb-6">
+        <thead>
+            <tr>
+                <th style="width:30%">Key</th>
+                <th style="width:20%">Type</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td><code class="docs-inline-code">csv_imports.chunk_size</code></td><td>int</td><td>Number of rows processed per chunk during import. Default: <code class="docs-inline-code">500</code>.</td></tr>
+            <tr><td><code class="docs-inline-code">csv_imports.max_failed_reasons</code></td><td>int</td><td>Maximum number of row-level failure reasons collected before stopping. Default: <code class="docs-inline-code">10</code>.</td></tr>
+            <tr><td><code class="docs-inline-code">csv_imports.ignore_columns</code></td><td>array</td><td>Column names skipped during import (e.g. <code class="docs-inline-code">['id']</code>).</td></tr>
+            <tr><td><code class="docs-inline-code">csv_imports.upload_rules</code></td><td>array</td><td>Laravel validation rules applied to the uploaded CSV file.</td></tr>
+        </tbody>
+    </table>
+
+    <!-- File Manager -->
+    <h3 class="docs-subheading">File Manager</h3>
+    <table class="docs-table mb-6">
+        <thead>
+            <tr>
+                <th style="width:30%">Key</th>
+                <th style="width:20%">Type</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td><code class="docs-inline-code">file_manager.enabled</code></td><td>bool</td><td>Enable or disable the file manager entirely.</td></tr>
+            <tr><td><code class="docs-inline-code">file_manager.max_characters</code></td><td>int</td><td>Maximum number of characters read when previewing text-based files.</td></tr>
+            <tr><td><code class="docs-inline-code">file_manager.default_filesystem</code></td><td>string | <code class="docs-inline-code">null</code></td><td>Default filesystem disk to show. <code class="docs-inline-code">null</code> or empty shows all configured filesystems.</td></tr>
+            <tr><td><code class="docs-inline-code">file_manager.can_upload_mime_types</code></td><td>array</td><td>Allowed MIME types for file uploads through the file manager.</td></tr>
+            <tr><td><code class="docs-inline-code">file_manager.file_systems.{disk}.enabled</code></td><td>bool</td><td>Enable or disable a specific filesystem disk within the file manager.</td></tr>
+        </tbody>
+    </table>
+
+    <!-- Log Viewer -->
+    <h3 class="docs-subheading">Log Viewer</h3>
+    <table class="docs-table">
+        <thead>
+            <tr>
+                <th style="width:30%">Key</th>
+                <th style="width:20%">Type / Values</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><code class="docs-inline-code">logs.current</code></td>
+                <td><code class="docs-inline-code">'wrla'</code> | <code class="docs-inline-code">'opcodesio/log-viewer'</code></td>
+                <td>Which log viewer engine to use in the admin panel.</td>
+            </tr>
+            <tr>
+                <td><code class="docs-inline-code">logs.wrla.max_characters</code></td>
+                <td>int</td>
+                <td>Maximum characters loaded when rendering log files in the built-in viewer.</td>
+            </tr>
+            <tr>
+                <td><code class="docs-inline-code">logs.opcodesio/log-viewer.display_within_wrla</code></td>
+                <td>bool</td>
+                <td>When <code class="docs-inline-code">true</code>, the Opcodes Log Viewer is embedded inside the WRLA layout rather than redirecting to its own URL. Configure the package itself in <code class="docs-inline-code">config/log-viewer.php</code>.</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- ── 4. Theme / Styling ────────────────────────────────────────────────── -->
+<div class="docs-section">
+    <h2 class="docs-heading">Theme &amp; Styling</h2>
+
+    <!-- Themes -->
+    <h3 class="docs-subheading">Themes</h3>
+    <table class="docs-table mb-6">
+        <thead>
+            <tr>
+                <th style="width:30%">Key</th>
+                <th style="width:20%">Type</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><code class="docs-inline-code">default_theme</code></td>
+                <td>string</td>
+                <td>Key from the <code class="docs-inline-code">themes</code> array to use as the active theme.</td>
+            </tr>
+            <tr>
+                <td><code class="docs-inline-code">themes.{key}.name</code></td>
+                <td>string</td>
+                <td>Human-readable theme name shown in the UI when multiple themes are available.</td>
+            </tr>
+            <tr>
+                <td><code class="docs-inline-code">themes.{key}.path</code></td>
+                <td>string</td>
+                <td>Subfolder name inside <code class="docs-inline-code">resources/views/themes/</code> that contains this theme's Blade views.</td>
+            </tr>
+            <tr>
+                <td><code class="docs-inline-code">themes.{key}.default_mode</code></td>
+                <td><code class="docs-inline-code">'light'</code> | <code class="docs-inline-code">'dark'</code></td>
+                <td>Initial colour mode applied when a user has no saved preference.</td>
+            </tr>
+            <tr>
+                <td><code class="docs-inline-code">themes.{key}.no_image_src</code></td>
+                <td>string</td>
+                <td>Public asset path used as the placeholder when no image is set on a record.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- Colors -->
+    <h3 class="docs-subheading">Colors</h3>
+    <p class="docs-body">
+        The <code class="docs-inline-code">colors</code> array adds or overrides Tailwind colour palettes injected into WRLA's layout.
+        Each key is a colour name and its value is a shade map (<code class="docs-inline-code">50</code>–<code class="docs-inline-code">950</code>).
+        Use <a href="https://uicolors.app/create" class="docs-link" target="_blank">uicolors.app/create</a> to generate a full palette from a single hex value.
+    </p>
+    <table class="docs-table mb-6">
+        <thead>
+            <tr>
+                <th style="width:30%">Palette key</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td><code class="docs-inline-code">primary</code></td><td>Brand / accent colour used for buttons, links, and highlights throughout the panel.</td></tr>
+            <tr><td><code class="docs-inline-code">notes</code></td><td>Colour scale used for note/info elements.</td></tr>
+            <tr><td><code class="docs-inline-code">slate</code></td><td>Extended slate palette with additional mid-range shades (<code class="docs-inline-code">550</code>, <code class="docs-inline-code">725</code>, <code class="docs-inline-code">750</code>, <code class="docs-inline-code">850</code>) used in the dark sidebar and header.</td></tr>
+        </tbody>
+    </table>
+
+    <!-- CSS -->
+    <h3 class="docs-subheading">Custom CSS</h3>
+    <table class="docs-table">
+        <thead>
+            <tr>
+                <th style="width:30%">Key</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><code class="docs-inline-code">common_css</code></td>
+                <td>Raw CSS injected into the <code class="docs-inline-code">&lt;head&gt;</code> of every WRLA layout page. Use with care — malformed CSS can break the layout.</td>
+            </tr>
+            <tr>
+                <td><code class="docs-inline-code">wysiwyg_css</code></td>
+                <td>Raw CSS injected into the WYSIWYG editor iframe. Useful for matching the editor's body styles to your front-end typography.</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
