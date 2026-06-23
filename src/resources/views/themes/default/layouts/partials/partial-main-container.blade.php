@@ -6,14 +6,7 @@
     <div style="z-index: 5;" class="relative left-0 flex w-full gap-5 h-9 justify-between items-center border-b-2 border-slate-300 dark:border-slate-700 shadow-md dark:shadow-slate-900 bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-400">
         {{-- Documentation + Version --}}
         <div class="flex items-center">
-            {{-- Documentation link --}}
-            @if($WRLAHelper::showDocumentationLink())
-                <a href="{{ route('wrla.documentation') }}"
-                    class="hidden md:flex items-center gap-1.5 pl-6 text-xs text-gray-600 hover:text-sky-600 dark:hover:text-slate-400 transition-colors whitespace-nowrap">
-                    <i class="fas fa-book"></i>
-                    <span class="underline">Documentation</span>
-                </a>
-            @endif
+            {{-- Version / Update --}}
             @if($WRLAHelper::showVersionUpdateBar())
                 @php
                     $versionHandlerClass = \WebRegulate\LaravelAdministration\Classes\VersionHandler\VersionHandler::class;
@@ -34,6 +27,15 @@
                         <span class="pl-1.5 text-sky-600 font-semibold">(update available)</span>
                     @endif
                 </button>
+            @endif
+
+            {{-- Documentation link --}}
+            @if($WRLAHelper::showDocumentationLink())
+                <a href="{{ route('wrla.documentation') }}"
+                    class="hidden md:flex items-center gap-1.5 pl-6 text-xs text-gray-600 hover:text-sky-600 dark:hover:text-slate-400 transition-colors whitespace-nowrap">
+                    <i class="fas fa-book"></i>
+                    <span class="underline">Documentation</span>
+                </a>
             @endif
         </div>
 
