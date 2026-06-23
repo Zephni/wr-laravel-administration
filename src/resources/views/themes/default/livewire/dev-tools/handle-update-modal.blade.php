@@ -1,4 +1,4 @@
-<x-wrla-modal-layout title="Update WRLA" icon='fa-solid fa-bold'>
+<x-wrla-modal-layout title="Update WRLA" icon='fa-solid fa-bolt'>
     
     {{-- Back button (wire elements modal) --}}
     <div class="flex justify-between items-center mb-4">
