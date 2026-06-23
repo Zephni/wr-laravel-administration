@@ -1,0 +1,220 @@
+<h1 class="docs-title">Updating &amp; Version Handling</h1>
+<p class="docs-lead">
+    WRLA ships with a version handling system that upgrades your application in a controlled,
+    repeatable way. Rather than just pulling new package code, each release that needs migration
+    work defines its own <strong>version update</strong> — a single class that performs whatever
+    steps are required: running composer, mutating config files, asking questions, and so on.
+</p>
+
+<!-- How it works -->
+<div class="docs-section">
+    <h2 class="docs-heading">
+        <span class="docs-step-badge">1</span>
+        How updates are applied
+    </h2>
+    <p class="docs-body">
+        The currently applied version is stored in
+        <code class="docs-inline-code">public/vendor/wr-laravel-administration/version.json</code>.
+        When an update runs, the <code class="docs-inline-code">VersionHandler</code> discovers every
+        version update definition, sorts them in ascending order, and runs only those newer than your
+        stored version — updating the stored version after each one succeeds.
+    </p>
+    <p class="docs-body">
+        Versions use a three-digit-per-group scheme, e.g.
+        <code class="docs-inline-code">0.1.001</code>, <code class="docs-inline-code">0.1.002</code>, …,
+        <code class="docs-inline-code">0.1.999</code>, <code class="docs-inline-code">0.2.000</code>.
+    </p>
+</div>
+
+<!-- Running an update -->
+<div class="docs-section">
+    <h2 class="docs-heading">
+        <span class="docs-step-badge">2</span>
+        Running an update
+    </h2>
+    <p class="docs-body">
+        After updating the package, run the update command from your terminal:
+    </p>
+    <div class="docs-code-block mb-4">
+        <pre><code>php artisan wrla:update</code></pre>
+    </div>
+    <p class="docs-body">
+        Developers (users for whom developer tools are enabled) can also run updates from the admin
+        panel via the <strong>Dev Tools → Update WRLA</strong> modal — see
+        <strong>Running from the modal</strong> below for how the output is displayed.
+    </p>
+</div>
+
+<!-- Composer behaviour -->
+<div class="docs-section">
+    <h2 class="docs-heading">
+        <span class="docs-step-badge">3</span>
+        Composer behaviour (<code class="docs-inline-code">--no-dev</code>)
+    </h2>
+    <p class="docs-body">
+        Version updates that run <code class="docs-inline-code">composer update</code> decide whether to
+        pass <code class="docs-inline-code">--no-dev</code> based on the current app environment.
+        Configure which environments should exclude dev dependencies under the
+        <code class="docs-inline-code">developer.composer.no_dev</code> config key:
+    </p>
+    <div class="docs-code-block">
+        <pre><code>'developer' => [
+    'enable' => fn($wrlaUserData) => false,
+
+    'composer' => [
+        // App environments that should run `composer update --no-dev`
+        'no_dev' => ['production'],
+    ],
+],</code></pre>
+    </div>
+</div>
+
+<!-- Writing a version update -->
+<div class="docs-section">
+    <h2 class="docs-heading">
+        <span class="docs-step-badge">4</span>
+        Writing a version update
+    </h2>
+    <p class="docs-body">
+        Each version update is its own file in
+        <code class="docs-inline-code">src/Classes/VersionHandler/Versions/</code>, named after the
+        version (e.g. <code class="docs-inline-code">Version_0_1_001.php</code>). It extends
+        <code class="docs-inline-code">VersionUpdate</code> and implements three methods:
+    </p>
+    <div class="docs-code-block">
+        <pre><code>// src/Classes/VersionHandler/Versions/Version_0_1_001.php
+
+class Version_0_1_001 extends VersionUpdate
+{
+    public function version(): string
+    {
+        return '0.1.001';
+    }
+
+    public function title(): string
+    {
+        return 'Composer update &amp; developer config restructure';
+    }
+
+    public function run(VersionUpdateContext $context): void
+    {
+        // Run composer update (honours developer.composer.no_dev)
+        if (! $this->runComposerUpdate($context)) {
+            throw new \RuntimeException('composer update failed.');
+        }
+
+        // ...then apply any custom changes, e.g. migrate a config key
+        $context->info('Migrating configuration...');
+    }
+}</code></pre>
+    </div>
+    <div class="docs-callout docs-callout-warning">
+        <div class="docs-callout-icon">
+            <svg viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+            </svg>
+        </div>
+        <div class="docs-callout-body">
+            Throwing an exception from <code>run()</code> aborts the update — the version is
+            <strong>not</strong> marked as applied, so it will be retried on the next run.
+        </div>
+    </div>
+</div>
+
+<!-- The context -->
+<div class="docs-section">
+    <h2 class="docs-heading">
+        <span class="docs-step-badge">5</span>
+        The update context
+    </h2>
+    <p class="docs-body">
+        Updates can be triggered from the console (interactive) or the web dev-tools modal (buffered).
+        To behave identically in both, a version update must route all output, questions and shell
+        commands through the <code class="docs-inline-code">VersionUpdateContext</code> it is given —
+        never call <code class="docs-inline-code">echo</code> or read STDIN directly.
+    </p>
+    <table class="docs-table mb-6">
+        <thead>
+            <tr>
+                <th>Method</th>
+                <th>Purpose</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><code class="docs-inline-code">line() / info() / warn() / error()</code></td>
+                <td>Write output at the relevant severity</td>
+            </tr>
+            <tr>
+                <td><code class="docs-inline-code">ask($key, $question, $default)</code></td>
+                <td>Ask a free-text question</td>
+            </tr>
+            <tr>
+                <td><code class="docs-inline-code">confirm($key, $question, $default)</code></td>
+                <td>Ask a yes/no question</td>
+            </tr>
+            <tr>
+                <td><code class="docs-inline-code">choice($key, $question, $choices, $default)</code></td>
+                <td>Ask the user to pick from a list</td>
+            </tr>
+            <tr>
+                <td><code class="docs-inline-code">runProcess($command)</code></td>
+                <td>Run a shell command, streaming/capturing its output</td>
+            </tr>
+        </tbody>
+    </table>
+    <div class="docs-callout docs-callout-info">
+        <div class="docs-callout-icon">
+            <svg viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+            </svg>
+        </div>
+        <div class="docs-callout-body">
+            <strong>Console vs web:</strong> in the console, questions are fully interactive. In the
+            web modal, questions resolve to their supplied answer or default (Livewire cannot block
+            mid-request). Prefer driving decisions from config — as with
+            <code>developer.composer.no_dev</code> — so updates behave predictably in both contexts.
+        </div>
+    </div>
+</div>
+
+<!-- Running from the modal -->
+<div class="docs-section">
+    <h2 class="docs-heading">
+        <span class="docs-step-badge">6</span>
+        Running from the modal
+    </h2>
+    <p class="docs-body">
+        How the web <strong>Update WRLA</strong> modal executes updates is controlled by the
+        <code class="docs-inline-code">developer.update.mode</code> config key:
+    </p>
+    <div class="docs-code-block mb-4">
+        <pre><code>'developer' => [
+    // ...
+
+    'update' => [
+        // 'live'     - run in the background and stream the output as it happens
+        // 'blocking' - run synchronously and show the full output once finished
+        'mode' => 'live',
+    ],
+],</code></pre>
+    </div>
+    <table class="docs-table">
+        <thead>
+            <tr>
+                <th>Mode</th>
+                <th>Behaviour</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><code class="docs-inline-code">live</code> <span class="text-gray-400">(default)</span></td>
+                <td>Spawns <code class="docs-inline-code">wrla:update</code> as a detached background process that writes to a log file; the modal polls and streams the output live. If the host cannot spawn a background process, it automatically falls back to <code class="docs-inline-code">blocking</code>.</td>
+            </tr>
+            <tr>
+                <td><code class="docs-inline-code">blocking</code></td>
+                <td>Runs the update synchronously within the request and shows the full output once it finishes. The most portable option if background processes are restricted on your host.</td>
+            </tr>
+        </tbody>
+    </table>
+</div>

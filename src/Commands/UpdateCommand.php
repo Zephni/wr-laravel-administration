@@ -4,6 +4,7 @@ namespace WebRegulate\LaravelAdministration\Commands;
 
 use Illuminate\Console\Command;
 use WebRegulate\LaravelAdministration\Classes\VersionHandler\VersionHandler;
+use WebRegulate\LaravelAdministration\Classes\VersionHandler\ConsoleVersionUpdateContext;
 
 class UpdateCommand extends Command
 {
@@ -28,8 +29,8 @@ class UpdateCommand extends Command
      */
     public function handle()
     {
-        // Instantiate VersionHandler and run updates
-        $versionHandler = new VersionHandler($this);
+        // Instantiate VersionHandler with a console context and run updates
+        $versionHandler = new VersionHandler(new ConsoleVersionUpdateContext($this));
         $versionHandler->runUpdates();
 
         return 0;

@@ -813,7 +813,11 @@ class WRLAHelper
     public static function userIsDev(): bool
     {
         return once(function() {
-            $enableDeveloperToolsConfig = config('wr-laravel-administration.enable_developer_tools');
+            // New config location, falling back to the legacy key for installs that haven't migrated yet
+            $enableDeveloperToolsConfig = config(
+                'wr-laravel-administration.developer.enable',
+                config('wr-laravel-administration.enable_developer_tools')
+            );
 
             // If the config is callable, invoke it
             if(is_callable($enableDeveloperToolsConfig)) {

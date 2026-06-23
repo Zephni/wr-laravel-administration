@@ -102,8 +102,24 @@ return [
         ManageableModelPermissions::RESTORE->value => true,
     ],
 
-    // Callback for enabling developer tools, takes wrlaUserData and must return boolean.
-    'enable_developer_tools' => fn($wrlaUserData) => false, // EG. use: $wrlaUserData->isMaster() to enable for master users only
+    // Developer tooling configuration
+    'developer' => [
+        // Callback for enabling developer tools, takes wrlaUserData and must return boolean.
+        'enable' => fn($wrlaUserData) => false, // EG. use: $wrlaUserData->isMaster() to enable for master users only
+
+        // Composer behaviour for the wrla:update command
+        'composer' => [
+            // App environments that should run `composer update --no-dev`
+            'no_dev' => ['production'],
+        ],
+
+        // How the web dev-tools "Update WRLA" modal runs updates:
+        //  'live'     - run in the background and stream the console output to the modal as it happens
+        //  'blocking' - run synchronously and show the full output once finished
+        'update' => [
+            'mode' => 'live',
+        ],
+    ],
 
     // Documentation configuration
     'documentation' => [

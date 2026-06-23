@@ -306,9 +306,9 @@ class InstallCommand extends Command
 
         $contents = file_get_contents($configPath);
         $updated  = preg_replace_callback(
-            "/'enable_developer_tools'\s*=>\s*fn\(\\\$wrlaUserData\)\s*=>\s*false,.*$/m",
+            "/'enable'\s*=>\s*fn\(\\\$wrlaUserData\)\s*=>\s*false,.*$/m",
             function () use ($selectedValue) {
-                return "'enable_developer_tools' => {$selectedValue},";
+                return "'enable' => {$selectedValue},";
             },
             $contents
         );

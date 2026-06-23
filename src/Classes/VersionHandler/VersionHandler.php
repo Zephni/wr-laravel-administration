@@ -2,9 +2,6 @@
 
 namespace WebRegulate\LaravelAdministration\Classes\VersionHandler;
 
-use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Http;
-
 class VersionHandler
 {
     public static $localPackageCurrentVersion = null;
@@ -12,11 +9,11 @@ class VersionHandler
     public static $remotePackageLatestSha = null;
 
     private string $versionFilePath = 'vendor/wr-laravel-administration/version.json';
-    private Command $command;
+    private VersionUpdateContext $context;
 
-    public function __construct(Command $command)
+    public function __construct(VersionUpdateContext $context)
     {
-        $this->command = $command;
+        $this->context = $context;
     }
 
     private function getVersionFilePath(): string
@@ -34,16 +31,42 @@ class VersionHandler
         file_put_contents($this->getVersionFilePath(), json_encode($versionData, JSON_PRETTY_PRINT));
     }
 
-    private function getVersionActionMappings()
+    /**
+     * Discover all version update definitions in the Versions directory,
+     * instantiated and sorted in ascending version order.
+     *
+     * @return array<int, VersionUpdate>
+     */
+    private function getVersionUpdates(): array
     {
-        return [
-            /**
-             * TODO: Handle new vendor css / js setup, install ck editor.
-             */
-            // '0.1.0' => function(Command $command) {
-                
-            // }
-        ];
+        $versionsDirectory = __DIR__ . DIRECTORY_SEPARATOR . 'Versions';
+
+        if (!is_dir($versionsDirectory)) {
+            return [];
+        }
+
+        $updates = [];
+
+        foreach (glob($versionsDirectory . DIRECTORY_SEPARATOR . '*.php') as $file) {
+            $class = __NAMESPACE__ . '\\Versions\\' . pathinfo($file, PATHINFO_FILENAME);
+
+            if (!class_exists($class)) {
+                continue;
+            }
+
+            $instance = new $class();
+
+            if (!$instance instanceof VersionUpdate) {
+                continue;
+            }
+
+            $updates[] = $instance;
+        }
+
+        // Sort ascending by version so updates apply in order
+        usort($updates, fn(VersionUpdate $a, VersionUpdate $b) => version_compare($a->version(), $b->version()));
+
+        return $updates;
     }
 
     public function getVersionData(): ?array
@@ -63,7 +86,7 @@ class VersionHandler
 
     public function runUpdates(): bool
     {
-        $this->command->line('');
+        $this->context->line('');
 
         // Initialised found update var
         $foundUpdate = false;
@@ -77,45 +100,50 @@ class VersionHandler
             $this->updateVersionData('0.1.0');
         }
 
-        // Extract current version or use null
-        $currentVersion = $versionData['version'] ?? null;
+        // Extract current version or use the starting version
+        $currentVersion = $versionData['version'] ?? '0.1.0';
 
-        // Retrieve version-action mappings
-        $actionMappings = $this->getVersionActionMappings();
+        // Discover all version update definitions (ascending order)
+        $versionUpdates = $this->getVersionUpdates();
 
-        // Loop through each version and its corresponding update action
-        foreach ($actionMappings as $version => $action) {
-            // Check if no version is set or current version is older
-            if ($currentVersion == null || version_compare($currentVersion, $version, '<')) {
-                // Set found update to true
-                $foundUpdate = true;
+        // Loop through each version update and run the ones newer than the current version
+        foreach ($versionUpdates as $versionUpdate) {
+            $version = $versionUpdate->version();
 
-                // Inform we are about to attempt the update
-                $this->command->line("Applying version changes for: $version");
-                $this->command->line("-------------------------------------");
-
-                // Execute the associated action
-                try {
-                    call_user_func($action, $this->command);
-                    $this->command->info("Successfully applied changes for version: $version");
-                } catch (\Exception $e) {
-                    // If an error occurs, inform the user and stop the process
-                    $this->command->error("Error while applying version changes for $version: " . $e->getMessage());
-                    return false;
-                }
-
-                // Update the stored version data
-                $this->updateVersionData($version);
-
-                // Line and mini sleep
-                $this->command->line('');
-                usleep(100);
+            // Skip versions we've already applied
+            if (version_compare($currentVersion, $version, '>=')) {
+                continue;
             }
+
+            // Set found update to true
+            $foundUpdate = true;
+
+            // Inform we are about to attempt the update
+            $this->context->line("Applying version changes for: $version - {$versionUpdate->title()}");
+            $this->context->line("-------------------------------------");
+
+            // Execute the version update
+            try {
+                $versionUpdate->run($this->context);
+                $this->context->info("Successfully applied changes for version: $version");
+            } catch (\Throwable $e) {
+                // If an error occurs, inform the user and stop the process
+                $this->context->error("Error while applying version changes for $version: " . $e->getMessage());
+                return false;
+            }
+
+            // Update the stored version data
+            $this->updateVersionData($version);
+            $currentVersion = $version;
+
+            // Line and mini sleep
+            $this->context->line('');
+            usleep(100);
         }
 
         // If no updates were found, inform the user
         if (!$foundUpdate) {
-            $this->command->info('No updates required, current version: ' . ($currentVersion ?? '0.1.0').PHP_EOL);
+            $this->context->info('No updates required, current version: ' . $currentVersion . PHP_EOL);
             return false;
         }
 

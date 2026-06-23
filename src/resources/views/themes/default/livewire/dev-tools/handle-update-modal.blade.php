@@ -7,13 +7,27 @@
         </button>
     </div>
 
+    {{-- While a live update is running, poll for the latest console output --}}
+    @if($running)
+        <div wire:poll.1000ms="pollOutput"></div>
+    @endif
+
     <div class="bg-slate-900 text-slate-200 p-4 rounded-lg mt-4">
-        <h3 class="text-lg font-semibold mb-2">Console Output:</h3>
+        <h3 class="text-lg font-semibold mb-2 flex items-center gap-2">
+            Console Output:
+            @if($running)
+                <span class="text-amber-400 text-sm font-normal">⏳ running...</span>
+            @endif
+        </h3>
         <div class="w-full max-h-96 overflow-auto">
             <pre class="whitespace-pre-wrap">{{ $consoleOutput }}</pre>
         </div>
         <div class="flex gap-4 mt-4">
-            <button wire:click="runCommand" class="whitespace-nowrap">✅ Check updates</button>
+            <button wire:click="runCommand" wire:loading.attr="disabled" wire:target="runCommand"
+                @disabled($running) class="whitespace-nowrap disabled:opacity-50">
+                <span wire:loading.remove wire:target="runCommand">{{ $running ? '⏳ Running...' : '✅ Run updates' }}</span>
+                <span wire:loading wire:target="runCommand"><i class="fa-solid fa-hourglass fa-spin inline-block"></i> Starting...</span>
+            </button>
         </div>
     </div>
 
