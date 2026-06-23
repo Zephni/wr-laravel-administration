@@ -102,6 +102,21 @@ abstract class VersionUpdateContext
     }
 
     /**
+     * The recorded change outcomes as a numerically indexed array of human
+     * readable lines, eg. ["[changed] Developer config migrated.", ...].
+     * Suitable for logging every part of a version update in a single entry.
+     *
+     * @return array<int, string>
+     */
+    public function recordedChangeLines(): array
+    {
+        return array_values(array_map(
+            fn(array $entry) => $entry['status']->prefix() . ' ' . $entry['message'],
+            $this->changeLog
+        ));
+    }
+
+    /**
      * Clear the recorded change log (called between versions so each version's
      * summary only reflects its own steps).
      */

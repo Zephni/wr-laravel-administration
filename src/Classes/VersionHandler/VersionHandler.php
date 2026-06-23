@@ -2,6 +2,8 @@
 
 namespace WebRegulate\LaravelAdministration\Classes\VersionHandler;
 
+use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
+
 class VersionHandler
 {
     public static $localPackageCurrentVersion = null;
@@ -135,6 +137,19 @@ class VersionHandler
                 if ($summary !== null) {
                     $this->context->line("Summary of changes - {$summary}");
                 }
+
+                // Record a single wrla event log entry describing every part of
+                // this version's update, with the changes as a numerically
+                // indexed array.
+                WRLAHelper::logEvent(
+                    "WRLA updated to version {$version} - {$versionUpdate->title()}",
+                    [
+                        'version' => $version,
+                        'title' => $versionUpdate->title(),
+                        'summary' => $summary,
+                        'changes' => $this->context->recordedChangeLines(),
+                    ]
+                );
 
                 $this->context->info("Successfully applied changes for version: $version");
             } catch (\Throwable $e) {
