@@ -162,6 +162,7 @@
     body { font-feature-settings: normal; font-family: "Nunito Sans", sans-serif; -webkit-font-smoothing: antialiased; }
     [x-cloak] { display: none !important; }
     .wrla_no_image { object-fit: fill !important; }
+    .animate-spin { display: inline-block; }
 
     /* Scrollbars */
     ::-webkit-scrollbar { width: 10px; height: 10px; }
