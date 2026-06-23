@@ -104,8 +104,12 @@ return [
 
     // Developer tooling configuration
     'developer' => [
-        // Callback for enabling developer tools, takes wrlaUserData and must return boolean.
-        'enable' => fn($wrlaUserData) => false, // EG. use: $wrlaUserData->isMaster() to enable for master users only
+        // Callback (or bool) for enabling developer tools, takes wrlaUserData and must return boolean.
+        // IMPORTANT: keep this null by default. When null, WRLA falls back to the legacy
+        // `enable_developer_tools` key below, which keeps the in-UI version/update button accessible
+        // on applications that haven't migrated their published config yet (backwards compatibility).
+        // EG. use: fn($wrlaUserData) => $wrlaUserData?->isMaster() to enable for master users only.
+        'enable' => null,
 
         // Composer behaviour for the wrla:update command
         'composer' => [
