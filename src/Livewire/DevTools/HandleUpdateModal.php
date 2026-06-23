@@ -30,18 +30,32 @@ class HandleUpdateModal extends ModalComponent
      */
     public bool $running = false;
 
+    /**
+     * Whether the current user is permitted to run updates.
+     *
+     * The modal itself always opens (so we never throw a jarring 404 from a
+     * control the UI chose to show); this flag gates the actual update action
+     * and what the view offers.
+     */
+    public bool $authorised = true;
+
     public function mount()
     {
-        // 404 unless the version/update bar is available to this user. This mirrors
-        // the top bar gate so unmigrated installs (developer.enable not set) can still
-        // open the modal to update themselves, not just dev-tools users.
-        if (!WRLAHelper::showVersionUpdateBar()) {
-            abort(404);
-        }
+        // Resolve authorisation, but NEVER abort(404) here. The update indicator /
+        // button is rendered by the package, so clicking it must always resolve to a
+        // usable modal rather than a 404 — even if the dev gate resolves differently
+        // in this (Livewire) sub-request than it did on the full page render.
+        $this->authorised = WRLAHelper::showVersionUpdateBar();
 
         $this->mode = config('wr-laravel-administration.developer.update.mode', 'live') === 'blocking'
             ? 'blocking'
             : 'live';
+
+        if (!$this->authorised) {
+            $this->consoleOutput = 'Update tools are not available for your account.' . PHP_EOL;
+            $this->dispatch('dev-tools.handle-update-modal.opened');
+            return;
+        }
 
         // Show the current applied version on open
         $this->consoleOutput = 'Current version: ' . ($this->currentVersion() ?? '0.1.0') . PHP_EOL;
@@ -60,8 +74,13 @@ class HandleUpdateModal extends ModalComponent
      */
     public function runCommand()
     {
+        // Authorisation gate for the actual (privileged) update action. We refuse
+        // gracefully rather than abort(404) so the user gets clear feedback instead
+        // of a broken-looking response.
         if (!WRLAHelper::showVersionUpdateBar()) {
-            abort(404);
+            $this->authorised = false;
+            $this->consoleOutput = 'You do not have permission to run updates.' . PHP_EOL;
+            return;
         }
 
         $this->mode === 'blocking'
