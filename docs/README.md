@@ -51,3 +51,16 @@ Press `Ctrl+C` in the terminal where the server is running.
 The default port is 8888. If the port is already in use, you can either:
 - Use a different port with `php artisan wrla:docs --port=3000`
 - Stop the process using port 8888 and try again
+
+## Contributing / Development Setup
+
+After cloning the repository, activate the pre-commit hook so that `docs/version.json` is
+automatically kept in sync with the latest `VersionUpdate` class:
+
+```bash
+git config core.hooksPath .githooks
+```
+
+This only needs to be done once per clone. The hook fires before every commit and updates
+`docs/version.json` if a new `Versions/Version_*.php` file has been added with a higher version
+number.
