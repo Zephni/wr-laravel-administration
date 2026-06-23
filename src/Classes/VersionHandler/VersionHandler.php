@@ -235,7 +235,7 @@ class VersionHandler
      * can always be refreshed via the UI or artisan command, independent of the
      * per-version migrations tracked in version.json.
      */
-    private function runComposerUpdate(): bool
+    public function runComposerUpdate(): bool
     {
         $noDevEnvironments = config('wr-laravel-administration.developer.composer.no_dev', ['production']);
         $useNoDev = in_array(app()->environment(), (array) $noDevEnvironments, true);

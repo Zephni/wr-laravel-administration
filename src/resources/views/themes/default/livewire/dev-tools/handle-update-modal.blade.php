@@ -31,25 +31,36 @@
             class="w-full max-h-96 overflow-auto">
             <pre class="whitespace-pre-wrap">{{ $consoleOutput }}</pre>
         </div>
-        <div class="flex gap-4 mt-4">
-            @if($authorised)
-                @if($updatesAvailable || $running)
-                    <button wire:click="runCommand" wire:loading.attr="disabled" wire:target="runCommand"
-                        @disabled($running) class="whitespace-nowrap disabled:opacity-50">
-                        <span wire:loading.remove wire:target="runCommand">
-                            @if($running)
-                                <i class="fa-solid fa-hourglass fa-spin"></i> Running...
-                            @else
-                                ✅ Run updates
-                            @endif
-                        </span>
-                        <span wire:loading wire:target="runCommand"><i class="fa-solid fa-hourglass fa-spin inline-block"></i> Starting...</span>
-                    </button>
+        <div class="flex justify-between items-center mt-4">
+            <div class="flex gap-4 items-center">
+                @if($authorised)
+                    @if($updatesAvailable || $running)
+                        <button wire:click="runCommand" wire:loading.attr="disabled" wire:target="runCommand"
+                            @disabled($running) class="whitespace-nowrap disabled:opacity-50">
+                            <span wire:loading.remove wire:target="runCommand">
+                                @if($running)
+                                    <i class="fa-solid fa-hourglass fa-spin"></i> Running...
+                                @else
+                                    ✅ Run updates
+                                @endif
+                            </span>
+                            <span wire:loading wire:target="runCommand"><i class="fa-solid fa-hourglass fa-spin inline-block"></i> Starting...</span>
+                        </button>
+                    @else
+                        <span class="text-emerald-400 text-sm"><i class="fa-solid fa-circle-check"></i> You are on the latest version.</span>
+                    @endif
                 @else
-                    <span class="text-emerald-400 text-sm"><i class="fa-solid fa-circle-check"></i> You are on the latest version.</span>
+                    <span class="text-amber-400 text-sm"><i class="fa-solid fa-lock"></i> Updates are not available for your account.</span>
                 @endif
-            @else
-                <span class="text-amber-400 text-sm"><i class="fa-solid fa-lock"></i> Updates are not available for your account.</span>
+            </div>
+            @if($authorised)
+                <button wire:click="runComposerOnly" wire:loading.attr="disabled" wire:target="runComposerOnly"
+                    @disabled($running) class="whitespace-nowrap disabled:opacity-50 text-xs text-slate-400 hover:text-slate-200 transition-colors">
+                    <span wire:loading.remove wire:target="runComposerOnly">
+                        <i class="fa-solid fa-box"></i> Composer update only
+                    </span>
+                    <span wire:loading wire:target="runComposerOnly"><i class="fa-solid fa-hourglass fa-spin inline-block"></i> Running...</span>
+                </button>
             @endif
         </div>
     </div>

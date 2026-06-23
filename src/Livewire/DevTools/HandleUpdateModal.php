@@ -103,6 +103,35 @@ class HandleUpdateModal extends ModalComponent
     }
 
     /**
+     * Run composer update only — no version migrations.
+     * Always runs in blocking mode since there is no dedicated artisan command for it.
+     */
+    public function runComposerOnly(): void
+    {
+        if (!WRLAHelper::showVersionUpdateBar()) {
+            $this->authorised = false;
+            $this->consoleOutput = 'You do not have permission to run updates.' . PHP_EOL;
+            return;
+        }
+
+        @set_time_limit(0);
+        $this->running = true;
+        $context = new WebVersionUpdateContext();
+
+        try {
+            $success = (new VersionHandler($context))->runComposerUpdate();
+            if ($success) {
+                $context->info('Composer update completed successfully.');
+            }
+        } catch (\Throwable $e) {
+            $context->error($e->getMessage());
+        }
+
+        $this->consoleOutput = $context->getOutput();
+        $this->running = false;
+    }
+
+    /**
      * Blocking mode: run all pending updates synchronously and show the output once finished.
      */
     protected function runBlocking(): void
