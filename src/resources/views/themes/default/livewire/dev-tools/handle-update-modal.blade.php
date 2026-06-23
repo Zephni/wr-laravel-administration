@@ -19,7 +19,16 @@
                 <span class="text-amber-400 text-sm font-normal">⏳ running...</span>
             @endif
         </h3>
-        <div class="w-full max-h-96 overflow-auto">
+        <div x-data="{
+                scrollToBottom() {
+                    this.$el.scrollTop = this.$el.scrollHeight;
+                }
+            }"
+            x-init="
+                scrollToBottom();
+                new MutationObserver(() => scrollToBottom()).observe($el, { childList: true, subtree: true, characterData: true });
+            "
+            class="w-full max-h-96 overflow-auto">
             <pre class="whitespace-pre-wrap">{{ $consoleOutput }}</pre>
         </div>
         <div class="flex gap-4 mt-4">
