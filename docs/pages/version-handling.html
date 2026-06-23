@@ -161,6 +161,10 @@ class Version_0_1_001 extends VersionUpdate
                 <td><code class="docs-inline-code">runProcess($command)</code></td>
                 <td>Run a shell command, streaming/capturing its output</td>
             </tr>
+            <tr>
+                <td><code class="docs-inline-code">change($status, $message)</code></td>
+                <td>Report whether a step changed, made no change, partially changed, or was skipped</td>
+            </tr>
         </tbody>
     </table>
     <div class="docs-callout docs-callout-info">
@@ -178,10 +182,84 @@ class Version_0_1_001 extends VersionUpdate
     </div>
 </div>
 
-<!-- Running from the modal -->
+<!-- Reporting what changed -->
 <div class="docs-section">
     <h2 class="docs-heading">
         <span class="docs-step-badge">6</span>
+        Reporting what changed
+    </h2>
+    <p class="docs-body">
+        Rather than guessing from the raw output, a version update can explicitly tell the user
+        whether each step <strong>actually changed something</strong>, made <strong>no change</strong>,
+        only <strong>partially</strong> changed, or was <strong>skipped</strong>. Use
+        <code class="docs-inline-code">$context-&gt;change($status, $message)</code> with a
+        <code class="docs-inline-code">VersionChangeStatus</code> case:
+    </p>
+    <table class="docs-table mb-6">
+        <thead>
+            <tr>
+                <th>Status</th>
+                <th>Meaning</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><code class="docs-inline-code">VersionChangeStatus::Changed</code></td>
+                <td>The step applied a change successfully</td>
+            </tr>
+            <tr>
+                <td><code class="docs-inline-code">VersionChangeStatus::Unchanged</code></td>
+                <td>Nothing needed doing — already in the desired state</td>
+            </tr>
+            <tr>
+                <td><code class="docs-inline-code">VersionChangeStatus::Partial</code></td>
+                <td>Only some of the intended change could be applied</td>
+            </tr>
+            <tr>
+                <td><code class="docs-inline-code">VersionChangeStatus::Skipped</code></td>
+                <td>The step could not run (eg. a required file was missing)</td>
+            </tr>
+        </tbody>
+    </table>
+    <div class="docs-code-block">
+        <pre><code>use WebRegulate\LaravelAdministration\Classes\VersionHandler\VersionChangeStatus;
+
+if (! file_exists($configPath)) {
+    $context-&gt;change(VersionChangeStatus::Skipped, 'Config not found, migration skipped.');
+    return;
+}
+
+if ($alreadyMigrated) {
+    $context-&gt;change(VersionChangeStatus::Unchanged, 'Config already present, nothing to do.');
+    return;
+}
+
+file_put_contents($configPath, $updated);
+$context-&gt;change(VersionChangeStatus::Changed, 'Config migrated to the new structure.');</code></pre>
+    </div>
+    <p class="docs-body">
+        Each call is written to the output at a sensible severity and recorded, so once the version
+        finishes the handler automatically prints a concise summary, e.g.
+        <code class="docs-inline-code">Summary of changes - Changed: 1, Unchanged: 2</code>.
+    </p>
+    <div class="docs-callout docs-callout-info">
+        <div class="docs-callout-icon">
+            <svg viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+            </svg>
+        </div>
+        <div class="docs-callout-body">
+            <strong>Future proof:</strong> need a new outcome? Add a case to
+            <code>VersionChangeStatus</code> with its label, prefix and severity — the context output
+            and the summary pick it up automatically, no other changes required.
+        </div>
+    </div>
+</div>
+
+<!-- Running from the modal -->
+<div class="docs-section">
+    <h2 class="docs-heading">
+        <span class="docs-step-badge">7</span>
         Running from the modal
     </h2>
     <p class="docs-body">

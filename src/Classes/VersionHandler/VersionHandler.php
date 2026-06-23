@@ -122,9 +122,20 @@ class VersionHandler
             $this->context->line("Applying version changes for: $version - {$versionUpdate->title()}");
             $this->context->line("-------------------------------------");
 
+            // Start each version with a clean change log so its summary only
+            // reflects the steps belonging to this version.
+            $this->context->clearChangeLog();
+
             // Execute the version update
             try {
                 $versionUpdate->run($this->context);
+
+                // Summarise what this version actually changed (if it reported any outcomes)
+                $summary = $this->context->changeSummaryLine();
+                if ($summary !== null) {
+                    $this->context->line("Summary of changes - {$summary}");
+                }
+
                 $this->context->info("Successfully applied changes for version: $version");
             } catch (\Throwable $e) {
                 // If an error occurs, inform the user and stop the process

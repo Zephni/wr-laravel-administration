@@ -14,6 +14,13 @@ namespace WebRegulate\LaravelAdministration\Classes\VersionHandler;
 abstract class VersionUpdateContext
 {
     /**
+     * Outcomes recorded via change(), used to build a per-version summary.
+     *
+     * @var array<int, array{status: VersionChangeStatus, message: string}>
+     */
+    protected array $changeLog = [];
+
+    /**
      * Write a plain line of output.
      */
     abstract public function line(string $message = ''): void;
@@ -56,4 +63,75 @@ abstract class VersionUpdateContext
      * @param array<int, string> $command
      */
     abstract public function runProcess(array $command, ?string $workingDirectory = null, int $timeout = 600): bool;
+
+    /**
+     * Report the outcome of a single step, explaining to the user whether it
+     * actually changed something, made no change, only partially changed, or
+     * was skipped.
+     *
+     * The message is written at the outcome's configured severity (so it's
+     * styled consistently in both the console and the web modal) and recorded
+     * so a summary can be shown once the version finishes.
+     *
+     * Example:
+     *   $context->change(VersionChangeStatus::Changed, 'Developer config migrated.');
+     *   $context->change(VersionChangeStatus::Unchanged, 'Developer config already present.');
+     */
+    public function change(VersionChangeStatus $status, string $message): void
+    {
+        $line = $status->prefix() . ' ' . $message;
+
+        match ($status->severity()) {
+            'info' => $this->info($line),
+            'warn' => $this->warn($line),
+            'error' => $this->error($line),
+            default => $this->line($line),
+        };
+
+        $this->changeLog[] = ['status' => $status, 'message' => $message];
+    }
+
+    /**
+     * The change outcomes recorded so far (since the last reset).
+     *
+     * @return array<int, array{status: VersionChangeStatus, message: string}>
+     */
+    public function recordedChanges(): array
+    {
+        return $this->changeLog;
+    }
+
+    /**
+     * Clear the recorded change log (called between versions so each version's
+     * summary only reflects its own steps).
+     */
+    public function clearChangeLog(): void
+    {
+        $this->changeLog = [];
+    }
+
+    /**
+     * Build a one-line summary of the recorded outcomes, eg.
+     * "Changed: 1, Unchanged: 2". Returns null when nothing was recorded.
+     */
+    public function changeSummaryLine(): ?string
+    {
+        if ($this->changeLog === []) {
+            return null;
+        }
+
+        $counts = [];
+
+        foreach ($this->changeLog as $entry) {
+            $label = $entry['status']->label();
+            $counts[$label] = ($counts[$label] ?? 0) + 1;
+        }
+
+        $parts = [];
+        foreach ($counts as $label => $count) {
+            $parts[] = "{$label}: {$count}";
+        }
+
+        return implode(', ', $parts);
+    }
 }

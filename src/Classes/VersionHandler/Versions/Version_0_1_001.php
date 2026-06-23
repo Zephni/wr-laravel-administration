@@ -3,6 +3,7 @@
 namespace WebRegulate\LaravelAdministration\Classes\VersionHandler\Versions;
 
 use WebRegulate\LaravelAdministration\Classes\VersionHandler\VersionUpdate;
+use WebRegulate\LaravelAdministration\Classes\VersionHandler\VersionChangeStatus;
 use WebRegulate\LaravelAdministration\Classes\VersionHandler\VersionUpdateContext;
 
 /**
@@ -62,7 +63,7 @@ class Version_0_1_001 extends VersionUpdate
         $configPath = config_path('wr-laravel-administration.php');
 
         if (! file_exists($configPath)) {
-            $context->warn(' - Published config not found, skipping config migration.');
+            $context->change(VersionChangeStatus::Skipped, 'Published config not found, config migration skipped.');
             return;
         }
 
@@ -70,7 +71,7 @@ class Version_0_1_001 extends VersionUpdate
 
         // 1. Idempotent: if the new developer group already exists, there is nothing to do
         if ($this->hasDeveloperBlock($contents)) {
-            $context->info(' - Developer config already present, nothing to do.');
+            $context->change(VersionChangeStatus::Unchanged, 'Developer config already present, nothing to do.');
             return;
         }
 
@@ -115,12 +116,12 @@ class Version_0_1_001 extends VersionUpdate
         }, $contents, 1, $count);
 
         if (! $count || $updated === null) {
-            $context->warn(' - Could not locate the enable_developer_tools key, config left unchanged.');
+            $context->change(VersionChangeStatus::Skipped, 'Could not locate the enable_developer_tools key, config left unchanged.');
             return;
         }
 
         file_put_contents($configPath, $updated);
-        $context->info(' - Developer tools configuration migrated to the new developer group.');
+        $context->change(VersionChangeStatus::Changed, 'Developer tools configuration migrated to the new developer group.');
     }
 
     /**
@@ -151,12 +152,12 @@ class Version_0_1_001 extends VersionUpdate
 
             if ($count && $updated !== null) {
                 file_put_contents($configPath, $updated);
-                $context->info(' - Developer tooling configuration added to config.');
+                $context->change(VersionChangeStatus::Changed, 'Developer tooling configuration added to config.');
                 return;
             }
         }
 
-        $context->warn(' - Could not find a location to insert the developer config, config left unchanged.');
+        $context->change(VersionChangeStatus::Skipped, 'Could not find a location to insert the developer config, config left unchanged.');
     }
 
     /**
