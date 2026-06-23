@@ -1,0 +1,57 @@
+name: Update docs/version.json
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'src/Classes/VersionHandler/Versions/**.php'
+
+jobs:
+  update-version:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Find latest VersionUpdate version
+        id: version
+        run: |
+          LATEST=""
+          for file in src/Classes/VersionHandler/Versions/Version_*.php; do
+            [ -f "$file" ] || continue
+            base=$(basename "$file" .php)
+            ver=$(echo "$base" | sed 's/^Version_//' | tr '_' '.')
+            if [ -z "$LATEST" ] || [ "$(php -r "echo version_compare('$ver', '$LATEST', '>') ? 'yes' : 'no';")" = "yes" ]; then
+              LATEST="$ver"
+            fi
+          done
+          if [ -z "$LATEST" ]; then
+            echo "No Version_*.php files found" >&2
+            exit 1
+          fi
+          echo "version=$LATEST" >> "$GITHUB_OUTPUT"
+
+      - name: Write docs/version.json
+        run: |
+          UPDATED=$(date -u +"%Y-%m-%d %H:%M:%S")
+          php -r "
+            \$data = [
+              'version' => '${{ steps.version.outputs.version }}',
+              'updated' => '$UPDATED',
+            ];
+            file_put_contents('docs/version.json', json_encode(\$data, JSON_PRETTY_PRINT) . PHP_EOL);
+          "
+
+      - name: Commit and push if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/version.json
+          if git diff --staged --quiet; then
+            echo "docs/version.json already up to date, nothing to commit."
+          else
+            git commit -m "chore: update docs/version.json to ${{ steps.version.outputs.version }}"
+            git push
+          fi

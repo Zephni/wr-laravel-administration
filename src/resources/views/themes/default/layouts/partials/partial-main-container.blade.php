@@ -15,32 +15,25 @@
                 </a>
             @endif
             @if($WRLAHelper::showVersionUpdateBar())
-                <div class="hidden md:inline-block pl-6 text-xs text-gray-600">
-                    @php
-                        $versionHandlerClass = \WebRegulate\LaravelAdministration\Classes\VersionHandler\VersionHandler::class;
-                        $localComposerVersion = $versionHandlerClass::$localPackageCurrentVersion;
-                        $updateAvailable = $versionHandlerClass::pendingUpdatesAvailable();
-                    @endphp
-                    <i class="fas fa-code-branch text-xs mr-1"></i>Version:
-                    {{ $localComposerVersion }}
-                    <span class="px-1.5">-</span>
-                    @if(!$updateAvailable)
-                        <b onclick="window.loadLivewireModal(this, 'dev-tools.handle-update-modal')"
-                            class="cursor-pointer"
-                            title="No pending updates">
-                            <i class="fas fa-info-circle text-xs text-slate-400"></i>
-                            <span class="pl-1">Up to date</span>
-                        </b>
+                @php
+                    $versionHandlerClass = \WebRegulate\LaravelAdministration\Classes\VersionHandler\VersionHandler::class;
+                    $localComposerVersion = $versionHandlerClass::$localPackageCurrentVersion;
+                    $updateAvailable = $versionHandlerClass::isRemoteUpdateAvailable() || $versionHandlerClass::pendingUpdatesAvailable();
+                @endphp
+                <button type="button"
+                    onclick="window.loadLivewireModal(this, 'dev-tools.handle-update-modal')"
+                    class="hidden md:inline-flex items-center pl-6 text-xs text-gray-600 hover:text-sky-600 dark:hover:text-slate-400 transition-colors whitespace-nowrap cursor-pointer"
+                    title="{{ $updateAvailable ? 'Pending version updates are available to run' : 'No pending updates' }}">
+                    @if($updateAvailable)
+                        <i class="fas fa-exclamation-triangle text-xs mr-1 text-sky-600"></i>
                     @else
-                        <button
-                            onclick="window.loadLivewireModal(this, 'dev-tools.handle-update-modal')"
-                            class="text-sky-600 font-semibold cursor-pointer"
-                            title="Pending version updates are available to run">
-                            <i class="fas fa-exclamation-triangle text-sky-600"></i>
-                            <span class="pl-1">Update available</span>
-                        </button>
+                        <i class="fas fa-code-branch text-xs mr-1"></i>
                     @endif
-                </div>
+                    Version: {{ $localComposerVersion }}
+                    @if($updateAvailable)
+                        <span class="pl-1.5 text-sky-600 font-semibold">(update available)</span>
+                    @endif
+                </button>
             @endif
         </div>
 

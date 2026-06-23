@@ -7,6 +7,7 @@ use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 class VersionHandler
 {
     public static $localPackageCurrentVersion = null;
+    public static $remoteLatestVersion = null;
 
     private string $versionFilePath = 'vendor/wr-laravel-administration/version.json';
     private VersionUpdateContext $context;
@@ -256,29 +257,60 @@ class VersionHandler
     }
 
     /**
-     * Resolve the locally installed package version for display purposes.
+     * Resolve the locally installed package version from composer.lock and fetch
+     * the latest available version from the GitHub Pages hosted version.json.
      *
-     * Whether an update is "available" is determined separately by the version
-     * update system (see {@see hasPendingUpdates()}), which is the single source
-     * of truth shared by the header indicator and the update modal.
+     * Whether local migrations are pending is determined separately by the version
+     * update system (see {@see hasPendingUpdates()}).
      */
     public static function buildLocalAndRemotePackageInformation(): void
     {
         // Get actual version from composer.lock
         $composerLockPath = base_path('composer.lock');
 
-        if (!file_exists($composerLockPath)) {
-            return;
-        }
-
-        // Find applicable package data in composer.lock
-        $composerData = json_decode(file_get_contents($composerLockPath), true);
-        if (isset($composerData['packages'])) {
-            foreach ($composerData['packages'] as $package) {
-                if ($package['name'] === 'webregulate/laravel-administration') {
-                    VersionHandler::$localPackageCurrentVersion = $package['version'] ?? null;
+        if (file_exists($composerLockPath)) {
+            $composerData = json_decode(file_get_contents($composerLockPath), true);
+            if (isset($composerData['packages'])) {
+                foreach ($composerData['packages'] as $package) {
+                    if ($package['name'] === 'webregulate/laravel-administration') {
+                        VersionHandler::$localPackageCurrentVersion = $package['version'] ?? null;
+                    }
                 }
             }
         }
+
+        // Fetch the latest published version from GitHub Pages (fail silently).
+        try {
+            $ctx = stream_context_create(['http' => ['timeout' => 3, 'ignore_errors' => true]]);
+            $json = @file_get_contents(
+                'https://zephni.github.io/wr-laravel-administration/version.json',
+                false,
+                $ctx
+            );
+            if ($json !== false) {
+                $data = json_decode($json, true);
+                VersionHandler::$remoteLatestVersion = $data['version'] ?? null;
+            }
+        } catch (\Throwable) {
+            // Remote unavailable — header falls back to local pending-update check.
+        }
+    }
+
+    /**
+     * Whether the remote GitHub Pages version.json advertises a version that is
+     * newer than the last version applied locally.
+     *
+     * Returns false when the remote version could not be fetched so the UI
+     * degrades gracefully to the local pending-update check.
+     */
+    public static function isRemoteUpdateAvailable(): bool
+    {
+        if (self::$remoteLatestVersion === null) {
+            return false;
+        }
+
+        $localApplied = (new self(new WebVersionUpdateContext()))->getVersion() ?? '0.1.0';
+
+        return version_compare($localApplied, self::$remoteLatestVersion, '<');
     }
 }
