@@ -14,7 +14,7 @@
                     <span class="underline">Documentation</span>
                 </a>
             @endif
-            @if($WRLAHelper::userIsDev())
+            @if($WRLAHelper::showVersionUpdateBar())
                 <div class="hidden md:inline-block pl-6 text-xs text-gray-600">
                     @php
                         $versionHandlerClass = \WebRegulate\LaravelAdministration\Classes\VersionHandler\VersionHandler::class;

@@ -32,8 +32,10 @@ class HandleUpdateModal extends ModalComponent
 
     public function mount()
     {
-        // 404 if dev tools are not enabled for this user
-        if (!WRLAHelper::userIsDev()) {
+        // 404 unless the version/update bar is available to this user. This mirrors
+        // the top bar gate so unmigrated installs (developer.enable not set) can still
+        // open the modal to update themselves, not just dev-tools users.
+        if (!WRLAHelper::showVersionUpdateBar()) {
             abort(404);
         }
 
@@ -58,7 +60,7 @@ class HandleUpdateModal extends ModalComponent
      */
     public function runCommand()
     {
-        if (!WRLAHelper::userIsDev()) {
+        if (!WRLAHelper::showVersionUpdateBar()) {
             abort(404);
         }
 
