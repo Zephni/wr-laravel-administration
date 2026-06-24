@@ -15,17 +15,18 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\View\ComponentAttributeBag;
 use WebRegulate\LaravelAdministration\Livewire\Logs;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
-use WebRegulate\LaravelAdministration\Commands\DocsCommand;
 use WebRegulate\LaravelAdministration\Livewire\FileManager;
 use WebRegulate\LaravelAdministration\Commands\UpdateCommand;
 use WebRegulate\LaravelAdministration\Commands\InstallCommand;
-use WebRegulate\LaravelAdministration\Http\Middleware\IsAdmin;
 use WebRegulate\LaravelAdministration\Commands\EditUserCommand;
-use WebRegulate\LaravelAdministration\Livewire\ImportDataModal;
+use WebRegulate\LaravelAdministration\Commands\DocsCommand;
+use WebRegulate\LaravelAdministration\Commands\CreateNotificationCommand;
 use WebRegulate\LaravelAdministration\Commands\UninstallCommand;
 use WebRegulate\LaravelAdministration\Commands\CreateUserCommand;
+use WebRegulate\LaravelAdministration\Http\Middleware\IsAdmin;
 use WebRegulate\LaravelAdministration\Http\Middleware\IsNotAdmin;
 use WebRegulate\LaravelAdministration\Livewire\NotificationsWidget;
+use WebRegulate\LaravelAdministration\Livewire\ImportDataModal;
 use WebRegulate\LaravelAdministration\Livewire\DevTools\DevToolsModal;
 use WebRegulate\LaravelAdministration\Livewire\DevTools\HandleUpdateModal;
 use WebRegulate\LaravelAdministration\Classes\VersionHandler\VersionHandler;
@@ -130,6 +131,7 @@ class WRLAServiceProvider extends ServiceProvider
             InstallCommand::class,
             UpdateCommand::class,
             CreateManageableModelCommand::class,
+            CreateNotificationCommand::class,
             CreateUserCommand::class,
             EditUserCommand::class,
             UninstallCommand::class,

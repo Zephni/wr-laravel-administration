@@ -1,0 +1,44 @@
+<?php
+
+namespace {{ $NAMESPACE }};
+
+{{ $USES }}
+class {{ $CLASS_NAME }} extends NotificationBase
+{
+    /**
+     * Create a new {{ $DISPLAY_NAME }} notification for the given user.
+     *
+     * @param  int  $userId  The id of the user to notify.
+     * @param  array  $data  Custom data passed through to the notification.
+     */
+    public static function make(int $userId, array $data = []): self
+    {
+        $notification = Notification::make(self::class, $userId, $data);
+
+        return $notification->getDefinition();
+    }
+
+    /**
+     * Set custom properties from the passed data.
+     */
+    public function mount(array $data): void
+    {
+        //
+    }
+
+    /**
+     * Get the notification title.
+     */
+    public function getTitle(): string
+    {
+        return $this->data['title'] ?? '{{ $DISPLAY_NAME }}';
+    }
+
+    /**
+     * Get the notification message.
+     */
+    public function getMessage(): string
+    {
+        return $this->data['message'] ?? '';
+    }{{ $OPTIONAL_METHODS }}
+}
