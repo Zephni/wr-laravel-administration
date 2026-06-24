@@ -38,26 +38,67 @@
                     <!-- Content Rows -->
                     @forelse($notifications as $notification)
                         @php
-                            $definition = $notification->getDefinition();
+                            // A single notification whose underlying data has become invalid (e.g. a
+                            // referenced model has been deleted) must not be allowed to crash the entire
+                            // widget. Build the definition defensively and fall back to an error row.
+                            try {
+                                $definition = $notification->getDefinition();
+                                $definitionError = null;
+                            } catch (\Throwable $definitionThrowable) {
+                                $definition = null;
+                                $definitionError = $definitionThrowable;
+                            }
                         @endphp
-                        <tr target="_blank" class="bg-slate-100 dark:bg-slate-800 odd:bg-slate-200 dark:odd:bg-slate-900 py-1">
-                            <td style="font-size: 13px;" class="px-2 py-2 truncate font-medium [&_a]:underline">{!! $definition->getTitle() !!}</td>
-                            {{-- String replace <a href=" with <a target="_blank" href=" --}}
-                            <td style="font-size: 13px;" class="text-wrap px-2 py-2 truncate [&_a]:font-medium [&_a]:underline">{!! $definition->getMessageFinal(true) !!}</div>
-                            <td style="font-size: 13px;" class="px-2 py-2 truncate">{{ $notification->created_at->format('d/m/Y H:i') }}</td>
-                            <td class="px-2 py-2">
-                                <div class="flex justify-end items-center gap-2 truncate">
-                                    {{-- Notification buttons --}}
-                                    @foreach($notification->getFinalButtons() as $button)
-                                        {!! $button !!}
-                                    @endforeach
-        
-                                    @if($notification->read_at !== null)
-                                        <i class="fas fa-check-circle text-primary-500 text-lg mr-1" title="Read / Completed"></i>
-                                    @endif
-                                </div>
-                            </td>
-                        </tr>
+                        @if($definition !== null)
+                            <tr target="_blank" class="bg-slate-100 dark:bg-slate-800 odd:bg-slate-200 dark:odd:bg-slate-900 py-1">
+                                <td style="font-size: 13px;" class="px-2 py-2 truncate font-medium [&_a]:underline">{!! $definition->getTitle() !!}</td>
+                                {{-- String replace <a href=" with <a target="_blank" href=" --}}
+                                <td style="font-size: 13px;" class="text-wrap px-2 py-2 truncate [&_a]:font-medium [&_a]:underline">{!! $definition->getMessageFinal(true) !!}</td>
+                                <td style="font-size: 13px;" class="px-2 py-2 truncate">{{ $notification->created_at->format('d/m/Y H:i') }}</td>
+                                <td class="px-2 py-2">
+                                    <div class="flex justify-end items-center gap-2 truncate">
+                                        {{-- Notification buttons --}}
+                                        @foreach($notification->getFinalButtons() as $button)
+                                            {!! $button !!}
+                                        @endforeach
+
+                                        @if($notification->read_at !== null)
+                                            <i class="fas fa-check-circle text-primary-500 text-lg mr-1" title="Read / Completed"></i>
+                                        @endif
+                                    </div>
+                                </td>
+                            </tr>
+                        @else
+                            {{-- Fallback row for a notification whose definition could not be built --}}
+                            <tr class="bg-rose-50 dark:bg-rose-950/40 odd:bg-rose-100 dark:odd:bg-rose-900/40 py-1">
+                                <td style="font-size: 13px;" class="px-2 py-2 truncate font-medium text-rose-700 dark:text-rose-300">
+                                    <i class="fas fa-triangle-exclamation mr-1"></i>{{ class_basename($notification->type) }}
+                                </td>
+                                <td style="font-size: 13px;" class="text-wrap px-2 py-2 text-rose-700 dark:text-rose-300">
+                                    This notification could not be displayed because its data is no longer valid.
+                                </td>
+                                <td style="font-size: 13px;" class="px-2 py-2 truncate">{{ $notification->created_at->format('d/m/Y H:i') }}</td>
+                                <td class="px-2 py-2">
+                                    <div class="flex justify-end items-center gap-2 truncate">
+                                        @themeComponent('forms.button', [
+                                            'attributes' => Arr::toAttributeBag([
+                                                'wire:click.prevent' => 'flipRead('.$notification->id.')',
+                                            ]),
+                                            'text' => $notification->read_at === null ? 'Read' : 'Undo',
+                                            'icon' => $notification->read_at === null ? 'fa fa-check' : 'fa fa-undo',
+                                            'color' => 'primary',
+                                            'size' => 'small',
+                                            'type' => 'button',
+                                            'class' => 'px-4',
+                                        ])
+
+                                        @if($notification->read_at !== null)
+                                            <i class="fas fa-check-circle text-primary-500 text-lg mr-1" title="Read / Completed"></i>
+                                        @endif
+                                    </div>
+                                </td>
+                            </tr>
+                        @endif
                     @empty
                         <tr class="bg-slate-100 dark:bg-slate-800 py-3">
                             <td colspan="4" class="px-2 py-6 text-center text-base">
