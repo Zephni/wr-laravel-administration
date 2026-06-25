@@ -2,7 +2,6 @@
 
 namespace {{ NAMESPACE }};
 
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use WebRegulate\LaravelAdministration\Enums\SiteConfigurationType;
@@ -21,16 +20,6 @@ class SiteConfiguration extends Model
     protected $table = 'wrla_site_configurations';
 
     protected $guarded = [];
-
-    /**
-     * Disk used to store/read Image type values.
-     */
-    public const IMAGE_DISK = 'public';
-
-    /**
-     * Directory (relative to the disk root) where Image type values are stored.
-     */
-    public const IMAGE_PATH = 'wrla/site-configuration';
 
     /**
      * In-memory cache of resolved models keyed by their configuration key, so
@@ -62,7 +51,6 @@ class SiteConfiguration extends Model
      *  - Json                 -> array  (json_decode)
      *  - CommaDelimitedArray  -> array  (exploded + trimmed)
      *  - Boolean              -> bool
-     *  - Image                -> string base64 data URI (or null)
      *  - Base64               -> string decoded (or null)
      */
     public function getValue(): mixed
@@ -72,7 +60,6 @@ class SiteConfiguration extends Model
             SiteConfigurationType::Json => json_decode((string) $this->value, true),
             SiteConfigurationType::CommaDelimitedArray => $this->getCommaDelimitedArray(),
             SiteConfigurationType::Boolean => filter_var($this->value, FILTER_VALIDATE_BOOLEAN),
-            SiteConfigurationType::Image => $this->getImageAsBase64(),
             SiteConfigurationType::Base64 => base64_decode((string) $this->value, true) ?: null,
         };
     }
@@ -99,39 +86,6 @@ class SiteConfiguration extends Model
             ->filter(fn ($item) => $item !== '')
             ->values()
             ->all();
-    }
-
-    /**
-     * Resolve an Image type value to a base64 encoded data URI, or null when
-     * no image is set / the file is missing.
-     */
-    public function getImageAsBase64(): ?string
-    {
-        if (empty($this->value)) {
-            return null;
-        }
-
-        $disk = Storage::disk(static::IMAGE_DISK);
-
-        if (! $disk->exists($this->value)) {
-            return null;
-        }
-
-        $mime = $disk->mimeType($this->value) ?: 'image/png';
-
-        return 'data:'.$mime.';base64,'.base64_encode($disk->get($this->value));
-    }
-
-    /**
-     * Resolve an Image type value to a public URL, or null when none is set.
-     */
-    public function getImageUrl(): ?string
-    {
-        if (empty($this->value)) {
-            return null;
-        }
-
-        return Storage::disk(static::IMAGE_DISK)->url($this->value);
     }
 
     /**

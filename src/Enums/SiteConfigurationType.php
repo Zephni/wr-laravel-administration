@@ -24,9 +24,6 @@ enum SiteConfigurationType: string
     /** A truthy/falsy value, returned as a real boolean. */
     case Boolean = 'boolean';
 
-    /** An image stored on disk, returned as a base64 encoded data URI. */
-    case Image = 'image';
-
     /** A base64 encoded string, returned decoded to its original form. */
     case Base64 = 'base64';
 
@@ -40,7 +37,6 @@ enum SiteConfigurationType: string
             self::Json => 'JSON',
             self::CommaDelimitedArray => 'Comma delimited array',
             self::Boolean => 'Boolean',
-            self::Image => 'Image',
             self::Base64 => 'Base64',
         };
     }
@@ -55,7 +51,6 @@ enum SiteConfigurationType: string
             self::Json => 'A JSON string. Stored as raw JSON, returned json_decoded into an associative array.',
             self::CommaDelimitedArray => 'A comma separated list (e.g. "one, two, three"). Returned as an array of trimmed values.',
             self::Boolean => 'A true/false toggle. Returned as a real boolean.',
-            self::Image => 'An uploaded image. Stored on disk and returned as a base64 encoded data URI (data:image/...).',
             self::Base64 => 'A base64 encoded string. Stored encoded, returned base64_decoded to its original value.',
         };
     }

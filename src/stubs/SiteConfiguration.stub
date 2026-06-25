@@ -16,7 +16,6 @@ use WebRegulate\LaravelAdministration\Classes\ManageableFields\Text;
 use WebRegulate\LaravelAdministration\Classes\ManageableFields\TextArea;
 use WebRegulate\LaravelAdministration\Classes\ManageableFields\Json;
 use WebRegulate\LaravelAdministration\Classes\ManageableFields\Select;
-use WebRegulate\LaravelAdministration\Classes\ManageableFields\ImageCroppable;
 
 class SiteConfiguration extends ManageableModel
 {
@@ -126,7 +125,7 @@ class SiteConfiguration extends ManageableModel
                 ->required()
                 ->setLivewireModel('live')
                 ->setItems(SiteConfigurationType::selectOptions())
-                ->notes('Determines how the stored value is interpreted by getValue(). '.SiteConfigurationType::helpText().' Save after changing the type to update the value field below.'),
+                ->notes('Determines how the stored value is interpreted by getValue(). '.$this->getSelectedType()->description().' Save after changing the type to update the value field below.'),
 
             $this->getValueField(),
 
@@ -137,32 +136,26 @@ class SiteConfiguration extends ManageableModel
     }
 
     /**
-     * Build the value field, swapping the input type based on the currently
-     * selected configuration type. Reads the live type selection (falling back
-     * to the stored type) so the value field updates as the type changes.
+     * Resolve the currently selected configuration type. Reads the live type
+     * selection (falling back to the stored type, then Text) so both the type
+     * field notes and the value field update as the type changes.
      */
-    protected function getValueField(): mixed
+    protected function getSelectedType(): SiteConfigurationType
     {
         $typeValue = ManageableModel::getLivewireField('type')
             ?? $this->getModelInstance()?->type
             ?? SiteConfigurationType::Text->value;
 
-        $type = SiteConfigurationType::tryFrom((string) $typeValue) ?? SiteConfigurationType::Text;
+        return SiteConfigurationType::tryFrom((string) $typeValue) ?? SiteConfigurationType::Text;
+    }
 
-        return match ($type) {
-            // Image: WRLA croppable image field, storing the full path so the
-            // model can resolve it to a base64 data URI via getImageAsBase64().
-            SiteConfigurationType::Image => ImageCroppable::make(
-                    $this,
-                    'value',
-                    \App\Models\SiteConfiguration::IMAGE_PATH,
-                    '{id}_{time}',
-                    \App\Models\SiteConfiguration::IMAGE_DISK
-                )
-                ->storeFilenameOnly(false)
-                ->setLabel('Value (Image)')
-                ->notes('Uploaded image. Returned by getValue() as a base64 encoded data URI.'),
-
+    /**
+     * Build the value field, swapping the input type based on the currently
+     * selected configuration type so the value field updates as the type changes.
+     */
+    protected function getValueField(): mixed
+    {
+        return match ($this->getSelectedType()) {
             // JSON: dedicated Json field with validation.
             SiteConfigurationType::Json => Json::make($this, 'value')
                 ->setLabel('Value (JSON)')
