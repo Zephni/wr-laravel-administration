@@ -11,7 +11,7 @@ use WebRegulate\LaravelAdministration\Enums\SiteConfigurationType;
  *
  * Each row is a single key => value pair, with a {@see SiteConfigurationType}
  * that determines how the raw stored value is cast/decoded when read back via
- * {@see getValue()}.
+ * {@see resolveValue()}.
  */
 class SiteConfiguration extends Model
 {
@@ -53,7 +53,7 @@ class SiteConfiguration extends Model
      *  - Boolean              -> bool
      *  - Base64               -> string decoded (or null)
      */
-    public function getValue(): mixed
+    public function resolveValue(): mixed
     {
         return match ($this->getTypeEnum()) {
             SiteConfigurationType::Text => $this->value,
@@ -104,9 +104,9 @@ class SiteConfiguration extends Model
      * Get a strongly typed configuration value by its key, or $default when
      * the key does not exist.
      */
-    public static function getValueByKey(string $key, mixed $default = null): mixed
+    public static function getValue(string $key, mixed $default = null): mixed
     {
-        return static::getByKey($key)?->getValue() ?? $default;
+        return static::getByKey($key)?->resolveValue() ?? $default;
     }
 
     /**

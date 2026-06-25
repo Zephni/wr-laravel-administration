@@ -119,7 +119,7 @@ class SiteConfiguration extends ManageableModel
             Text::make($this, 'key')
                 ->required()
                 ->validation('string|max:255')
-                ->notes('Unique lookup key used to fetch this value in code, e.g. SiteConfiguration::getValueByKey(\'site_name\').'),
+                ->notes('Unique lookup key used to fetch this value in code, e.g. SiteConfiguration::getValue(\'site_name\').'),
 
             Select::make($this, 'type')
                 ->required()
