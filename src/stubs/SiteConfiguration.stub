@@ -4,6 +4,7 @@ namespace {{ NAMESPACE }};
 
 use WebRegulate\LaravelAdministration\Classes\ManageableModel;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
+use Illuminate\Support\Facades\Schema;
 use WebRegulate\LaravelAdministration\Enums\ManageableModelPermissions;
 use WebRegulate\LaravelAdministration\Enums\SiteConfigurationType;
 use WebRegulate\LaravelAdministration\Classes\InstanceActions\InstanceActionRestore;
@@ -30,19 +31,36 @@ class SiteConfiguration extends ManageableModel
         static::setUrlAlias('site-configuration');
         static::setIcon('fas fa-sliders');
 
-        // Permissions
-        static::setPermission(ManageableModelPermissions::ENABLED, true);
+        // Permissions. ENABLED is gated on the table existing so the navigation
+        // item and routes only appear once the migration has been run.
+        static::setPermission(ManageableModelPermissions::ENABLED, fn () => static::tableExists());
         static::setPermission(ManageableModelPermissions::BROWSE, true);
         static::setPermission(ManageableModelPermissions::CREATE, true);
         static::setPermission(ManageableModelPermissions::EDIT, true);
         static::setPermission(ManageableModelPermissions::DELETE, true);
         static::setPermission(ManageableModelPermissions::RESTORE, true);
 
+        // Hide from the bulk NavigationItem::makeManageableModels() import. The
+        // wrla:site-configuration command instead registers an explicit, first
+        // positioned navigation item in WRLASettings::buildNavigation(), so this
+        // prevents it being listed twice.
+        static::setStaticOption('hideFromNavigation', true);
+
         // Navigation
         static::setNavigationItems(fn () => [
             NavigationItemBrowse::make(static::class),
             NavigationItemCreate::make(static::class),
         ]);
+    }
+
+    /**
+     * Whether the underlying site configuration table exists. Cached per request
+     * so the schema is only queried once. Used to gate the ENABLED permission so
+     * the model stays hidden until the migration has been run.
+     */
+    protected static function tableExists(): bool
+    {
+        return once(fn () => Schema::hasTable((new \App\Models\SiteConfiguration)->getTable()));
     }
 
     /**

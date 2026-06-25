@@ -41,9 +41,10 @@ class SiteConfigurationCommand extends Command
         $this->generateMigration();
         $this->generateModel();
         $this->generateManageableModel();
-
+        $this->registerNavigationItem();
+        
         $this->promptRunMigrations();
-
+        
         $this->line('');
         $this->info('🥳 Site configuration installed. Manage entries under the "Site Configuration" navigation item.');
         $this->line('');
@@ -120,6 +121,62 @@ class SiteConfigurationCommand extends Command
         );
 
         $this->info(' - SiteConfiguration manageable model created successfully here: '.($createdAt !== false ? $createdAt : WRLAHelper::removeBasePath($destination)));
+    }
+
+    /**
+     * Register an explicit, first positioned Site Configuration navigation item
+     * in the application's WRLASettings::buildNavigation(). Inserted directly
+     * before the NavigationItem::makeManageableModels() call so it always
+     * appears first among the manageable model items. Idempotent.
+     */
+    protected function registerNavigationItem(): void
+    {
+        $settingsPath = app_path('WRLA/WRLASettings.php');
+        $manualHint = 'Add \App\WRLA\SiteConfiguration::getNavigationItem() to buildNavigation() in WRLASettings.php manually.';
+
+        if (! File::exists($settingsPath)) {
+            $this->warn(' - Could not find WRLASettings.php. '.$manualHint);
+
+            return;
+        }
+
+        $contents = File::get($settingsPath);
+
+        // Idempotent: skip if the item is already referenced.
+        if (str_contains($contents, 'SiteConfiguration::getNavigationItem')) {
+            $this->warn(' - Site Configuration navigation item already present in WRLASettings.php. Skipping.');
+
+            return;
+        }
+
+        // Anchor on the bulk manageable models import so our item sits first.
+        $anchor = 'NavigationItem::makeManageableModels(';
+        $position = strpos($contents, $anchor);
+
+        if ($position === false) {
+            $this->warn(' - Could not locate makeManageableModels() in WRLASettings.php. '.$manualHint);
+
+            return;
+        }
+
+        if (! $this->confirm('Add the Site Configuration navigation item (first in the list) to WRLASettings.php?', true)) {
+            $this->warn(' - Navigation item not added. '.$manualHint);
+
+            return;
+        }
+
+        // Resolve the indentation of the anchor line so the inserted lines match.
+        $lineStart = strrpos(substr($contents, 0, $position), "\n");
+        $lineStart = $lineStart === false ? 0 : $lineStart + 1;
+        $indent = substr($contents, $lineStart, $position - $lineStart);
+
+        $insertion = $indent."// Site Configuration (added by wrla:site-configuration). Listed first; hidden until the table exists.\n"
+            .$indent."\\App\\WRLA\\SiteConfiguration::getNavigationItem(),\n\n";
+
+        $contents = substr($contents, 0, $lineStart).$insertion.substr($contents, $lineStart);
+        File::put($settingsPath, $contents);
+
+        $this->info(' - Site Configuration navigation item added to '.WRLAHelper::removeBasePath($settingsPath).'.');
     }
 
     /**
