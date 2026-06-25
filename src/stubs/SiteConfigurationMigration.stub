@@ -11,6 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // Guard against the table already existing (e.g. the migration was run
+        // before, or re-run during the wrla:site-configuration command) so this
+        // migration is safe to run multiple times without erroring.
+        if (Schema::hasTable('wrla_site_configurations')) {
+            return;
+        }
+
         Schema::create('wrla_site_configurations', function (Blueprint $table): void {
             $table->id();
             // The value type, backed by WebRegulate\LaravelAdministration\Enums\SiteConfigurationType

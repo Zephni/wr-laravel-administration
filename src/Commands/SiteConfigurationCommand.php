@@ -4,6 +4,7 @@ namespace WebRegulate\LaravelAdministration\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Schema;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 
 class SiteConfigurationCommand extends Command
@@ -39,11 +40,11 @@ class SiteConfigurationCommand extends Command
         $this->line('');
 
         $this->generateMigration();
+        $this->promptRunMigrations();
         $this->generateModel();
         $this->generateManageableModel();
         $this->registerNavigationItem();
         
-        $this->promptRunMigrations();
         
         $this->line('');
         $this->info('🥳 Site configuration installed. Manage entries under the "Site Configuration" navigation item.');
@@ -54,14 +55,14 @@ class SiteConfigurationCommand extends Command
 
     /**
      * Generate the create_wrla_site_configurations_table migration, unless one
-     * already exists.
+     * already exists on disk (avoids creating a duplicate migration file).
      */
     protected function generateMigration(): void
     {
-        // Check whether a matching migration already exists
+        // Don't create a duplicate migration file if one is already present.
         foreach (File::files(database_path('migrations')) as $file) {
             if (str($file->getFilename())->contains('create_'.static::TABLE_NAME.'_table')) {
-                $this->warn(' - Migration already exists at '.WRLAHelper::removeBasePath($file->getPathname()).'. Skipping.');
+                $this->info(' - Migration file already present: '.WRLAHelper::removeBasePath($file->getPathname()));
 
                 return;
             }
@@ -124,10 +125,10 @@ class SiteConfigurationCommand extends Command
     }
 
     /**
-     * Register an explicit, first positioned Site Configuration navigation item
-     * in the application's WRLASettings::buildNavigation(). Inserted directly
-     * before the NavigationItem::makeManageableModels() call so it always
-     * appears first among the manageable model items. Idempotent.
+     * Register an explicit Site Configuration navigation item in the
+     * application's WRLASettings::buildNavigation(). Inserted directly after the
+     * Dashboard item by default (falling back to before the manageable models
+     * import) so it sits near the top of the navigation. Idempotent.
      */
     protected function registerNavigationItem(): void
     {
@@ -149,34 +150,68 @@ class SiteConfigurationCommand extends Command
             return;
         }
 
-        // Anchor on the bulk manageable models import so our item sits first.
-        $anchor = 'NavigationItem::makeManageableModels(';
-        $position = strpos($contents, $anchor);
+        // Prefer to insert immediately after the Dashboard navigation item, so
+        // the Site Configuration item sits just below it. Fall back to inserting
+        // before the bulk manageable models import.
+        [$lineStart, $indent] = $this->resolveNavigationInsertionPoint($contents);
 
-        if ($position === false) {
-            $this->warn(' - Could not locate makeManageableModels() in WRLASettings.php. '.$manualHint);
+        if ($lineStart === null) {
+            $this->warn(' - Could not locate a navigation anchor in WRLASettings.php. '.$manualHint);
 
             return;
         }
 
-        if (! $this->confirm('Add the Site Configuration navigation item (first in the list) to WRLASettings.php?', true)) {
+        if (! $this->confirm('Add the Site Configuration navigation item below the Dashboard item in WRLASettings.php?', true)) {
             $this->warn(' - Navigation item not added. '.$manualHint);
 
             return;
         }
 
-        // Resolve the indentation of the anchor line so the inserted lines match.
-        $lineStart = strrpos(substr($contents, 0, $position), "\n");
-        $lineStart = $lineStart === false ? 0 : $lineStart + 1;
-        $indent = substr($contents, $lineStart, $position - $lineStart);
-
-        $insertion = $indent."// Site Configuration (added by wrla:site-configuration). Listed first; hidden until the table exists.\n"
+        $insertion = $indent."// Site Configuration (added by wrla:site-configuration). Hidden until the table exists.\n"
             .$indent."\\App\\WRLA\\SiteConfiguration::getNavigationItem(),\n\n";
 
         $contents = substr($contents, 0, $lineStart).$insertion.substr($contents, $lineStart);
         File::put($settingsPath, $contents);
 
         $this->info(' - Site Configuration navigation item added to '.WRLAHelper::removeBasePath($settingsPath).'.');
+    }
+
+    /**
+     * Resolve where to insert the navigation item. Returns [int $offset, string
+     * $indent] for the insertion point, or [null, ''] when no anchor is found.
+     *
+     * Prefers the line after the Dashboard item; otherwise the line of the bulk
+     * manageable models import.
+     *
+     * @return array{0: ?int, 1: string}
+     */
+    protected function resolveNavigationInsertionPoint(string $contents): array
+    {
+        // Preferred: insert on the line after the Dashboard navigation item.
+        if (($dashboardPos = strpos($contents, 'wrla.dashboard')) !== false) {
+            // End of the Dashboard statement's line.
+            $lineEnd = strpos($contents, "\n", $dashboardPos);
+
+            if ($lineEnd !== false) {
+                $lineStartPos = strrpos(substr($contents, 0, $dashboardPos), "\n");
+                $lineStartPos = $lineStartPos === false ? 0 : $lineStartPos + 1;
+                $line = substr($contents, $lineStartPos, $dashboardPos - $lineStartPos);
+                $indent = substr($line, 0, strlen($line) - strlen(ltrim($line)));
+
+                return [$lineEnd + 1, $indent];
+            }
+        }
+
+        // Fallback: insert before the bulk manageable models import.
+        if (($anchorPos = strpos($contents, 'NavigationItem::makeManageableModels(')) !== false) {
+            $lineStartPos = strrpos(substr($contents, 0, $anchorPos), "\n");
+            $lineStartPos = $lineStartPos === false ? 0 : $lineStartPos + 1;
+            $indent = substr($contents, $lineStartPos, $anchorPos - $lineStartPos);
+
+            return [$lineStartPos, $indent];
+        }
+
+        return [null, ''];
     }
 
     /**
@@ -201,10 +236,26 @@ class SiteConfigurationCommand extends Command
 
     /**
      * Prompt the user to run the migrations.
+     *
+     * Bases its behaviour on whether the table actually exists rather than on
+     * whether a migration file is present:
+     *  - Table missing: show a dry run of the SQL, then offer to run (default yes).
+     *  - Table exists: warn that it has likely already been run, and offer to run
+     *    again anyway (default no). The migration itself is idempotent.
      */
     protected function promptRunMigrations(): void
     {
         $this->line('');
+
+        if ($this->tableExists()) {
+            $this->warn("The '".static::TABLE_NAME."' table already exists, so this migration has most likely already been run.");
+
+            if ($this->confirm('Run the migration again anyway?', false)) {
+                $this->call('migrate');
+            }
+
+            return;
+        }
 
         // Show a dry run of the pending migrations so the user can review the
         // SQL that would be executed before committing to running them.
@@ -215,6 +266,19 @@ class SiteConfigurationCommand extends Command
 
         if ($this->confirm('Would you like to run the migrations now?', true)) {
             $this->call('migrate');
+        }
+    }
+
+    /**
+     * Whether the site configuration table currently exists. Returns false if
+     * the database connection is unavailable.
+     */
+    protected function tableExists(): bool
+    {
+        try {
+            return Schema::hasTable(static::TABLE_NAME);
+        } catch (\Throwable) {
+            return false;
         }
     }
 }
