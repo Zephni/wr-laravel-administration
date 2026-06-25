@@ -1,0 +1,188 @@
+<?php
+
+namespace {{ NAMESPACE }};
+
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use WebRegulate\LaravelAdministration\Enums\SiteConfigurationType;
+
+/**
+ * Global, project-agnostic site configuration item.
+ *
+ * Each row is a single key => value pair, with a {@see SiteConfigurationType}
+ * that determines how the raw stored value is cast/decoded when read back via
+ * {@see getValue()}.
+ */
+class SiteConfiguration extends Model
+{
+    use SoftDeletes;
+
+    protected $table = 'wrla_site_configurations';
+
+    protected $guarded = [];
+
+    /**
+     * Disk used to store/read Image type values.
+     */
+    public const IMAGE_DISK = 'public';
+
+    /**
+     * Directory (relative to the disk root) where Image type values are stored.
+     */
+    public const IMAGE_PATH = 'wrla/site-configuration';
+
+    /**
+     * In-memory cache of resolved models keyed by their configuration key, so
+     * repeated lookups within a single request don't re-query the database.
+     *
+     * @var array<string, static|null>
+     */
+    protected static array $cache = [];
+
+    /**
+     * Keep the per-request cache in sync when models are saved/deleted.
+     */
+    protected static function booted(): void
+    {
+        static::saved(function (self $model): void {
+            static::$cache[$model->key] = $model;
+        });
+
+        static::deleted(function (self $model): void {
+            unset(static::$cache[$model->key]);
+        });
+    }
+
+    /**
+     * Get the strongly typed value of this configuration item, cast/decoded
+     * based on its {@see SiteConfigurationType}:
+     *
+     *  - Text                 -> string (as stored)
+     *  - Json                 -> array  (json_decode)
+     *  - CommaDelimitedArray  -> array  (exploded + trimmed)
+     *  - Boolean              -> bool
+     *  - Image                -> string base64 data URI (or null)
+     *  - Base64               -> string decoded (or null)
+     */
+    public function getValue(): mixed
+    {
+        return match ($this->getTypeEnum()) {
+            SiteConfigurationType::Text => $this->value,
+            SiteConfigurationType::Json => json_decode((string) $this->value, true),
+            SiteConfigurationType::CommaDelimitedArray => $this->getCommaDelimitedArray(),
+            SiteConfigurationType::Boolean => filter_var($this->value, FILTER_VALIDATE_BOOLEAN),
+            SiteConfigurationType::Image => $this->getImageAsBase64(),
+            SiteConfigurationType::Base64 => base64_decode((string) $this->value, true) ?: null,
+        };
+    }
+
+    /**
+     * Get the value's type as a {@see SiteConfigurationType} enum,
+     * defaulting to Text when the stored type is unknown/empty.
+     */
+    public function getTypeEnum(): SiteConfigurationType
+    {
+        return SiteConfigurationType::tryFrom((string) $this->type) ?? SiteConfigurationType::Text;
+    }
+
+    /**
+     * Explode the stored comma delimited value into an array of trimmed,
+     * non-empty strings.
+     *
+     * @return array<int, string>
+     */
+    protected function getCommaDelimitedArray(): array
+    {
+        return collect(explode(',', (string) $this->value))
+            ->map(fn ($item) => trim($item))
+            ->filter(fn ($item) => $item !== '')
+            ->values()
+            ->all();
+    }
+
+    /**
+     * Resolve an Image type value to a base64 encoded data URI, or null when
+     * no image is set / the file is missing.
+     */
+    public function getImageAsBase64(): ?string
+    {
+        if (empty($this->value)) {
+            return null;
+        }
+
+        $disk = Storage::disk(static::IMAGE_DISK);
+
+        if (! $disk->exists($this->value)) {
+            return null;
+        }
+
+        $mime = $disk->mimeType($this->value) ?: 'image/png';
+
+        return 'data:'.$mime.';base64,'.base64_encode($disk->get($this->value));
+    }
+
+    /**
+     * Resolve an Image type value to a public URL, or null when none is set.
+     */
+    public function getImageUrl(): ?string
+    {
+        if (empty($this->value)) {
+            return null;
+        }
+
+        return Storage::disk(static::IMAGE_DISK)->url($this->value);
+    }
+
+    /**
+     * Resolve a configuration model by its key (cached per request).
+     */
+    public static function getByKey(string $key): ?static
+    {
+        if (! array_key_exists($key, static::$cache)) {
+            static::$cache[$key] = static::query()->where('key', $key)->first();
+        }
+
+        return static::$cache[$key];
+    }
+
+    /**
+     * Get a strongly typed configuration value by its key, or $default when
+     * the key does not exist.
+     */
+    public static function getValueByKey(string $key, mixed $default = null): mixed
+    {
+        return static::getByKey($key)?->getValue() ?? $default;
+    }
+
+    /**
+     * Create or update a configuration value by key. Restores a soft deleted
+     * item with the same key if one exists.
+     */
+    public static function setValueByKey(
+        string $key,
+        mixed $value,
+        ?SiteConfigurationType $type = null,
+        ?string $description = null
+    ): static {
+        /** @var static $model */
+        $model = static::withTrashed()->firstOrNew(['key' => $key]);
+
+        if ($model->trashed()) {
+            $model->restore();
+        }
+
+        if ($type !== null) {
+            $model->type = $type->value;
+        }
+
+        if ($description !== null) {
+            $model->description = $description;
+        }
+
+        $model->value = $value;
+        $model->save();
+
+        return $model;
+    }
+}

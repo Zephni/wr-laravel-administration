@@ -1,0 +1,180 @@
+<?php
+
+namespace {{ NAMESPACE }};
+
+use WebRegulate\LaravelAdministration\Classes\ManageableModel;
+use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
+use WebRegulate\LaravelAdministration\Enums\ManageableModelPermissions;
+use WebRegulate\LaravelAdministration\Enums\SiteConfigurationType;
+use WebRegulate\LaravelAdministration\Classes\InstanceActions\InstanceActionRestore;
+use WebRegulate\LaravelAdministration\Classes\InstanceActions\InstanceActionEdit;
+use WebRegulate\LaravelAdministration\Classes\InstanceActions\InstanceActionDelete;
+use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItemBrowse;
+use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItemCreate;
+use WebRegulate\LaravelAdministration\Classes\ManageableFields\Text;
+use WebRegulate\LaravelAdministration\Classes\ManageableFields\TextArea;
+use WebRegulate\LaravelAdministration\Classes\ManageableFields\Json;
+use WebRegulate\LaravelAdministration\Classes\ManageableFields\Select;
+use WebRegulate\LaravelAdministration\Classes\ManageableFields\ImageCroppable;
+
+class SiteConfiguration extends ManageableModel
+{
+    /**
+     * Setup the main properties of the model.
+     */
+    public final static function mainSetup(): void
+    {
+        // Main
+        static::setBaseModelClass(\App\Models\SiteConfiguration::class);
+        static::setDisplayName('Site Configuration', 'Site Configuration');
+        static::setUrlAlias('site-configuration');
+        static::setIcon('fas fa-sliders');
+
+        // Permissions
+        static::setPermission(ManageableModelPermissions::ENABLED, true);
+        static::setPermission(ManageableModelPermissions::BROWSE, true);
+        static::setPermission(ManageableModelPermissions::CREATE, true);
+        static::setPermission(ManageableModelPermissions::EDIT, true);
+        static::setPermission(ManageableModelPermissions::DELETE, true);
+        static::setPermission(ManageableModelPermissions::RESTORE, true);
+
+        // Navigation
+        static::setNavigationItems(fn () => [
+            NavigationItemBrowse::make(static::class),
+            NavigationItemCreate::make(static::class),
+        ]);
+    }
+
+    /**
+     * Setup browse properties of this manageable model.
+     */
+    public final static function browseSetup(): void
+    {
+        // Browse filters
+        static::setBrowseFilters(
+            static::getBrowseFilterSearch(),
+            static::getBrowseFilterSoftDeleted(),
+        );
+
+        // Remember filters
+        static::setRememberFilters(true);
+
+        // Browse actions
+        static::setBrowseActions(static::getDefaultBrowseActions());
+
+        // Enable multi selection
+        static::setMultiSelect(true);
+
+        // Order by
+        static::setOrderBy('key', 'asc');
+    }
+
+    /**
+     * Provide an array of columns to display in the browse view.
+     */
+    public final function getBrowseColumns(): array
+    {
+        return [
+            'key' => 'Key',
+            'type' => 'Type',
+            'description' => 'Description',
+        ];
+    }
+
+    /**
+     * Provide the model instance actions.
+     */
+    public final function getInstanceActions(): array
+    {
+        return [
+            InstanceActionRestore::make($this),
+            InstanceActionEdit::make($this),
+            InstanceActionDelete::make($this, $this->isModelSoftDeleted()),
+        ];
+    }
+
+    /**
+     * Provide an array of manageable fields to display in the upsert view.
+     */
+    public final function getManageableFields(): array
+    {
+        return [
+            Text::make($this, 'key')
+                ->required()
+                ->validation('string|max:255')
+                ->notes('Unique lookup key used to fetch this value in code, e.g. SiteConfiguration::getValueByKey(\'site_name\').'),
+
+            Select::make($this, 'type')
+                ->required()
+                ->setLivewireModel('live')
+                ->setItems(SiteConfigurationType::selectOptions())
+                ->notes('Determines how the stored value is interpreted by getValue(). '.SiteConfigurationType::helpText().' Save after changing the type to update the value field below.'),
+
+            $this->getValueField(),
+
+            Text::make($this, 'description')
+                ->validation('nullable|string|max:1000')
+                ->notes('Optional. A short, human readable description of what this configuration item controls.'),
+        ];
+    }
+
+    /**
+     * Build the value field, swapping the input type based on the currently
+     * selected configuration type. Reads the live type selection (falling back
+     * to the stored type) so the value field updates as the type changes.
+     */
+    protected function getValueField(): mixed
+    {
+        $typeValue = ManageableModel::getLivewireField('type')
+            ?? $this->getModelInstance()?->type
+            ?? SiteConfigurationType::Text->value;
+
+        $type = SiteConfigurationType::tryFrom((string) $typeValue) ?? SiteConfigurationType::Text;
+
+        return match ($type) {
+            // Image: WRLA croppable image field, storing the full path so the
+            // model can resolve it to a base64 data URI via getImageAsBase64().
+            SiteConfigurationType::Image => ImageCroppable::make(
+                    $this,
+                    'value',
+                    \App\Models\SiteConfiguration::IMAGE_PATH,
+                    '{id}_{time}',
+                    \App\Models\SiteConfiguration::IMAGE_DISK
+                )
+                ->storeFilenameOnly(false)
+                ->setLabel('Value (Image)')
+                ->notes('Uploaded image. Returned by getValue() as a base64 encoded data URI.'),
+
+            // JSON: dedicated Json field with validation.
+            SiteConfigurationType::Json => Json::make($this, 'value')
+                ->setLabel('Value (JSON)')
+                ->notes('Enter valid JSON. Returned by getValue() as a decoded array.'),
+
+            // Boolean: simple true/false select.
+            SiteConfigurationType::Boolean => Select::make($this, 'value')
+                ->setLabel('Value (Boolean)')
+                ->setItems(['1' => 'True', '0' => 'False'])
+                ->notes('Returned by getValue() as a real boolean.'),
+
+            // Comma delimited array: single line text.
+            SiteConfigurationType::CommaDelimitedArray => Text::make($this, 'value')
+                ->setLabel('Value (Comma delimited array)')
+                ->validation('nullable|string')
+                ->notes('Comma separated list, e.g. "one, two, three". Returned by getValue() as an array of trimmed values.'),
+
+            // Base64: multiline text for the encoded string.
+            SiteConfigurationType::Base64 => TextArea::make($this, 'value')
+                ->setLabel('Value (Base64)')
+                ->validation('nullable|string')
+                ->setAttribute('rows', '6')
+                ->notes('Base64 encoded string. Returned by getValue() decoded to its original value.'),
+
+            // Text (default): multiline text.
+            SiteConfigurationType::Text => TextArea::make($this, 'value')
+                ->setLabel('Value (Text)')
+                ->validation('nullable|string')
+                ->setAttribute('rows', '6')
+                ->notes('Plain text. Returned by getValue() exactly as stored.'),
+        };
+    }
+}
