@@ -265,6 +265,19 @@
                         </div>
                     @endif
 
+                    {{-- Absolute file path link (shown for any file type) --}}
+                    @if(!empty($fullAbsoluteFilePath))
+                        <div class="w-full pt-5 text-sm text-slate-600 dark:!text-slate-400">
+                            <p>
+                                <i class="fas fa-folder-open text-slate-400 mr-1"></i>
+                                Absolute path:
+                            </p>
+                            <a href="file:///{{ ltrim($fullAbsoluteFilePath, '/') }}" target="_blank" class="block w-full text-sm text-sky-600 hover:underline" style="overflow-wrap: break-word;">
+                                {{ $fullAbsoluteFilePath }}
+                            </a>
+                        </div>
+                    @endif
+
                     @if(!empty($viewingItemData))
                         <div class="w-full pt-5 text-sm text-slate-600">
                             <i class="fas fa-info-circle text-slate-400 mr-1"></i>

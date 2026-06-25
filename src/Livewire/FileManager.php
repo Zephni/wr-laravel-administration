@@ -154,6 +154,7 @@ class FileManager extends Component
             'fileSystemNames' => $this->getAvailableFileSystemNames(),
             'fullDirectoryPath' => $this->getFullDirectoryPath(false),
             'fullFilePath' => $this->getFullFilePath(false),
+            'fullAbsoluteFilePath' => $this->highlightedItem !== null ? $this->getFullFilePath(true) : null,
         ]);
     }
 
