@@ -149,6 +149,13 @@ class SiteConfigurationCommand extends Command
     {
         $this->line('');
 
+        // Show a dry run of the pending migrations so the user can review the
+        // SQL that would be executed before committing to running them.
+        $this->info('Previewing pending migrations (dry run)...');
+        $this->line('');
+        $this->call('migrate', ['--pretend' => true]);
+        $this->line('');
+
         if ($this->confirm('Would you like to run the migrations now?', true)) {
             $this->call('migrate');
         }
