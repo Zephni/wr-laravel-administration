@@ -265,31 +265,31 @@
                         </div>
                     @endif
 
-                    {{-- Absolute file path link (shown for any file type) --}}
-                    @if(!empty($fullAbsoluteFilePath))
+                    @if(!empty($viewingItemData))
+                        <div class="w-full pt-5 text-sm text-slate-600 dark:!text-slate-400">
+                            <i class="fas fa-info-circle text-slate-400 mr-1"></i>
+                            {!! $viewingItemData !!}
+                        </div>
+                    @endif
+
+                    {{-- Public URL (clickable) and absolute path (greyed text), shown for any file type --}}
+                    @if(!empty($viewingItemPublicUrl))
                         <div class="w-full pt-5 text-sm text-slate-600 dark:!text-slate-400">
                             <p>
-                                <i class="fas fa-folder-open text-slate-400 mr-1"></i>
-                                Absolute path:
+                                <i class="fas fa-link text-slate-400 mr-1"></i>
+                                Public URL:
                             </p>
-                            <a href="file:///{{ ltrim($fullAbsoluteFilePath, '/') }}" target="_blank" class="block w-full text-sm text-sky-600 hover:underline" style="overflow-wrap: break-word;">
-                                {{ $fullAbsoluteFilePath }}
+                            <a href="{{ $viewingItemPublicUrl }}" target="_blank" class="block w-full text-sm text-sky-600 hover:underline" style="overflow-wrap: break-word;">
+                                {{ $viewingItemPublicUrl }}
                             </a>
                         </div>
                     @endif
 
-                    @if(!empty($viewingItemData))
-                        <div class="w-full pt-5 text-sm text-slate-600">
-                            <i class="fas fa-info-circle text-slate-400 mr-1"></i>
-                            {!! $viewingItemData !!}
-
-                            <p class="pt-4">
-                                <i class="fas fa-link text-slate-400 mr-1"></i>
-                                Public URL:
-                            </p>
-                            <a href="{{ $viewingItemPublicUrl }}" target="_blank" class="w-full text-sm" style="overflow-wrap: break-word;">
-                                {{ $viewingItemPublicUrl }}
-                            </a>
+                    @if(!empty($fullAbsoluteFilePath))
+                        <div class="w-full pt-2 text-xs text-slate-400 dark:!text-slate-500">
+                            <i class="fas fa-folder-open mr-1"></i>
+                            Absolute path:
+                            <span class="block" style="overflow-wrap: break-word;">{{ $fullAbsoluteFilePath }}</span>
                         </div>
                     @endif
 
