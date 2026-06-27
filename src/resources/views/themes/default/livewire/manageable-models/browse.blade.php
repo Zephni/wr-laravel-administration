@@ -173,9 +173,10 @@
                             class="px-3 py-2 bg-slate-700 dark:bg-slate-700 text-slate-100 dark:text-slate-300 border-b border-slate-400 dark:border-slate-600 @if ($browseColumn->getOption('allowOrdering')) group hover:text-primary-500 @endif @if ($orderBy == $column) text-primary-500 @endif"
                             scope="col"
                         >
+                            @php $wrlaHeaderClass = $browseColumn->getOption('headerClass') ?: 'justify-start'; @endphp
                             <div class="w-full text-ellipsis truncate text-sm font-bold">
                                 @if ($browseColumn->getOption('allowOrdering'))
-                                    <button class="flex items-center gap-3 w-full text-left text-ellipsis truncate"
+                                    <button class="flex items-center gap-3 w-full text-ellipsis truncate {{ $wrlaHeaderClass }}"
                                         wire:click="reOrderAction('{{ $column }}', '{{ $orderDirection == 'asc' ? 'desc' : 'asc' }}')">
                                         {{ $browseColumn->renderDisplayName() }}
                                         @if ($orderBy == $column)
@@ -187,7 +188,7 @@
                                         @endif
                                     </button>
                                 @else
-                                    <div class="flex items-center gap-3">
+                                    <div class="flex items-center gap-3 w-full {{ $wrlaHeaderClass }}">
                                         {{ $browseColumn->renderDisplayName() }}
                                     </div>
                                 @endif
@@ -221,9 +222,10 @@
                                 $isHTML = $browseColumn->getOption('renderHtml') ?? false;
                                 $value = $browseColumn->renderValue($model, $column);
                                 $value = !$isHTML ? str($value)->limit(300) : $value;
+                                $wrlaColumnClass = $browseColumn->getOption('columnClass') ?: 'justify-start';
                             @endphp
                             <td class="px-3 py-2 bg-inherit text-sm">
-                                <div class="relative flex w-full @if(!$isHTML) h-[22px] @endif items-center overflow-hidden">
+                                <div class="relative flex w-full @if(!$isHTML) h-[22px] @endif items-center overflow-hidden {{ $wrlaColumnClass }}">
                                     @if(!$isHTML)
                                         <span style="color: transparent;">{!! $value !!}</span>
                                         <div class="absolute top-0 left-0 w-full h-full whitespace-nowrap overflow-ellipsis truncate">

@@ -32,7 +32,7 @@ class BrowseColumnImage extends BrowseColumnBase
 
             $renderedView = view(WRLAHelper::getViewPath('components.forced-aspect-image', false), [
                 'src' => $value,
-                'class' => $browseColumnImage->getOption('class') ?? ' border border-slate-400',
+                'class' => $browseColumnImage->getOption('imageClass') ?? ' border border-slate-400',
                 'aspect' => $browseColumnImage->getOption('aspect'),
                 'hideIfEmpty' => true,
             ])->render();
@@ -55,5 +55,13 @@ class BrowseColumnImage extends BrowseColumnBase
         $this->options['aspect'] = $aspect;
 
         return $this;
+    }
+
+    /**
+     * Set CSS classes applied directly to the image element.
+     */
+    public function imageClass(string $class): static
+    {
+        return $this->setOption('imageClass', $class);
     }
 }

@@ -22,6 +22,8 @@ class BrowseColumnBase
         'width' => null, // null|int|string
         'minWidth' => null, // null|int|string
         'maxWidth' => null, // null|int|string
+        'headerClass' => '', // Additional CSS classes for the column header flex container
+        'columnClass' => '', // Additional CSS classes for the column row cell flex container
     ];
 
     /**
@@ -218,13 +220,30 @@ class BrowseColumnBase
     }
 
     /**
-     * Set class
+     * Set CSS classes on both the header and column cells.
      */
     public function class(string $class): static
     {
-        $this->setOption('class', $class);
+        $this->setOption('headerClass', $class);
+        $this->setOption('columnClass', $class);
 
         return $this;
+    }
+
+    /**
+     * Set CSS classes on the header cell.
+     */
+    public function headerClass(string $class): static
+    {
+        return $this->setOption('headerClass', $class);
+    }
+
+    /**
+     * Set CSS classes on the column cells.
+     */
+    public function columnClass(string $class): static
+    {
+        return $this->setOption('columnClass', $class);
     }
 
     /**

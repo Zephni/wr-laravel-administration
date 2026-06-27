@@ -25,10 +25,8 @@ class BrowseColumnIcon extends BrowseColumnBase
         // Set the icon builder callback
         $browseColumnIcon->iconBuilderCallback = $iconBuilderCallback;
 
-        // Disable ordering and enable html rendering by default
-        $browseColumnIcon
-            ->allowOrdering(false)
-            ->renderHtml(true);
+        // Apply shared icon column defaults
+        $browseColumnIcon->applyIconDefaults();
 
         // Set the override render value callback which internally calls the icon builder callback
         $browseColumnIcon->overrideRenderValue = function ($value, $model) use ($browseColumnIcon) {
@@ -41,7 +39,19 @@ class BrowseColumnIcon extends BrowseColumnBase
     }
 
     /**
-     * Render the given icon class string centered within the column
+     * Apply default options shared by all icon-based browse columns.
+     * Called during make() so subclasses can reuse without duplicating logic.
+     */
+    protected function applyIconDefaults(): void
+    {
+        $this->allowOrdering(false)
+            ->renderHtml(true)
+            ->headerClass('justify-center')
+            ->columnClass('justify-center');
+    }
+
+    /**
+     * Render the given icon class string
      */
     protected function renderIcon(?string $iconClass): string
     {
@@ -52,9 +62,7 @@ class BrowseColumnIcon extends BrowseColumnBase
         $iconClass = e($iconClass);
 
         return <<<HTML
-            <div class="flex items-center justify-center w-full">
-                <i class="$iconClass"></i>
-            </div>
+            <i class="$iconClass"></i>
         HTML;
     }
 }

@@ -24,10 +24,8 @@ class BrowseColumnCheck extends BrowseColumnIcon
         // Create new instance
         $browseColumnIconCheck = new static($label);
 
-        // Disable ordering and enable html rendering by default
-        $browseColumnIconCheck
-            ->allowOrdering(false)
-            ->renderHtml(true);
+        // Apply shared icon column defaults
+        $browseColumnIconCheck->applyIconDefaults();
 
         // Set the override render value callback which picks the icon based on the truthiness of the value
         $browseColumnIconCheck->overrideRenderValue = function ($value, $model) use ($browseColumnIconCheck) {
