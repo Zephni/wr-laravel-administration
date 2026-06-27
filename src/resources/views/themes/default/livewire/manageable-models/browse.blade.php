@@ -223,16 +223,19 @@
                                 $value = $browseColumn->renderValue($model, $column);
                                 $value = !$isHTML ? str($value)->limit(300) : $value;
                                 $wrlaColumnClass = $browseColumn->getOption('columnClass') ?: 'justify-start';
+                                $wrlaTextAlign = str_contains($wrlaColumnClass, 'justify-center')
+                                    ? 'text-center'
+                                    : (str_contains($wrlaColumnClass, 'justify-end') ? 'text-right' : 'text-left');
                             @endphp
                             <td class="px-3 py-2 bg-inherit text-sm">
                                 <div class="relative flex w-full @if(!$isHTML) h-[22px] @endif items-center overflow-hidden {{ $wrlaColumnClass }}">
                                     @if(!$isHTML)
                                         <div style="color: transparent;">{!! $value !!}</div>
-                                        <div class="absolute top-0 left-0 w-full h-full whitespace-nowrap overflow-ellipsis truncate">
+                                        <div class="absolute top-0 left-0 w-full h-full whitespace-nowrap overflow-ellipsis truncate {{ $wrlaTextAlign }}">
                                             {!! $value !!}
                                         </div>
                                     @else
-                                        <div>{!! $value !!}</div>
+                                        {!! $value !!}
                                     @endif
                                 </div>
                             </td>
