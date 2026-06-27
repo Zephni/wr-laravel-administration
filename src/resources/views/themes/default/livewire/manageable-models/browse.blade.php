@@ -227,12 +227,12 @@
                             <td class="px-3 py-2 bg-inherit text-sm">
                                 <div class="relative flex w-full @if(!$isHTML) h-[22px] @endif items-center overflow-hidden {{ $wrlaColumnClass }}">
                                     @if(!$isHTML)
-                                        <span style="color: transparent;">{!! $value !!}</span>
+                                        <div style="color: transparent;">{!! $value !!}</div>
                                         <div class="absolute top-0 left-0 w-full h-full whitespace-nowrap overflow-ellipsis truncate">
                                             {!! $value !!}
                                         </div>
                                     @else
-                                        {!! $value !!}
+                                        <div>{!! $value !!}</div>
                                     @endif
                                 </div>
                             </td>
