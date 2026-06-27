@@ -52,6 +52,15 @@ class HandleUpdateModal extends ModalComponent
      */
     public bool $updateCompleted = false;
 
+    /**
+     * Result of comparing the locally locked composer commit reference against the
+     * one Packagist advertises for the installed constraint (eg. dev-main):
+     *   true  = a `composer update` would pull a newer commit,
+     *   false = local is in sync with Packagist,
+     *   null  = the check could not be completed (offline / package missing).
+     */
+    public ?bool $composerUpdateAvailable = null;
+
     public function mount()
     {
         // Resolve authorisation, but NEVER abort(404) here. The update indicator /
@@ -73,6 +82,10 @@ class HandleUpdateModal extends ModalComponent
         // Determine pending state from the same source of truth as the header
         $versionHandler = new VersionHandler(new WebVersionUpdateContext());
         $this->updatesAvailable = $versionHandler->hasPendingUpdates();
+
+        // Remote check: does the commit reference locked in composer.lock differ
+        // from the one Packagist advertises for our constraint (eg. dev-main)?
+        $this->composerUpdateAvailable = VersionHandler::isComposerUpdateAvailable();
 
         // Show the current applied version and pending status on open
         $currentVersion = $versionHandler->getVersion() ?? '0.1.0';
@@ -140,6 +153,9 @@ class HandleUpdateModal extends ModalComponent
         $this->consoleOutput = $this->stripAnsi($context->getOutput());
         $this->running = false;
         $this->updateCompleted = true;
+
+        // Re-check so the in-sync / update-available hint reflects the new state.
+        $this->composerUpdateAvailable = VersionHandler::isComposerUpdateAvailable();
     }
 
     /**

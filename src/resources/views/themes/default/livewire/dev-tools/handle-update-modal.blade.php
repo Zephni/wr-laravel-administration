@@ -77,8 +77,29 @@
                 </button>
             @endif
         </div>
+
+        {{-- Remote Packagist hash check: compares the commit reference locked in
+            composer.lock against the one Packagist advertises for our constraint. --}}
+        @if($authorised && !$running)
+            <div class="flex justify-end mt-2">
+                @if($composerUpdateAvailable === true)
+                    <span class="inline-flex items-center gap-1 text-amber-400 text-xs"><i class="fa-solid fa-circle-arrow-up"></i>
+                        A newer commit is available on Packagist — run "Composer update only" to pull it.
+                    </span>
+                @elseif($composerUpdateAvailable === false)
+                    <span class="inline-flex items-center gap-1 text-emerald-400 text-xs"><i class="fa-solid fa-circle-check"></i>
+                        Composer package is in sync with Packagist.
+                    </span>
+                @else
+                    <span class="inline-flex items-center gap-1 text-slate-500 text-xs"><i class="fa-solid fa-circle-question"></i>
+                        Could not check Packagist for the latest commit.
+                    </span>
+                @endif
+            </div>
+        @endif
     </div>
 
     <br />
 
 </x-wrla-modal-layout>
+
