@@ -2,6 +2,7 @@
 
 namespace WebRegulate\LaravelAdministration\Classes\VersionHandler;
 
+use Symfony\Component\Process\PhpExecutableFinder;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 
 class VersionHandler
@@ -223,6 +224,9 @@ class VersionHandler
             usleep(100);
         }
 
+        // Clear cached application state so the freshly updated code takes effect
+        $this->runOptimizeClear();
+
         // If no updates were found, inform the user
         if (!$foundUpdate) {
             $this->context->info('Composer dependencies updated. No further version changes required, current version: ' . $currentVersion . PHP_EOL);
@@ -231,6 +235,31 @@ class VersionHandler
 
         // Indicate that all updates have successfully run
         return true;
+    }
+
+    /**
+     * Clear Laravel's cached framework state (config, routes, views, events,
+     * compiled services, etc.) after an update so the application picks up the
+     * freshly installed code. Runs as a separate PHP CLI process so it executes
+     * against the updated codebase rather than the already-booted request.
+     */
+    public function runOptimizeClear(): bool
+    {
+        $php = (new PhpExecutableFinder())->find(false) ?: PHP_BINARY;
+
+        $command = [$php, base_path('artisan'), 'optimize:clear'];
+
+        $this->context->line('');
+        $this->context->line('Clearing cached application state...');
+        $this->context->line('Running: php artisan optimize:clear');
+
+        $success = $this->context->runProcess($command);
+
+        if (!$success) {
+            $this->context->error('optimize:clear failed.');
+        }
+
+        return $success;
     }
 
     /**

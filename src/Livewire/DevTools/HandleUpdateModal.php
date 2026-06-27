@@ -152,8 +152,10 @@ class HandleUpdateModal extends ModalComponent
         $context = new WebVersionUpdateContext();
 
         try {
-            $success = (new VersionHandler($context))->runComposerUpdate();
+            $versionHandler = new VersionHandler($context);
+            $success = $versionHandler->runComposerUpdate();
             if ($success) {
+                $versionHandler->runOptimizeClear();
                 $context->info('Composer update completed successfully.');
             }
         } catch (Throwable $e) {
