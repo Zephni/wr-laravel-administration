@@ -81,7 +81,7 @@
                         <button wire:click="runComposerOnly" wire:loading.attr="disabled" wire:target="runComposerOnly"
                             @disabled($running) class="whitespace-nowrap disabled:opacity-50 text-amber-400 hover:text-amber-300 text-sm transition-colors">
                             <span wire:loading.remove wire:target="runComposerOnly" class="inline-flex items-center gap-2">
-                                <i class="fa-solid fa-box"></i> Run minor composer update
+                                <i class="fa-solid fa-box"></i> Package not up to date, minor changes available — run composer update
                             </span>
                             <span wire:loading wire:target="runComposerOnly" class="inline-flex items-center gap-2"><i class="fa-solid fa-hourglass animate-spin"></i> Running...</span>
                         </button>
