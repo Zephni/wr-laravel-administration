@@ -58,7 +58,7 @@
                                     ✅ Run updates
                                 @endif
                             </span>
-                            <span wire:loading wire:target="runCommand"><i class="fa-solid fa-hourglass fa-spin inline-block"></i> Starting...</span>
+                            <span wire:loading wire:target="runCommand"><i class="fa-solid fa-hourglass animate-spin inline-block"></i> Starting...</span>
                         </button>
                     @else
                         <span class="text-emerald-400 text-sm"><i class="fa-solid fa-circle-check"></i> You are on the latest version.</span>
@@ -73,7 +73,7 @@
                     <span wire:loading.remove wire:target="runComposerOnly">
                         <i class="fa-solid fa-box"></i> Composer update only
                     </span>
-                    <span wire:loading wire:target="runComposerOnly"><i class="fa-solid fa-hourglass fa-spin inline-block"></i> Running...</span>
+                    <span wire:loading wire:target="runComposerOnly"><i class="fa-solid fa-hourglass animate-spin inline-blockinline-block"></i> Running...</span>
                 </button>
             @endif
         </div>

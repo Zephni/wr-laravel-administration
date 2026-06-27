@@ -15,8 +15,8 @@
                     <div wire:loading.remove>
                         <i class="fas fa-arrow-left text-sm"></i> Back to step {{ $data['currentStep'] - 1 }}
                     </div>
-                    <div wire:loading>
-                        <i class="fas fa-spinner fa-spin pr-2"></i> Please wait...
+                    <div wire:loading class="flex gap-x-2">
+                        <i class="fas fa-spinner animate-spin inline-block"></i> Please wait...
                     </div>
                 </button>
             </div>
