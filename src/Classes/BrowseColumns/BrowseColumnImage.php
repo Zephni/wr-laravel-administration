@@ -17,10 +17,11 @@ class BrowseColumnImage extends BrowseColumnBase
         $browseColumnImage = (new self($label))
             ->allowOrdering(false)
             ->renderHtml(true)
+            ->columnClass('justify-center')
             ->setOptions([
                 'width' => $width,
                 'value' => is_string($imagePath) ? $imagePath : null,
-                'maxHeight' => 120,
+                'maxHeight' => 90,
             ]);
 
         // Set override render value callback
