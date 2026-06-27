@@ -2,7 +2,7 @@
     
     {{-- Back button (wire elements modal) --}}
     <div class="flex justify-between items-center mb-4">
-        <button wire:click="$dispatch('closeModal')" class="inline-flex items-center gap-1 text-gray-500 hover:text-gray-700">
+        <button wire:click="$dispatch('closeModal')" class="inline-flex items-center gap-2 text-gray-500 hover:text-gray-700">
             <i class="fa-solid fa-arrow-left"></i> Back
         </button>
     </div>
@@ -16,7 +16,7 @@
         <h3 class="text-lg font-semibold mb-2 flex items-center gap-2">
             Console Output:
             @if($running)
-                <span class="inline-flex items-center gap-1 text-amber-400 text-sm font-normal"><i class="fa-solid fa-hourglass fa-spin"></i> running...</span>
+                <span class="inline-flex items-center gap-2 text-amber-400 text-sm font-normal"><i class="fa-solid fa-hourglass fa-spin"></i> running...</span>
             @endif
         </h3>
         <div x-data="{
@@ -35,11 +35,11 @@
         {{-- Once an update has finished, prompt the user to refresh the page behind the modal --}}
         @if($updateCompleted && !$running)
             <div class="mt-4 p-3 rounded-lg bg-emerald-900/40 border border-emerald-700 flex items-center justify-between gap-4">
-                <span class="inline-flex items-center gap-1 text-emerald-300 text-sm"><i class="fa-solid fa-circle-check"></i>
+                <span class="inline-flex items-center gap-2 text-emerald-300 text-sm"><i class="fa-solid fa-circle-check"></i>
                     Update completed — refresh the page to load the latest changes.
                 </span>
                 <button type="button" x-on:click="window.location.reload()"
-                    class="inline-flex items-center gap-1 whitespace-nowrap bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-semibold px-3 py-1.5 rounded transition-colors">
+                    class="inline-flex items-center gap-2 whitespace-nowrap bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-semibold px-3 py-1.5 rounded transition-colors">
                     <i class="fa-solid fa-rotate-right"></i> Refresh page
                 </button>
             </div>
@@ -53,35 +53,43 @@
                     @if($updatesAvailable || $running)
                         <button wire:click="runCommand" wire:loading.attr="disabled" wire:target="runCommand"
                             @disabled($running) class="whitespace-nowrap disabled:opacity-50">
-                            <span wire:loading.remove wire:target="runCommand" class="inline-flex items-center gap-1">
+                            <span wire:loading.remove wire:target="runCommand" class="inline-flex items-center gap-2">
                                 @if($running)
                                     <i class="fa-solid fa-hourglass fa-spin"></i> Running...
                                 @else
                                     ✅ Run major / breaking updates
                                 @endif
                             </span>
-                            <span wire:loading wire:target="runCommand" class="inline-flex items-center gap-1"><i class="fa-solid fa-hourglass animate-spin"></i> Starting...</span>
+                            <span wire:loading wire:target="runCommand" class="inline-flex items-center gap-2"><i class="fa-solid fa-hourglass animate-spin"></i> Starting...</span>
                         </button>
                     @else
-                        <span class="inline-flex items-center gap-1 text-emerald-400 text-sm"><i class="fa-solid fa-circle-check"></i> No major / breaking updates available.</span>
+                        <span class="inline-flex items-center gap-2 text-emerald-400 text-sm"><i class="fa-solid fa-circle-check"></i> No major / breaking updates available.</span>
                     @endif
                 @else
-                    <span class="inline-flex items-center gap-1 text-amber-400 text-sm"><i class="fa-solid fa-lock"></i> Updates are not available for your account.</span>
+                    <span class="inline-flex items-center gap-2 text-amber-400 text-sm"><i class="fa-solid fa-lock"></i> Updates are not available for your account.</span>
                 @endif
             </div>
 
-            {{-- RIGHT: minor composer-only updates. The button only appears when a
-                newer commit is advertised on Packagist; when in sync we render nothing. --}}
-            @if($authorised && !$running && $composerUpdateAvailable === true)
+            {{-- RIGHT: minor composer-only updates. Mirrors the left column: always
+                show the heading, then either the run button (update advertised on
+                Packagist), an emerald "up to date" message, or a muted "couldn't
+                check" message when the remote lookup failed. --}}
+            @if($authorised && !$running)
                 <div class="flex flex-col gap-1 items-end text-right">
                     <span class="text-xs uppercase tracking-wide text-slate-500">Minor updates</span>
-                    <button wire:click="runComposerOnly" wire:loading.attr="disabled" wire:target="runComposerOnly"
-                        @disabled($running) class="whitespace-nowrap disabled:opacity-50 text-amber-400 hover:text-amber-300 text-sm transition-colors">
-                        <span wire:loading.remove wire:target="runComposerOnly" class="inline-flex items-center gap-1">
-                            <i class="fa-solid fa-box"></i> Run minor composer update
-                        </span>
-                        <span wire:loading wire:target="runComposerOnly" class="inline-flex items-center gap-1"><i class="fa-solid fa-hourglass animate-spin"></i> Running...</span>
-                    </button>
+                    @if($composerUpdateAvailable === true)
+                        <button wire:click="runComposerOnly" wire:loading.attr="disabled" wire:target="runComposerOnly"
+                            @disabled($running) class="whitespace-nowrap disabled:opacity-50 text-amber-400 hover:text-amber-300 text-sm transition-colors">
+                            <span wire:loading.remove wire:target="runComposerOnly" class="inline-flex items-center gap-2">
+                                <i class="fa-solid fa-box"></i> Run minor composer update
+                            </span>
+                            <span wire:loading wire:target="runComposerOnly" class="inline-flex items-center gap-2"><i class="fa-solid fa-hourglass animate-spin"></i> Running...</span>
+                        </button>
+                    @elseif($composerUpdateAvailable === false)
+                        <span class="inline-flex items-center gap-2 text-emerald-400 text-sm"><i class="fa-solid fa-circle-check"></i> Composer is up to date.</span>
+                    @else
+                        <span class="inline-flex items-center gap-2 text-slate-400 text-sm"><i class="fa-solid fa-circle-question"></i> Could not check composer status.</span>
+                    @endif
                 </div>
             @endif
         </div>
