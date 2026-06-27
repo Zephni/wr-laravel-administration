@@ -9,8 +9,8 @@ use WebRegulate\LaravelAdministration\Classes\ManageableModel;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 use WebRegulate\LaravelAdministration\Enums\PageType;
 use WebRegulate\LaravelAdministration\Enums\ManageableModelPermissions;
-use WebRegulate\LaravelAdministration\Classes\BrowseColumns\BrowseColumn;
 use WebRegulate\LaravelAdministration\Classes\BrowseColumns\BrowseColumnImage;
+use WebRegulate\LaravelAdministration\Classes\BrowseColumns\BrowseColumnCheck;
 use WebRegulate\LaravelAdministration\Classes\InstanceActions\InstanceActionRestore;
 use WebRegulate\LaravelAdministration\Classes\InstanceActions\InstanceActionEdit;
 use WebRegulate\LaravelAdministration\Classes\InstanceActions\InstanceActionDelete;
@@ -102,9 +102,7 @@ class User extends ManageableModel
             'name' => 'Name',
             'email' => 'Email',
             'created_at' => 'Created',
-            'wrlaUserData.permissions->admin' => BrowseColumn::make('Admin')->overrideRenderValue(function($value, $model) {
-                return $value ? 'Yes' : 'No';
-            }),
+            'wrlaUserData.permissions->admin' => BrowseColumnCheck::make('Admin'),
         ];
     }
 
@@ -114,7 +112,7 @@ class User extends ManageableModel
     public final function getInstanceActions(): array
     {
         // Get user model and user data
-        $model = $this->getModelInstance();
+        $model = $this->model();
         $wrlaUserData = $model->wrlaUserData;
 
         return [

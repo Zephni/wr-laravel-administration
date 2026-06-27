@@ -7,6 +7,7 @@ use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 use Illuminate\Support\Facades\Schema;
 use WebRegulate\LaravelAdministration\Enums\ManageableModelPermissions;
 use WebRegulate\LaravelAdministration\Enums\SiteConfigurationType;
+use WebRegulate\LaravelAdministration\Classes\BrowseColumns\BrowseColumnCheck;
 use WebRegulate\LaravelAdministration\Classes\InstanceActions\InstanceActionRestore;
 use WebRegulate\LaravelAdministration\Classes\InstanceActions\InstanceActionEdit;
 use WebRegulate\LaravelAdministration\Classes\InstanceActions\InstanceActionDelete;
@@ -93,8 +94,11 @@ class SiteConfiguration extends ManageableModel
     {
         return [
             'key' => 'Key',
-            'type' => 'Type',
-            'description' => 'Description',
+            'type' => BrowseColumn::make('Type', fn($model) => $model->getTypeEnum()?->label()),
+            'value' => match($this->model()->getTypeEnum()) {
+                SiteConfigurationType::Boolean => BrowseColumnCheck::make('Value'),
+                default => 'Value',
+            },
         ];
     }
 
