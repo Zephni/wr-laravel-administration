@@ -3,10 +3,11 @@
 namespace WebRegulate\LaravelAdministration\Livewire\DevTools;
 
 use LivewireUI\Modal\ModalComponent;
-use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
+use Throwable;
+use WebRegulate\LaravelAdministration\Classes\VersionHandler\BackgroundUpdateProcess;
 use WebRegulate\LaravelAdministration\Classes\VersionHandler\VersionHandler;
 use WebRegulate\LaravelAdministration\Classes\VersionHandler\WebVersionUpdateContext;
-use WebRegulate\LaravelAdministration\Classes\VersionHandler\BackgroundUpdateProcess;
+use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 
 class HandleUpdateModal extends ModalComponent
 {
@@ -132,11 +133,11 @@ class HandleUpdateModal extends ModalComponent
             if ($success) {
                 $context->info('Composer update completed successfully.');
             }
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $context->error($e->getMessage());
         }
 
-        $this->consoleOutput = $context->getOutput();
+        $this->consoleOutput = $this->stripAnsi($context->getOutput());
         $this->running = false;
         $this->updateCompleted = true;
     }
@@ -159,7 +160,7 @@ class HandleUpdateModal extends ModalComponent
         }
 
         // Preserve any message already shown (e.g. a live-mode fallback notice)
-        $this->consoleOutput .= $context->getOutput();
+        $this->consoleOutput .= $this->stripAnsi($context->getOutput());
         $this->running = false;
         $this->updateCompleted = true;
 
@@ -216,7 +217,17 @@ class HandleUpdateModal extends ModalComponent
             $this->updatesAvailable = (new VersionHandler(new WebVersionUpdateContext()))->hasPendingUpdates();
         }
 
-        $this->consoleOutput = $output;
+        $this->consoleOutput = $this->stripAnsi($output);
+    }
+
+    /**
+     * Remove ANSI escape sequences (colour codes, cursor controls, etc.) from
+     * command output so it renders as plain text rather than raw control characters.
+     */
+    protected function stripAnsi(string $output): string
+    {
+        // Matches CSI sequences (e.g. \e[32;1m) and other escape sequences.
+        return (string) preg_replace('/\x1b\[[0-9;?]*[ -\/]*[@-~]|\x1b[@-_]/', '', $output);
     }
 
     /**
