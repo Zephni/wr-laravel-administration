@@ -45,8 +45,10 @@
             </div>
         @endif
 
-        <div class="flex justify-between items-center mt-4">
-            <div class="flex gap-4 items-center">
+        <div class="flex justify-between items-end mt-4 gap-4">
+            {{-- LEFT: WRLA major / breaking version updates --}}
+            <div class="flex flex-col gap-1">
+                <span class="text-xs uppercase tracking-wide text-slate-500">Major / breaking updates</span>
                 @if($authorised)
                     @if($updatesAvailable || $running)
                         <button wire:click="runCommand" wire:loading.attr="disabled" wire:target="runCommand"
@@ -55,48 +57,34 @@
                                 @if($running)
                                     <i class="fa-solid fa-hourglass fa-spin"></i> Running...
                                 @else
-                                    ✅ Run updates
+                                    ✅ Run major / breaking updates
                                 @endif
                             </span>
                             <span wire:loading wire:target="runCommand" class="inline-flex items-center gap-1"><i class="fa-solid fa-hourglass animate-spin"></i> Starting...</span>
                         </button>
                     @else
-                        <span class="inline-flex items-center gap-1 text-emerald-400 text-sm"><i class="fa-solid fa-circle-check"></i> You are on the latest version.</span>
+                        <span class="inline-flex items-center gap-1 text-emerald-400 text-sm"><i class="fa-solid fa-circle-check"></i> No major / breaking updates available.</span>
                     @endif
                 @else
                     <span class="inline-flex items-center gap-1 text-amber-400 text-sm"><i class="fa-solid fa-lock"></i> Updates are not available for your account.</span>
                 @endif
             </div>
-            @if($authorised)
-                <button wire:click="runComposerOnly" wire:loading.attr="disabled" wire:target="runComposerOnly"
-                    @disabled($running) class="whitespace-nowrap disabled:opacity-50 text-xs text-slate-400 hover:text-slate-200 transition-colors">
-                    <span wire:loading.remove wire:target="runComposerOnly" class="inline-flex items-center gap-1">
-                        <i class="fa-solid fa-box"></i> Composer update only
-                    </span>
-                    <span wire:loading wire:target="runComposerOnly" class="inline-flex items-center gap-1"><i class="fa-solid fa-hourglass animate-spin"></i> Running...</span>
-                </button>
+
+            {{-- RIGHT: minor composer-only updates. The button only appears when a
+                newer commit is advertised on Packagist; when in sync we render nothing. --}}
+            @if($authorised && !$running && $composerUpdateAvailable === true)
+                <div class="flex flex-col gap-1 items-end text-right">
+                    <span class="text-xs uppercase tracking-wide text-slate-500">Minor updates</span>
+                    <button wire:click="runComposerOnly" wire:loading.attr="disabled" wire:target="runComposerOnly"
+                        @disabled($running) class="whitespace-nowrap disabled:opacity-50 text-amber-400 hover:text-amber-300 text-sm transition-colors">
+                        <span wire:loading.remove wire:target="runComposerOnly" class="inline-flex items-center gap-1">
+                            <i class="fa-solid fa-box"></i> Run minor composer update
+                        </span>
+                        <span wire:loading wire:target="runComposerOnly" class="inline-flex items-center gap-1"><i class="fa-solid fa-hourglass animate-spin"></i> Running...</span>
+                    </button>
+                </div>
             @endif
         </div>
-
-        {{-- Remote Packagist hash check: compares the commit reference locked in
-            composer.lock against the one Packagist advertises for our constraint. --}}
-        @if($authorised && !$running)
-            <div class="flex justify-end mt-2">
-                @if($composerUpdateAvailable === true)
-                    <span class="inline-flex items-center gap-1 text-amber-400 text-xs"><i class="fa-solid fa-circle-arrow-up"></i>
-                        A newer commit is available on Packagist — run "Composer update only" to pull it.
-                    </span>
-                @elseif($composerUpdateAvailable === false)
-                    <span class="inline-flex items-center gap-1 text-emerald-400 text-xs"><i class="fa-solid fa-circle-check"></i>
-                        Composer package is in sync with Packagist.
-                    </span>
-                @else
-                    <span class="inline-flex items-center gap-1 text-slate-500 text-xs"><i class="fa-solid fa-circle-question"></i>
-                        Could not check Packagist for the latest commit.
-                    </span>
-                @endif
-            </div>
-        @endif
     </div>
 
     <br />
