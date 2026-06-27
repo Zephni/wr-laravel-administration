@@ -35,7 +35,7 @@
         {{-- Once an update has finished, prompt the user to refresh the page behind the modal --}}
         @if($updateCompleted && !$running)
             <div class="mt-4 p-3 rounded-lg bg-emerald-900/40 border border-emerald-700 flex items-center justify-between gap-4">
-                <span class="text-emerald-300 text-sm"><i class="fa-solid fa-circle-check"></i>
+                <span class="text-emerald-300 text-sm mr-1.5"><i class="fa-solid fa-circle-check"></i>
                     Update completed — refresh the page to load the latest changes.
                 </span>
                 <button type="button" x-on:click="window.location.reload()"
@@ -61,10 +61,10 @@
                             <span wire:loading wire:target="runCommand"><i class="fa-solid fa-hourglass animate-spin inline-block"></i> Starting...</span>
                         </button>
                     @else
-                        <span class="text-emerald-400 text-sm"><i class="fa-solid fa-circle-check"></i> You are on the latest version.</span>
+                        <span class="text-emerald-400 text-sm mr-1.5"><i class="fa-solid fa-circle-check"></i> You are on the latest version.</span>
                     @endif
                 @else
-                    <span class="text-amber-400 text-sm"><i class="fa-solid fa-lock"></i> Updates are not available for your account.</span>
+                    <span class="text-amber-400 text-sm mr-1.5"><i class="fa-solid fa-lock"></i> Updates are not available for your account.</span>
                 @endif
             </div>
             @if($authorised)
@@ -73,7 +73,7 @@
                     <span wire:loading.remove wire:target="runComposerOnly">
                         <i class="fa-solid fa-box"></i> Composer update only
                     </span>
-                    <span wire:loading wire:target="runComposerOnly"><i class="fa-solid fa-hourglass animate-spin inline-blockinline-block"></i> Running...</span>
+                    <span wire:loading wire:target="runComposerOnly"><i class="fa-solid fa-hourglass animate-spin inline-block"></i> Running...</span>
                 </button>
             @endif
         </div>
