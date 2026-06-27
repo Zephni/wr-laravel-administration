@@ -90,9 +90,19 @@ class HandleUpdateModal extends ModalComponent
         // Show the current applied version and pending status on open
         $currentVersion = $versionHandler->getVersion() ?? '0.1.0';
         $this->consoleOutput = 'Current version: ' . $currentVersion . PHP_EOL;
-        $this->consoleOutput .= $this->updatesAvailable
-            ? 'Update available - press "Run updates" to apply pending changes.' . PHP_EOL
-            : 'You are on the latest version, no updates required.' . PHP_EOL;
+
+        $hasMajor = $this->updatesAvailable;
+        $hasMinor = $this->composerUpdateAvailable === true;
+
+        if ($hasMajor && $hasMinor) {
+            $this->consoleOutput .= 'Major and minor updates are available — see the options below to apply them.' . PHP_EOL;
+        } elseif ($hasMajor) {
+            $this->consoleOutput .= 'A major update is available — press "Run major / breaking updates" to apply pending changes.' . PHP_EOL;
+        } elseif ($hasMinor) {
+            $this->consoleOutput .= 'A minor update is available — run composer update to apply it.' . PHP_EOL;
+        } else {
+            $this->consoleOutput .= 'You are on the latest version, no updates required.' . PHP_EOL;
+        }
 
         // Dispatch an event indicating that the modal has been opened
         $this->dispatch('dev-tools.handle-update-modal.opened');
