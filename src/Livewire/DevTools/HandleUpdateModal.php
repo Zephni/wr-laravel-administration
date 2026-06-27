@@ -45,6 +45,12 @@ class HandleUpdateModal extends ModalComponent
      */
     public bool $updatesAvailable = false;
 
+    /**
+     * Whether an update run has completed during this modal session. When true the
+     * view offers a button prompting the user to refresh the page behind the modal.
+     */
+    public bool $updateCompleted = false;
+
     public function mount()
     {
         // Resolve authorisation, but NEVER abort(404) here. The update indicator /
@@ -97,6 +103,8 @@ class HandleUpdateModal extends ModalComponent
             return;
         }
 
+        $this->updateCompleted = false;
+
         $this->mode === 'blocking'
             ? $this->runBlocking()
             : $this->runLive();
@@ -116,6 +124,7 @@ class HandleUpdateModal extends ModalComponent
 
         @set_time_limit(0);
         $this->running = true;
+        $this->updateCompleted = false;
         $context = new WebVersionUpdateContext();
 
         try {
@@ -129,6 +138,7 @@ class HandleUpdateModal extends ModalComponent
 
         $this->consoleOutput = $context->getOutput();
         $this->running = false;
+        $this->updateCompleted = true;
     }
 
     /**
@@ -151,6 +161,7 @@ class HandleUpdateModal extends ModalComponent
         // Preserve any message already shown (e.g. a live-mode fallback notice)
         $this->consoleOutput .= $context->getOutput();
         $this->running = false;
+        $this->updateCompleted = true;
 
         // Refresh pending state so the modal/header reflect the new applied version
         $this->updatesAvailable = (new VersionHandler(new WebVersionUpdateContext()))->hasPendingUpdates();
@@ -199,6 +210,7 @@ class HandleUpdateModal extends ModalComponent
         if (str_contains($output, self::DONE_MARKER)) {
             $output = trim(str_replace(self::DONE_MARKER, '', $output));
             $this->running = false;
+            $this->updateCompleted = true;
 
             // Refresh pending state now the background update has finished
             $this->updatesAvailable = (new VersionHandler(new WebVersionUpdateContext()))->hasPendingUpdates();

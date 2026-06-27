@@ -31,6 +31,20 @@
             class="w-full max-h-96 overflow-auto">
             <pre class="whitespace-pre-wrap">{{ $consoleOutput }}</pre>
         </div>
+
+        {{-- Once an update has finished, prompt the user to refresh the page behind the modal --}}
+        @if($updateCompleted && !$running)
+            <div class="mt-4 p-3 rounded-lg bg-emerald-900/40 border border-emerald-700 flex items-center justify-between gap-4">
+                <span class="text-emerald-300 text-sm"><i class="fa-solid fa-circle-check"></i>
+                    Update completed — refresh the page to load the latest changes.
+                </span>
+                <button type="button" x-on:click="window.location.reload()"
+                    class="whitespace-nowrap bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-semibold px-3 py-1.5 rounded transition-colors">
+                    <i class="fa-solid fa-rotate-right"></i> Refresh page
+                </button>
+            </div>
+        @endif
+
         <div class="flex justify-between items-center mt-4">
             <div class="flex gap-4 items-center">
                 @if($authorised)
