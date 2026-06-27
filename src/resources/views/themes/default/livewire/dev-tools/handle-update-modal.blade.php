@@ -2,7 +2,7 @@
     
     {{-- Back button (wire elements modal) --}}
     <div class="flex justify-between items-center mb-4">
-        <button wire:click="$dispatch('closeModal')" class="text-gray-500 hover:text-gray-700">
+        <button wire:click="$dispatch('closeModal')" class="inline-flex items-center gap-1 text-gray-500 hover:text-gray-700">
             <i class="fa-solid fa-arrow-left"></i> Back
         </button>
     </div>
@@ -16,7 +16,7 @@
         <h3 class="text-lg font-semibold mb-2 flex items-center gap-2">
             Console Output:
             @if($running)
-                <span class="text-amber-400 text-sm font-normal"><i class="fa-solid fa-hourglass fa-spin"></i> running...</span>
+                <span class="inline-flex items-center gap-1 text-amber-400 text-sm font-normal"><i class="fa-solid fa-hourglass fa-spin"></i> running...</span>
             @endif
         </h3>
         <div x-data="{
@@ -35,11 +35,11 @@
         {{-- Once an update has finished, prompt the user to refresh the page behind the modal --}}
         @if($updateCompleted && !$running)
             <div class="mt-4 p-3 rounded-lg bg-emerald-900/40 border border-emerald-700 flex items-center justify-between gap-4">
-                <span class="text-emerald-300 text-sm mr-1.5"><i class="fa-solid fa-circle-check"></i>
+                <span class="inline-flex items-center gap-1 text-emerald-300 text-sm"><i class="fa-solid fa-circle-check"></i>
                     Update completed — refresh the page to load the latest changes.
                 </span>
                 <button type="button" x-on:click="window.location.reload()"
-                    class="whitespace-nowrap bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-semibold px-3 py-1.5 rounded transition-colors">
+                    class="inline-flex items-center gap-1 whitespace-nowrap bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-semibold px-3 py-1.5 rounded transition-colors">
                     <i class="fa-solid fa-rotate-right"></i> Refresh page
                 </button>
             </div>
@@ -51,29 +51,29 @@
                     @if($updatesAvailable || $running)
                         <button wire:click="runCommand" wire:loading.attr="disabled" wire:target="runCommand"
                             @disabled($running) class="whitespace-nowrap disabled:opacity-50">
-                            <span wire:loading.remove wire:target="runCommand">
+                            <span wire:loading.remove wire:target="runCommand" class="inline-flex items-center gap-1">
                                 @if($running)
                                     <i class="fa-solid fa-hourglass fa-spin"></i> Running...
                                 @else
                                     ✅ Run updates
                                 @endif
                             </span>
-                            <span wire:loading wire:target="runCommand"><i class="fa-solid fa-hourglass animate-spin inline-block"></i> Starting...</span>
+                            <span wire:loading wire:target="runCommand" class="inline-flex items-center gap-1"><i class="fa-solid fa-hourglass animate-spin"></i> Starting...</span>
                         </button>
                     @else
-                        <span class="text-emerald-400 text-sm mr-1.5"><i class="fa-solid fa-circle-check"></i> You are on the latest version.</span>
+                        <span class="inline-flex items-center gap-1 text-emerald-400 text-sm"><i class="fa-solid fa-circle-check"></i> You are on the latest version.</span>
                     @endif
                 @else
-                    <span class="text-amber-400 text-sm mr-1.5"><i class="fa-solid fa-lock"></i> Updates are not available for your account.</span>
+                    <span class="inline-flex items-center gap-1 text-amber-400 text-sm"><i class="fa-solid fa-lock"></i> Updates are not available for your account.</span>
                 @endif
             </div>
             @if($authorised)
                 <button wire:click="runComposerOnly" wire:loading.attr="disabled" wire:target="runComposerOnly"
                     @disabled($running) class="whitespace-nowrap disabled:opacity-50 text-xs text-slate-400 hover:text-slate-200 transition-colors">
-                    <span wire:loading.remove wire:target="runComposerOnly">
-                        <i class="fa-solid fa-box mr-1.5"></i> Composer update only
+                    <span wire:loading.remove wire:target="runComposerOnly" class="inline-flex items-center gap-1">
+                        <i class="fa-solid fa-box"></i> Composer update only
                     </span>
-                    <span wire:loading wire:target="runComposerOnly"><i class="fa-solid fa-hourglass animate-spin inline-block"></i> Running...</span>
+                    <span wire:loading wire:target="runComposerOnly" class="inline-flex items-center gap-1"><i class="fa-solid fa-hourglass animate-spin"></i> Running...</span>
                 </button>
             @endif
         </div>
