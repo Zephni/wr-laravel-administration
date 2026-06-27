@@ -59,6 +59,12 @@ class DocumentationApp {
                     { title: 'Extending', url: 'extending.html' },
                     { title: 'API Reference', url: 'api-reference.html' }
                 ]
+            },
+            {
+                title: 'Optional Features',
+                items: [
+                    { title: 'Site Configuration', url: 'site-configuration.html' }
+                ]
             }
         ];
     }

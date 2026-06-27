@@ -1,0 +1,198 @@
+<h1 class="docs-title"><i class="fa-solid fa-sliders mr-3 text-primary-500"></i>Site Configuration</h1>
+<p class="docs-lead">
+    An optional key/value store for app-wide settings, managed from the WRLA admin panel and readable anywhere in your application.
+</p>
+
+<!-- ── What is it? ─────────────────────────────────────────── -->
+<div class="docs-section">
+    <h2 class="docs-heading"><i class="fa-solid fa-circle-info mr-3 text-primary-500"></i>What is it?</h2>
+    <p class="docs-body">
+        Site Configuration gives you a database-backed, admin-managed settings store without the overhead of writing your own. Each entry is a simple <strong>key / type / value</strong> row you can read, write, and soft-delete from both the admin panel and your application code.
+    </p>
+    <ul class="list-disc list-inside text-gray-600 mb-4 space-y-1 text-sm">
+        <li>Manage settings from the WRLA admin panel — no code deploys needed for value changes.</li>
+        <li>Five value types: <code class="docs-inline-code">text</code>, <code class="docs-inline-code">json</code>, <code class="docs-inline-code">comma_delimited_array</code>, <code class="docs-inline-code">boolean</code>, <code class="docs-inline-code">base64</code>.</li>
+        <li>Values are strongly typed when read back — JSON returns an array, booleans return a real <code class="docs-inline-code">bool</code>, etc.</li>
+        <li>Per-request in-memory cache so repeated lookups don't hammer the database.</li>
+        <li>Soft-delete support — entries can be restored from the admin panel.</li>
+    </ul>
+</div>
+
+<!-- ── Installation ────────────────────────────────────────── -->
+<div class="docs-section">
+    <h2 class="docs-heading"><i class="fa-solid fa-download mr-3 text-primary-500"></i>Installation</h2>
+    <p class="docs-body">
+        Run the dedicated artisan command. It is interactive and will walk you through each step:
+    </p>
+    <div class="docs-code-block mb-4">
+        <pre><code>php artisan wrla:site-configuration</code></pre>
+    </div>
+
+    <p class="docs-body">The command performs the following steps:</p>
+
+    <!-- Step 1 -->
+    <div class="docs-section">
+        <h3 class="docs-subheading">
+            <span class="docs-step-badge">1</span>
+            Creates the migration
+        </h3>
+        <p class="docs-body">
+            Sets up the database table that will store all your configuration entries. You'll get a preview of the migration before being asked whether to run it, so there are no surprises.
+        </p>
+    </div>
+
+    <!-- Step 2 -->
+    <div class="docs-section">
+        <h3 class="docs-subheading">
+            <span class="docs-step-badge">2</span>
+            Publishes the model
+        </h3>
+        <p class="docs-body">
+            Adds the <code class="docs-inline-code">SiteConfiguration</code> Eloquent model to your project so you can read and write configuration values from anywhere in your application. The model is yours to extend as needed.
+        </p>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="docs-section">
+        <h3 class="docs-subheading">
+            <span class="docs-step-badge">3</span>
+            Publishes the manageable model
+        </h3>
+        <p class="docs-body">
+            Adds the <code class="docs-inline-code">SiteConfiguration</code> ManageableModel so you can manage your site's configuration from within the admin panel. This file is fully customisable — feel free to adjust the fields, validation, and layout to suit your needs.
+        </p>
+    </div>
+
+    <!-- Step 4 -->
+    <div class="docs-section">
+        <h3 class="docs-subheading">
+            <span class="docs-step-badge">4</span>
+            Registers the navigation item
+        </h3>
+        <p class="docs-body">
+            Adds a <strong>Site Configuration</strong> link to your admin panel navigation so your team can find and manage settings straight away. The link stays hidden until the migration has been run, so it's safe to add it at any point during setup.
+        </p>
+    </div>
+
+    <div class="docs-callout docs-callout-info">
+        <div class="docs-callout-icon">
+            <svg viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+            </svg>
+        </div>
+        <div class="docs-callout-body">
+            <strong>Note:</strong> Every step is idempotent. Re-running the command after a partial install is safe — already-existing files and nav items are detected and skipped (with your confirmation).
+        </div>
+    </div>
+</div>
+
+<!-- ── Using in the Admin Panel ────────────────────────────── -->
+<div class="docs-section">
+    <h2 class="docs-heading"><i class="fa-solid fa-table-list mr-3 text-primary-500"></i>Using in the Admin Panel</h2>
+    <p class="docs-body">
+        Once installed, a <strong>Site Configuration</strong> item will appear in the WRLA navigation (below the Dashboard). From here you can:
+    </p>
+    <ul class="list-disc list-inside text-gray-600 mb-4 space-y-1 text-sm">
+        <li><strong>Browse</strong> all configuration entries, filtered by key or soft-delete status.</li>
+        <li><strong>Create</strong> a new entry — provide a unique key, choose a type, enter a value, and optionally add a description.</li>
+        <li><strong>Edit</strong> any entry inline.</li>
+        <li><strong>Soft-delete</strong> entries and restore them later without data loss.</li>
+    </ul>
+    <p class="docs-body">
+        The <strong>type</strong> field controls how the stored value is decoded when read back via code. Choose the type that matches your intended data shape:
+    </p>
+    <table class="docs-table mb-4">
+        <thead>
+            <tr>
+                <th>Type</th>
+                <th>Stored as</th>
+                <th>Returned as</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td><code class="docs-inline-code">text</code></td><td>Plain string</td><td><code class="docs-inline-code">string</code></td></tr>
+            <tr><td><code class="docs-inline-code">json</code></td><td>JSON string</td><td><code class="docs-inline-code">array</code> (associative)</td></tr>
+            <tr><td><code class="docs-inline-code">comma_delimited_array</code></td><td>Comma-separated string</td><td><code class="docs-inline-code">array</code> of trimmed strings</td></tr>
+            <tr><td><code class="docs-inline-code">boolean</code></td><td>Truthy/falsy string</td><td><code class="docs-inline-code">bool</code></td></tr>
+            <tr><td><code class="docs-inline-code">base64</code></td><td>Base64 encoded string</td><td>Decoded <code class="docs-inline-code">string</code> (or <code class="docs-inline-code">null</code>)</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- ── Using in Your Application ──────────────────────────── -->
+<div class="docs-section">
+    <h2 class="docs-heading"><i class="fa-solid fa-code mr-3 text-primary-500"></i>Using in Your Application</h2>
+    <p class="docs-body">
+        All interaction goes through the published <code class="docs-inline-code">App\Models\SiteConfiguration</code> model. The most common methods are shown below.
+    </p>
+
+    <!-- getValue -->
+    <h3 class="docs-subheading">Reading a value</h3>
+    <p class="docs-body">
+        Use <code class="docs-inline-code">getValue()</code> for a quick typed read. Pass an optional default that is returned when the key does not exist.
+    </p>
+    <div class="docs-code-block mb-6">
+        <pre><code>use App\Models\SiteConfiguration;
+
+// Returns a string (or null if the key doesn't exist)
+$siteName = SiteConfiguration::getValue('site_name');
+
+// Returns a bool with a safe fallback
+$maintenanceMode = SiteConfiguration::getValue('maintenance_mode', false);
+
+// Returns an array when the type is json or comma_delimited_array
+$allowedDomains = SiteConfiguration::getValue('allowed_domains', []);</code></pre>
+    </div>
+
+    <!-- getByKey -->
+    <h3 class="docs-subheading">Getting the full model</h3>
+    <p class="docs-body">
+        When you need more than just the value (e.g. the description or type), use <code class="docs-inline-code">getByKey()</code>.
+    </p>
+    <div class="docs-code-block mb-6">
+        <pre><code>$config = SiteConfiguration::getByKey('site_name');
+
+if ($config) {
+    echo $config->key;         // 'site_name'
+    echo $config->value;       // raw stored string
+    echo $config->description; // optional admin-facing note
+    echo $config->resolveValue(); // strongly-typed value
+}</code></pre>
+    </div>
+
+    <!-- setValueByKey -->
+    <h3 class="docs-subheading">Writing / updating a value</h3>
+    <p class="docs-body">
+        Use <code class="docs-inline-code">setValueByKey()</code> to create or update an entry from code. It handles soft-deleted duplicates automatically — a previously deleted row for the same key will be restored and updated rather than creating a new one.
+    </p>
+    <div class="docs-code-block mb-6">
+        <pre><code>use App\Models\SiteConfiguration;
+use WebRegulate\LaravelAdministration\Enums\SiteConfigurationType;
+
+// Create or update a plain text entry
+SiteConfiguration::setValueByKey(
+    key: 'site_name',
+    value: 'My Application',
+    type: SiteConfigurationType::Text,
+    description: 'The public-facing name of the site.'
+);
+
+// Create a boolean flag
+SiteConfiguration::setValueByKey(
+    key: 'maintenance_mode',
+    value: 'false',
+    type: SiteConfigurationType::Boolean,
+);</code></pre>
+    </div>
+
+    <div class="docs-callout docs-callout-info">
+        <div class="docs-callout-icon">
+            <svg viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+            </svg>
+        </div>
+        <div class="docs-callout-body">
+            <strong>Caching:</strong> Lookups are cached in memory for the lifetime of the request. If you update a value and need to read it back in the same request, the cache is automatically invalidated via model events — so <code>getValue()</code> will always return the freshest value.
+        </div>
+    </div>
+</div>

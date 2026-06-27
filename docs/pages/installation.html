@@ -101,3 +101,30 @@
         </div>
     </div>
 </div>
+
+<!-- ── Optional ─────────────────────────────────────────────── -->
+<hr class="my-10 border-gray-200">
+
+<h2 class="docs-heading mb-2">
+    <i class="fa-solid fa-circle-plus mr-3 text-primary-500"></i>Optional
+</h2>
+
+<!-- Site Configuration -->
+<div class="docs-section mt-6">
+    <h3 class="docs-subheading">A Handy Tool for General Site Configuration</h3>
+    <p class="docs-body">
+        WRLA ships with an optional site configuration feature — a simple key/value store you can manage directly from the admin panel and read anywhere in your application.
+    </p>
+    <ul class="list-disc list-inside text-gray-600 mb-4 space-y-1 text-sm">
+        <li>Store app-wide settings (site name, maintenance messages, feature flags, etc.) without touching code.</li>
+        <li>Supports multiple value types: plain text, JSON, comma-delimited arrays, booleans, and base64.</li>
+        <li>Read values with a single static call from controllers, views, or anywhere in your app.</li>
+        <li>Fully integrated into the WRLA admin panel — browse, create, edit, and soft-delete entries.</li>
+    </ul>
+    <div class="docs-code-block mb-4">
+        <pre><code>php artisan wrla:site-configuration</code></pre>
+    </div>
+    <p class="docs-body">
+        <a href="site-configuration.html" class="docs-link">View the full Site Configuration guide →</a>
+    </p>
+</div>
