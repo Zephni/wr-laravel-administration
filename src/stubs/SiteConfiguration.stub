@@ -1,22 +1,21 @@
 <?php
 
-namespace {{ NAMESPACE }};
+namespace App\WRLA;
 
 use WebRegulate\LaravelAdministration\Classes\ManageableModel;
-use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
-use Illuminate\Support\Facades\Schema;
-use WebRegulate\LaravelAdministration\Enums\ManageableModelPermissions;
-use WebRegulate\LaravelAdministration\Enums\SiteConfigurationType;
 use WebRegulate\LaravelAdministration\Classes\BrowseColumns\BrowseColumnCheck;
-use WebRegulate\LaravelAdministration\Classes\InstanceActions\InstanceActionRestore;
-use WebRegulate\LaravelAdministration\Classes\InstanceActions\InstanceActionEdit;
 use WebRegulate\LaravelAdministration\Classes\InstanceActions\InstanceActionDelete;
-use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItemBrowse;
-use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItemCreate;
-use WebRegulate\LaravelAdministration\Classes\ManageableFields\Text;
-use WebRegulate\LaravelAdministration\Classes\ManageableFields\TextArea;
+use WebRegulate\LaravelAdministration\Classes\InstanceActions\InstanceActionEdit;
+use WebRegulate\LaravelAdministration\Classes\InstanceActions\InstanceActionRestore;
 use WebRegulate\LaravelAdministration\Classes\ManageableFields\Json;
 use WebRegulate\LaravelAdministration\Classes\ManageableFields\Select;
+use WebRegulate\LaravelAdministration\Classes\ManageableFields\Text;
+use WebRegulate\LaravelAdministration\Classes\ManageableFields\TextArea;
+use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItemBrowse;
+use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItemCreate;
+use WebRegulate\LaravelAdministration\Enums\ManageableModelPermissions;
+use WebRegulate\LaravelAdministration\Enums\SiteConfigurationType;
+use Illuminate\Support\Facades\Schema;
 
 class SiteConfiguration extends ManageableModel
 {
@@ -94,7 +93,7 @@ class SiteConfiguration extends ManageableModel
     {
         return [
             'key' => 'Key',
-            'type' => BrowseColumn::make('Type', fn($model) => $model->getTypeEnum()?->label()),
+            'type' => 'Type',
             'value' => match($this->model()->getTypeEnum()) {
                 SiteConfigurationType::Boolean => BrowseColumnCheck::make('Value'),
                 default => 'Value',
