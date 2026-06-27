@@ -20,6 +20,7 @@ class BrowseColumnImage extends BrowseColumnBase
             ->setOptions([
                 'width' => $width,
                 'value' => is_string($imagePath) ? $imagePath : null,
+                'maxHeight' => 120,
             ]);
 
         // Set override render value callback
@@ -34,6 +35,7 @@ class BrowseColumnImage extends BrowseColumnBase
                 'src' => $value,
                 'class' => $browseColumnImage->getOption('imageClass') ?? ' border border-slate-400',
                 'aspect' => $browseColumnImage->getOption('aspect'),
+                'maxHeight' => $browseColumnImage->getOption('maxHeight'),
                 'hideIfEmpty' => true,
             ])->render();
 
@@ -55,6 +57,16 @@ class BrowseColumnImage extends BrowseColumnBase
         $this->options['aspect'] = $aspect;
 
         return $this;
+    }
+
+    /**
+     * Set the max-height of the image. Pass an int for pixels (e.g. 120) or a CSS
+     * value string (e.g. '8rem'). Pass null to remove the max-height constraint.
+     * The image always keeps its aspect ratio.
+     */
+    public function maxHeight(null|string|int $maxHeight): static
+    {
+        return $this->setOption('maxHeight', $maxHeight);
     }
 
     /**
