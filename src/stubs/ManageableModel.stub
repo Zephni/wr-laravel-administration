@@ -3,7 +3,6 @@
 namespace {{ $NAMESPACE }};
 
 use WebRegulate\LaravelAdministration\Classes\ManageableModel;
-use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 use WebRegulate\LaravelAdministration\Enums\ManageableModelPermissions;
 use WebRegulate\LaravelAdministration\Classes\BrowseColumns\BrowseColumn;
 use WebRegulate\LaravelAdministration\Classes\InstanceActions\InstanceActionRestore;
@@ -13,6 +12,7 @@ use WebRegulate\LaravelAdministration\Classes\InstanceActions\InstanceActionDupl
 use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItemBrowse;
 use WebRegulate\LaravelAdministration\Classes\NavigationItems\NavigationItemCreate;
 use WebRegulate\LaravelAdministration\Classes\ManageableFields\Text;
+use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 
 class {{ $MODEL }} extends ManageableModel
 {
@@ -59,7 +59,7 @@ class {{ $MODEL }} extends ManageableModel
         // Browse actions
         static::setBrowseActions(static::getDefaultBrowseActions());
 
-        // Enable multi selection
+        // Multi selection
         static::setMultiSelect(true);
 
         // Order by
@@ -72,9 +72,9 @@ class {{ $MODEL }} extends ManageableModel
     public final function getBrowseColumns(): array
     {
         return [
-            'id' => 'Id',
-            // 'name' => 'Name',
-            // 'something_else' => BrowseColumn::make('Something Else')->setOptions(['width' => '20%'])
+            'id' => BrowseColumn::make('ID'),
+            // 'name' => BrowseColumn::make('Name'),
+            // ...
         ];
     }
 

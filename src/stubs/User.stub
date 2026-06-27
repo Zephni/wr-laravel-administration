@@ -9,6 +9,7 @@ use WebRegulate\LaravelAdministration\Classes\ManageableModel;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 use WebRegulate\LaravelAdministration\Enums\PageType;
 use WebRegulate\LaravelAdministration\Enums\ManageableModelPermissions;
+use WebRegulate\LaravelAdministration\Classes\BrowseColumns\BrowseColumn;
 use WebRegulate\LaravelAdministration\Classes\BrowseColumns\BrowseColumnImage;
 use WebRegulate\LaravelAdministration\Classes\BrowseColumns\BrowseColumnCheck;
 use WebRegulate\LaravelAdministration\Classes\InstanceActions\InstanceActionRestore;
@@ -99,9 +100,9 @@ class User extends ManageableModel
     {
         return [
             'wrlaUserData.avatar' => BrowseColumnImage::make('Avatar', $this->model()->wrlaUserData?->getProfileAvatar(), 80)->imageClass('rounded-full')->aspect('1/1'),
-            'name' => 'Name',
-            'email' => 'Email',
-            'created_at' => 'Created',
+            'name' => BrowseColumn::make('Name'),
+            'email' => BrowseColumn::make('Email'),
+            'created_at' => BrowseColumn::make('Created'),
             'wrlaUserData.permissions->admin' => BrowseColumnCheck::make('Admin'),
         ];
     }
@@ -111,7 +112,7 @@ class User extends ManageableModel
      */
     public final function getInstanceActions(): array
     {
-        // Get user model and user data
+        // Get user model and instance user data
         $model = $this->model();
         $wrlaUserData = $model->wrlaUserData;
 
@@ -145,8 +146,8 @@ class User extends ManageableModel
      */
     public final function getManageableFields(): array
     {
-        $currentUserData = WRLAHelper::getCurrentUserData();
         $modelInstance = $this->model();
+        $currentUserData = WRLAHelper::getCurrentUserData();
 
         return [
             Heading::make('User Information', 'fas fa-info-circle'),
