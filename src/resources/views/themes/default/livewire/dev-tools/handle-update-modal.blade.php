@@ -71,7 +71,7 @@
                 <button wire:click="runComposerOnly" wire:loading.attr="disabled" wire:target="runComposerOnly"
                     @disabled($running) class="whitespace-nowrap disabled:opacity-50 text-xs text-slate-400 hover:text-slate-200 transition-colors">
                     <span wire:loading.remove wire:target="runComposerOnly">
-                        <i class="fa-solid fa-box"></i> Composer update only
+                        <i class="fa-solid fa-box mr-1.5"></i> Composer update only
                     </span>
                     <span wire:loading wire:target="runComposerOnly"><i class="fa-solid fa-hourglass animate-spin inline-block"></i> Running...</span>
                 </button>
