@@ -11,7 +11,11 @@
                 @php
                     $versionHandlerClass = \WebRegulate\LaravelAdministration\Classes\VersionHandler\VersionHandler::class;
                     $localComposerVersion = $versionHandlerClass::$localPackageCurrentVersion;
-                    $updateAvailable = $versionHandlerClass::isRemoteUpdateAvailable() || $versionHandlerClass::pendingUpdatesAvailable();
+                    // Use the exact same sources of truth as the update modal so the header and
+                    // modal can never disagree: major = pending version migrations, minor = a
+                    // composer update would pull a newer commit reference.
+                    $updateAvailable = $versionHandlerClass::pendingUpdatesAvailable()
+                        || $versionHandlerClass::isComposerUpdateAvailable() === true;
                 @endphp
                 <button type="button"
                     onclick="window.loadLivewireModal(this, 'dev-tools.handle-update-modal')"
