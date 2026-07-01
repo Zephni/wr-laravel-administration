@@ -10,14 +10,14 @@
     :class="(leftPanelOpen ? 'min-w-44 max-w-[100%] ' : 'min-w-0 max-w-0 border-none ') + (!dragging ? 'transition-all' : '')"
     id="left-panel"
     style="z-index: 6;"
-    class="sticky whitespace-nowrap md:flex top-0 flex flex-col justify-start items-start h-full border-r-2 border-slate-300 dark:border-slate-950 bg-slate-700 dark:bg-slate-700 shadow-lg shadow-slate-500 dark:shadow-slate-950 z-10">
+    class="wrla-sidebar">
 
     {{-- Collapse button (Use collapse icon from fontawesome) --}}
     <button
         @click="leftPanelOpen = !leftPanelOpen; dragging = false;"
         x-bind:style="leftPanelOpen ? 'right: 0;' : 'right: -28px;'"
         x-bind:class="leftPanelOpen ? 'rounded-bl border-l' : 'rounded-br border-r';"
-        class="absolute z-10 top-0 pt-1 w-7 h-[34px] opacity-60 text-sm flex justify-center items-center border-b bg-slate-800 text-slate-400 shadow-md dark:shadow-slate-900 dark:border-slate-400 cursor-pointer">
+        class="wrla-sidebar-collapse-btn">
         <div class="relative">
             <i x-bind:class="{'fas fa-chevron-left': leftPanelOpen, 'fas fa-chevron-right': !leftPanelOpen}" class="relative -top-0.5"></i>
         </div>
@@ -26,7 +26,7 @@
     {{-- Resize bar --}}
     <div
         :class="leftPanelOpen ? 'cursor-ew-resize' : 'hidden cursor-auto';"
-        class="absolute top-0 -right-1 h-full w-[4px] bg-slate-400 dark:bg-slate-800 border-r border-slate-400 dark:border-slate-500"
+        class="wrla-sidebar-resize-bar"
         @mousedown="$event.preventDefault(); if(leftPanelOpen && !dragging){ startX = $event.clientX; dragging = true; }"
         @mousemove.window="() => {
             // If window width lower than mobile, set width to window width
@@ -53,18 +53,18 @@
 
     {{-- Logo --}}
     <div class="w-full">
-        <div class="w-3/4 max-w-48 mx-auto pt-4 pb-4">
+        <div class="wrla-sidebar-logo">
             {{-- <img src="{{ asset(config('wr-laravel-administration.logo.light')) }}" title="Light Logo" alt="Light Logo" class="dark:hidden w-full" /> --}}
             <img src="{{ asset(config('wr-laravel-administration.logo.dark')) }}" title="Dark Logo" alt="Dark Logo" class="w-full" />
         </div>
     </div>
 
     {{-- Divider --}}
-    <div class="w-full border-t border-slate-700"></div>
+    <div class="wrla-sidebar-divider"></div>
 
     {{-- Impersonating user bar --}}
     @if($WRLAHelper::isImpersonatingUser())
-        <div class="w-full px-5 pt-2 pb-3 bg-slate-850 text-slate-200 overflow-hidden text-sm border-b border-slate-600">
+        <div class="wrla-sidebar-impersonate-bar">
             <a href="{{ route('wrla.impersonate.switch-back') }}" class="text-primary-500">
                 <i class="fa fa-key mr-1"></i>
                 Switch back
@@ -76,7 +76,7 @@
     {{-- Profile avatar and logged in info --}}
     <div
         :class="leftPanelOpen ? 'flex' : 'hidden';"
-        class="flex w-full justify-start items-center gap-4 px-5 py-4 bg-slate-800 text-slate-200 overflow-hidden">
+        class="wrla-sidebar-profile">
         <div class="w-full min-w-14 max-w-16">
             @themeComponent('forced-aspect-image', [
                 'src' => $user->wrlaUserData?->getProfileAvatar(),
@@ -101,10 +101,10 @@
     </div>
 
     {{-- Overflow Y scroll area --}}
-    <div class="flex flex-col justify-start items-start w-full h-full overflow-y-auto">
+    <div class="wrla-sidebar-scroll">
 
         {{-- Navigation --}}
-        <div class="flex flex-col gap-1 w-full pb-0.5 border-t border-slate-600 select-none">
+        <div class="wrla-nav-container">
             @include('wr-laravel-administration::themes.default.layouts.partials.partial-navigation')
         </div>
 

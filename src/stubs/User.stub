@@ -68,12 +68,11 @@ class User extends ManageableModel
                     'non_admins_only' => 'Non admins only',
                 ])
                 ->browseFilterApply(function(Builder $query, $table, $columns, $value) {
-                    if($value == 'admins_only') return $query->where('permissions->admin', true);
-                    else if($value == 'non_admins_only') return $query->where(function($query) {
-                        $query->whereNull('permissions->admin')->orWhere('permissions->admin', false);
-                    });
-
-                    return $query;
+                    return match($value) {
+                        'admins_only' => $query->where('permissions->admin', true),
+                        'non_admins_only' => $query->where(fn($query) => $query->whereNull('permissions->admin')->orWhere('permissions->admin', false)),
+                        default => $query,
+                    };
                 }),
 
             static::getBrowseFilterSearch(),

@@ -14,6 +14,9 @@
     };
 </script>
 
+{{-- WRLA semantic CSS classes (wrla-*) — processed by Tailwind CDN, no publishing needed --}}
+@include('wr-laravel-administration::themes.default.layouts.partials.partial-styles')
+
 {{-- Custom JS  --}}
 <script>
     window.wrla = {
