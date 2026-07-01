@@ -105,13 +105,13 @@
                 <div>
                     <button type="button" class="ml-auto text-xs text-slate-500 dark:text-slate-300 hover:underline" wire:click="$set('wrlaSelectedIds', [])">
                         <i class="fas fa-times mr-1"></i>
-                        Clear selection
+                        Clear multi selection
                     </button>
                 </div>
 
                 {{-- Right --}}
-                <div>
-                    <span class="text-sm text-slate-600 dark:text-slate-300">
+                <div class="flex flex-row flex-wrap items-center gap-2">
+                    <span class="mr-1 text-sm text-slate-600 dark:text-slate-300">
                         {{ count($wrlaSelectedIds) }} selected
                     </span>
                     @foreach ($wrlaMultiActions as $wrlaMultiAction)
