@@ -103,7 +103,7 @@
             <div class="flex flex-row flex-wrap justify-between items-center gap-3 w-full rounded-lg px-3 py-2 bg-slate-100 shadow-md dark:bg-slate-800" wire:loading.remove wire:target="wrlaSelectedIds,callMultiInstanceAction">
                 {{-- Left --}}
                 <div>
-                    <button type="button" class="ml-auto text-xs text-slate-500 dark:text-slate-300 hover:underline" wire:click="$set('wrlaSelectedIds', [])">
+                    <button type="button" class="ml-auto text-sm text-slate-500 dark:text-slate-300 hover:underline" wire:click="$set('wrlaSelectedIds', [])">
                         <i class="fas fa-times mr-1"></i>
                         Clear multi selection
                     </button>
