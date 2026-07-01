@@ -287,7 +287,7 @@ class InstanceAction
     {
         // General escaping for JavaScript string
         $message = addslashes($message);
-        $defaultJs = is_null($default) ? 'null' : '`'.addslashes($default).'`';
+        $defaultJs = is_null($default) ? "''" : '`'.addslashes($default).'`';
 
         $allowEmptyJs = $allowEmpty ? 'true' : 'false';
 
