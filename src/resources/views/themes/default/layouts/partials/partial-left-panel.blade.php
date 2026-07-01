@@ -51,62 +51,68 @@
         @mouseup.window="dragging = false;"
     ></div>
 
-    {{-- Logo --}}
-    <div class="w-full">
-        <div class="wrla-sidebar-logo">
-            {{-- <img src="{{ asset(config('wr-laravel-administration.logo.light')) }}" title="Light Logo" alt="Light Logo" class="dark:hidden w-full" /> --}}
-            <img src="{{ asset(config('wr-laravel-administration.logo.dark')) }}" title="Dark Logo" alt="Dark Logo" class="w-full" />
-        </div>
-    </div>
+    {{-- Inner content wrapper: clips flow children when the sidebar is collapsed
+         (max-w-0) so nothing bleeds out beside the collapse button. The button
+         and resize bar are absolutely positioned siblings and remain unaffected. --}}
+    <div class="flex flex-col justify-start items-start w-full h-full overflow-hidden">
 
-    {{-- Divider --}}
-    <div class="wrla-sidebar-divider"></div>
-
-    {{-- Impersonating user bar --}}
-    @if($WRLAHelper::isImpersonatingUser())
-        <div class="wrla-sidebar-impersonate-bar">
-            <a href="{{ route('wrla.impersonate.switch-back') }}" class="text-primary-500">
-                <i class="fa fa-key mr-1"></i>
-                Switch back
-            </a>
-            to {{ $WRLAHelper::getImpersonatingOriginalUser()->name }}
-        </div>
-    @endif
-
-    {{-- Profile avatar and logged in info --}}
-    <div
-        :class="leftPanelOpen ? 'flex' : 'hidden';"
-        class="wrla-sidebar-profile">
-        <div class="w-full min-w-14 max-w-16">
-            @themeComponent('forced-aspect-image', [
-                'src' => $user->wrlaUserData?->getProfileAvatar(),
-                'class' => 'rounded-full !border-slate-600',
-                'aspect' => '1/1',
-            ])
-        </div>
-        <div class="flex flex-col text-sm">
-            <div class="flex flex-col pb-1">
-                <span class="text-sm">{{ $user->wrlaUserData?->getFullName() }}</span>
-                <span class="text-xs font-semibold text-slate-400">{{ $user->wrlaUserData?->getRole() }}</span>
+        {{-- Logo --}}
+        <div class="w-full">
+            <div class="wrla-sidebar-logo">
+                {{-- <img src="{{ asset(config('wr-laravel-administration.logo.light')) }}" title="Light Logo" alt="Light Logo" class="dark:hidden w-full" /> --}}
+                <img src="{{ asset(config('wr-laravel-administration.logo.dark')) }}" title="Dark Logo" alt="Dark Logo" class="w-full" />
             </div>
-            <span class="flex justify-start items-center gap-2 text-xs">
-                <i class="fa fa-circle text-primary-500" style="font-size: 8px;"></i>
-                <div class="flex gap-2">
-                    <span class="text-slate-300">Online</span>
-                    <span class="text-slate-400">|</span>
-                    <a href="{{ route('wrla.logout') }}" class="text-primary-500">Logout</a>
+        </div>
+
+        {{-- Divider --}}
+        <div class="wrla-sidebar-divider"></div>
+
+        {{-- Impersonating user bar --}}
+        @if($WRLAHelper::isImpersonatingUser())
+            <div class="wrla-sidebar-impersonate-bar">
+                <a href="{{ route('wrla.impersonate.switch-back') }}" class="text-primary-500">
+                    <i class="fa fa-key mr-1"></i>
+                    Switch back
+                </a>
+                to {{ $WRLAHelper::getImpersonatingOriginalUser()->name }}
+            </div>
+        @endif
+
+        {{-- Profile avatar and logged in info --}}
+        <div
+            :class="leftPanelOpen ? 'flex' : 'hidden';"
+            class="wrla-sidebar-profile">
+            <div class="w-full min-w-14 max-w-16">
+                @themeComponent('forced-aspect-image', [
+                    'src' => $user->wrlaUserData?->getProfileAvatar(),
+                    'class' => 'rounded-full !border-slate-600',
+                    'aspect' => '1/1',
+                ])
+            </div>
+            <div class="flex flex-col text-sm">
+                <div class="flex flex-col pb-1">
+                    <span class="text-sm">{{ $user->wrlaUserData?->getFullName() }}</span>
+                    <span class="text-xs font-semibold text-slate-400">{{ $user->wrlaUserData?->getRole() }}</span>
                 </div>
-            </span>
+                <span class="flex justify-start items-center gap-2 text-xs">
+                    <i class="fa fa-circle text-primary-500" style="font-size: 8px;"></i>
+                    <div class="flex gap-2">
+                        <span class="text-slate-300">Online</span>
+                        <span class="text-slate-400">|</span>
+                        <a href="{{ route('wrla.logout') }}" class="text-primary-500">Logout</a>
+                    </div>
+                </span>
+            </div>
         </div>
-    </div>
 
-    {{-- Overflow Y scroll area --}}
-    <div class="wrla-sidebar-scroll">
+        {{-- Overflow Y scroll area --}}
+        <div class="wrla-sidebar-scroll">
 
-        {{-- Navigation --}}
-        <div class="wrla-nav-container">
-            @include('wr-laravel-administration::themes.default.layouts.partials.partial-navigation')
+            {{-- Navigation --}}
+            <div class="wrla-nav-container">
+                @include('wr-laravel-administration::themes.default.layouts.partials.partial-navigation')
+            </div>
+
         </div>
-
     </div>
 </div>
