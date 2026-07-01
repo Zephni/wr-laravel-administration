@@ -13,7 +13,7 @@ class UpdateCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'wrla:update';
+    protected $signature = 'wrla:update {--composer-only : Only run composer update (and optimize:clear), skipping version migrations.}';
 
     /**
      * The console command description.
@@ -29,8 +29,16 @@ class UpdateCommand extends Command
      */
     public function handle()
     {
-        // Instantiate VersionHandler with a console context and run updates
         $versionHandler = new VersionHandler(new ConsoleVersionUpdateContext($this));
+
+        if ($this->option('composer-only')) {
+            if ($versionHandler->runComposerUpdate()) {
+                $versionHandler->runOptimizeClear();
+            }
+
+            return 0;
+        }
+
         $versionHandler->runUpdates();
 
         return 0;

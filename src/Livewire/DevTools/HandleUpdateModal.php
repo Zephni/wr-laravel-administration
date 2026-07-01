@@ -3,11 +3,11 @@
 namespace WebRegulate\LaravelAdministration\Livewire\DevTools;
 
 use LivewireUI\Modal\ModalComponent;
-use Throwable;
 use WebRegulate\LaravelAdministration\Classes\VersionHandler\BackgroundUpdateProcess;
 use WebRegulate\LaravelAdministration\Classes\VersionHandler\VersionHandler;
 use WebRegulate\LaravelAdministration\Classes\VersionHandler\WebVersionUpdateContext;
 use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
+use Throwable;
 
 class HandleUpdateModal extends ModalComponent
 {
@@ -131,12 +131,12 @@ class HandleUpdateModal extends ModalComponent
 
         $this->mode === 'blocking'
             ? $this->runBlocking()
-            : $this->runLive();
+            : $this->runLive('wrla:update --no-interaction');
     }
 
     /**
-     * Run composer update only — no version migrations.
-     * Always runs in blocking mode since there is no dedicated artisan command for it.
+     * Run composer update only — no version migrations. Uses the same live/blocking
+     * pipeline as {@see runCommand()} so its output streams identically.
      */
     public function runComposerOnly(): void
     {
@@ -146,28 +146,11 @@ class HandleUpdateModal extends ModalComponent
             return;
         }
 
-        @set_time_limit(0);
-        $this->running = true;
         $this->updateCompleted = false;
-        $context = new WebVersionUpdateContext();
 
-        try {
-            $versionHandler = new VersionHandler($context);
-            $success = $versionHandler->runComposerUpdate();
-            if ($success) {
-                $versionHandler->runOptimizeClear();
-                $context->info('Composer update completed successfully.');
-            }
-        } catch (Throwable $e) {
-            $context->error($e->getMessage());
-        }
-
-        $this->consoleOutput = $this->stripAnsi($context->getOutput());
-        $this->running = false;
-        $this->updateCompleted = true;
-
-        // Re-check so the in-sync / update-available hint reflects the new state.
-        $this->composerUpdateAvailable = VersionHandler::isComposerUpdateAvailable();
+        $this->mode === 'blocking'
+            ? $this->runBlockingComposerOnly()
+            : $this->runLive('wrla:update --composer-only --no-interaction');
     }
 
     /**
@@ -183,7 +166,7 @@ class HandleUpdateModal extends ModalComponent
 
         try {
             (new VersionHandler($context))->runUpdates();
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $context->error($e->getMessage());
         }
 
@@ -197,26 +180,59 @@ class HandleUpdateModal extends ModalComponent
     }
 
     /**
-     * Live mode: spawn `wrla:update` as a detached background process that streams its
-     * output to a log file. The modal then polls that file via pollOutput().
+     * Live mode: spawn the given artisan command as a detached background process that
+     * streams its output to a log file. The modal then polls that file via pollOutput().
      */
-    protected function runLive(): void
+    protected function runLive(string $artisanArgs): void
     {
         try {
             (new BackgroundUpdateProcess())->start(
                 $this->logPath(),
                 self::DONE_MARKER,
-                'wrla:update --no-interaction'
+                $artisanArgs
             );
 
             $this->running = true;
             $this->consoleOutput = 'Starting update...' . PHP_EOL;
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             // Could not launch a background process on this host: fall back to blocking mode.
             $this->consoleOutput = 'Could not start background update (' . $e->getMessage() . ')' . PHP_EOL
                 . 'Falling back to blocking mode...' . PHP_EOL;
-            $this->runBlocking();
+
+            str_contains($artisanArgs, '--composer-only')
+                ? $this->runBlockingComposerOnly()
+                : $this->runBlocking();
         }
+    }
+
+    /**
+     * Blocking-mode equivalent of {@see runComposerOnly()}: runs composer update (and
+     * optimize:clear on success) synchronously and shows the output once finished.
+     */
+    protected function runBlockingComposerOnly(): void
+    {
+        @set_time_limit(0);
+
+        $this->running = true;
+
+        $context = new WebVersionUpdateContext();
+
+        try {
+            $versionHandler = new VersionHandler($context);
+            if ($versionHandler->runComposerUpdate()) {
+                $versionHandler->runOptimizeClear();
+                $context->info('Composer update completed successfully.');
+            }
+        } catch (Throwable $e) {
+            $context->error($e->getMessage());
+        }
+
+        $this->consoleOutput .= $this->stripAnsi($context->getOutput());
+        $this->running = false;
+        $this->updateCompleted = true;
+
+        // Re-check so the in-sync / update-available hint reflects the new state.
+        $this->composerUpdateAvailable = VersionHandler::isComposerUpdateAvailable();
     }
 
     /**
@@ -243,6 +259,7 @@ class HandleUpdateModal extends ModalComponent
 
             // Refresh pending state now the background update has finished
             $this->updatesAvailable = (new VersionHandler(new WebVersionUpdateContext()))->hasPendingUpdates();
+            $this->composerUpdateAvailable = VersionHandler::isComposerUpdateAvailable();
         }
 
         $this->consoleOutput = $this->stripAnsi($output);
