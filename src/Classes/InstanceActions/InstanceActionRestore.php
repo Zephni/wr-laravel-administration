@@ -4,6 +4,7 @@ namespace WebRegulate\LaravelAdministration\Classes\InstanceActions;
 
 use WebRegulate\LaravelAdministration\Classes\InstanceAction;
 use WebRegulate\LaravelAdministration\Classes\ManageableModel;
+use WebRegulate\LaravelAdministration\Classes\WRLAHelper;
 use WebRegulate\LaravelAdministration\Enums\ManageableModelPermissions;
 
 class InstanceActionRestore
@@ -25,6 +26,11 @@ class InstanceActionRestore
                 $manageableModelClass = $manageableModel::class;
                 $baseModelClass = $manageableModelClass::getStaticOption($manageableModelClass, 'baseModelClass');
 
+                // Restore only applies to soft deletable models
+                if (! WRLAHelper::isSoftDeletable($baseModelClass)) {
+                    return false;
+                }
+
                 return $baseModelClass::withTrashed()
                     ->whereIn($baseModelClass::make()->getKeyName(), array_map('intval', $ids))
                     ->get()
@@ -44,6 +50,11 @@ class InstanceActionRestore
 
                 $manageableModelClass = $manageableModel::class;
                 $baseModelClass = $manageableModelClass::getStaticOption($manageableModelClass, 'baseModelClass');
+
+                // Restore only applies to soft deletable models
+                if (! WRLAHelper::isSoftDeletable($baseModelClass)) {
+                    return 'These items cannot be restored.';
+                }
 
                 foreach ($ids as $id) {
                     $model = $baseModelClass::withTrashed()->find((int) $id);
