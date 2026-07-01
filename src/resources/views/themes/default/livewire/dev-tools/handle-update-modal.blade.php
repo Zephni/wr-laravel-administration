@@ -16,7 +16,10 @@
         <h3 class="text-lg font-semibold mb-2 flex items-center gap-2">
             Console Output:
             @if($running)
-                <span class="inline-flex items-center gap-2 text-amber-400 text-sm font-normal"><i class="fa-solid fa-hourglass fa-spin"></i> running...</span>
+                <span class="inline-flex items-center gap-2 text-amber-400 text-sm font-normal">
+                    <i class="fa-solid fa-hourglass fa-spin"></i>
+                    <span>Update running...</span>
+                </span>
             @endif
         </h3>
         <div x-data="{
@@ -55,7 +58,8 @@
                             @disabled($running) class="whitespace-nowrap disabled:opacity-50">
                             <span wire:loading.remove wire:target="runCommand" class="inline-flex items-center gap-2">
                                 @if($running)
-                                    <i class="fa-solid fa-hourglass fa-spin"></i> Running...
+                                    <i class="fa-solid fa-hourglass fa-spin"></i>
+                                    <span>Update running...</span>
                                 @else
                                     ✅ Run major / breaking updates
                                 @endif
@@ -83,7 +87,10 @@
                             <span wire:loading.remove wire:target="runComposerOnly" class="inline-flex items-center gap-2">
                                 <i class="fa-solid fa-box"></i> Package not up to date, minor changes available — run composer update
                             </span>
-                            <span wire:loading wire:target="runComposerOnly" class="inline-flex items-center gap-2"><i class="fa-solid fa-hourglass animate-spin"></i> Running...</span>
+                            <span wire:loading wire:target="runComposerOnly" class="inline-flex items-center gap-2">
+                                <i class="fa-solid fa-hourglass animate-spin"></i>
+                                <span>Update running...</span>
+                            </span>
                         </button>
                     @elseif($composerUpdateAvailable === false)
                         <span class="inline-flex items-center gap-2 text-emerald-400 text-sm"><i class="fa-solid fa-circle-check"></i> Composer is up to date.</span>
