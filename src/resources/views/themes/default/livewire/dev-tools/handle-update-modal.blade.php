@@ -17,7 +17,7 @@
             Console Output:
             @if($running)
                 <span class="inline-flex items-center text-amber-400 text-sm font-normal">
-                    <div class="mr-2"><i class="fa-solid fa-hourglass animate-spin"></i></div>
+                    <span class="mr-2"><i class="fa-solid fa-hourglass animate-spin"></i></span>
                     <span class="font-medium">Update running...</span>
                 </span>
             @endif
@@ -58,7 +58,7 @@
                             @disabled($running) class="whitespace-nowrap disabled:opacity-50">
                             <span wire:loading.remove wire:target="runCommand" class="inline-flex items-center">
                                 @if($running)
-                                    <div class="mr-2"><i class="fa-solid fa-hourglass animate-spin"></i></div>
+                                    <span class="mr-2"><i class="fa-solid fa-hourglass animate-spin"></i></span>
                                     <span class="font-medium">Update running...</span>
                                 @else
                                     ✅ Run major / breaking updates
@@ -88,7 +88,7 @@
                                 <i class="fa-solid fa-box"></i> Package not up to date, minor changes available — run composer update
                             </span>
                             <span wire:loading wire:target="runComposerOnly" class="inline-flex items-center">
-                                <div class="mr-2"><i class="fa-solid fa-hourglass animate-spin"></i></div>
+                                <span class="mr-2"><i class="fa-solid fa-hourglass animate-spin"></i></span>
                                 <span class="font-medium">Update running...</span>
                             </span>
                         </button>

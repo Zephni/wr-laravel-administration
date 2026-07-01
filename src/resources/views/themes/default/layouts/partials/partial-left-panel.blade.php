@@ -51,9 +51,7 @@
         @mouseup.window="dragging = false;"
     ></div>
 
-    {{-- Inner content wrapper: clips flow children when the sidebar is collapsed
-         (max-w-0) so nothing bleeds out beside the collapse button. The button
-         and resize bar are absolutely positioned siblings and remain unaffected. --}}
+    {{-- Inner content wrapper --}}
     <div class="flex flex-col justify-start items-start w-full h-full overflow-hidden">
 
         {{-- Logo --}}
