@@ -1401,6 +1401,11 @@ abstract class ManageableModel
             // Check whether column exists on this model's table
             $columnExistsInSchema = WRLAHelper::modelTableHasColumn($this->model(), $fieldName);
 
+            // Whether the model can persist this field either via a real column
+            // or a set mutator (classic setXAttribute() or modern Attribute).
+            $modelCanPersistField = $columnExistsInSchema
+                || WRLAHelper::modelHasSetMutator($this->model(), $fieldName);
+
             // TODO: COME BACK TO DEBUG THIS, AS RELATIONSHIP JSON DOES NOT YET WORK
             // if(str_starts_with($fieldName, 'wrlaUserData__WRLA::REL::DOT__settings')) {
             //     dd(
@@ -1412,7 +1417,7 @@ abstract class ManageableModel
 
             // If doesn't exist on model instance and not a relationship, we just call apply submitted value final on it,
             // this is because the developer may need to run some logic seperate to the model instance
-            if (!$columnExistsInSchema && !$isRelationshipField && !$isUsingNestedJson) {
+            if (!$modelCanPersistField && !$isRelationshipField && !$isUsingNestedJson) {
                 $manageableField->applySubmittedValueFinal($request, $formKeyValues[$fieldName]);
                 continue;
             }

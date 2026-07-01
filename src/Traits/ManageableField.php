@@ -170,8 +170,8 @@ trait ManageableField
         // Get whether column exists on this model's table
         $columnExistsInSchema = WRLAHelper::modelTableHasColumn($this->manageableModel->model(), $name);
 
-        // If attribute still does not exist, return
-        if(!$columnExistsInSchema) return;
+        // If attribute is neither a real column nor a set-mutator attribute, return
+        if(!$columnExistsInSchema && !WRLAHelper::modelHasSetMutator($this->manageableModel->model(), $name)) return;
 
         // Set manageable model property value
         $this->manageableModel->model()->setAttribute($name, $this->getValue());

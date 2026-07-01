@@ -1691,6 +1691,27 @@ class WRLAHelper
     }
 
     /**
+     * Model has a set mutator for the given attribute (classic setXAttribute()
+     * or modern Attribute::make(set: ...) style).
+     */
+    public static function modelHasSetMutator(Model $model, string $attribute): bool
+    {
+        return $model->hasSetMutator($attribute)
+            || $model->hasAttributeSetMutator($attribute);
+    }
+
+    /**
+     * Whether a submitted field value can be persisted onto the model, either
+     * because it maps to a real table column or because the model defines a set
+     * mutator (classic or modern Attribute) for it.
+     */
+    public static function modelCanPersistAttribute(Model $model, string $attribute): bool
+    {
+        return static::modelTableHasColumn($model, $attribute)
+            || static::modelHasSetMutator($model, $attribute);
+    }
+
+    /**
      * Build log channel on the fly
      */
     public static function getLogChannel(string $key): ?LoggerInterface
